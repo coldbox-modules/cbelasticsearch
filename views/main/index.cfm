@@ -1,0 +1,1 @@
+<cfoutput>Hola!</cfoutput>
