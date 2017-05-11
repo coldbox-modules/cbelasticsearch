@@ -1,7 +1,20 @@
+/**
+*
+* Elasticsearch Index Builder Object
+* 
+* @package cbElasticsearch.models
+* @author Jon Clausen <jclausen@ortussolutions.com>
+* @license Apache v2.0 <http://www.apache.org/licenses/>
+* 
+*/
 component 
 	accessors="true"
 {
-	property name="configObject" inject="Config@cbElasticsearch";
+	// The name of our index
+	property name="indexName";
+
+	// The type declaration of our index - used for mapping
+	property name="type";
 
 	// All of our index settings ( i.e. shards, replicas, etc )
 	property name="settings";
@@ -11,18 +24,121 @@ component
 	
 
 	function onDIComplete(){
+		reset();
+	}
+
+	function reset(){
+		
 		variables.settings = {
-			"number_of_shards"   : variables.configObject.get( "defaultIndexShards" ),
-			"number_of_replicas" : veriables.configObject.get( "defaultIndexReplicas" )
+			"number_of_shards"   : javacast( "integer", getConfig().get( "defaultIndexShards" ) ),
+			"number_of_replicas" : javacast( "integer", getConfig().get( "defaultIndexReplicas" ) )
 		};
-		variables.mappings = {}
+
+		variables.mappings 	= {};
+		
+		variables.indexName = getConfig().get( "defaultIndex" );
+		
+		var nullDefaults = [ "settings" ]
+		
+		for( var default in nullDefaults ){
+			if( !isNull( variables[ default ] ) ){
+				variables[ default ] = javacast( "null", 0 );
+			}
+		}
 	}
 
-	IndexBuilder function new( required string name, struct properties){
+	/**
+	* Config provider
+	**/
+	Config function getConfig() provider="Config@cbElasticsearch"{}
 
+	/**
+	* Client provider
+	**/
+	Client function getClient() provider="Client@cbElasticsearch"{}
+
+	/**
+	* Persists the document to Elasticsearch
+	**/
+	function save(){
+		return getClient().applyIndex( this );
 	}
 
-	IndexBuilder function param( required string name, required any value, type ){}
+	/**
+	* Deletes the index named in the configured builder
+	**/
+	function delete(){
+		return getClient().deleteIndex( this.getIndexName() );
+	}
+
+	IndexBuilder function new( string name, struct properties){
+
+		reset();
+
+		if( !isNull( arguments.name ) ){		
+			
+			variables.indexName = arguments.name;
+		
+		}
+
+		if( !isNull( arguments.properties ) ){
+			
+			for( var propName in arguments.properties ){
+				switch( propName ){
+					case "settings":{
+						variables.settings = arguments.properties[ propName ];
+						//ensure we cast our keys properly
+						if( structKeyExists( variables.settings, "number_of_shards" ) ){
+							variables.settings.number_of_shards = javacast( "integer", variables.settings.number_of_shards );
+						}
+						if( structKeyExists( variables.settings, "number_of_replicas" ) ){
+							variables.settings.number_of_replicas = javacast( "integer", variables.settings.number_of_replicas );
+						}
+						break;
+					}
+					case "mappings":{
+						variables.mappings = arguments.properties[ propName ];
+						break;
+					}
+					//we assume they are mappings if we are unable to find explicit keys
+					default:{
+						variables.mappings[ propName ] = arguments.properties[ propName ];
+					}
+
+				}
+			}
+
+		}
+
+		return this;
+	}
+
+	struct function getDSL(){
+		var dsl = {};
+
+		if( !isNull( variables.settings ) ){
+			dsl[ "settings" ] = variables.settings
+		}
+
+		if( !isNull( variables.indexName ) ){
+			dsl[ "name" ] = variables.indexName;
+		}
+
+		if( !isNull( variables.type ) ){
+			dsl[ "type" ] = variables.type;
+		}
+
+		if( !isNull( variables.mappings ) && !structIsEmpty( variables.mappings ) ){
+			dsl[ "mappings" ] = variables.mappings;
+		}
+
+		return dsl;
+	}
+
+	string function getJSON(){
+
+		return serializeJSON( getDSL() );
+	}
 
 
 }

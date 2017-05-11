@@ -1,3 +1,12 @@
+/**
+*
+* Elasticsearch Search Builder Object
+* 
+* @package cbElasticsearch.models
+* @author Jon Clausen <jclausen@ortussolutions.com>
+* @license Apache v2.0 <http://www.apache.org/licenses/>
+* 
+*/
 component accessors="true" {
 
 	property name="configObject" inject="Config@cbElasticsearch";
@@ -28,7 +37,6 @@ component accessors="true" {
 	**/
 	property name="sorting";
 
-
 	/**
 	* Property containing an elasticsearch scripting dsl string
 	**/
@@ -43,12 +51,40 @@ component accessors="true" {
 	property name="maxRows";
 	property name="startRow";
 
+
 	function onDIComplete(){
 		
-		variables.matchType    	= "any";
+		reset();		
+		
+	}
+
+	function reset(){
+		
 		variables.index        	= variables.configObject.get( "defaultIndex" );
+		
+		var nullDefaults = [ "id","sorting","aggregations","script","maxRows","sortRows" ]
+		
+		//ensure defaults, in case we are re-using a search builder with new()
+		variables.matchType    	= "any";
 		variables.query 		= {};
 
+		for( var default in nullDefaults ){
+			if( !isNull( variables[ default ] ) ){
+				variables[ default ] = javacast( "null", 0 );
+			}
+		}
+	}
+
+	/**
+	* Client provider
+	**/
+	Client function getClient() provider="Client@cbElasticsearch"{}
+
+	/**
+	* Persists the document to Elasticsearch
+	**/
+	function execute(){
+		return getClient().executeSearch( this );
 	}
 	
 
@@ -63,6 +99,7 @@ component accessors="true" {
 		string type, 
 		struct properties 
 	){
+		reset();
 
 		if( !isNull( arguments.index ) ){
 			variables.index = arguments.index;
@@ -80,7 +117,13 @@ component accessors="true" {
 						
 					case "match":{
 
+						if( !structKeyExists( variables.query, "match" ) ){
+							variables.query[ "match" ] = {}
+						}
+
 						structAppend( variables.query.match, arguments.properties[ propName ] );					
+						
+						break;
 
 					}
 					case "aggregations":{
@@ -96,10 +139,14 @@ component accessors="true" {
 							aggregation( aggregationKey, arguments.properties[ propName ][ aggregationKey ] );
 						}
 
+						break;
+
 					}
 					case "sort":{
 
 						sort( arguments.properties[ propName ] );
+
+						break;
 
 					}
 					default:{
@@ -266,7 +313,7 @@ component accessors="true" {
 				arrayAppend( 
 					variables.sorting, 
 					{
-						"#directiveItems[ 1 ]#" : arrayLen( directiveItems ) > 1 ? lcase( directiveItems[ 2 ] ) : "asc"
+						"#directiveItems[ 1 ]#" : { "order" : arrayLen( directiveItems ) > 1 ? lcase( directiveItems[ 2 ] ) : "asc" }
 					} 
 				);
 
@@ -288,7 +335,7 @@ component accessors="true" {
 				arrayAppend( 
 					variables.sorting, 
 					{
-						"#sortKey#" : arguments.sort[ sortKey ]
+						"#sortKey#" : { "order"	: arguments.sort[ sortKey ] }
 					} 
 				);
 
@@ -324,7 +371,13 @@ component accessors="true" {
 		}
 
 		if( !isNull( variables.sorting ) ){
-			dsl[ "sort" ] = variables.sorting;
+
+			//we used a linked hashmap for sorting to maintain order
+			dsl[ "sort" ] = createObject( "java", "java.util.LinkedHashMap" ).init();
+
+			for( var sort in variables.sorting ){
+				dsl.sort.putAll( sort );
+			}
 		}
 
 		if( variables.matchType != 'any' ){

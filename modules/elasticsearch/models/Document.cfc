@@ -1,6 +1,12 @@
 /**
-* ElasticSearch Document Object
-**/
+*
+* Elasticsearch Document Object
+* 
+* @package cbElasticsearch.models
+* @author Jon Clausen <jclausen@ortussolutions.com>
+* @license Apache v2.0 <http://www.apache.org/licenses/>
+* 
+*/
 component 
 	accessors="true"
 {
@@ -19,18 +25,70 @@ component
 	**/
 	property name="id";
 	/**
+	* A hit score for documents in search results
+	**/
+	property name="score";
+	/**
 	* The structural representation of the document object
 	**/
-	property name="document";
+	property name="memento";
 
 	function onDIComplete(){
+		reset();
+	}
+
+	function reset(){
 
 		var configStruct = variables.config.getConfigStruct();
 		//set default document types
 		variables.index = configStruct.defaultIndex;
-		variables.type = structKeyExists( configStruct, "defaultType") ? configStruct.defaultType : "search_collection";
+		variables.type = structKeyExists( configStruct, "defaultType") ? configStruct.defaultType : javacast( "null", 0 );
+		variables.memento = {}
+
+		var nullDefaults = [ "id","score" ];
+
+		for( var nullDefault in nullDefaults ){
+			if( !isNull( variables[ nullDefault ] ) ){
+				variables[ nullDefault ] = javacast( "null", 0 );
+			}
+		}
 
 		return this;
+		
+	}
+
+	/**
+	* Client provider
+	**/
+	Client function getClient() provider="Client@cbElasticsearch"{}
+
+	/**
+	* Persists the document to Elasticsearch
+	**/
+	function save(){
+		return getClient().save( this );
+	}
+
+	function get( string id, string index, string type ){
+
+		if( !structIsEmpty( arguments ) ){
+			structAppend( variables, arguments, true );
+		}
+
+		if( isNull( variables.id ) ){
+			throw( 
+				type="cbElasticsearch.Document.MissingIdentifierException",
+				message="An `id` value must be provided in the method arguments or the variables scope to run the get() method"
+			);
+		}
+
+		var args = {
+			"index" : variables.index,
+			"type" : !isNull( variables.type ) ? variables.type : javacast( "null", 0 ),
+			"id" : variables.id
+		};
+
+		return getClient().get( argumentCollection=args );
 	}
 
 
@@ -40,30 +98,53 @@ component
 	* @type 		string 		the index type
 	* @properties 	struct 		the structural representation of the document
 	**/
-	public function new( 
-		required string index, 
-		required string type, 
+	public Document function new( 
+		string index, 
+		string type, 
 		struct properties={}
 	){
-		variables.index 	= arguments.index;
-		variables.type  	= arguments.type;
-		variables.document 	= arguments.properties;
+
+		reset();
+
+		if( structKeyExists( arguments, "index" ) ){
+			variables.index 	= arguments.index;	
+		}
+		
+		if( structKeyExists( arguments, "type" ) ){		
+			variables.type  	= arguments.type;	
+		}
+
+		//we need to duplicate so that we can remove any passed `_id` key
+		variables.memento 	= duplicate( arguments.properties );
+
+		if( structKeyExists( variables.memento, "_id" ) ){
+			variables.id = variables.memento[ "_id" ];
+			structDelete( variables.memento, "_id" );
+		}
+
+		return this;
 	}
 
 	/**
 	* Populates an existing document object
 	* @properties 	struct 		the structural representation of the document
 	**/
-	public function populate( 
+	public Document function populate( 
 		required struct properties
 	){
 
-		structAppend( variables.document, duplicate( arguments.properties ), true);
-		
-		if( structKeyExists( variables.document, "_id" ) ){
-			setId( variables.document[ "_id" ] );
-			structDelete( variables.document, "_id" );
+		if( isNull( variables.memento ) ){
+			variables.memento={}
 		}
+
+		structAppend( variables.memento, duplicate( arguments.properties ), true);
+		
+		if( structKeyExists( variables.memento, "_id" ) ){
+			setId( variables.memento[ "_id" ] );
+			structDelete( variables.memento, "_id" );
+		}
+
+		return this;
 
 	}
 
@@ -73,11 +154,11 @@ component
 	* @name 	string 		the key name
 	* @value 	string 		the key value
 	**/
-	public function set( 
+	public function setValue( 
 		required string name, 
-		required any value 
+		required any value
 	){
-		variables.document[ arguments.name ] = arguments.value;
+		variables.memento[ arguments.name ] = arguments.value;
 	}
 
 	/**
@@ -85,13 +166,34 @@ component
 	* @key 		string 		the key to search
 	* @return   any|null 	returns null if the key does not exist in the current document
 	**/
-	public any function get( 
-		required string key
+	public any function getValue( 
+		required string key,
+		any default
 	){
 		//null return if the key does not exist
-		if( !structKeyExists( variables.document, arguments.key ) ) return;
+		if( !structKeyExists( variables.memento, arguments.key ) && isNull( arguments.default ) ){
+			return;	
+		} else if( !structKeyExists( variables.memento, arguments.key ) && !isNull( arguments.default ) ){
+			return arguments.default;
+		} else {
+			return variables.memento[ arguments.key ];		
+		}
+	}
 
-		return variables.document[ arguments.key ];
+
+	/**
+	* Convenience method for a flattened struct of the memento
+	* @includeKey 	boolean 	Whether to include the document key in the returned packet
+	**/
+	public struct function getDocument( boolean includeKey=false ){
+		
+		var documentObject = duplicate( variables.memento );
+		
+		if( arguments.includeKey && !isNull( variables.id ) ){
+			documentObject[ "_id" ] = variables.id;
+		}
+
+		return documentObject;
 	}
 
 	/**
@@ -100,13 +202,7 @@ component
 	**/
 	public string function toString( boolean includeKey=false){
 
-		var documentObject = duplicate( variables.document );
-		
-		if( arguments.includeKey && !isNull( variables.id ) ){
-			documentObject[ "_id" ] = variables.id;
-		}
-
-		return serializeJSON( documentObject );
+		return serializeJSON( getDocument( argumentCollection=arguments ) );
 	}
 	
 }

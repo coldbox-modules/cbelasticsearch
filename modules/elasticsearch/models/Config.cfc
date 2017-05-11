@@ -14,10 +14,7 @@ component accessors="true"{
 	/**
 	* CBJavaloader
 	**/
-	property name="jLoader" inject="loader@cbjavaloader";
-	property name="wirebox" inject="wirebox";
 	property name="configStruct";
-	property name="nativeClient";
 
 	/**
 	* Constructor
@@ -29,16 +26,6 @@ component accessors="true"{
 
 	 	return this;
 
-	}
-
-	/**
-	* After init the autowire properties
-	**/
-	public function onDIComplete(){
-
-		variables.nativeClient = variables.wirebox.getInstance( configStruct.client );
-
-		return this;
 	}
 
 	/**

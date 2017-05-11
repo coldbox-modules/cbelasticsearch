@@ -1,52 +1,22 @@
-interface hint="The interface for all elasticsearch clients" {
-	
+/**
+*
+* Elasticsearch Native Client Interface
+* 
+* @singleton
+* @package cbElasticsearch.models
+* @author Jon Clausen <jclausen@ortussolutions.com>
+* @license Apache v2.0 <http://www.apache.org/licenses/>
+* 
+*/
+interface{
+
+
 	/**
-	* Closes any connections to an active pool - for REST-based clients, this will not be necessary
-	* 
+	* Closes any connections to the pool and destroys the client singleton
 	* @interfaced
 	**/
 	void function close(){}
 
-	/**
-	* Applies an index item
-	* @indexBuilder 	IndexBuilder 	An instance of the IndexBuilder object
-	* 
-	* @return 			iNativeClient 	An implementation of the iNativeClient
-	* @interfaced
-	**/
-	iNativeClient function applyIndex( required IndexBuilder indexBuilder ){}
-
-
-	/**
-	* Retrieves a document by ID
-	* @id 		any 		The document key
-	* @index 	string 		The name of the index
-	* @type 	type 		The name of the type
-	* @interfaced
-	**/
-	Document function get( 
-		required any id,
-		string index,
-		string type
-	){}
-
-	/**
-	* Persists an item to the index
-	* @document 		Document@cbElasticSearch 		An instance of the elasticsearch Document object
-	* 
-	* @return 			iNativeClient 					An implementation of the iNativeClient
-	* @interfaced
-	**/
-	iNativeClient function save( required Document document ){}
-
-	/**
-	* Persists an item to the index
-	* @documents 		array 					An array of elasticsearch Document objects to persist
-	* 
-	* @return 			iNativeClient 			An implementation of the iNativeClient
-	* @interfaced
-	**/
-	iNativeClient function saveAll( required array documents ){}
 
 	/**
 	* Execute a client search request
@@ -55,13 +25,94 @@ interface hint="The interface for all elasticsearch clients" {
 	* @return 			iNativeClient 	An implementation of the iNativeClient
 	* @interfaced
 	**/
-	any function executeSearch( required searchBuilder searchBuilder ){}
+	SearchResult function executeSearch( required searchBuilder searchBuilder ){}
 
 	/**
-	* Converts common client objects ( e.g. java object ) in to native CFML types
-	* @obj 		any 		The object to convert
+	* Verifies whether an index exists
+	* 
+	* @indexName 		string 		the name of the index
+	**/
+	boolean function indexExists( required string indexName ){}
+
+	/**
+	* Applies an index item ( create/update )
+	* @indexBuilder 	IndexBuilder 	An instance of the IndexBuilder object
+	* 
+	* @return 			struct 		A struct representation of the transaction result
 	* @interfaced
 	**/
-	any function toCFML( required any obj ){}
+	boolean function applyIndex( required IndexBuilder indexBuilder ){}
+
+	/**
+	* Deletes an index
+	* 
+	* @indexName 		string 		the name of the index to be deleted
+	* 
+	**/
+	struct function deleteIndex( required string indexName ){}
+
+
+	struct function applyMappings( required string indexName, required struct mappings ){}
+
+	/**
+	* Deletes a mapping
+	* 
+	* @indexName 		string 		the name of the index which contains the mapping
+	* @mapping 			string 		the mapping ( e.g. type ) to delete
+	* @throwOnError 	boolean	  	Whether to throw an error if the mapping could not be deleted ( default=false )
+	* 
+	* @return 			struct 		the deletion transaction response
+	**/
+	boolean function deleteMapping( required string indexName, required string mapping, boolean throwOnError=false ){}
+
+	/**
+	* Retrieves a document by ID
+	* @id 		any 		The document key
+	* @index 	string 		The name of the index
+	* @type 	type 		The name of the type
+	* @interfaced
+	* 
+	* @return 	any 		Returns a Document object if found, otherwise returns null
+	**/
+	any function get( 
+		required any id,
+		string index,
+		string type
+	){}
+
+	/**
+	* @document 		Document@cbElasticSearch 		An instance of the elasticsearch Document object
+	* 
+	* @return 			iNativeClient 					An implementation of the iNativeClient
+	* @interfaced
+	**/
+	Document function save( required Document document ){}
+
+	/**
+	* Deletes a single document
+	* @document 		Document 		the Document object for the document to be deleted
+	* @throwOnError 	boolean			whether to throw an error if the document cannot be deleted ( default: false )
+	**/
+	boolean function delete( required any document, boolean throwOnError=true ){}
+
+	/**
+	* Persists multiple items to the index
+	* @documents 		array 					An array of elasticsearch Document objects to persist
+	* 
+	* @return 			array					An array of results for the saved items
+	* @interfaced
+	**/
+	array function saveAll( required array documents ){}
+
+	/**
+	* Deletes documents from an array of documents or IDs
+	* @documents 	array 		Either an array of Document objects
+	* @throwOnError 	boolean			whether to throw an error if the document cannot be deleted ( default: false )
+	**/
+	any function deleteAll( 
+		required array documents, 
+		boolean throwOnError=false 
+	){}
+
 
 }
