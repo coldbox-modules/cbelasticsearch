@@ -1,38 +1,23 @@
-# Ortus Module Template
-This module template will allow you to have a test harness, build scripts, travis integration and automatic ForgeBox publishing for Ortus Modules.
+# Elasticsearch for the Coldbox Platform
+
+
 
 ## LICENSE
 Apache License, Version 2.0.
 
 
-INSTRUCTIONS
+Installation
 ============
 
-You will build your module under the `modules` folder.
+Via CommandBox:  `install elasticsearch`
 
-## Version Bumps
-When you are ready to release a new version of your module you can run the following command `bump --major --minor --patch`.
 
-This will bump the version in the root `box.json` but also the `.module.properties` file, commit it to the repo and it will be tagged.  This can then be pushed so the automated integrations can occur.
+Instructions
+============
 
-## Automated Test Suite
-We have provided an automated test suite in your `tests` folder. Spice up as needed.
+The elasticsearch module for the Coldbox Platform provides you with 
 
-## ANT Build
-The ANT build for this project is under `workbench/build.xml`. You can modify it as you see fit.
 
-## Travis Integration
-We have added Travis Integration for your module. Open the `.travis.yml` to spice it up.
-
-## Unified Workbench
-The module template leverages the Ortus Unified workbench for testing in all CFML engines and auto-publishing to ForgeBox.  Please update the following files for automatic builds and publishing:
-
-* `.module.properties`
-* `.travis.yml`
-
-## API Docs
-
-This template has the ability to generate API docs for your module. This is located in the `apidocs` folder.  All you need to do is open the `Application.cfc` and change the name of the `cbModule` placeholder to the name of your module.
 
 
 ********************************************************************************
