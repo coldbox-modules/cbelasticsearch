@@ -247,6 +247,9 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			it( "Tests the deleteAll() method", function(){
 
+				//sleep for 1.5 seconds to ensure our index is ready for a deleteAll
+				sleep( 1500 );
+
 				//insert some test documents
 				var searchBuilder = variables.model.new( 
 					variables.testIndexName,
@@ -256,7 +259,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 					}
 			 	);
 
-			 	expect( searchBuilder.deleteAll() ).toBeTrue()
+			 	expect( searchBuilder.deleteAll() ).toBeBoolean()
 
 			});
 

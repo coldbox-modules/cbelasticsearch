@@ -1,21 +1,23 @@
 {
-    "name"      : "ColdBox Module Template",
+    "name"      : "Elasticsearch for the Coldbox Framework",
     "author"    : "Ortus Solutions <info@ortussolutions.com",
-    "location"  : "http://downloads.ortussolutions.com.s3.amazonaws.com/ortussolutions/coldbox-modules/cbdebugger/@build.version@/cbdebugger-@build.version@.zip",
+    "location"  : "http://downloads.ortussolutions.com.s3.amazonaws.com/ortussolutions/coldbox-modules/elasticsearch/@build.version@/cbox-elasticsearch-@build.version@.zip",
     "version"   : "@build.version@+@build.number@",
-    "slug"      : "cbModule",
+    "slug"      : "elasticsearch",
     "type"      : "modules",
-    "homepage"  : "https://github.com/coldbox-modules/cbox-debugger",
-    "bugs"      : "https://github.com/coldbox-modules/cbox-debugger/issues",
-    "documentation"     : "https://github.com/coldbox-modules/cbox-debugger",
-    "repository"        : { "type" : "git", "url" : "https://github.com/coldbox-modules/cbox-debugger" },
-    "shortDescription"  : "Your awesome module",
+    "homepage"  : "https://github.com/coldbox-modules/cbox-elasticsearch",
+    "bugs"      : "https://github.com/coldbox-modules/cbox-elasticsearch/issues",
+    "documentation"     : "https://github.com/coldbox-modules/cbox-elasticsearch",
+    "repository"        : { "type" : "git", "url" : "https://github.com/coldbox-modules/cbox-elasticsearch" },
+    "shortDescription"  : "Elasticsearch Module for the Coldbox Framework",
     "license"           : [ 
         { "type" : "Apache2", "url" : "http://www.apache.org/licenses/LICENSE-2.0.html" } 
     ],
     "contributors"      : [
+        "Jon Clausen <jclausen@ortussolutions.com>"
     ],
     "dependencies"  :{
+        "cbjavaloader"
     },
     "ignore":[
         "**/.*",

@@ -40,7 +40,8 @@ component extends="JestClientTest"{
 
 				var savedDocs = variables.model.saveAll( documents );
 				
-				sleep( 1000 );
+				//sleep for 1.5 seconds to ensure full persistence
+				sleep( 1500 );
 
 				var deleted = variables.model.deleteType( variables.testIndexName, "testdocs" );
 

@@ -6,7 +6,7 @@ notifications:
 
 env:
   global:
-    - MODULE_ID=cbdebugger
+    - MODULE_ID=elasticsearch
   matrix:
     - ENGINE=lucee@4.5
     - ENGINE=lucee@5
