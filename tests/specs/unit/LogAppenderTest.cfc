@@ -1,6 +1,7 @@
 component extends="coldbox.system.testing.BaseTestCase"{
 	
 	function beforeAll(){
+
 		this.loadColdbox = true;
 
 		setup();
@@ -19,6 +20,8 @@ component extends="coldbox.system.testing.BaseTestCase"{
 	}
 
 	function afterAll(){
+
+		super.afterAll();
 		
 		variables.model.getClient().deleteIndex( "logboxappendertests" );
 		
@@ -29,7 +32,11 @@ component extends="coldbox.system.testing.BaseTestCase"{
 		describe( "Test Elasticsearch logging appender functionality", function(){
 
 			it( "Test that the logging appender index exists", function(){
+
+				variables.model.onRegistration();
+
 				expect( variables.model.getClient().indexExists( variables.model.getProperty( "index" ) ) ).toBeTrue();
+			
 			});
 
 			it( "Tests logMessage()", function(){

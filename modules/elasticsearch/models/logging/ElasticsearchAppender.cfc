@@ -105,7 +105,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 				{
 					"severity"     : severityToString(loge.getseverity()),
 					"category"     : category,
-					"logdate"      : loge.getTimestamp(),
+					"logdate"      : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
 					"appendername" : getName(),
 					"message"      : loge.getMessage(),
 					"extrainfo"    : loge.getExtraInfoAsString(),
@@ -189,8 +189,11 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 						"properties" : {
 							"severity"    : {"type" : "string"},
 							"category"    : {"type" : "string"},
-							"logdate"     : {"type" : "string"},
 							"appendername": {"type" : "string"},
+							"logdate"	  : {
+								"type"  : "date",
+								"format": "date_time_no_millis"
+							},
 							"message"     : {"type" : "string"},
 							"extrainfo"   : {"type" : "string"},
 							"entryTime"	  : {
