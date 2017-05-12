@@ -8,9 +8,12 @@ logs/*.log
 # Test Results
 tests/results/*
 
-# Dependenncies
+# Dependencies
 coldbox/*
 testbox/*
+modules/cbjavaloader
+
+# Build artifacts
 artifacts/*
 apidocs/docbox/*
 workbench/*
