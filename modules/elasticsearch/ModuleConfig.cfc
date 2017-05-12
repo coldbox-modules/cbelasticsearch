@@ -31,9 +31,7 @@ component{
 	function configure(){
 
 		// Java Loader Settings
-		settings = {
-
-		};
+		settings = {};
 
 		// Custom Declared Points
 		interceptorSettings = {
@@ -41,8 +39,7 @@ component{
 		};
 
 		// Custom Declared Interceptors
-		interceptors = [
-		];
+		interceptors = [];
 
 	}
 
@@ -110,10 +107,7 @@ component{
 			//The default index
 			defaultIndex = "cbElasticsearch",
 			defaultIndexShards = 3,
-			defaultIndexReplicas = 2,
-			multiThreaded = true,
-			maxConnectionsPerRoute = 5,
-			maxConnections = 10
+			defaultIndexReplicas = 0
 		};
 
 		// Incorporate settings
