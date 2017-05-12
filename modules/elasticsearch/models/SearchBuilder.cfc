@@ -86,6 +86,13 @@ component accessors="true" {
 	function execute(){
 		return getClient().executeSearch( this );
 	}
+
+	/**
+	* Deletes all documents matching the currently build search query
+	**/
+	function deleteAll(){
+		return getClient().deleteByQuery( this );	
+	}
 	
 
 	/**
@@ -151,10 +158,19 @@ component accessors="true" {
 					}
 					default:{
 
-						match( 
-							propName, 
-							arguments.properties[ propName ] 
-						);
+						//Assume it's a match value if providing a simple value.  Otherwise, assume it is raw DSL
+						if( isSimpleValue( arguments.properties[ propName ] ) ){
+													
+							match( 
+								propName, 
+								arguments.properties[ propName ] 
+							);
+								
+						} else {
+
+							variables.query[ propName ] = arguments.properties[ propName ];
+
+						}
 								
 					}
 

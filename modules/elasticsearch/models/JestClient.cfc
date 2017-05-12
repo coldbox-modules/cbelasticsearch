@@ -314,6 +314,61 @@ component
 	}
 
 	/**
+	* Gets multiple items when provided an array of keys
+	* @keys 	array 		An array of keys to retrieve
+	* @index 	string 		The name of the index
+	* @type 	type 		The name of the type
+	* @interfaced
+	* 
+	* @return 	array 		An array of Document objects
+	**/
+	array function getMultiple( 
+		required array keys, 
+		string index, 
+		string type  
+	){
+		if( isNull( arguments.index ) ){
+			arguments.index = getConfig().get( "defaultIndex" );
+		}
+
+		var actionBuilder = variables.jLoader.create( "io.searchbox.core.MultiGet$Builder$ById" )
+												.init( 
+													arguments.index,
+													!isNull( arguments.type ) ? arguments.type : 'default' 
+												);
+		for( var key in arguments.keys ){
+			actionBuilder.addId( key );
+		}
+
+		var retrievedResult = execute( actionBuilder.build() );
+
+		if( !structKeyExists( retrievedResult, "docs" ) ){
+		
+			return [];	
+
+		} else {
+
+			var documents = [];
+			
+			for( var result in retrievedResult.docs ){
+			
+				if( !structKeyExists( result, "_source" ) ) continue;
+
+				var document = newDocument().new(
+					result[ "_index" ],
+					result[ "_type" ],
+					result[ "_source" ]
+				).setId( result[ "_id" ] );
+
+				arrayAppend( documents, document );	
+		
+			}
+
+			return documents;
+		}
+	}
+
+	/**
 	* @document 		Document@cbElasticSearch 		An instance of the elasticsearch Document object
 	* 
 	* @return 			iNativeClient 					An implementation of the iNativeClient
@@ -357,6 +412,37 @@ component
 		}
 
 		return true;
+	}
+
+	/**
+	* Deletes items in the index by query
+	* @searchBuilder 		SearchBuilder 		The search builder object to use for the query
+	**/
+	boolean function deleteByQuery( required SearchBuilder searchBuilder ){
+		
+		if( isNull( arguments.searchBuilder.getIndex() ) ){
+			throw( 
+				type="cbElasticsearch.JestClient.DeleteBuilderException",
+				message="deleteByQuery() could not be executed because an index was not assigned in the provided SearchBuilder object."
+			);
+		}
+
+		var deleteBuilder = variables.jLoader
+										.create( "io.searchbox.core.DeleteByQuery$Builder" )
+										.init( 
+											serializeJSON( arguments.searchBuilder.getDSL() )
+										);
+		
+		deleteBuilder.addIndex( arguments.searchBuilder.getIndex() );
+		
+		if( !isNull( arguments.searchBuilder.getType() ) ){
+			deleteBuilder.addtype( arguments.searchBuilder.getType() );
+		}
+
+		var deletionResult = execute( deleteBuilder.build() );
+
+		return javacast( "boolean", structKeyExists( deletionResult, "deleted" ) ? deletionResult.deleted : 0 );
+
 	}
 
 	private any function buildDeleteAction( required Document document ){

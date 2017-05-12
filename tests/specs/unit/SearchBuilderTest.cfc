@@ -245,6 +245,21 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			});
 
+			it( "Tests the deleteAll() method", function(){
+
+				//insert some test documents
+				var searchBuilder = variables.model.new( 
+					variables.testIndexName,
+					"testdocs",
+					{
+						"match_all":{}
+					}
+			 	);
+
+			 	expect( searchBuilder.deleteAll() ).toBeTrue()
+
+			});
+
 		});	
 	}
 

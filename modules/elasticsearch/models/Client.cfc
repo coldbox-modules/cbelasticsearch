@@ -47,7 +47,15 @@ component
 		return this;
 	}
 
+	/**
+	* Provider for Config object
+	**/
 	public function getConfig() provider="Config@cbElasticsearch"{}
+
+	/**
+	* Provider for search builder
+	**/
+	public function getSearchBuilder() provider="SearchBuilder@cbElasticsearch"{}
 
 
 	/**
@@ -94,6 +102,21 @@ component
 	struct function deleteIndex( required string indexName ){
 		
 		return variables.nativeClient.deleteIndex( argumentCollection=arguments );
+
+	}
+
+	/**
+	* Deletes an index type
+	* 
+	* @indexName 		string 		the name of the index to be deleted
+	* @type 			type 		the index typing to be deleted
+	* 
+	**/
+	boolean function deleteType( required string indexName, required string type ){
+		
+		var searchBuilder = getSearchBuilder().new(  arguments.indexName, arguments.type, { "match_all" : {} }  );	
+
+		return deleteByQuery( searchBuilder );
 
 	}
 
@@ -148,6 +171,23 @@ component
 	}
 
 	/**
+	* Gets multiple items when provided an array of keys
+	* @keys 	array 		An array of keys to retrieve
+	* @index 	string 		The name of the index
+	* @type 	type 		The name of the type
+	* @interfaced
+	* 
+	* @return 	array 		An array of Document objects
+	**/
+	array function getMultiple( 
+		required array keys, 
+		string index, 
+		string type  
+	){
+		return variables.nativeClient.getMultiple( argumentCollection=arguments );
+	}
+
+	/**
 	* @document 		Document@cbElasticSearch 		An instance of the elasticsearch Document object
 	* 
 	* @return 			Document@cbElasticsearch 		The saved document object
@@ -165,6 +205,18 @@ component
 	**/
 	boolean function delete( required any document, boolean throwOnError=true ){
 		return variables.nativeClient.delete( argumentCollection=arguments );
+	}
+
+	/**
+	* Delete documents from a query
+	* 
+	* @searchBuilder 		SearchBuilder 		The assemble search builder to use for the query
+	* 
+	**/
+	boolean function deleteByQuery( required SearchBuilder searchBuilder ){
+		
+		return variables.nativeClient.deleteByQuery( argumentCollection=arguments );
+
 	}
 
 	/**

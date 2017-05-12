@@ -21,13 +21,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 	}
 
 	function run(){
-		describe( "Performs cbElasticsearch JEST Native Client tests", function(){
-
-			it( "Tests the instantiation of the JEST client", function(){
-
-				expect( getMetadata( variables.model.getHTTPClient() ).name ).toBe( "io.searchbox.client.http.JestHttpClient" );
-
-			});
+		describe( "Performs cbElasticsearch Client tests", function(){
 
 			it( "Tests the ability to create an index", function(){
 
@@ -143,7 +137,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( existing ).toBeComponent();
 				expect( existing.getMemento( true ) ).toBeStruct();
 
-				existing.set( 'title', "My Updated Test Document" );
+				existing.setValue( 'title', "My Updated Test Document" );
 
 				var saveResult = variables.model.save( existing );
 
@@ -202,8 +196,41 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			});
 
+			it( "Tests the ability to delete a document by id", function(){
+				expect( variables ).toHaveKey( "testDocumentId" );
+				expect( variables ).toHaveKey( "testIndexName" );
 
-			xit( "Tests the ability to delete an index", function(){
+				var document = variables.model.get( variables.testDocumentId, variables.testIndexName, "testdocs" );
+				
+				expect( isNull( document ) ).toBeFalse();
+
+				variables.model.delete( document );
+
+				expect( variables.model.get( variables.testDocumentId ) ).toBeNull();
+
+			});
+
+
+			it( "Tests the ability to delete documents by query", function(){
+			
+				expect( variables ).toHaveKey( "testIndexName" );
+
+				var searchBuilder = getWirebox().getInstance( "SearchBuilder@cbElasticsearch" ).new( 
+					variables.testIndexName,
+					"testdocs",
+					{
+						"match_all":{}
+					}
+				);
+
+				var deleted = variables.model.deleteByQuery( searchBuilder );
+
+				expect( deleted ).toBeTrue();
+
+			});
+
+
+			it( "Tests the ability to delete an index", function(){
 				
 				expect( variables ).toHaveKey( "testIndexName" );
 				var deletion = variables.model.deleteIndex( variables.testIndexName );	

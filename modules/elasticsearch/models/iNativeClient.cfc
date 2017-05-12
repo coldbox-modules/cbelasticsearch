@@ -81,6 +81,21 @@ interface{
 	){}
 
 	/**
+	* Gets multiple items when provided an array of keys
+	* @keys 	array 		An array of keys to retrieve
+	* @index 	string 		The name of the index
+	* @type 	type 		The name of the type
+	* @interfaced
+	* 
+	* @return 	array 		An array of Document objects
+	**/
+	array function getMultiple( 
+		required array keys, 
+		string index, 
+		string type  
+	){}
+
+	/**
 	* @document 		Document@cbElasticSearch 		An instance of the elasticsearch Document object
 	* 
 	* @return 			iNativeClient 					An implementation of the iNativeClient
@@ -94,6 +109,13 @@ interface{
 	* @throwOnError 	boolean			whether to throw an error if the document cannot be deleted ( default: false )
 	**/
 	boolean function delete( required any document, boolean throwOnError=true ){}
+
+
+	/**
+	* Deletes items in the index by query
+	* @searchBuilder 		SearchBuilder 		The search builder object to use for the query
+	**/
+	boolean function deleteByQuery( required SearchBuilder searchBuilder ){}
 
 	/**
 	* Persists multiple items to the index
