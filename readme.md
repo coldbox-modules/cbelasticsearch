@@ -429,7 +429,9 @@ In the above example, documents with a `name` field containing "Elasticsearch" w
 
 #### Advanced Query DSL
 
-The SearchBuilder also allows full use of the [Elasticsearch query language](https://www.elastic.co/guide/en/elasticsearch/reference/current/_introducing_the_query_language.html), allowing detailed configuration of queries, if the basic `match()`, `sort()` and `aggregate()` methods are not enough to meet your needs. There are several methods to provide the raw query language to the Search Builder.  One is during instantiation.  In the following we are looking for matches of active records with "Elasticsearch: in the name, description, or shortDescription fields. We are also looking for a phrase match of "is awesome" and are boosting the score of the applicable document, if found.
+The SearchBuilder also allows full use of the [Elasticsearch query language](https://www.elastic.co/guide/en/elasticsearch/reference/current/_introducing_the_query_language.html), allowing detailed configuration of queries, if the basic `match()`, `sort()` and `aggregate()` methods are not enough to meet your needs. There are several methods to provide the raw query language to the Search Builder.  One is during instantiation.  
+
+In the following we are looking for matches of active records with "Elasticsearch" in the name, description, or shortDescription fields. We are also looking for a phrase match of "is awesome" and are boosting the score of the applicable document, if found.
 
 ```
 var search = getInstance( "SearchBuilder@cbElasticsearch" )
@@ -479,15 +481,11 @@ While our documents would still be scored, the results order would be changed to
 Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
 www.coldbox.org | www.luismajano.com | www.ortussolutions.com
 ********************************************************************************
-####HONOR GOES TO GOD ABOVE ALL
+#### HONOR GOES TO GOD ABOVE ALL
 Because of His grace, this project exists. If you don't like this, then don't read it, its not for you.
 
->"Therefore being justified by faith, we have peace with God through our Lord Jesus Christ:
-By whom also we have access by faith into this grace wherein we stand, and rejoice in hope of the glory of God.
-And not only so, but we glory in tribulations also: knowing that tribulation worketh patience;
-And patience, experience; and experience, hope:
-And hope maketh not ashamed; because the love of God is shed abroad in our hearts by the 
-Holy Ghost which is given unto us. ." Romans 5:5
+>"...but we glory in tribulations also: knowing that tribulation worketh patience; And patience, experience; and experience, hope:
+And hope maketh not ashamed; because the love of God is shed abroad in our hearts by the Holy Ghost which is given unto us. ." Romans 5:5
 
-###THE DAILY BREAD
+### THE DAILY BREAD
  > "I am the way, and the truth, and the life; no one comes to the Father, but by me (JESUS)" Jn 14:1-12
