@@ -50,12 +50,18 @@ elasticsearch = {
 			serverPort:'9200'
 		}
 	],
-	//The default index
+	// The default index
 	defaultIndex = "cbElasticsearch",
-	//The default number of shards to use when creating an index
+	// The default number of shards to use when creating an index
 	defaultIndexShards = 3,
-	//The default number of index replicas to create
+	// The default number of index replicas to create
 	defaultIndexReplicas = 0
+	// Whether to use separate threads for client transactions 
+	multiThreaded = true,
+	// The maximum number of connections allowed per route ( e.g. search URI endpoint )
+	maxConnectionsPerRoute = 10,
+	// The maxium number of connectsion, in total for all Elasticsearch requests
+	maxConnections = 100
 };
 ```
 
@@ -322,10 +328,152 @@ getInstance( "Client@cbElasticsearch" ).saveAll( documents );
 
 #### Deleting a Document
 
+Deleting documents is similar to the process of saving.  The `Document` object may be used to delete a single item.
+
+```
+var document = getInstance( "Document@cbElasticsearch" )
+				.get( 
+					id    = documentId, 
+					index = "bookshop", 
+					type  = books 
+				);
+if( !isNull( document ) ){
+	document.delete();
+}
+```
+
+Documents may also be deleted by passing a `Document` instance to the client:
+
+```
+getInstance( "Client@cbElasticsearch" ).delete( myDocument );
+```
+
+Finally, documents may also be deleted by query, using the `SearchBuilder` ( more below ):
+
+```
+getInstance( "searchBuilder@cbElasticsearch" )
+		.new( index="bookshop", type="books" )
+		.match( "name", "Elasticsearch for Coldbox" )
+		.deleteAll();
+```
+
+
 Searching Documents
 ===================
 
-The 
+The `SearchBuilder` object offers an expressive syntax for crafting detailed searches with ranked results.  To perform a simple search for matching documents documents, using Elasticsearch's automatic scoring, we would use the `SearchBuilder` like so:
+
+```
+var searchResults = getInstance( "searchBuilder@cbElasticsearch" )
+						.new( index="bookshop", type="books" )
+						.match( "name", "Elasticsearch" )
+						.execute();
+```
+
+By default this search will return an array of `Document` objects ( or an empty array if no results are found ), with a descending match score as the sort.
+
+To output the results of our search, we would use a loop, accessing the `Document` methods:
+
+```
+for( var resultDocument in searchResult ){
+	var resultScore     = resultDocument.getScore();
+	var documentMemento = resultDocument.getMemento();
+	var bookName        = documentMemento.name;
+	var bookDescription = documentMemento.description;
+}
+```
+
+The "memento" is our structural representation of the document. We can also use the built-in method of the Document object:
+
+```
+for( var resultDocument in searchResult ){
+	var resultScore     = resultDocument.getScore();
+	var bookName        = resultDocument.getValue( "name" );
+	var bookDescription = resultDoument.getValue( "description" );
+}
+```
+
+#### Search matching
+
+
+#### Exact matching
+
+The `term()` method allows a means of specifying an exact match of all documents in the search results.  An example use case might be only to search for active documents:
+
+```
+searchBuilder.term( 'isActive', 1 );
+```
+
+Or a date range:
+
+```
+searchBuilder.term( 'publishDate', '2017-05-13' );
+```
+
+#### Boosting individual matches
+
+The `match()` method of the `SearchBuilder` also allows for a `boost` argument.  When provided, results which match the term will be ranked higher in the results:
+
+```
+searchBuilder
+		.match( "shortDescription", "Elasticsearch" )
+		.match( "description", "Elasticsearch" )
+		.match( 
+			name="name", 
+			value="Elasticsearch",
+			boost=.5
+		);
+```
+
+In the above example, documents with a `name` field containing "Elasticsearch" would be boosted in score higher than those which only find the value in the short or long description.
+
+#### Advanced Query DSL
+
+The SearchBuilder also allows full use of the [Elasticsearch query language](https://www.elastic.co/guide/en/elasticsearch/reference/current/_introducing_the_query_language.html), allowing detailed configuration of queries, if the basic `match()`, `sort()` and `aggregate()` methods are not enough to meet your needs. There are several methods to provide the raw query language to the Search Builder.  One is during instantiation.  In the following we are looking for matches of active records with "Elasticsearch: in the name, description, or shortDescription fields. We are also looking for a phrase match of "is awesome" and are boosting the score of the applicable document, if found.
+
+```
+var search = getInstance( "SearchBuilder@cbElasticsearch" )
+					.new( 
+						index = "bookshop",
+						type = "books",
+						properties = {
+							"query":{
+								"term" : {
+									"isActive" : 1
+								},
+								"match" : {
+									"name"            : "Elasticsearch",
+									"description"     : "Elasticsearch",
+									"shortDescription": "Elasticsearch"
+								},
+								"match_phrase" : {
+									"description" : {
+										"query" : "is awesome",
+										"boost" : 2
+									}
+								},
+
+							}
+						}
+					)
+					.execute();
+```
+
+For more information on Elasticsearch query DSL, the [Search in Depth Documentation](https://www.elastic.co/guide/en/elasticsearch/guide/current/search-in-depth.html) is an excellent starting point.
+
+
+#### Sorting Results
+
+The `sort()` method also allows you to specify custom sort options.  To sort by author last name, instead of score, we would simply use:
+
+```
+searchBuilder.sort( "author.lastName", "asc" );
+```
+
+While our documents would still be scored, the results order would be changed to that specified.
+
+
+
 
 ********************************************************************************
 Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp

@@ -69,6 +69,12 @@ component
 		return getClient().save( this );
 	}
 
+	/**
+	* Loads a document
+	* @id 		string 		The `_id` of the document to retrieve
+	* @index 	string 		The index of the document
+	* @type 	string 		The type of the document
+	**/
 	function get( string id, string index, string type ){
 
 		if( !structIsEmpty( arguments ) ){
@@ -89,6 +95,22 @@ component
 		};
 
 		return getClient().get( argumentCollection=args );
+	}
+
+	/**
+	* Deletes the currently active document
+	* 
+	* @return 	a boolean denoting whether the document was deleted
+	**/
+	boolean function delete(){
+		if( isNull( variables.id ) || isNull( variables.index ) ){
+			throw( 
+				type="cbElasticsearch.Document.MissingIdentifierException",
+				message="An `id` and index value must be available to delete a document "
+			);
+		}
+
+		return getClient.delete( this );
 	}
 
 

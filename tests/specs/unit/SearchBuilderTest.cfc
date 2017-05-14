@@ -3,6 +3,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 	function beforeAll(){
 
 		this.loadColdbox=true;
+		super.afterAll();
 
 		setup();
 		
@@ -101,6 +102,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 			 	);
 
 			 	searchBuilder.match( "title", "Foo" );
+
 			 	expect( searchBuilder.getQuery() ).toBeStruct();
 				expect( searchBuilder.getQuery() ).toHaveKey( "match" );
 				expect( searchBuilder.getQuery().match ).toHaveKey( "title" );

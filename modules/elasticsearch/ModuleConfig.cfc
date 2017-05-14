@@ -107,7 +107,10 @@ component{
 			//The default index
 			defaultIndex = "cbElasticsearch",
 			defaultIndexShards = 3,
-			defaultIndexReplicas = 0
+			defaultIndexReplicas = 0,
+			multiThreaded = true,
+			maxConnectionsPerRoute = 10,
+			maxConnections = 100
 		};
 
 		// Incorporate settings

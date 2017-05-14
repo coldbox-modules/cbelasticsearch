@@ -121,7 +121,11 @@ component accessors="true" {
 			for( var propName in arguments.properties ){
 
 				switch( propName ){
-						
+					
+					case "query":{
+						variables.query = arguments.properties[ propName ];
+						break;
+					}	
 					case "match":{
 
 						if( !structKeyExists( variables.query, "match" ) ){
@@ -224,44 +228,62 @@ component accessors="true" {
 	* 
 	* @name 		string 		the name of the key to search
 	* @value 		string 		the value of the key
-	* @matchType 	string 		a match type ( default="all" )
 	* @boost 		numeric		A numeric boost option for any exact matches
 	* @options 		struct 		An additional struct map of Elasticsearch query options to 
 	*							pass in to the match parameters ( e.g. - operator, zero_terms_query, etc )
+	* @matchType 	string 		a match type ( default="any" )
+	* 							Valid options:
+	* 							 - "any"
+	* 							 - "all"
+	* 							 - "phrase" - requires an exact match of a given phrase
+	* 							 - "must" | "must_not" - specifies that any document returned must or must not match
+	*
 	**/
 	SearchBuilder function match( 
 		required string name, 
 		required any value, 
-		string matchType=variables.matchType, 
 		numeric boost,
-		struct options
+		struct options,
+		string matchType="any" 
 	){
 
-		if( !structKeyExists( variables.query, "match" ) ){
-			
-			variables.query[ "match" ] = {};
+		switch( arguments.matchType ){
 
+			case "phrase":{
+				matchKey = "match_phrase";
+				break;
+			}
+			case "all":{
+				variables.query[ "match_all" ] = {};
+				matchKey = "match";
+				break;
+			}
+			default:{
+				matchKey = "match";
+			}
 		}
+
+		var match = {};
 
 		if( !isNull( arguments.boost ) ){		
 	
-			variables.query[ "match" ][ arguments.name ] = {
+			match[ arguments.name ] = {
 				"query" : arguments.value,
 				"boost" : javacast( "float", arguments.boost )
 			}
 	
 		} else {
 	
-			variables.query[ "match" ][ arguments.name ] = arguments.value;
+			match[ arguments.name ] = arguments.value;
 	
 		}
 
 		if( !isNull( arguments.options ) ){
 
 			//convert our query to the long form DSL so we can append options
-			if( !isStruct( variables.query[ "match" ][ arguments.name ] ) ){
+			if( !isStruct( match[ arguments.name ] ) ){
 				
-				variables.query[ "match" ][ arguments.name ] = {
+				match[ arguments.name ] = {
 					"query" : arguments.value
 				};
 
@@ -271,9 +293,37 @@ component accessors="true" {
 
 			for( var optionKey in arguments.options ){
 
-				variables.query[ "match" ][ arguments.name ][ optionKey ]=arguments.options[ optionKey ];
+				match[ arguments.name ][ optionKey ]=arguments.options[ optionKey ];
 			
 			}
+		}
+
+		if( arguments.matchType == "must" || arguments.matchType == "must_not" ){
+			
+			if( !structKeyExists( variables.query, "bool" ) ){
+				variables.query[ "bool" ] = {}
+			}
+			
+			if( !structKeyExists( variables.query.bool, arguments.matchType ) ){
+				variables.query.bool[ arguments.matchType ] = [];
+			}
+
+			arrayAppend( 
+				variables.query.bool.must, 
+				{
+					"#matchKey#" : match
+				}
+			);
+
+		} else {
+
+			if( !structKeyExists( variables.query, matchKey ) ){
+			
+				variables.query[ matchKey ] = {};
+
+			}
+
+			structAppend( variables.query[ matchKey ], match, true );
 		}
 
 		return this;
