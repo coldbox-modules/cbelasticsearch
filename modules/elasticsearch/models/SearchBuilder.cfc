@@ -221,6 +221,57 @@ component accessors="true" {
 
 	}
 
+	/**
+	* `must` query alias for match()
+	*
+	* @name 		string 		the name of the key to search
+	* @value 		string 		the value of the key
+	**/
+	SearchBuilder function shouldMatch( 
+		required string name, 
+		required any value
+	){
+		return match( 
+			name      = arguments.name,
+			value     = arguments.value,
+			matchType = "should"
+		)
+	}
+
+	/**
+	* `must` query alias for match()
+	*
+	* @name 		string 		the name of the key to search
+	* @value 		string 		the value of the key
+	**/
+	SearchBuilder function mustMatch( 
+		required string name, 
+		required any value
+	){
+		return match( 
+			name      = arguments.name,
+			value     = arguments.value,
+			matchType = "must"
+		)
+	}
+
+	/**
+	* `must_not` query alias for match()
+	*
+	* @name 		string 		the name of the key to search
+	* @value 		string 		the value of the key
+	**/
+	SearchBuilder function mustNotMatch( 
+		required string name, 
+		required any value
+	){
+		return match( 
+			name      = arguments.name,
+			value     = arguments.value,
+			matchType = "must_not"
+		)
+	}
+
 
 	/**
 	* Applies a match requirement to the search builder query
@@ -237,6 +288,7 @@ component accessors="true" {
 	* 							 - "all"
 	* 							 - "phrase" - requires an exact match of a given phrase
 	* 							 - "must" | "must_not" - specifies that any document returned must or must not match
+	* 							 - "should" - specifies that any documents returned should match the value(s) provided
 	*
 	**/
 	SearchBuilder function match( 
@@ -298,7 +350,9 @@ component accessors="true" {
 			}
 		}
 
-		if( arguments.matchType == "must" || arguments.matchType == "must_not" ){
+		var booleanMatchTypes = [ 'must', 'must_not', 'should' ];
+
+		if( arrayFind( booleanMatchTypes, arguments.matchType ) ){
 			
 			if( !structKeyExists( variables.query, "bool" ) ){
 				variables.query[ "bool" ] = {}
@@ -328,6 +382,37 @@ component accessors="true" {
 
 		return this;
 		
+
+	}
+
+	/**
+	* Performs a disjunctive search ( https://www.elastic.co/guide/en/elasticsearch/guide/current/_tuning_best_fields_queries.html )
+	* 
+	* @matches 		struct 		A struct containing the matches 
+	* @tieBreakder 	numeric     A tie breaker value to boost more relevant matches
+	* 
+	**/
+	SearchBuilder function disjunction( required struct matches, numeric tieBreaker ){
+		
+		if( !structKeyExists( variables.query, "dis_max" ) ){
+			variables.query[ "dis_max" ] = {
+				"queries" : []
+			}
+		}
+
+		for( var key in matches ){
+			arrayAppend(
+				variables.query[ "dis_max" ].queries,
+				{
+					"match" :{
+						"#key#" : matches[ key ]
+					}
+				}
+			 );
+		}
+
+		return this;
+
 
 	}
 
