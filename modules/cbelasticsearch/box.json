@@ -16,9 +16,9 @@
     "contributors"      : [
         "Jon Clausen <jclausen@ortussolutions.com>"
     ],
-    "dependencies"  :{
+    "dependencies"  :[ 
         "cbjavaloader"
-    },
+    ],
     "ignore":[
         "**/.*",
         "tests",
