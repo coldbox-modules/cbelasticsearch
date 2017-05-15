@@ -36,7 +36,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 		};
 
 		// Create Provider
-		variables.cache = getMockBox().createMock("root.modules.cbElasticsearch.models.Cache.Provider").init();
+		variables.cache = getMockBox().createMock("root.modules.cbelasticsearch.models.Cache.Provider").init();
 
 		getWirebox().autowire( cache );
 
