@@ -9,7 +9,7 @@ Apache License, Version 2.0.
 Installation
 ============
 
-Via CommandBox:  `install elasticsearch`
+Via CommandBox:  `install cbelasticsearch`
 
 
 Instructions

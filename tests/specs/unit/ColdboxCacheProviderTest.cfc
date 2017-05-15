@@ -37,7 +37,7 @@ component extends="CacheProviderTest"{
 
 		// Create Provider
 		// Find a way to make the "RedisApp" mapping dynamic for people (like Brad) running this in the root :)
-		cache = getMockBox().createMock("root.modules.elasticsearch.models.cache.ColdboxProvider").init();
+		cache = getMockBox().createMock("root.modules.cbElasticsearch.models.cache.ColdboxProvider").init();
 
 		getWirebox().autowire( cache );
 
