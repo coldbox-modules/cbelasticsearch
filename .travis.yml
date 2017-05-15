@@ -19,7 +19,7 @@ notifications:
 
 env:
   global:
-    - MODULE_ID=cbElasticsearch
+    - MODULE_ID=cbelasticsearch
   matrix:
     - ENGINE=lucee@4.5
     - ENGINE=lucee@5
