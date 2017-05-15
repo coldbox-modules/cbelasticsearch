@@ -1,9 +1,9 @@
 {
     "name"      : "Elasticsearch for the Coldbox Framework",
     "author"    : "Ortus Solutions <info@ortussolutions.com",
-    "location"  : "http://downloads.ortussolutions.com.s3.amazonaws.com/ortussolutions/coldbox-modules/elasticsearch/@build.version@/cbox-elasticsearch-@build.version@.zip",
+    "location"  : "http://downloads.ortussolutions.com.s3.amazonaws.com/ortussolutions/coldbox-modules/cbelasticsearch/@build.version@/cbelasticsearch-@build.version@.zip",
     "version"   : "@build.version@+@build.number@",
-    "slug"      : "elasticsearch",
+    "slug"      : "cbelasticsearch",
     "type"      : "modules",
     "homepage"  : "https://github.com/coldbox-modules/cbox-elasticsearch",
     "bugs"      : "https://github.com/coldbox-modules/cbox-elasticsearch/issues",
