@@ -393,7 +393,7 @@ for( var resultDocument in searchResult ){
 }
 ```
 
-#### Search matching
+### Search matching
 
 
 #### Exact matching
@@ -404,7 +404,7 @@ The `term()` method allows a means of specifying an exact match of all documents
 searchBuilder.term( 'isActive', 1 );
 ```
 
-Or a date range:
+Or a date:
 
 ```
 searchBuilder.term( 'publishDate', '2017-05-13' );
@@ -432,6 +432,7 @@ In the above example, documents with a `name` field containing "Elasticsearch" w
 The SearchBuilder also allows full use of the [Elasticsearch query language](https://www.elastic.co/guide/en/elasticsearch/reference/current/_introducing_the_query_language.html), allowing detailed configuration of queries, if the basic `match()`, `sort()` and `aggregate()` methods are not enough to meet your needs. There are several methods to provide the raw query language to the Search Builder.  One is during instantiation.  
 
 In the following we are looking for matches of active records with "Elasticsearch" in the name, description, or shortDescription fields. We are also looking for a phrase match of "is awesome" and are boosting the score of the applicable document, if found.
+
 
 ```
 var search = getInstance( "SearchBuilder@cbElasticsearch" )

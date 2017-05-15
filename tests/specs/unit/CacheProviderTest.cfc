@@ -33,10 +33,10 @@ component extends="coldbox.system.testing.BaseTestCase"{
 			,caseSensitiveKeys           : true
 			,updateStats                 : true
 			,dbIndex                     = 0
-		}
+		};
 
 		// Create Provider
-		cache = getMockBox().createMock("root.modules.cbElasticsearch.models.Cache.Provider").init();
+		variables.cache = getMockBox().createMock("root.modules.cbElasticsearch.models.Cache.Provider").init();
 
 		getWirebox().autowire( cache );
 

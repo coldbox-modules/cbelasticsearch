@@ -2,7 +2,6 @@
 *
 * Elasticsearch Client
 *
-* @singleton
 * @package cbElasticsearch.models.Elasticsearch
 * @author Jon Clausen <jclausen@ortussolutions.com>
 * @license Apache v2.0 <http://www.apache.org/licenses/>

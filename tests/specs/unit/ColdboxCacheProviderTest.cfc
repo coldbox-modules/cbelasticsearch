@@ -30,14 +30,13 @@ component extends="CacheProviderTest"{
 			,index                       = "escache-cacheprovidertests"
 			,server                      = "localhost:9200" // This can be an array
 			,password                    = ""
-			,caseSensitiveKeys           : true
-			,updateStats                 : true
+			,caseSensitiveKeys           = true
+			,updateStats                 = true
 			,dbIndex                     = 0
-		}
+		};
 
 		// Create Provider
-		// Find a way to make the "RedisApp" mapping dynamic for people (like Brad) running this in the root :)
-		cache = getMockBox().createMock("root.modules.cbElasticsearch.models.cache.ColdboxProvider").init();
+		variables.cache = getMockBox().createMock("root.modules.cbElasticsearch.models.cache.ColdboxProvider").init();
 
 		getWirebox().autowire( cache );
 

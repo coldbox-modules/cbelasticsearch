@@ -3,7 +3,6 @@
 * Elasticsearch JEST Native Client
 * https://github.com/searchbox-io/Jest
 * 
-* @singleton
 * @package cbElasticsearch.models
 * @author Jon Clausen <jclausen@ortussolutions.com>
 * @license Apache v2.0 <http://www.apache.org/licenses/>
@@ -153,17 +152,17 @@ component
 
 		if( !indexExists( indexDSL.name ) ){
 		
-			var indexBuilder = variables.jloader.create( "io.searchbox.indices.CreateIndex$Builder" ).init( indexDSL.name );
+			var builder = variables.jloader.create( "io.searchbox.indices.CreateIndex$Builder" ).init( indexDSL.name );
 
 			if( structKeyExists( indexDSL, "settings" ) ){
 				var settingsMap = variables.jLoader.create( "java.util.HashMap" ).init();
 				
 				settingsMap.putAll( indexDSL.settings );
 
-				indexBuilder.settings( settingsMap );
+				builder.settings( settingsMap );
 			}	
 
-			indexResult[ "index" ] = execute( indexBuilder.build() );
+			indexResult[ "index" ] = execute( builder.build() );
 
 			if( structKeyExists( indexResult[ "index" ], "error" ) ){
 				throw( 
@@ -337,7 +336,7 @@ component
 													!isNull( arguments.type ) ? arguments.type : 'default' 
 												);
 		for( var key in arguments.keys ){
-			actionBuilder.addId( key );
+			actionBuilder.addId( javacast( "string", key ) );
 		}
 
 		var retrievedResult = execute( actionBuilder.build() );
@@ -485,7 +484,8 @@ component
 		//Specify the document ID if it is provided in our payload
 		if( !isNull( arguments.document.getId() ) ){
 
-			builder.id( arguments.document.getId() );
+			//ensure our `_id` is always cast as a string
+			builder.id( javacast("string", arguments.document.getId() ) );			
 		
 		}
 
@@ -527,7 +527,7 @@ component
 				results, 
 				{
 					"_id"    : item.index[ "_id" ],
-					"result" : item.index.result,
+					"result" : item.index.result
 				} 
 			);
 		}

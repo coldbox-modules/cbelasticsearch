@@ -62,15 +62,15 @@ component accessors="true" {
 		
 		variables.index        	= variables.configObject.get( "defaultIndex" );
 		
-		var nullDefaults = [ "id","sorting","aggregations","script","maxRows","sortRows" ]
+		var nullDefaults = [ "id","sorting","aggregations","script","maxRows","sortRows" ];
 		
 		//ensure defaults, in case we are re-using a search builder with new()
 		variables.matchType    	= "any";
 		variables.query 		= {};
 
-		for( var default in nullDefaults ){
-			if( !isNull( variables[ default ] ) ){
-				variables[ default ] = javacast( "null", 0 );
+		for( var nullable in nullDefaults ){
+			if( !structKeyExists( variables, nullable ) || !isNull( variables[ nullable ] ) ){
+				variables[ nullable ] = javacast( "null", 0 );
 			}
 		}
 	}
@@ -129,7 +129,7 @@ component accessors="true" {
 					case "match":{
 
 						if( !structKeyExists( variables.query, "match" ) ){
-							variables.query[ "match" ] = {}
+							variables.query[ "match" ] = {};
 						}
 
 						structAppend( variables.query.match, arguments.properties[ propName ] );					
@@ -209,7 +209,7 @@ component accessors="true" {
 			variables.query[ "term" ][ arguments.name ] = {
 				"value" : arguments.value,
 				"boost" : javacast( "float", arguments.boost )
-			}
+			};
 	
 		} else {
 	
@@ -322,7 +322,7 @@ component accessors="true" {
 			match[ arguments.name ] = {
 				"query" : arguments.value,
 				"boost" : javacast( "float", arguments.boost )
-			}
+			};
 	
 		} else {
 	
@@ -355,7 +355,7 @@ component accessors="true" {
 		if( arrayFind( booleanMatchTypes, arguments.matchType ) ){
 
 			if( !structKeyExists( variables.query, "bool" ) ){
-				variables.query[ "bool" ] = {}
+				variables.query[ "bool" ] = {};
 			}
 
 			switch( arguments.matchType ){
@@ -410,7 +410,7 @@ component accessors="true" {
 		if( !structKeyExists( variables.query, "dis_max" ) ){
 			variables.query[ "dis_max" ] = {
 				"queries" : []
-			}
+			};
 		}
 
 		for( var key in matches ){
@@ -524,10 +524,10 @@ component accessors="true" {
 	struct function getDSL(){
 		var dsl = {
 			"query" : variables.query
-		}
+		};
 
 		if( !isNull( variables.aggregations ) ){
-			dsl[ "aggs" ] = variables.aggregations
+			dsl[ "aggs" ] = variables.aggregations;
 		}
 
 		if( !isNull( variables.script ) ){
@@ -549,14 +549,14 @@ component accessors="true" {
 				case "all":{
 					dsl["query"][ "match_all" ] = {};
 					if( !isNull( varibles.matchBoost ) ){
-						dsl["query"][ "match_all" ][ "boost" ] = variables.matchBoost
+						dsl["query"][ "match_all" ][ "boost" ] = variables.matchBoost;
 					}
 					break;
 				}
 				case "none":{
 					dsl["query"][ "match_none" ] = {};
 					if( !isNull( varibles.matchBoost ) ){
-						dsl["query"][ "match_none" ][ "boost" ] = variables.matchBoost
+						dsl["query"][ "match_none" ][ "boost" ] = variables.matchBoost;
 					}
 					break;
 				}

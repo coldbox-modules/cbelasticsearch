@@ -30,19 +30,19 @@ component
 	function reset(){
 		
 		variables.settings = {
-			"number_of_shards"   : javacast( "integer", getConfig().get( "defaultIndexShards" ) ),
-			"number_of_replicas" : javacast( "integer", getConfig().get( "defaultIndexReplicas" ) )
+			"number_of_shards"   : javacast( "int", getConfig().get( "defaultIndexShards" ) ),
+			"number_of_replicas" : javacast( "int", getConfig().get( "defaultIndexReplicas" ) )
 		};
 
 		variables.mappings 	= {};
 		
 		variables.indexName = getConfig().get( "defaultIndex" );
 		
-		var nullDefaults = [ "settings" ]
+		var nullDefaults = [ "settings" ];
 		
-		for( var default in nullDefaults ){
-			if( !isNull( variables[ default ] ) ){
-				variables[ default ] = javacast( "null", 0 );
+		for( var nullable in nullDefaults ){
+			if( !isNull( variables[ nullable ] ) ){
+				variables[ nullable ] = javacast( "null", 0 );
 			}
 		}
 	}
@@ -89,10 +89,10 @@ component
 						variables.settings = arguments.properties[ propName ];
 						//ensure we cast our keys properly
 						if( structKeyExists( variables.settings, "number_of_shards" ) ){
-							variables.settings.number_of_shards = javacast( "integer", variables.settings.number_of_shards );
+							variables.settings.number_of_shards = javacast( "int", variables.settings.number_of_shards );
 						}
 						if( structKeyExists( variables.settings, "number_of_replicas" ) ){
-							variables.settings.number_of_replicas = javacast( "integer", variables.settings.number_of_replicas );
+							variables.settings.number_of_replicas = javacast( "int", variables.settings.number_of_replicas );
 						}
 						break;
 					}
@@ -117,7 +117,7 @@ component
 		var dsl = {};
 
 		if( !isNull( variables.settings ) ){
-			dsl[ "settings" ] = variables.settings
+			dsl[ "settings" ] = variables.settings;
 		}
 
 		if( !isNull( variables.indexName ) ){

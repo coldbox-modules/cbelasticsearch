@@ -12,22 +12,24 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 		variables.model.getClient().deleteIndex( variables.testIndexName );
 
-		getWirebox().getInstance( "IndexBuilder@cbElasticsearch" ).new( 
+		var indexSettings = {
+								"mappings":{
+									"testdocs":{
+										"_all"       : { "enabled": false },
+										"properties" : {
+											"title"      : {"type" : "string"},
+											"createdTime": {
+												"type"  : "date",
+												"format": "date_time_no_millis"
+											}
+										}
+									}
+								}
+							};
+
+	getWirebox().getInstance( "IndexBuilder@cbElasticsearch" ).new( 
 											name=variables.testIndexName,
-											properties={
-												"mappings":{
-													"testdocs":{
-														"_all"       : { "enabled": false },
-														"properties" : {
-															"title"      : {"type" : "string"},
-															"createdTime": {
-																"type"  : "date",
-																"format": "date_time_no_millis"
-															},
-														}
-													}
-												}
-											} 
+											properties=indexSettings 
 										).save();
 
 	}
@@ -50,9 +52,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				variables.model.new( 
 					variables.testIndexName,
 					"testdocs",
-					{
-						"foo":"bar"
-					}
+					{"foo":"bar"}
 				);
 
 				expect( variables.model.getMemento() ).toBeStruct();
@@ -70,22 +70,14 @@ component extends="coldbox.system.testing.BaseTestCase"{
 					"_id"        : createUUID(),
 					"title"      : "My Test Document",
 					"createdTime": dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
-				}
+				};
 
-				var created = variables.model.new( 
-					variables.testIndexName,
-					"testdocs",
-					testDocument
-				).save();
+				var created = variables.model.new( variables.testIndexName, "testdocs", testDocument ).save();
 
 				expect( created ).toBeComponent();
-				variables.model.reset()
+				variables.model.reset();
 
-				var found = variables.model.get( 
-					testDocument[ "_id" ],
-					variables.testIndexName,
-					"testdocs"
-				);
+				var found = variables.model.get( testDocument[ "_id" ], variables.testIndexName, "testdocs" );
 
 				expect( isNull( found ) ).toBeFalse();
 

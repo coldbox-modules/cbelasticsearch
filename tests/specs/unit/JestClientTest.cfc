@@ -21,27 +21,31 @@ component extends="coldbox.system.testing.BaseTestCase"{
 	}
 
 	function run(){
+
 		describe( "Performs cbElasticsearch Client tests", function(){
 
 			it( "Tests the ability to create an index", function(){
 
-				var indexBuilder = getWirebox().getInstance( "IndexBuilder@cbElasticsearch" )
-													.new( 
+				var builderProperties = {
+											"mappings":{
+												"testdocs":{
+													"_all"       : { "enabled"	: false },
+													"properties" : {
+														"title"      : {"type" : "string"},
+														"createdTime": {
+															"type"  : "date",
+															"format": "date_time_no_millis"
+														}
+													}
+												}
+											}
+										};
+
+				var indexBuilder = getWirebox()
+									.getInstance( "IndexBuilder@cbElasticsearch" )
+												.new( 
 														name=variables.testIndexName,
-														properties={
-															"mappings":{
-																"testdocs":{
-																	"_all"       : { "enabled": false },
-																	"properties" : {
-																		"title"      : {"type" : "string"},
-																		"createdTime": {
-																			"type"  : "date",
-																			"format": "date_time_no_millis"
-																		},
-																	}
-																}
-															}
-														} 
+														properties=builderProperties
 													);
 				expect( indexBuilder ).toBeComponent();
 				expect( indexBuilder.getMappings() ).toBeStruct();
@@ -68,7 +72,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 					"createdTime": dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
 				};
 
-				var document = getWirebox().getInstance( "Document@cbElasticsearch" ).new( variables.testIndexName, "testdocs", testDocument )
+				var document = getWirebox().getInstance( "Document@cbElasticsearch" ).new( variables.testIndexName, "testdocs", testDocument );
 
 				var saveResult = variables.model.save( document );
 
@@ -84,15 +88,19 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				var documents = [];
 
 				for( var i=1; i <= 13; i++ ){
+
+					var bulkDoc  = {
+						"_id": createUUID(),
+						"title": "Test Document Number #i#",
+						"createdTime": dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+					};
+
 					arrayAppend( 
-						documents, getInstance( "Document@cbElasticsearch" ).new(  
+						documents, 
+						getInstance( "Document@cbElasticsearch" ).new(  
 							variables.testIndexName,
 							"testdocs",
-							{
-								"_id": createUUID(),
-								"title": "Test Document Number #i#",
-								"createdTime": dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
-							}
+							bulkDoc	
 						)
 						
 					);
@@ -130,6 +138,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 			it( "Tests the ability to update a document in an index", function(){
 				
 				expect( variables ).toHaveKey( "testDocumentId" );
+
 				expect( variables ).toHaveKey( "testIndexName" );
 
 				var existing = variables.model.get( variables.testDocumentId, variables.testIndexName, "testdocs" );

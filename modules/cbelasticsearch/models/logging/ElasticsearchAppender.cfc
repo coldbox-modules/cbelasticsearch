@@ -35,7 +35,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 			"rotationFrequency": 5,
 			"ensureChecks"     : true,
 			"autoCreate"       : true
-		}
+		};
 
 		for( var configKey in structKeyArray( instance.Defaults ) ){
 			if( !propertyExists( configKey ) ){
@@ -73,7 +73,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 	/**
 	* Search Builder Provider
 	**/
-	Client function searchBuilder() provider="IndexBuilder@cbElasticsearch"{}
+	Client function searchBuilder() provider="SearchBuilder@cbElasticsearch"{}
 
 	/**
 	 * Runs on registration
@@ -199,7 +199,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 							"entryTime"	  : {
 								"type"  : "date",
 								"format": "date_time_no_millis"
-							},
+							}
 						}
 					}
 				}

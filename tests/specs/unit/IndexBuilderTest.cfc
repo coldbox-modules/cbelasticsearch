@@ -36,27 +36,27 @@ component extends="coldbox.system.testing.BaseTestCase"{
 			});
 
 			it( "Tests new() with a full properties struct", function(){
-				var newIndex = variables.model.new( 
-											name=variables.testIndexName,
-											properties={
-												"mappings":{
-													"testdocs":{
-														"_all"       : { "enabled": false },
-														"properties" : {
-															"title"      : {"type" : "string"},
-															"createdTime": {
-																"type"  : "date",
-																"format": "date_time_no_millis"
-															},
-														}
+
+				var indexSettings = {
+										"mappings":{
+											"testdocs":{
+												"_all"       : { "enabled": false },
+												"properties" : {
+													"title"      : {"type" : "string"},
+													"createdTime": {
+														"type"  : "date",
+														"format": "date_time_no_millis"
 													}
-												},
-												"settings":{
-													"number_of_shards":5,
-													"number_of_replicas":2
 												}
-											} 
-										);
+											}
+										},
+										"settings":{
+											"number_of_shards":5,
+											"number_of_replicas":2
+										}
+									};
+
+				var newIndex = variables.model.new( name=variables.testIndexName, properties=indexSettings );
 
 				expect( newIndex.getSettings() ).toBeStruct();
 				expect( structIsEmpty( newIndex.getSettings() ) ).toBeFalse();
@@ -68,22 +68,25 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			it( "Tests the save() method ability to create an index", function(){
 				//create our new index
-				var newIndex = variables.model.new( 
-											name=variables.testIndexName,
-											properties={
-												"mappings":{
-													"testdocs":{
-														"_all"       : { "enabled": false },
-														"properties" : {
-															"title"      : {"type" : "string"},
-															"createdTime": {
-																"type"  : "date",
-																"format": "date_time_no_millis"
-															},
-														}
+				var indexSettings = {
+										"mappings":{
+											"testdocs":{
+												"_all"       : { "enabled": false },
+												"properties" : {
+													"title"      : {"type" : "string"},
+													"createdTime": {
+														"type"  : "date",
+														"format": "date_time_no_millis"
 													}
 												}
-											} 
+											}
+										}
+									};
+
+
+				var newIndex = variables.model.new( 
+											name=variables.testIndexName,
+											properties=indexSettings 
 										);
 
 				expect( newIndex.save() ).toBeTrue();

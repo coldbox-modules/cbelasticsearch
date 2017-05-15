@@ -27,7 +27,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 								"createdTime": {
 									"type"  : "date",
 									"format": "date_time_no_millis"
-								},
+								}
 							}
 						}
 					}
@@ -315,7 +315,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 					}
 			 	);
 
-			 	expect( searchBuilder.deleteAll() ).toBeBoolean()
+			 	expect( searchBuilder.deleteAll() ).toBeBoolean();
 
 			});
 

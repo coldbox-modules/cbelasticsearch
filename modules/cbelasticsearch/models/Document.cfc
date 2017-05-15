@@ -43,12 +43,12 @@ component
 		//set default document types
 		variables.index = configStruct.defaultIndex;
 		variables.type = structKeyExists( configStruct, "defaultType") ? configStruct.defaultType : javacast( "null", 0 );
-		variables.memento = {}
+		variables.memento = {};
 
 		var nullDefaults = [ "id","score" ];
 
 		for( var nullDefault in nullDefaults ){
-			if( !isNull( variables[ nullDefault ] ) ){
+			if( !structKeyExists( variables, nullDefault ) ||  !isNull( variables[ nullDefault ] ) ){
 				variables[ nullDefault ] = javacast( "null", 0 );
 			}
 		}
@@ -156,7 +156,7 @@ component
 	){
 
 		if( isNull( variables.memento ) ){
-			variables.memento={}
+			variables.memento={};
 		}
 
 		structAppend( variables.memento, duplicate( arguments.properties ), true);

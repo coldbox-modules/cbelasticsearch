@@ -88,17 +88,13 @@ component accessors="true"{
 		// Throw if our configuration doesn't contain a valid search response
 		if( !isStruct( hits ) || !structKeyExists( hits, "total" ) ){
 
-			var error = {
+			throw( 
+
 				type            = "cbElasticsearch.SearchResult.ClientErrorException",
-				message         = "The properties provided to the populate() method do not contain a valid search response",
+				message         = "The properties provided to the populate() method do not contain a valid search response" & ( structKeyExists( arguments.properties, "error" ) ? " Reason: #arguments.properties.error.reason#" : "" ),
 				extendedInfo 	= serializeJSON( arguments.properties )
-			};
 
-			if( structKeyExists( arguments.properties, "error" ) ){
-				error.message &= " Reason: #arguments.properties.error.reason#"
-			}
-
-			throw( argumentCollection=error );
+			);
 
 		}
 

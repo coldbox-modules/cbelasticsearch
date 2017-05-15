@@ -15,7 +15,7 @@ interface{
 	* Closes any connections to the pool and destroys the client singleton
 	* @interfaced
 	**/
-	void function close(){}
+	void function close();
 
 
 	/**
@@ -25,14 +25,14 @@ interface{
 	* @return 			iNativeClient 	An implementation of the iNativeClient
 	* @interfaced
 	**/
-	SearchResult function executeSearch( required searchBuilder searchBuilder ){}
+	SearchResult function executeSearch( required searchBuilder searchBuilder );
 
 	/**
 	* Verifies whether an index exists
 	* 
 	* @indexName 		string 		the name of the index
 	**/
-	boolean function indexExists( required string indexName ){}
+	boolean function indexExists( required string indexName );
 
 	/**
 	* Applies an index item ( create/update )
@@ -41,7 +41,7 @@ interface{
 	* @return 			struct 		A struct representation of the transaction result
 	* @interfaced
 	**/
-	boolean function applyIndex( required IndexBuilder indexBuilder ){}
+	boolean function applyIndex( required IndexBuilder indexBuilder );
 
 	/**
 	* Deletes an index
@@ -49,10 +49,10 @@ interface{
 	* @indexName 		string 		the name of the index to be deleted
 	* 
 	**/
-	struct function deleteIndex( required string indexName ){}
+	struct function deleteIndex( required string indexName );
 
 
-	struct function applyMappings( required string indexName, required struct mappings ){}
+	struct function applyMappings( required string indexName, required struct mappings );
 
 	/**
 	* Deletes a mapping
@@ -63,7 +63,7 @@ interface{
 	* 
 	* @return 			struct 		the deletion transaction response
 	**/
-	boolean function deleteMapping( required string indexName, required string mapping, boolean throwOnError=false ){}
+	boolean function deleteMapping( required string indexName, required string mapping, boolean throwOnError=false );
 
 	/**
 	* Retrieves a document by ID
@@ -78,7 +78,7 @@ interface{
 		required any id,
 		string index,
 		string type
-	){}
+	);
 
 	/**
 	* Gets multiple items when provided an array of keys
@@ -93,7 +93,7 @@ interface{
 		required array keys, 
 		string index, 
 		string type  
-	){}
+	);
 
 	/**
 	* @document 		Document@cbElasticSearch 		An instance of the elasticsearch Document object
@@ -101,21 +101,21 @@ interface{
 	* @return 			iNativeClient 					An implementation of the iNativeClient
 	* @interfaced
 	**/
-	Document function save( required Document document ){}
+	Document function save( required Document document );
 
 	/**
 	* Deletes a single document
 	* @document 		Document 		the Document object for the document to be deleted
 	* @throwOnError 	boolean			whether to throw an error if the document cannot be deleted ( default: false )
 	**/
-	boolean function delete( required any document, boolean throwOnError=true ){}
+	boolean function delete( required any document, boolean throwOnError=true );
 
 
 	/**
 	* Deletes items in the index by query
 	* @searchBuilder 		SearchBuilder 		The search builder object to use for the query
 	**/
-	boolean function deleteByQuery( required SearchBuilder searchBuilder ){}
+	boolean function deleteByQuery( required SearchBuilder searchBuilder );
 
 	/**
 	* Persists multiple items to the index
@@ -124,7 +124,7 @@ interface{
 	* @return 			array					An array of results for the saved items
 	* @interfaced
 	**/
-	array function saveAll( required array documents ){}
+	array function saveAll( required array documents );
 
 	/**
 	* Deletes documents from an array of documents or IDs
@@ -134,7 +134,7 @@ interface{
 	any function deleteAll( 
 		required array documents, 
 		boolean throwOnError=false 
-	){}
+	);
 
 
 }
