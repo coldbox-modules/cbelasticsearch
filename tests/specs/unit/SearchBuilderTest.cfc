@@ -110,6 +110,60 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			});
 
+			it( "Tests shouldMatch()", function(){
+				var searchBuilder = variables.model.new( 
+					variables.testIndexName,
+					"testdocs"
+			 	);
+
+			 	searchBuilder.shouldMatch( "title", "Foo" );
+
+			 	expect( searchBuilder.getQuery() ).toBeStruct();
+				expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
+				expect( searchBuilder.getQuery().bool ).toHaveKey( "should" );
+				expect( searchBuilder.getQuery().bool.should ).toBeArray();
+				expect( searchBuilder.getQuery().bool.should[ 1 ] ).toHaveKey("match");
+				expect( searchBuilder.getQuery().bool.should[ 1 ].match ).toHaveKey("title");
+			});
+
+			it( "Tests mustMatch()", function(){
+
+				var searchBuilder = variables.model.new( 
+					variables.testIndexName,
+					"testdocs"
+			 	);
+
+			 	searchBuilder.mustMatch( "title", "Foo" );
+
+			 	expect( searchBuilder.getQuery() ).toBeStruct();
+				expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
+				expect( searchBuilder.getQuery().bool ).toHaveKey( "must" );
+				expect( searchBuilder.getQuery().bool.must ).toBeStruct();
+				expect( searchBuilder.getQuery().bool.must ).toHaveKey("title");
+
+			});
+
+			it( "Tests mustNotMatch()", function(){
+
+				var searchBuilder = variables.model.new( 
+					variables.testIndexName,
+					"testdocs"
+			 	);
+
+			 	searchBuilder.mustNotMatch( "title", "Foo" );
+
+			 	expect( searchBuilder.getQuery() ).toBeStruct();
+				expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
+				expect( searchBuilder.getQuery().bool ).toHaveKey( "must_not" );
+				expect( searchBuilder.getQuery().bool.must_not ).toBeStruct();
+				expect( searchBuilder.getQuery().bool.must_not ).toHaveKey("title");
+
+			});
+
+			it( "Tests disjunction()", function(){
+
+			});
+
 			it( "Tests the aggregation() method", function(){
 
 				var searchBuilder = variables.model.new( 

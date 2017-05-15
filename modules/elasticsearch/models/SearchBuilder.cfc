@@ -229,13 +229,13 @@ component accessors="true" {
 	**/
 	SearchBuilder function shouldMatch( 
 		required string name, 
-		required any value
+		required any value,
+		numeric boost
 	){
-		return match( 
-			name      = arguments.name,
-			value     = arguments.value,
-			matchType = "should"
-		)
+
+		arguments[ "matchType" ] = "should";
+		return match( argumentCollection=arguments );
+
 	}
 
 	/**
@@ -246,13 +246,13 @@ component accessors="true" {
 	**/
 	SearchBuilder function mustMatch( 
 		required string name, 
-		required any value
+		required any value,
+		numeric boost
 	){
-		return match( 
-			name      = arguments.name,
-			value     = arguments.value,
-			matchType = "must"
-		)
+		
+		arguments[ "matchType" ] = "must";
+		return match( argumentCollection=arguments );
+
 	}
 
 	/**
@@ -263,13 +263,13 @@ component accessors="true" {
 	**/
 	SearchBuilder function mustNotMatch( 
 		required string name, 
-		required any value
+		required any value,
+		numeric boost
 	){
-		return match( 
-			name      = arguments.name,
-			value     = arguments.value,
-			matchType = "must_not"
-		)
+		
+		arguments[ "matchType" ] = "must_not";
+		return match( argumentCollection=arguments );
+
 	}
 
 
@@ -353,22 +353,35 @@ component accessors="true" {
 		var booleanMatchTypes = [ 'must', 'must_not', 'should' ];
 
 		if( arrayFind( booleanMatchTypes, arguments.matchType ) ){
-			
+
 			if( !structKeyExists( variables.query, "bool" ) ){
 				variables.query[ "bool" ] = {}
 			}
-			
-			if( !structKeyExists( variables.query.bool, arguments.matchType ) ){
-				variables.query.bool[ arguments.matchType ] = [];
-			}
 
-			arrayAppend( 
-				variables.query.bool.must, 
-				{
-					"#matchKey#" : match
+			switch( arguments.matchType ){
+				case "should":{
+					// array-based boolean matches
+					if( !structKeyExists( variables.query.bool, arguments.matchType ) ){
+						variables.query.bool[ arguments.matchType ] = [];
+					}
+					arrayAppend( 
+						variables.query.bool[ arguments.matchType ], 
+						{
+							"#matchKey#" : match
+						}
+					);
+					break;
 				}
-			);
+				default:{
+					
+					if( !structKeyExists( variables.query.bool, arguments.matchType ) ){
+						variables.query.bool[ arguments.matchType ] = {};
+					}
 
+					structAppend( variables.query.bool[ arguments.matchType ], match, true );
+				}
+			}
+			
 		} else {
 
 			if( !structKeyExists( variables.query, matchKey ) ){
