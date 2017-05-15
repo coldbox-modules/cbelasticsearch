@@ -43,7 +43,6 @@ install:
   - curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.1.1.deb
   - sudo dpkg -i --force-confnew elasticsearch-5.1.1.deb
   - sudo service elasticsearch start
-  - curl -v http://127.0.0.1:9200/
   # Install Commandbox
   - sudo apt-get update && sudo apt-get --assume-yes install git haveged rsync commandbox
   # Test that the box binary is available and ready for our tests
@@ -53,6 +52,7 @@ install:
   # Setup for our tests
   - mkdir tests/results
   - sudo chmod -R 775 tests/results
+  - curl -v http://127.0.0.1:9200/
 
 # Build script - note module versioning is passed to ANT
 script:
