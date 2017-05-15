@@ -25,13 +25,43 @@ component{
 	this.autoMapModels		= true;
 	// Module Dependencies That Must Be Loaded First, use internal names or aliases
 	this.dependencies		= [ "cbjavaloader" ];
+	// Auto-parse parent settings
+	this.parseParentSettings = true;
 	
 	variables.configStruct = {};
 
+
 	function configure(){
 
-		// Java Loader Settings
-		settings = {};
+		// Default settings
+		settings = {
+			//The native client Wirebox DSL for the transport client
+			client="JestClient@cbElasticsearch",
+			// The default hosts - an array of host connections
+			//  - REST-based clients (e.g. JEST):  round robin connections will be used
+			//  - Socket-based clients (e.g. Transport):  cluster-aware routing used
+			hosts = [
+				//The default connection is made to http://127.0.0.1:9200
+				{
+					serverProtocol:'http',
+					serverName:'127.0.0.1',
+					//Socket-based connections will use 9300
+					serverPort:'9200'
+				}
+			],
+			// The default index
+			defaultIndex = "cbElasticsearch",
+			// The default number of shards to use when creating an index
+			defaultIndexShards = 3,
+			// The default number of index replicas to create
+			defaultIndexReplicas = 0,
+			// Whether to use separate threads for client transactions 
+			multiThreaded = true,
+			// The maximum number of connections allowed per route ( e.g. search URI endpoint )
+			maxConnectionsPerRoute = 10,
+			// The maxium number of connectsion, in total for all Elasticsearch requests
+			maxConnections = 100
+		};
 
 		// Custom Declared Points
 		interceptorSettings = {
@@ -47,8 +77,6 @@ component{
 	* Fired when the module is registered and activated.
 	*/
 	function onLoad(){
-		//Retrieve our module settings
-		parseParentSettings();
 		
 		// load DB jars
 		wirebox.getInstance( "loader@cbjavaloader" ).appendPaths( variables.modulePath & "/lib");
@@ -59,7 +87,6 @@ component{
 
 		binder.map("Config@cbElasticsearch")
 			.to( '#moduleMapping#.models.Config' )
-			.initWith( configStruct=variables.configStruct )
 			.threadSafe()
 			.asSingleton();
 
@@ -76,47 +103,6 @@ component{
 			Wirebox.getInstance( "Client@cbElasticsearch" ).close();		
 		
 		}
-
-	}
-
-	/**
-	* Prepare settings for DB Connections.
-	*/
-	private function parseParentSettings(){
-		var oConfig 			= controller.getSetting( "ColdBoxConfig" );
-		var configSettings 		= {};
-		var esSettings			= oConfig.getPropertyMixin( "elasticsearch", "variables", {} );
-
-		//check if a config has been misplaced within the custom settings structure
-		if( structIsEmpty( esSettings ) and structKeyExists( configSettings, "elasticsearch" ) ){
-			esSettings = duplicate( configSettings.elasticsearch );
-		}		
-			
-		//default config struct
-		configSettings = {
-			//The native client DSL
-			client="JestClient@cbElasticsearch",
-			//The default hosts
-			hosts = [
-				{
-					serverProtocol:'http',
-					serverName:'127.0.0.1',
-					serverPort:'9200'
-				}
-			],
-			//The default index
-			defaultIndex = "cbElasticsearch",
-			defaultIndexShards = 3,
-			defaultIndexReplicas = 0,
-			multiThreaded = true,
-			maxConnectionsPerRoute = 10,
-			maxConnections = 100
-		};
-
-		// Incorporate settings
-		structAppend( configSettings, esSettings, true );
-
-		variables.configStruct = configSettings;
 
 	}
 

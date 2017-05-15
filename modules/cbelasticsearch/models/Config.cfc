@@ -13,19 +13,8 @@ component accessors="true"{
 	/**
 	* CBJavaloader
 	**/
-	property name="configStruct";
-
-	/**
-	* Constructor
-	* @hosts Defaults to [{serverName='localhost',serverPort='27017'}]
-	**/
-	public function init( required struct configStruct ){
-
-		variables.configStruct = arguments.configStruct;
-
-	 	return this;
-
-	}
+	property name="configStruct" inject="coldbox:modulesettings:cbelasticsearch";
+	
 
 	/**
 	* Returns a key value in the config struct

@@ -20,9 +20,9 @@ The elasticsearch module for the Coldbox Platform provides you with a fluent sea
 Requirements
 ============
 
-* Coldbox ^v4.3
-* Elasticsearch  ^v5.0
-* Lucee ^v4.5 | Adobe Coldfusion ^v10
+* Coldbox >= v4.5
+* Elasticsearch  >= v5.0
+* Lucee >= v4.5 or Adobe Coldfusion >= v10
 
 _Note:  While only Elasticsearch 5.0 and above is supported, most of the REST-based methods will work on previous versions.  A notable exception is the multi-delete methods, which use the [delete by query](https://www.elastic.co/guide/en/elasticsearch/reference/5.4/docs-delete-by-query.html) functionality of ES5.  As such, Cachebox and Logbox functionality would be limited._
 
@@ -65,7 +65,7 @@ elasticsearch = {
 };
 ```
 
-As pre-1.0 release, only the REST-based [JEST] native client is available. Support is in development for a socket based-client.  For most applications, however 
+As pre-1.0 release, only the REST-based [JEST] native client is available. Support is in development for a socket based-client.  For most applications, however the REST-based native client will be a good fit.
 
 Creating Indexes
 ================
@@ -88,7 +88,7 @@ On types:
 
 - From [Index vs. Type on the Elastic blog](https://www.elastic.co/blog/index-vs-type).
 
-In short, indexes have a higher overhead and disallow the aggregation of search results between types.  If it is desired that your application search interfaces return multiple entity or domain types, then those should respresent distinctive types within a single index, allowing them to be aggregated, sorted, and ordered in search results.
+In short, indexes have a higher overhead and make the aggregation of search results between types very more expensive.  If it is desired that your application search interfaces return multiple entity or domain types, then those should respresent distinctive types within a single index, allowing them to be aggregated, sorted, and ordered in search results.
 
 
 #### Creating and Mapping an Index
