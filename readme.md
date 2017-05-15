@@ -474,7 +474,20 @@ searchBuilder.sort( "author.lastName", "asc" );
 
 While our documents would still be scored, the results order would be changed to that specified.
 
+#### Search Builder Function Reference:
 
+* `new([string index], [string type], [struct properties])` - Populates a new SearchBuilder object.
+* `reset()` - Clears the SearchBuilder and resets the DSL
+* `deleteAll()` - Deletes all documents matching the currently built search query.
+* `execute()` - Executes the built search
+* `getDSL()` - Returns a struct containing the assembled Elasticsearch query DSL
+* `match(string name, any value, [numeric boost], [struct options], [string matchType='any'])` - Applies a match requirement to the search builder query.
+* `mustMatch(string name, any value, [numeric boost])` - `must` query alias for match().
+* `mustNotMatch(string name, any value, [numeric boost])` - `must_not` query alias for match().
+* `shouldMatch(string name, any value, [numeric boost])` - `should` query alias for match().
+* `sort(any sort, [any sortConfig])` - Applies a custom sort to the search query.
+* `term(string name, any value, [numeric boost])` - Adds an exact value restriction ( elasticsearch: term ) to the query.
+* `aggregation(string name, struct options)`  - Adds an aggregation directive to the search parameters.
 
 
 ********************************************************************************
