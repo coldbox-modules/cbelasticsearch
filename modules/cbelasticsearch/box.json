@@ -17,7 +17,7 @@
         "Jon Clausen <jclausen@ortussolutions.com>"
     ],
     "dependencies"  :{
-        "cbjavaloader":"^1.3.0+00007",
+        "cbjavaloader":"^1.3.0+00007"
     },
     "ignore":[
         "**/.*",
