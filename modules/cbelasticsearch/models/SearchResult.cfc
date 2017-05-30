@@ -131,7 +131,9 @@ component accessors="true"{
 
 			doc.setId( hit[ "_id" ] );
 
-			doc.setScore( hit[ "_score" ] );
+			if( structKeyExists( hit, "_score" ) ){			
+				doc.setScore( hit[ "_score" ] );	
+			}
 
 			arrayAppend( 
 				variables.hits, 
