@@ -272,32 +272,92 @@ component accessors="true" {
 
 	}
 
+	/**
+	* 'multi_match' query alias for match()
+	*
+	* @names 		array 		an array of keys to search
+	* @value 		string 		the value of the key
+	* @boost 		numeric	  	an optional boost value
+	**/
+	SearchBuilder function multiMatch( 
+		required array names, 
+		required any value,
+		numeric boost
+	){
+
+		return match( 
+			name  = arguments.names,
+			value = arguments.value,
+			matchType = 'multi_match'
+		);
+
+	}
+
+	/**
+	* `range` match for dates
+	* @name 		string 		the key to match
+	* @start 		string 		the preformatted date string to start the range
+	* @end 			string 		the preformatted date string to end the range
+	* @boost 		numeric	    the boost value of the match
+	**/
+	SearchBuilder function dateMatch(
+		required string name,
+		string start,
+		string end,
+		numeric boost
+	){
+		if( isNull( arguments.start ) && isNull( arguments.end ) ){
+			throw( 
+				type    = "",
+				message = ""
+			);
+		}
+
+		var properties = {
+		 	"gte" : !isNull( arguments.start ) ? arguments.start : javacast( "null", 0 ),
+		 	"lte" : !isNull( arguments.end ) ? arguments.end : javacast( "null", 0 ),
+		 	"boost" : !isNull( arguments.boost ) ? arguments.boost : javacast( "null", 0 )
+		};
+
+		return match( 
+			name      = arguments.name,
+			value     = properties,
+			matchType = 'range'
+		);
+
+	}
+
 
 	/**
 	* Applies a match requirement to the search builder query
 	* https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query.html
 	* 
-	* @name 		string 		the name of the key to search
-	* @value 		string 		the value of the key
-	* @boost 		numeric		A numeric boost option for any exact matches
-	* @options 		struct 		An additional struct map of Elasticsearch query options to 
-	*							pass in to the match parameters ( e.g. - operator, zero_terms_query, etc )
-	* @matchType 	string 		a match type ( default="any" )
-	* 							Valid options:
-	* 							 - "any"
-	* 							 - "all"
-	* 							 - "phrase" - requires an exact match of a given phrase
-	* 							 - "must" | "must_not" - specifies that any document returned must or must not match
-	* 							 - "should" - specifies that any documents returned should match the value(s) provided
+	* @name 		string|array 		the name of the key to search
+	* @value 		string 				the value of the key
+	* @boost 		numeric				A numeric boost option for any exact matches
+	* @options 		struct 				An additional struct map of Elasticsearch query options to 
+	*									pass in to the match parameters ( e.g. - operator, zero_terms_query, etc )
+	* @matchType 	string 				a match type ( default="any" )
+	* 									Valid options:
+	* 							 		- "any"
+	* 							 		- "all"
+	* 							 		- "phrase" - requires an exact match of a given phrase
+	* 							 		- "must" | "must_not" - specifies that any document returned must or must not match
+	* 							 		- "should" - specifies that any documents returned should match the value(s) provided
 	*
 	**/
 	SearchBuilder function match( 
-		required string name, 
+		required any name, 
 		required any value, 
 		numeric boost,
 		struct options,
 		string matchType="any" 
 	){
+
+		//Auto-magically make a multi-match query if our name argument is an array
+		if( isArray( arguments.name ) ){
+			arguments.matchType = 'multi_match';
+		}
 
 		switch( arguments.matchType ){
 
@@ -317,20 +377,20 @@ component accessors="true" {
 
 		var match = {};
 
-		if( !isNull( arguments.boost ) ){		
+		if( !isNull( arguments.boost ) && isSimpleValue( arguments.name ) ){		
 	
 			match[ arguments.name ] = {
 				"query" : arguments.value,
 				"boost" : javacast( "float", arguments.boost )
 			};
 	
-		} else {
+		} else if( isSimpleValue( arguments.name ) ) {
 	
 			match[ arguments.name ] = arguments.value;
 	
 		}
 
-		if( !isNull( arguments.options ) ){
+		if( !isNull( arguments.options ) && isSimpleValue( arguments.name ) ){
 
 			//convert our query to the long form DSL so we can append options
 			if( !isStruct( match[ arguments.name ] ) ){
@@ -350,7 +410,7 @@ component accessors="true" {
 			}
 		}
 
-		var booleanMatchTypes = [ 'must', 'must_not', 'should' ];
+		var booleanMatchTypes = [ 'must', 'must_not', 'multi_match', 'should', "range" ];
 
 		if( arrayFind( booleanMatchTypes, arguments.matchType ) ){
 
@@ -372,6 +432,68 @@ component accessors="true" {
 					);
 					break;
 				}
+
+				case "multi_match":{
+
+					if( !structKeyExists( variables.query.bool, "must" ) ){
+						variables.query.bool[ "must" ] = [];
+					}
+
+					var matchCriteria = {
+						"query" :    arguments.value,
+						"fields" : isArray( arguments.name ) ? arguments.name : listToArray( arguments.name )
+					};
+
+					if( !isNull( arguments.boost ) ) matchCriteria[ "boost" ] = arguments.boost;
+					
+					arrayAppend( 
+						variables.query.bool.must, 
+						{
+							"#arguments.matchType#" : matchCriteria
+						} 
+					);
+
+					break;
+
+				}
+
+				case "range":{
+
+					if( !structKeyExists( variables.query.bool, "must" ) ){
+						variables.query.bool[ "must" ] = [];
+					}
+					
+					arrayAppend( 
+						variables.query.bool.must, 
+						{
+							"#arguments.matchType#" : {
+								"#arguments.name#" : arguments.value
+							}
+						} 
+					);
+
+					break;
+
+				}
+
+				case "must":{
+					
+					if( !structKeyExists( variables.query.bool, "must" ) ){
+						variables.query.bool[ "must" ] = [];
+					}
+					
+					arrayAppend( 
+						variables.query.bool.must, {
+							"match" : {
+								"#arguments.name#" : arguments.value
+							}
+						} 
+						
+					);
+
+					break;
+				}
+
 				default:{
 					
 					if( !structKeyExists( variables.query.bool, arguments.matchType ) ){
@@ -522,6 +644,7 @@ component accessors="true" {
 	}
 
 	struct function getDSL(){
+
 		var dsl = {
 			"query" : variables.query
 		};
