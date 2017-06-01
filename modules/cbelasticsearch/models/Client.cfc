@@ -134,6 +134,17 @@ component
 
 	}
 
+	/**
+	* Applies a single mapping to an index
+	* @indexName 				string 		the name of the index
+	* @mappingName	 			string 		the name of the mapping
+	* @mappingConfig 			struct 		the mapping configuration struct
+	**/
+	struct function applyMapping( required string indexName, required string mappingName, required struct mappingConfig ){
+		
+		return variables.nativeClient.applyMapping( argumentCollection=arguments );
+	}
+
 
 	/**
 	* Applies mappings to an index

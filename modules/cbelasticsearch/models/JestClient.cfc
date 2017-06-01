@@ -230,30 +230,56 @@ component
 	}
 
 
+	/**
+	* Applies a single mapping to an index
+	* @indexName 				string 		the name of the index
+	* @mappingName	 			string 		the name of the mapping
+	* @mappingConfig 			struct 		the mapping configuration struct
+	* @interfaced
+	**/
+	struct function applyMapping( required string indexName, required string mappingName, required struct mappingConfig ){
+		
+		var putBuilder = variables.jLoader.create( "io.searchbox.indices.mapping.PutMapping$Builder" ).init( 
+				arguments.indexName,
+				arguments.mappingName,
+				serializeJSON( 
+					{
+						"#arguments.mappingName#":arguments.mappingConfig
+					}
+				)
+			);
+
+		var mappingResult = execute( putBuilder.build() );
+
+		if( structKeyExists( mappingResult, "error" ) ){
+		
+			throw( 
+				type="cbElasticsearch.JestClient.IndexMappingException",
+				message="The mapping for #arguments.mappingName# could not be created.  Reason: #mappingResult.error.reason#",
+				extendedInfo=serializeJSON( mappingResult )
+			);
+		
+		} else{
+
+			return mappingResult;
+		
+		}
+	}
+
+
+	/**
+	* Applies multiple mappings to an index
+	* @indexName 		string 		The name of the index
+	* @mappings 		struct 		a struct containing the mapping configuration
+	* @interfaced
+	**/
 	struct function applyMappings( required string indexName, required struct mappings ){
 
 		var mappingResults = {};
 		
 		for( var mapKey in arguments.mappings ){
-			var putBuilder = variables.jLoader.create( "io.searchbox.indices.mapping.PutMapping$Builder" ).init( 
-				arguments.indexName,
-				mapKey,
-				serializeJSON( 
-					{
-						"#mapKey#":arguments.mappings[ mapKey ]
-					}
-				)
-			);
 
-			mappingResults[ mapKey ] = execute( putBuilder.build() );
-
-			if( structKeyExists( mappingResults[ mapKey ], "error" ) ){
-				throw( 
-					type="cbElasticsearch.JestClient.IndexMappingException",
-					message="The mapping for #mapKey# could not be created.  Reason: #mappingResults[ mapKey ].error.reason#",
-					extendedInfo=serializeJSON( mappingResults[ mapKey ] )
-				);
-			}
+			mappingResults[ mapKey ] = applyMapping( arguments.indexName, mapKey, arguments.mappings[ mapKey ] );
 
 		}
 

@@ -44,7 +44,7 @@ interface{
 	boolean function indexMappingExists( 
 		required string indexName, 
 		required string mapping 
-	){}
+	);
 
 	/**
 	* Applies an index item ( create/update )
@@ -64,6 +64,22 @@ interface{
 	struct function deleteIndex( required string indexName );
 
 
+	/**
+	* Applies a single mapping to an index
+	* @indexName 				string 		the name of the index
+	* @mappingName	 			string 		the name of the mapping
+	* @mappingConfig 			struct 		the mapping configuration struct
+	* @interfaced
+	**/
+	struct function applyMapping( required string indexName, required string mappingName, required struct mappingConfig );
+
+
+	/**
+	* Applies multiple mappings to an index
+	* @indexName 		string 		The name of the index
+	* @mappings 		struct 		a struct containing the mapping configuration
+	* @interfaced
+	**/
 	struct function applyMappings( required string indexName, required struct mappings );
 
 	/**
