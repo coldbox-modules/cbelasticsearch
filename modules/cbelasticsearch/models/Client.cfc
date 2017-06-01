@@ -81,6 +81,21 @@ component
 	}
 
 	/**
+	* Verifies whether an index mapping exists
+	* 
+	* @indexName 		string 		the name of the index
+	* @mapping 			string 		the name of the mapping
+	**/
+	boolean function indexMappingExists( 
+		required string indexName, 
+		required string mapping 
+	){
+
+		return variables.nativeClient.indexMappingExists( argumentCollection=arguments );
+
+	}
+
+	/**
 	* Applies an index item ( create/update )
 	* @indexBuilder 	IndexBuilder 	An instance of the IndexBuilder object
 	* 

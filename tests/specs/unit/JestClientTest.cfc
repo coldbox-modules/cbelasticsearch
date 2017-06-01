@@ -62,6 +62,14 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( variables.model.indexExists( variables.testIndexName ) ).toBeTrue();
 			});
 
+			it( "Tests the ability to verify that a mapping exists", function(){
+				expect( variables.model.indexMappingExists( variables.testIndexName, "testdocs" ) ).toBeTrue();
+			});
+
+			it( "Tests the ability to verify that a mapping does not exist", function(){
+				expect( variables.model.indexMappingExists( variables.testIndexName, "idonotexist" ) ).toBeFalse();
+			});
+
 			it( "Tests the ability to insert a document in to an index", function(){
 
 				expect( variables ).toHaveKey( "testIndexName" );

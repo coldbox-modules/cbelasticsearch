@@ -118,6 +118,7 @@ component
 	* Verifies whether an index exists
 	* 
 	* @indexName 		string 		the name of the index
+	* @interfaced
 	**/
 	boolean function indexExists( required string indexName ){
 
@@ -127,6 +128,30 @@ component
 		var exists = execute( existsBuilder.build(), true );
 
 		return ( exists.getResponseCode() < 400 );
+
+	}
+
+	/**
+	* Verifies whether an index mapping exists
+	* 
+	* @indexName 		string 		the name of the index
+	* @mapping 			string 		the name of the mapping
+	* @interfaced
+	**/
+	boolean function indexMappingExists( 
+		required string indexName, 
+		required string mapping 
+	){
+
+		var getBuilder = variables.jLoader.create( "io.searchbox.indices.mapping.GetMapping$Builder" ).init();
+		getBuilder.addIndex( arguments.indexName );
+		getBuilder.addType( arguments.mapping )
+
+		//Our exists method returns no payload so we need to check the status code
+		var mapping = execute( getBuilder.build(), true );
+
+
+		return ( mapping.getResponseCode() == 200 && !structIsEmpty( mapping.getJSONMap() ) );
 
 	}
 
@@ -190,6 +215,7 @@ component
 		return true;
 
 	}
+
 
 	/**
 	* Deletes an index

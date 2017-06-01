@@ -35,6 +35,18 @@ interface{
 	boolean function indexExists( required string indexName );
 
 	/**
+	* Verifies whether an index mapping exists
+	* 
+	* @indexName 		string 		the name of the index
+	* @mapping 			string 		the name of the mapping
+	* @interfaced
+	**/
+	boolean function indexMappingExists( 
+		required string indexName, 
+		required string mapping 
+	){}
+
+	/**
 	* Applies an index item ( create/update )
 	* @indexBuilder 	IndexBuilder 	An instance of the IndexBuilder object
 	* 
