@@ -33,35 +33,36 @@ Once you have installed the module, you may add a custom configuration, specific
 
 By default the following are in place, without additional configuration:
 
-
 ```
-elasticsearch = {
-	//The native client Wirebox DSL for the transport client
-	client="JestClient@cbElasticsearch",
-	// The default hosts - an array of host connections
-	//  - REST-based clients (e.g. JEST):  round robin connections will be used
-	//  - Socket-based clients (e.g. Transport):  cluster-aware routing used
-	hosts = [
-		//The default connection is made to http://127.0.0.1:9200
-		{
-			serverProtocol:'http',
-			serverName:'127.0.0.1',
-			//Socket-based connections will use 9300
-			serverPort:'9200'
-		}
-	],
-	// The default index
-	defaultIndex = "cbElasticsearch",
-	// The default number of shards to use when creating an index
-	defaultIndexShards = 3,
-	// The default number of index replicas to create
-	defaultIndexReplicas = 0
-	// Whether to use separate threads for client transactions 
-	multiThreaded = true,
-	// The maximum number of connections allowed per route ( e.g. search URI endpoint )
-	maxConnectionsPerRoute = 10,
-	// The maxium number of connectsion, in total for all Elasticsearch requests
-	maxConnections = 100
+moduleSettings = {
+	"cbElasticsearch" : {
+		//The native client Wirebox DSL for the transport client
+		client="JestClient@cbElasticsearch",
+		// The default hosts - an array of host connections
+		//  - REST-based clients (e.g. JEST):  round robin connections will be used
+		//  - Socket-based clients (e.g. Transport):  cluster-aware routing used
+		hosts = [
+			//The default connection is made to http://127.0.0.1:9200
+			{
+				serverProtocol:'http',
+				serverName:'127.0.0.1',
+				//Socket-based connections will use 9300
+				serverPort:'9200'
+			}
+		],
+		// The default index
+		defaultIndex = "cbElasticsearch",
+		// The default number of shards to use when creating an index
+		defaultIndexShards = 3,
+		// The default number of index replicas to create
+		defaultIndexReplicas = 0
+		// Whether to use separate threads for client transactions 
+		multiThreaded = true,
+		// The maximum number of connections allowed per route ( e.g. search URI endpoint )
+		maxConnectionsPerRoute = 10,
+		// The maxium number of connectsion, in total for all Elasticsearch requests
+		maxConnections = 100
+	}	
 };
 ```
 
