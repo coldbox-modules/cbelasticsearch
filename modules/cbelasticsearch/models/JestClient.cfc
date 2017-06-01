@@ -145,13 +145,13 @@ component
 
 		var getBuilder = variables.jLoader.create( "io.searchbox.indices.mapping.GetMapping$Builder" ).init();
 		getBuilder.addIndex( arguments.indexName );
-		getBuilder.addType( arguments.mapping )
+		getBuilder.addType( arguments.mapping );
 
 		//Our exists method returns no payload so we need to check the status code
-		var mapping = execute( getBuilder.build(), true );
+		var mappingResult = execute( getBuilder.build(), true );
 
 
-		return ( mapping.getResponseCode() == 200 && !structIsEmpty( mapping.getJSONMap() ) );
+		return ( mappingResult.getResponseCode() == 200 && !structIsEmpty( mappingResult.getJSONMap() ) );
 
 	}
 
