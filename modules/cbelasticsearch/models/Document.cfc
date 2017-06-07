@@ -110,7 +110,7 @@ component
 			);
 		}
 
-		return getClient.delete( this );
+		return getClient().delete( this );
 	}
 
 
