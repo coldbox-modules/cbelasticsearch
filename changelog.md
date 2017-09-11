@@ -6,3 +6,4 @@ CHANGELOG
 
 # 0.2.0
 * Fixes pagination and offset handling
+* Adds support for terms filters in match()
