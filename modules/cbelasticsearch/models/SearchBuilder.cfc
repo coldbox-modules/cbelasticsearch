@@ -420,7 +420,7 @@ component accessors="true" {
 			}
 		}
 
-		var booleanMatchTypes = [ 'must', 'must_not', 'multi_match', 'should', "range" ];
+		var booleanMatchTypes = [ 'must', 'must_not', 'multi_match', 'should', 'terms', 'range' ];
 
 		if( arrayFind( booleanMatchTypes, arguments.matchType ) ){
 
@@ -495,6 +495,24 @@ component accessors="true" {
 					arrayAppend( 
 						variables.query.bool.must, {
 							"match" : {
+								"#arguments.name#" : arguments.value
+							}
+						} 
+						
+					);
+
+					break;
+				}
+
+				case "terms":{
+					
+					if( !structKeyExists( variables.query.bool, "must" ) ){
+						variables.query.bool[ "must" ] = [];
+					}
+					
+					arrayAppend( 
+						variables.query.bool.must, {
+							"terms" : {
 								"#arguments.name#" : arguments.value
 							}
 						} 
