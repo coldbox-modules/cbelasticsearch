@@ -62,11 +62,14 @@ component accessors="true" {
 		
 		variables.index        	= variables.configObject.get( "defaultIndex" );
 		
-		var nullDefaults = [ "id","sorting","aggregations","script","maxRows","sortRows" ];
+		var nullDefaults = [ "id","sorting","aggregations","script","sortRows" ];
 		
 		//ensure defaults, in case we are re-using a search builder with new()
 		variables.matchType    	= "any";
 		variables.query 		= {};
+
+		variables.maxRows 		= 25;
+		variables.startRow		= 0;
 
 		for( var nullable in nullDefaults ){
 			if( !structKeyExists( variables, nullable ) || !isNull( variables[ nullable ] ) ){
@@ -84,6 +87,7 @@ component accessors="true" {
 	* Persists the document to Elasticsearch
 	**/
 	function execute(){
+
 		return getClient().executeSearch( this );
 	}
 
@@ -121,7 +125,13 @@ component accessors="true" {
 			for( var propName in arguments.properties ){
 
 				switch( propName ){
-					
+					case "offset":
+					case "startRow":{
+						variables.startRow = arguments.properties[ propName ];
+					}
+					case "maxRows":{
+						variables.maxRows = arguments.properties[ propName ];
+					}
 					case "query":{
 						variables.query = arguments.properties[ propName ];
 						break;
@@ -410,7 +420,7 @@ component accessors="true" {
 			}
 		}
 
-		var booleanMatchTypes = [ 'must', 'must_not', 'multi_match', 'should', "range" ];
+		var booleanMatchTypes = [ 'must', 'must_not', 'multi_match', 'should', 'terms', 'range' ];
 
 		if( arrayFind( booleanMatchTypes, arguments.matchType ) ){
 
@@ -485,6 +495,24 @@ component accessors="true" {
 					arrayAppend( 
 						variables.query.bool.must, {
 							"match" : {
+								"#arguments.name#" : arguments.value
+							}
+						} 
+						
+					);
+
+					break;
+				}
+
+				case "terms":{
+					
+					if( !structKeyExists( variables.query.bool, "must" ) ){
+						variables.query.bool[ "must" ] = [];
+					}
+					
+					arrayAppend( 
+						variables.query.bool.must, {
+							"terms" : {
 								"#arguments.name#" : arguments.value
 							}
 						} 
@@ -646,6 +674,8 @@ component accessors="true" {
 	struct function getDSL(){
 
 		var dsl = {
+			"from"  : variables.startRow,
+			"size"  : variables.maxRows,
 			"query" : variables.query
 		};
 

@@ -481,7 +481,9 @@ component
 		var deleteBuilder = variables.jLoader
 										.create( "io.searchbox.core.DeleteByQuery$Builder" )
 										.init( 
-											serializeJSON( arguments.searchBuilder.getDSL() )
+											serializeJSON( {
+												"query" : arguments.searchBuilder.getQuery()
+											} )
 										);
 		
 		deleteBuilder.addIndex( arguments.searchBuilder.getIndex() );
@@ -491,6 +493,7 @@ component
 		}
 
 		var deletionResult = execute( deleteBuilder.build() );
+
 
 		return javacast( "boolean", structKeyExists( deletionResult, "deleted" ) ? deletionResult.deleted : 0 );
 
