@@ -231,6 +231,31 @@ component accessors="true" {
 
 	}
 
+	function filterTerms( 
+		required string name,
+		required any value
+	){
+		if( isSimpleValue( value ) ) arguments.value = listToArray( value );
+
+		if( arrayLen( value ) == 1 ){
+			return term( name=arguments.name, value=value[ 1 ] );
+		}
+
+		if( !structKeyExists( variables.query, "bool" ) ){
+			variables.query[ "bool" ] = {};
+		}
+
+		if( !structKeyExists( variables.query.bool, "filter" ) ){
+			variables.query.bool[ "filter" ] = {};
+		}
+
+		if( !structKeyExists( variables.query.bool.filter, "terms" ) ){
+			variables.query.bool.filter[ "terms" ] = {};
+		}
+
+		variables.query.bool.filter.terms[ name ] = value;
+	}
+
 	/**
 	* `must` query alias for match()
 	*

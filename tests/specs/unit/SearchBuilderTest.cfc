@@ -110,6 +110,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			});
 
+
 			it( "Tests shouldMatch()", function(){
 				var searchBuilder = variables.model.new( 
 					variables.testIndexName,
@@ -300,7 +301,22 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			 	expect( searchResult ).toBeComponent();
 
+			});
 
+
+			it( "Tests the filterTerms() method with a list", function(){
+				var searchBuilder = variables.model.new( 
+					variables.testIndexName,
+					"testdocs"
+			 	);
+
+			 	searchBuilder.filterTerms( "title", "Foo,Bar" );
+
+			 	expect( searchBuilder.getQuery() ).toBeStruct();
+				expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
+				expect( searchBuilder.getQuery().bool ).toHaveKey( "filter" );
+				expect( searchBuilder.getQuery().bool.filter ).toHaveKey( "terms" );
+				expect( searchBuilder.getQuery().bool.filter.terms ).toBe( { "title" : [ "Foo", "Bar" ] } );
 
 			});
 
