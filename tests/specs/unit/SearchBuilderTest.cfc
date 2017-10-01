@@ -316,7 +316,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
 				expect( searchBuilder.getQuery().bool ).toHaveKey( "filter" );
 				expect( searchBuilder.getQuery().bool.filter ).toHaveKey( "terms" );
-				expect( searchBuilder.getQuery().bool.filter.terms ).toBe( "#title#" : [ "Foo", "Bar" ] );
+				expect( searchBuilder.getQuery().bool.filter.terms ).toBe( { "title" : [ "Foo", "Bar" ] } );
 
 			});
 
