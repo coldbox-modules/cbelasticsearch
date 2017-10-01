@@ -246,7 +246,7 @@ component accessors="true" {
 		}
 
 		if( !structKeyExists( variables.query.bool, "filter" ) ){
-			variables.query.bool[ "filter" ] = {}
+			variables.query.bool[ "filter" ] = {};
 		}
 
 		if( !structKeyExists( variables.query.bool.filter, "terms" ) ){
