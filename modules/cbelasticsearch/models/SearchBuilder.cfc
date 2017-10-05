@@ -237,7 +237,7 @@ component accessors="true" {
 	){
 		if( isSimpleValue( value ) ) arguments.value = listToArray( value );
 
-		if( arrayLen( value ) == 1 ){
+		if( isArray( value ) && arrayLen( value ) == 1 ){
 			return term( name=arguments.name, value=value[ 1 ] );
 		}
 
