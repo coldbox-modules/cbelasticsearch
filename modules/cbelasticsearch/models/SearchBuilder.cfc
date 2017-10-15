@@ -511,14 +511,15 @@ component accessors="true" {
 
 				}
 
-				case "must":{
+				case "must":
+				case "must_not":{
 					
-					if( !structKeyExists( variables.query.bool, "must" ) ){
-						variables.query.bool[ "must" ] = [];
+					if( !structKeyExists( variables.query.bool, arguments.matchType ) ){
+						variables.query.bool[ arguments.matchType ] = [];
 					}
 					
 					arrayAppend( 
-						variables.query.bool.must, {
+						variables.query.bool[ arguments.matchType ], {
 							"match" : {
 								"#arguments.name#" : arguments.value
 							}
