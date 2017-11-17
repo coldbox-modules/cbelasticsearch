@@ -51,17 +51,14 @@ component accessors="true" {
 	* Whether to preflight the query prior to execution( recommended ) - ensures consistent formatting to prevent errors
 	**/
 	property name="preflight"
-				type="boolean"
-				default="true";
+				type="boolean";
 
 	// Optional search defaults
 	property name="maxRows";
 	property name="startRow";
 
 
-
 	function onDIComplete(){
-		
 		reset();		
 		
 	}
@@ -79,6 +76,8 @@ component accessors="true" {
 		variables.maxRows 		= 25;
 		variables.startRow		= 0;
 
+		variables.preflight     = true;
+
 		for( var nullable in nullDefaults ){
 			if( !structKeyExists( variables, nullable ) || !isNull( variables[ nullable ] ) ){
 				variables[ nullable ] = javacast( "null", 0 );
@@ -95,7 +94,7 @@ component accessors="true" {
 	* Persists the document to Elasticsearch
 	**/
 	function execute(){
-		if( variables.preflight ){
+		if( preflight ){
 			preflightQuery();
 		}
 
