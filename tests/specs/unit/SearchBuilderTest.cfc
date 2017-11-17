@@ -156,12 +156,18 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			 	searchBuilder.mustNotMatch( "title", "Foo" );
 
+
+
+			 	debug( searchBuilder.getQuery() );
+
 			 	expect( searchBuilder.getQuery() ).toBeStruct();
 				expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
 				expect( searchBuilder.getQuery().bool ).toHaveKey( "must_not" );
 				expect( searchBuilder.getQuery().bool.must_not ).toBeArray();
 				expect( arrayLen( searchBuilder.getQuery().bool.must_not ) ).toBe( 1 );
-				expect( searchBuilder.getQuery().bool.must_not[ 1 ] ).toHaveKey("title");
+				expect( searchBuilder.getQuery().bool.must_not[ 1 ] ).toHaveKey("match");
+				expect( searchBuilder.getQuery().bool.must_not[ 1 ].match ).toHaveKey("title");
+				expect( searchBuilder.getQuery().bool.must_not[ 1 ].match.title ).toBe( "Foo" );
 
 			});
 
