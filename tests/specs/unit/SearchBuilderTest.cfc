@@ -159,8 +159,9 @@ component extends="coldbox.system.testing.BaseTestCase"{
 			 	expect( searchBuilder.getQuery() ).toBeStruct();
 				expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
 				expect( searchBuilder.getQuery().bool ).toHaveKey( "must_not" );
-				expect( searchBuilder.getQuery().bool.must_not ).toBeStruct();
-				expect( searchBuilder.getQuery().bool.must_not ).toHaveKey("title");
+				expect( searchBuilder.getQuery().bool.must_not ).toBeArray();
+				expect( arrayLen( searchBuilder.getQuery().bool.must_not ) ).toBe( 1 );
+				expect( searchBuilder.getQuery().bool.must_not[ 1 ] ).toHaveKey("title");
 
 			});
 
