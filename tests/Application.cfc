@@ -21,8 +21,23 @@ component{
 	
 	// any orm definitions go here.
 
-	// request start
-	public boolean function onRequestStart( String targetPage ){
-		return true;
+	function onRequestStart(){
+		// Clear out the previous framework objects so that the first spec with `loadColdbox` set to `true` will reload them
+		
+		if( structKeyExists( url, "persistColdbox" ) && !url.persistColdbox ){
+
+			structDelete( application, "cbController" );
+			structDelete( application, "wirebox" );	
+		
+		}
+
+	}
+
+	public function onRequestEnd(string targetPage) {
+
+		if( structKeyExists( URL, "reinitApp" ) ){
+			applicationStop();
+		}
+
 	}
 }
