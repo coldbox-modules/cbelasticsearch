@@ -60,7 +60,16 @@ component
 										.init( hostConnections )
 										.multiThreaded( javacast( "boolean", configSettings.multiThreaded ) )
 										.defaultMaxTotalConnectionPerRoute( configSettings.maxConnectionsPerRoute )
+										.readTimeout( configSettings.readTimeout )
+										.connTimeout( configSettings.connectionTimeout )
 										.maxTotalConnection( configSettings.maxConnections );
+
+		if( 
+			structKeyExists( configSettings, "defaultCredentials" ) 
+			&& len( configSettings.defaultCredentials.username ) 
+		){
+			configBuilder.defaultCredentials( configSettings.defaultCredentials.username, configSettings.defaultCredentials.password );
+		}
 
 		var factory = variables.jLoader.create( "io.searchbox.client.JestClientFactory" ).init();
 

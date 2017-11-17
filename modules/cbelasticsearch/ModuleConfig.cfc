@@ -10,7 +10,7 @@ component{
 	this.author 			= "Jon Clausen <jclausen@ortussolutions.com>";
 	this.webURL 			= "";
 	this.description 		= "Coldbox Module with Fluent API for ElasticSearch";
-	this.version			= "@build.version@+@build.number@";
+	this.version			= "0.2.0+38";
 	// If true, looks for views in the parent first, if not found, then in the module. Else vice-versa
 	this.viewParentLookup 	= true;
 	// If true, looks for layouts in the parent first, if not found, then in module. Else vice-versa
@@ -43,24 +43,33 @@ component{
 			hosts = [
 				//The default connection is made to http://127.0.0.1:9200
 				{
-					serverProtocol:'http',
-					serverName:'127.0.0.1',
+					serverProtocol : 'http',
+					serverName     : '127.0.0.1',
 					//Socket-based connections will use 9300
-					serverPort:'9200'
+					serverPort     : '9200'
 				}
 			],
+			// The default credentials for access, if any - may also be overridden when searching index collections 
+			defaultCredentials = {
+				"username" : "",
+				"password" : ""
+			},
 			// The default index
-			defaultIndex = "cbElasticsearch",
+			defaultIndex           = "cbElasticsearch",
 			// The default number of shards to use when creating an index
-			defaultIndexShards = 3,
+			defaultIndexShards     = 3,
 			// The default number of index replicas to create
-			defaultIndexReplicas = 0,
+			defaultIndexReplicas   = 0,
 			// Whether to use separate threads for client transactions 
-			multiThreaded = true,
+			multiThreaded          = true,
 			// The maximum number of connections allowed per route ( e.g. search URI endpoint )
 			maxConnectionsPerRoute = 10,
 			// The maxium number of connectsion, in total for all Elasticsearch requests
-			maxConnections = 100
+			maxConnections         = 100,
+			// Read timeout - the read timeout in milliseconds
+			readTimeout            = 3000,
+			// Connection timeout - timeout attempts to connect to elasticsearch after this timeout
+			connectionTimeout      = 3000
 		};
 
 		// Custom Declared Points
