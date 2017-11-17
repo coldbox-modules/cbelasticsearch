@@ -47,9 +47,17 @@ component accessors="true" {
 	**/
 	property name="matchType";
 
+	/**
+	* Whether to preflight the query prior to execution( recommended ) - ensures consistent formatting to prevent errors
+	**/
+	property name="preflight"
+				type="boolean"
+				default="true";
+
 	// Optional search defaults
 	property name="maxRows";
 	property name="startRow";
+
 
 
 	function onDIComplete(){
@@ -87,6 +95,9 @@ component accessors="true" {
 	* Persists the document to Elasticsearch
 	**/
 	function execute(){
+		if( variables.preflight ){
+			preflightQuery();
+		}
 
 		return getClient().executeSearch( this );
 	}
@@ -696,6 +707,83 @@ component accessors="true" {
 
 
 	}
+
+	/**
+	* Performs a preflight on the search 
+	* ensures that a dynamically assembled query is well formatted before being passed on to elasticsearch
+	**/
+	void function preflightQuery(){
+        
+        var searchQuery = getQuery();
+
+        //move terms in to the boolean node as they won't play well together otherwise
+        if( structKeyExists( searchQuery, "term" ) && ( structKeyExists( searchQuery, "bool" ) || arrayLen( structKeyArray( searchQuery.term ) ) > 1 ) ){
+            
+            if( !structKeyExists( searchQuery, "bool" ) ){
+                searchQuery[ "bool" ] = {};
+            }
+
+            if( !structKeyExists( searchQuery.bool, "must" ) ){
+                searchQuery.bool[ "must" ] = [];
+            }
+
+            for( var key in searchQuery.term ){
+                arrayAppend( 
+                    searchQuery.bool.must,
+                    {
+                        "term" : { "#key#" : searchQuery.term[ key ] } 
+                    }
+                );
+            }
+
+            structDelete( searchQuery, "term" );
+            
+        }
+
+        // move match directives in to boolean node if exists
+        if( structKeyExists( searchQuery, "match" ) && structKeyExists( searchQuery, "bool" ) && structKeyExists( searchQuery.bool, "must" ) ){
+
+            if( !structKeyExists( searchQuery.bool, "should" ) ){
+                searchQuery.bool[ "should" ] = [];
+            }
+
+            for( var key in searchQuery.match ){
+                arrayAppend( 
+                    searchQuery.bool.should, 
+                    {
+                        "match" : {
+                          "#key#": searchQuery.match[ key ]
+                        }
+                    } 
+                );
+            }
+
+            structDelete( searchQuery, "match" );
+        }
+
+        //if we have multiple term filters, move them in to a constant score query to prevent errors
+        if( structKeyExists( searchQuery, "bool" ) && structKeyExists( searchQuery.bool, "filter" ) && structKeyExists( searchQuery.bool.filter, "terms" ) ){
+            if( arrayLen( structKeyArray( searchQuery.bool.filter.terms ) ) > 1 ){
+                
+                searchQuery[ "constant_score" ] = {
+                    "filter" : {
+                        "terms" : {}
+                    }
+                };
+
+                for( var termKey in searchQuery.bool.filter.terms ){
+                    searchQuery.constant_score.filter.terms[ termKey ] = searchQuery.bool.filter.terms[ termKey ];
+                }
+
+                structDelete( searchQuery.bool.filter, "terms" );
+                if( structIsEmpty( searchQuery.bool.filter ) ) structDelete( searchQuery.bool, "filter" );
+                if( structIsEmpty( searchQuery.bool ) ) structDelete( searchQuery, "bool" );
+
+            }
+        }
+
+
+    }
 
 	struct function getDSL(){
 
