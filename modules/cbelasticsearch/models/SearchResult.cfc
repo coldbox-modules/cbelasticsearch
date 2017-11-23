@@ -99,7 +99,7 @@ component accessors="true"{
 		}
 
 		if( structKeyExists( arguments.properties, "aggregations" ) ){
-			varaibles.aggregations = arguments.properties.aggregations;
+			variables.aggregations = arguments.properties.aggregations;
 		}
 
 		variables.hitCount = hits[ "total" ];
