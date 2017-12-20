@@ -760,18 +760,30 @@ component accessors="true" {
             structDelete( searchQuery, "match" );
         }
 
-        //if we have multiple term filters, move them in to a constant score query to prevent errors
+        //if we have multiple term filters, move them in to the "must" array
         if( structKeyExists( searchQuery, "bool" ) && structKeyExists( searchQuery.bool, "filter" ) && structKeyExists( searchQuery.bool.filter, "terms" ) ){
             if( arrayLen( structKeyArray( searchQuery.bool.filter.terms ) ) > 1 ){
-                
-                searchQuery[ "constant_score" ] = {
-                    "filter" : {
-                        "terms" : {}
-                    }
-                };
+               
+               if( !structKeyExists( searchQuery, "bool" ) ){
+	                searchQuery[ "bool" ] = {};
+	            }
+
+	            if( !structKeyExists( searchQuery.bool, "must" ) ){
+	                searchQuery.bool[ "must" ] = [];
+	            }
 
                 for( var termKey in searchQuery.bool.filter.terms ){
-                    searchQuery.constant_score.filter.terms[ termKey ] = searchQuery.bool.filter.terms[ termKey ];
+
+                	arrayAppend( 
+                		searchQuery.bool.must,
+                		{
+                			"terms" : {
+	                			"#termKey#" : searchQuery.bool.filter.terms[ termKey ]
+	                		}
+	                	}
+
+                	);
+                	
                 }
 
                 structDelete( searchQuery.bool.filter, "terms" );
@@ -780,7 +792,6 @@ component accessors="true" {
 
             }
         }
-
 
     }
 
