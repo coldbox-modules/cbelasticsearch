@@ -55,7 +55,7 @@ moduleSettings = {
 		// The default number of shards to use when creating an index
 		defaultIndexShards = 3,
 		// The default number of index replicas to create
-		defaultIndexReplicas = 0
+		defaultIndexReplicas = 0,
 		// Whether to use separate threads for client transactions 
 		multiThreaded = true,
 		// The maximum number of connections allowed per route ( e.g. search URI endpoint )
@@ -220,7 +220,7 @@ var book = getInstance( "Document@cbElasticsearch" ).new(
 		"summary"    : "A great book on using Elasticsearch with the Coldbox framework",
 		"description": "A long descriptio with examples on why this book is great",
 		"author"     : {
-			"id"       : 1
+			"id"       : 1,
 			"firstName": "Jon",
 			"lastName" : "Clausen"
 		},
