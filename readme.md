@@ -109,7 +109,7 @@ var indexBuilder = getInstance( "IndexBuilder@cbElasticsearch" ).new(
 				// denotes a nested struct with additional keys
 				"author" : {"type":"object"},
 				// date with specific format type
-				"publishDate" {
+				"publishDate": {
 					"type":"date",
 					//Our format will be: yyyy-mm-dd
 					"format" :"strict_date"
@@ -140,7 +140,7 @@ var booksMapping = {
 		// denotes a nested struct with additional keys
 		"author" : {"type":"object"},
 		// date with specific format type
-		"publishDate" {
+		"publishDate": {
 			"type":"date",
 			//Our format will be: yyyy-mm-dd
 			"format" :"strict_date"
@@ -180,7 +180,7 @@ indexBuilder.new(
 					// denotes a nested struct with additional keys
 					"author" : {"type":"object"},
 					// date with specific format type
-					"publishDate" {
+					"publishDate": {
 						"type":"date",
 						//Our format will be: yyyy-mm-dd
 						"format" :"strict_date"
