@@ -124,39 +124,11 @@ var indexBuilder = getInstance( "IndexBuilder@cbElasticsearch" ).new(
 
 ```
 
+_Deprecation notice:  The index "type" ( e.g. "books" ) [has now been deprecated](https://www.elastic.co/guide/en/elasticsearch/reference/master/removal-of-types.html) in recent versions of Elasticsearch, and should no longer be used. Only a single type will be accepted in future releases._
 
-We can also add mappings after the `new()` method is called:
+Note that, in the above example, we are applying the index from within the object, itself, which is intuitive and fast. We could also pass the `IndexBuilder` object to the `Client@cbElasticsearch` instance's `applyIdex( required IndexBuilder indexBuilder )` method, if we wished.
 
-```
-// instantiate the index builder
-var indexBuilder = getInstance( "IndexBuilder@cbElasticsearch" ).new( "bookshop" );
-// our mapping struct
-var booksMapping = {
-	"_all":       { "enabled": false  },
-	"properties" : {
-		"title" : {"type":"string"},
-		"summary" : {"type":"string"},
-		"description" : {"type":"string"},
-		// denotes a nested struct with additional keys
-		"author" : {"type":"object"},
-		// date with specific format type
-		"publishDate": {
-			"type":"date",
-			//Our format will be: yyyy-mm-dd
-			"format" :"strict_date"
-		},
-		"edition" : {"type" : "integer"},
-		"ISBN" : {"type" : "integer"}
-	}
-}
-
-// add the mapping and save
-indexBuilder.addMapping( "books", booksMapping ).save();
-```
-
-Note that, in the above examples, we are applying the index and mappings directly from within the object, itself, which is intuitive and fast. We could also pass the `IndexBuilder` object to the `Client@cbElasticsearch` instance's `applyIdex( required IndexBuilder indexBuilder )` method, if we wished.
-
-If an explicit mapping is not specified when the index is created, Elasticsearch will assign types when the first document is saved.  
+If an explicit mapping is not specified when the index is created, Elasticsearch will assign types ( see note above ) when the first document is saved.  
 
 We've also passed a simple struct in to the index properties.  If we wanted to add additional settings or configure replicas and shards, we could pass a more comprehensive struct, including a [range of settings](https://www.elastic.co/guide/en/elasticsearch/reference/2.4/index-modules.html) to the `new()` method to do so:
 
