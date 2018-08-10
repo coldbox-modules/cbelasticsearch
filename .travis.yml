@@ -1,13 +1,9 @@
 language: java
 
-addons:
-  apt:
-    packages:
-      - oracle-java8-set-default
-
-dist: trusty
-
 sudo: required
+
+jdk:
+  - oraclejdk8
 
 cache:
   directories:
@@ -33,7 +29,7 @@ branches:
 
 before_install:
   # CommandBox Keys
-  - sudo apt-key adv --keyserver keys.gnupg.net --recv 6DA70622
+  - curl -fsSl https://downloads.ortussolutions.com/debs/gpg | sudo apt-key add -
   - sudo echo "deb http://downloads.ortussolutions.com/debs/noarch /" | sudo tee -a
     /etc/apt/sources.list.d/commandbox.list
 
@@ -69,7 +65,7 @@ after_failure:
   # Spit out our Commandbox log in case we need to debug
   - box server log name=$ENGINE
   - cat `box system-log`
-  
+
 before_deploy:
   - cd $TRAVIS_BUILD_DIR
   - mkdir -p s3deploy
@@ -80,7 +76,7 @@ deploy:
   #Module Deployment
   - provider: s3
     on:
-      branch: 
+      branch:
         - master
         - development
       condition: "$ENGINE = lucee@4.5"
@@ -95,7 +91,7 @@ deploy:
   #API Docs Deployment
   - provider: s3
     on:
-      branch: 
+      branch:
         - master
         - development
       condition: "$ENGINE = lucee@4.5"
@@ -107,7 +103,6 @@ deploy:
     local-dir: build/apidocs
     upload-dir: coldbox-modules/$MODULE_ID
     acl: public_read
-
 
 after_deploy:
   - cd $TRAVIS_BUILD_DIR/build && box forgebox publish
