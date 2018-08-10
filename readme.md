@@ -29,40 +29,40 @@ _Note:  While only Elasticsearch 5.0 and above is supported, most of the REST-ba
 Configuration
 =============
 
-Once you have installed the module, you may add a custom configuration, specific to your environment, by adding an `elasticsearch` configuration object to your `Coldbox.cfc` configuration file.
+Once you have installed the module, you may add a custom configuration, specific to your environment, by adding an `cbElasticsearch` configuration object to your `moduleSettings` inside your `Coldbox.cfc` configuration file.
 
 By default the following are in place, without additional configuration:
 
 ```
 moduleSettings = {
-	"cbElasticsearch" : {
-		//The native client Wirebox DSL for the transport client
-		client="JestClient@cbElasticsearch",
-		// The default hosts - an array of host connections
-		//  - REST-based clients (e.g. JEST):  round robin connections will be used
-		//  - Socket-based clients (e.g. Transport):  cluster-aware routing used
-		hosts = [
-			//The default connection is made to http://127.0.0.1:9200
-			{
-				serverProtocol:'http',
-				serverName:'127.0.0.1',
-				//Socket-based connections will use 9300
-				serverPort:'9200'
-			}
-		],
-		// The default index
-		defaultIndex = "cbElasticsearch",
-		// The default number of shards to use when creating an index
-		defaultIndexShards = 3,
-		// The default number of index replicas to create
-		defaultIndexReplicas = 0,
-		// Whether to use separate threads for client transactions 
-		multiThreaded = true,
-		// The maximum number of connections allowed per route ( e.g. search URI endpoint )
-		maxConnectionsPerRoute = 10,
-		// The maxium number of connectsion, in total for all Elasticsearch requests
-		maxConnections = 100
-	}	
+    "cbElasticsearch" = {
+        // The native client Wirebox DSL for the transport client
+        client = "JestClient@cbElasticsearch",
+        // The default hosts - an array of host connections
+        //  - REST-based clients (e.g. JEST):  round robin connections will be used
+        //  - Socket-based clients (e.g. Transport):  cluster-aware routing used
+        hosts = [
+            // The default connection is made to http://127.0.0.1:9200
+            {
+                serverProtocol = "http",
+                serverName = "127.0.0.1",
+                // Socket-based connections will use 9300
+                serverPort = "9200"
+            }
+        ],
+        // The default index
+        defaultIndex = "cbElasticsearch",
+        // The default number of shards to use when creating an index
+        defaultIndexShards = 3,
+        // The default number of index replicas to create
+        defaultIndexReplicas = 0,
+        // Whether to use separate threads for client transactions
+        multiThreaded = true,
+        // The maximum number of connections allowed per route ( e.g. search URI endpoint )
+        maxConnectionsPerRoute = 10,
+        // The maxium number of connectsion, in total for all Elasticsearch requests
+        maxConnections = 100
+    }
 };
 ```
 
@@ -97,31 +97,29 @@ In short, indexes have a higher overhead and make the aggregation of search resu
 The `IndexBuilder` model assists with the creation and mapping of indexes. Mappings define the allowable data types within your documents and allow for better and more accurate search aggregations.  Let's say we have a book model that we intend to make searchable.  We are storing this in our `bookshop` index, under the type of `book`.  Let's create the index (if it doesn't exist) and map the type of `book`:
 
 ```
-var indexBuilder = getInstance( "IndexBuilder@cbElasticsearch" ).new( 
-	"bookshop",
-	{
-		"books":{
-			"_all":       { "enabled": false  },
-			"properties" : {
-				"title" : {"type":"string"},
-				"summary" : {"type":"string"},
-				"description" : {"type":"string"},
-				// denotes a nested struct with additional keys
-				"author" : {"type":"object"},
-				// date with specific format type
-				"publishDate": {
-					"type":"date",
-					//Our format will be: yyyy-mm-dd
-					"format" :"strict_date"
-				},
-				"edition" : {"type" : "integer"},
-				"ISBN" : {"type" : "integer"}
-			}
-		}
-	}
-
-).save()
-
+var indexBuilder = getInstance( "IndexBuilder@cbElasticsearch" ).new(
+    "bookshop",
+    {
+        "books" = {
+            "_all" = { "enabled" = false },
+            "properties" = {
+                "title" = { "type" = "string" },
+                "summary" = { "type" = "string" },
+                "description" = { "type" = "string" },
+                // denotes a nested struct with additional keys
+                "author" = { "type" = "object" },
+                // date with specific format type
+                "publishDate" = {
+                    "type" = "date",
+                    // our format will be = yyyy-mm-dd
+                    "format" = "strict_date"
+                },
+                "edition" = { "type" = "integer" },
+                "ISBN" = { "type" = "integer" }
+            }
+        }
+    }
+).save();
 ```
 
 
@@ -132,23 +130,23 @@ We can also add mappings after the `new()` method is called:
 var indexBuilder = getInstance( "IndexBuilder@cbElasticsearch" ).new( "bookshop" );
 // our mapping struct
 var booksMapping = {
-	"_all":       { "enabled": false  },
-	"properties" : {
-		"title" : {"type":"string"},
-		"summary" : {"type":"string"},
-		"description" : {"type":"string"},
-		// denotes a nested struct with additional keys
-		"author" : {"type":"object"},
-		// date with specific format type
-		"publishDate": {
-			"type":"date",
-			//Our format will be: yyyy-mm-dd
-			"format" :"strict_date"
-		},
-		"edition" : {"type" : "integer"},
-		"ISBN" : {"type" : "integer"}
-	}
-}
+    "_all" = { "enabled" = false },
+    "properties" = {
+        "title" = { "type" = "string" },
+        "summary" = { "type" = "string" },
+        "description" = { "type" = "string" },
+        // denotes a nested struct with additional keys
+        "author" = { "type" = "object" },
+        // date with specific format type
+        "publishDate" = {
+            "type" = "date",
+            // our format will be = yyyy-mm-dd
+            "format" = "strict_date"
+        },
+        "edition" = { "type" = "integer" },
+        "ISBN" = { "type" = "integer" }
+    }
+};
 
 // add the mapping and save
 indexBuilder.addMapping( "books", booksMapping ).save();
@@ -156,41 +154,41 @@ indexBuilder.addMapping( "books", booksMapping ).save();
 
 Note that, in the above examples, we are applying the index and mappings directly from within the object, itself, which is intuitive and fast. We could also pass the `IndexBuilder` object to the `Client@cbElasticsearch` instance's `applyIdex( required IndexBuilder indexBuilder )` method, if we wished.
 
-If an explicit mapping is not specified when the index is created, Elasticsearch will assign types when the first document is saved.  
+If an explicit mapping is not specified when the index is created, Elasticsearch will assign types when the first document is saved.
 
 We've also passed a simple struct in to the index properties.  If we wanted to add additional settings or configure replicas and shards, we could pass a more comprehensive struct, including a [range of settings](https://www.elastic.co/guide/en/elasticsearch/reference/2.4/index-modules.html) to the `new()` method to do so:
 
 ```
-indexBuilder.new(  
-	"bookshop",
-	{
-		"settings" : {
-			"number_of_shards" : 10,
-			"number_of_replicas" : 2,
-			"auto_expand_replicas" :true,
-			"shard.check_on_startup" : "checksum"
-		},
-		"mappings" : {
-			"books":{
-				"_all": { "enabled": false  },
-				"properties" : {
-					"title" : {"type":"string"},
-					"summary" : {"type":"string"},
-					"description" : {"type":"string"},
-					// denotes a nested struct with additional keys
-					"author" : {"type":"object"},
-					// date with specific format type
-					"publishDate": {
-						"type":"date",
-						//Our format will be: yyyy-mm-dd
-						"format" :"strict_date"
-					},
-					"edition" : {"type" : "integer"},
-					"ISBN" : {"type" : "integer"}
-				}
-			}
-		}
-	}
+indexBuilder.new(
+    "bookshop",
+    {
+        "settings" = {
+            "number_of_shards" = 10,
+            "number_of_replicas" = 2,
+            "auto_expand_replicas" = true,
+            "shard.check_on_startup" = "checksum"
+        },
+        "mappings" = {
+            "books" = {
+                "_all" = { "enabled" = false },
+                "properties" = {
+                    "title" = { "type" = "string" },
+                    "summary" = { "type" = "string" },
+                    "description" = { "type" = "string" },
+                    // denotes a nested struct with additional keys
+                    "author" = { "type" = "object" },
+                    // date with specific format type
+                    "publishDate" = {
+                        "type" = "date",
+                        // our format will be = yyyy-mm-dd
+                        "format" = "strict_date"
+                    },
+                    "edition" = { "type" = "integer" },
+                    "ISBN" = { "type" = "integer" }
+                }
+            }
+        }
+    }
 
 );
 ```
@@ -205,30 +203,30 @@ indexBuilder.new(
 Managing Documents
 ==================
 
-Documents are the searchable, serialized objects within your indexes.  As noted above, documents may be assigned a type, allowing separation of schema, while still maintaining searchability across all documents in the index.   Within an index, each document is referenced by an `_id` value.  This `_id` may be set manually ( `document.setId()` ) or, if not provided will be auto-generated when the record is persisted.  Note that, if using numeric primary keys for your `_id` value, they will be cast as strings on serialization. 
+Documents are the searchable, serialized objects within your indexes.  As noted above, documents may be assigned a type, allowing separation of schema, while still maintaining searchability across all documents in the index.   Within an index, each document is referenced by an `_id` value.  This `_id` may be set manually ( `document.setId()` ) or, if not provided will be auto-generated when the record is persisted.  Note that, if using numeric primary keys for your `_id` value, they will be cast as strings on serialization.
 
 #### Creating a Document
 
-The `Document` model is the primary object for creating and working with Documents.  Let's say, again, we were going to create a `book` typed document in our index.  We would do so, by first creating a Documen object.
+The `Document` model is the primary object for creating and working with Documents.  Let's say, again, we were going to create a `book` typed document in our index.  We would do so, by first creating a `Document` object.
 
 ```
-var book = getInstance( "Document@cbElasticsearch" ).new( 
-	index="bookshop",
-	type="book",
-	properties = {
-		"title"      : "Elasticsearch for Coldbox",
-		"summary"    : "A great book on using Elasticsearch with the Coldbox framework",
-		"description": "A long descriptio with examples on why this book is great",
-		"author"     : {
-			"id"       : 1,
-			"firstName": "Jon",
-			"lastName" : "Clausen"
-		},
-		// date with specific format type
-		"publishDate": dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
-		"edition"    : 1,
-		"ISBN"       : 123456789054321
-	}
+var book = getInstance( "Document@cbElasticsearch" ).new(
+    index = "bookshop",
+    type = "book",
+    properties = {
+        "title" = "Elasticsearch for Coldbox",
+        "summary" = "A great book on using Elasticsearch with the Coldbox framework",
+        "description" = "A long descriptio with examples on why this book is great",
+        "author" = {
+            "id" = 1,
+            "firstName" = "Jon",
+            "lastName" = "Clausen"
+        },
+        // date with specific format type
+        "publishDate" = dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
+        "edition" = 1,
+        "ISBN" = 123456789054321
+    }
 );
 
 book.save();
@@ -243,12 +241,12 @@ document.populate( myBookStruct )
 or by individual setters:
 
 ```
-document.setValue( 
-	"author", 
-	{
-		"firstName" : "Jon",
-		"lastName"  : "Clausen"
-	} 
+document.setValue(
+    "author",
+    {
+        "firstName" = "Jon",
+        "lastName" = "Clausen"
+    }
 );
 ```
 
@@ -262,34 +260,32 @@ Using the `Document` object's accessors:
 
 ```
 var existingDocument = getInstance( "Document@Elasticsearch" )
-							.setIndex( 'bookshop' )
-							.setTitle( 'book' )
-							.setId( bookId )
-							.get(); 
+    .setIndex( "bookshop" )
+    .setTitle( "book" )
+    .setId( bookId )
+    .get();
 ```
 
-Calling the get() method with explicit arguments:
+Calling the `get()` method with explicit arguments:
 
 ```
 var existingDocument = getInstance( "Document@cbElasticsearch" )
-							.get( 
-								id    = bookId,
-								index = 'bookshop',
-								type  = 'book'
-							);
+    .get(
+        id = bookId,
+        index = "bookshop",
+        type = "book"
+    );
 ```
 
 Calling directly, using the same arguments, from the client:
 
 ```
 var existingDocument = getInstance( "Client@cbElasticsearch" )
-							.get( 
-								id    = bookId,
-								index = 'bookshop',
-								type  = 'book'
-							);
-
-
+    .get(
+        id = bookId,
+        index = "bookshop",
+        type = "book"
+    );
 ```
 
 #### Updating a Document
@@ -297,7 +293,7 @@ var existingDocument = getInstance( "Client@cbElasticsearch" )
 Once we've retrieved an existing document, we can simply update items through the `Document` instance and re-save them.
 
 ```
-existingDocument.populate( properties=myUpdatedBookStruct ).save()
+existingDocument.populate( properties = myUpdatedBookStruct ).save()
 ```
 
 You can also pass Document objects to the `Client`'s `save()` method:
@@ -311,20 +307,19 @@ getInstance( "Client@cbElasticsearch" ).save( existingDocument );
 Builk inserts and updates can be peformed by passing an array of `Document` objects to the Client's `saveAll()` method:
 
 ```
-var docments = [];
+var documents = [];
 
 for( var myStruct in myArray ){
-	var document = getInstance( "Document@cbElasticsearch" ).new( 
-		index      = myIndex,
-		type       = myType,
-		properties = myStruct
-	);
+    var document = getInstance( "Document@cbElasticsearch" ).new(
+        index = myIndex,
+        type = myType,
+        properties = myStruct
+    );
 
-	arrayAppend( documents, doucument );
+    arrayAppend( documents, doucument );
 }
 
 getInstance( "Client@cbElasticsearch" ).saveAll( documents );
-
 ```
 
 #### Deleting a Document
@@ -333,13 +328,13 @@ Deleting documents is similar to the process of saving.  The `Document` object m
 
 ```
 var document = getInstance( "Document@cbElasticsearch" )
-				.get( 
-					id    = documentId, 
-					index = "bookshop", 
-					type  = books 
-				);
+    .get(
+        id = documentId,
+        index = "bookshop",
+        type = books
+    );
 if( !isNull( document ) ){
-	document.delete();
+    document.delete();
 }
 ```
 
@@ -352,10 +347,10 @@ getInstance( "Client@cbElasticsearch" ).delete( myDocument );
 Finally, documents may also be deleted by query, using the `SearchBuilder` ( more below ):
 
 ```
-getInstance( "searchBuilder@cbElasticsearch" )
-		.new( index="bookshop", type="books" )
-		.match( "name", "Elasticsearch for Coldbox" )
-		.deleteAll();
+getInstance( "SearchBuilder@cbElasticsearch" )
+    .new( index="bookshop", type="books" )
+    .match( "name", "Elasticsearch for Coldbox" )
+    .deleteAll();
 ```
 
 
@@ -365,10 +360,10 @@ Searching Documents
 The `SearchBuilder` object offers an expressive syntax for crafting detailed searches with ranked results.  To perform a simple search for matching documents documents, using Elasticsearch's automatic scoring, we would use the `SearchBuilder` like so:
 
 ```
-var searchResults = getInstance( "searchBuilder@cbElasticsearch" )
-						.new( index="bookshop", type="books" )
-						.match( "name", "Elasticsearch" )
-						.execute();
+var searchResults = getInstance( "SearchBuilder@cbElasticsearch" )
+    .new( index="bookshop", type="books" )
+    .match( "name", "Elasticsearch" )
+    .execute();
 ```
 
 By default this search will return an array of `Document` objects ( or an empty array if no results are found ), with a descending match score as the sort.
@@ -377,10 +372,10 @@ To output the results of our search, we would use a loop, accessing the `Documen
 
 ```
 for( var resultDocument in searchResult ){
-	var resultScore     = resultDocument.getScore();
-	var documentMemento = resultDocument.getMemento();
-	var bookName        = documentMemento.name;
-	var bookDescription = documentMemento.description;
+    var resultScore = resultDocument.getScore();
+    var documentMemento = resultDocument.getMemento();
+    var bookName = documentMemento.name;
+    var bookDescription = documentMemento.description;
 }
 ```
 
@@ -388,9 +383,9 @@ The "memento" is our structural representation of the document. We can also use 
 
 ```
 for( var resultDocument in searchResult ){
-	var resultScore     = resultDocument.getScore();
-	var bookName        = resultDocument.getValue( "name" );
-	var bookDescription = resultDoument.getValue( "description" );
+    var resultScore = resultDocument.getScore();
+    var bookName = resultDocument.getValue( "name" );
+    var bookDescription = resultDoument.getValue( "description" );
 }
 ```
 
@@ -402,13 +397,13 @@ for( var resultDocument in searchResult ){
 The `term()` method allows a means of specifying an exact match of all documents in the search results.  An example use case might be only to search for active documents:
 
 ```
-searchBuilder.term( 'isActive', 1 );
+searchBuilder.term( "isActive", 1 );
 ```
 
 Or a date:
 
 ```
-searchBuilder.term( 'publishDate', '2017-05-13' );
+searchBuilder.term( "publishDate", "2017-05-13" );
 ```
 
 #### Boosting individual matches
@@ -417,50 +412,48 @@ The `match()` method of the `SearchBuilder` also allows for a `boost` argument. 
 
 ```
 searchBuilder
-		.match( "shortDescription", "Elasticsearch" )
-		.match( "description", "Elasticsearch" )
-		.match( 
-			name="name", 
-			value="Elasticsearch",
-			boost=.5
-		);
+    .match( "shortDescription", "Elasticsearch" )
+    .match( "description", "Elasticsearch" )
+    .match(
+        name = "name",
+        value = "Elasticsearch",
+        boost = 0.5
+    );
 ```
 
 In the above example, documents with a `name` field containing "Elasticsearch" would be boosted in score higher than those which only find the value in the short or long description.
 
 #### Advanced Query DSL
 
-The SearchBuilder also allows full use of the [Elasticsearch query language](https://www.elastic.co/guide/en/elasticsearch/reference/current/_introducing_the_query_language.html), allowing detailed configuration of queries, if the basic `match()`, `sort()` and `aggregate()` methods are not enough to meet your needs. There are several methods to provide the raw query language to the Search Builder.  One is during instantiation.  
+The SearchBuilder also allows full use of the [Elasticsearch query language](https://www.elastic.co/guide/en/elasticsearch/reference/current/_introducing_the_query_language.html) allowing detailed configuration of queries if the basic `match()`, `sort()` and `aggregate()` methods are not enough to meet your needs. There are several methods to provide the raw query language to the Search Builder.  One is during instantiation.
 
-In the following we are looking for matches of active records with "Elasticsearch" in the name, description, or shortDescription fields. We are also looking for a phrase match of "is awesome" and are boosting the score of the applicable document, if found.
-
+In the following we are looking for matches of active records with "Elasticsearch" in the `name`, `description`, or `shortDescription` fields. We are also looking for a phrase match of "is awesome" and are boosting the score of the applicable document, if found.
 
 ```
 var search = getInstance( "SearchBuilder@cbElasticsearch" )
-					.new( 
-						index = "bookshop",
-						type = "books",
-						properties = {
-							"query":{
-								"term" : {
-									"isActive" : 1
-								},
-								"match" : {
-									"name"            : "Elasticsearch",
-									"description"     : "Elasticsearch",
-									"shortDescription": "Elasticsearch"
-								},
-								"match_phrase" : {
-									"description" : {
-										"query" : "is awesome",
-										"boost" : 2
-									}
-								},
-
-							}
-						}
-					)
-					.execute();
+    .new(
+        index = "bookshop",
+        type = "books",
+        properties = {
+            "query" = {
+                "term" = {
+                    "isActive" = 1
+                },
+                "match" = {
+                    "name" = "Elasticsearch",
+                    "description" = "Elasticsearch",
+                    "shortDescription" = "Elasticsearch"
+                },
+                "match_phrase" = {
+                    "description" = {
+                        "query" = "is awesome",
+                        "boost" = 2
+                    }
+                }
+            }
+        }
+    )
+    .execute();
 ```
 
 For more information on Elasticsearch query DSL, the [Search in Depth Documentation](https://www.elastic.co/guide/en/elasticsearch/guide/current/search-in-depth.html) is an excellent starting point.
