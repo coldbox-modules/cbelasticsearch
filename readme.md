@@ -484,6 +484,19 @@ While our documents would still be scored, the results order would be changed to
 * `term(string name, any value, [numeric boost])` - Adds an exact value restriction ( elasticsearch: term ) to the query.
 * `aggregation(string name, struct options)`  - Adds an aggregation directive to the search parameters.
 
+## Tests
+
+To run the test suite you need a running instance of ElasticSearch.  We have provided a `docker-compose.yml` file in
+the root of the repo to make this easy as possible.  Run `docker-compose up` in the root of the project and open
+`http://localhost:8080/tests/runner.cfm` to run the tests.
+
+If you would prefer to set this up yourself, make sure you start this app with the correct environment variables set:
+
+```ini
+ELASTICSEARCH_PROTOCOL=http
+ELASTICSEARCH_HOST=127.0.0.1
+ELASTICSEARCH_PORT=9200
+```
 
 ********************************************************************************
 Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
