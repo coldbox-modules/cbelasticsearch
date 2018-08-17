@@ -152,7 +152,7 @@ var booksMapping = {
 indexBuilder.addMapping( "books", booksMapping ).save();
 ```
 
-Note that, in the above examples, we are applying the index and mappings directly from within the object, itself, which is intuitive and fast. We could also pass the `IndexBuilder` object to the `Client@cbElasticsearch` instance's `applyIdex( required IndexBuilder indexBuilder )` method, if we wished.
+Note that, in the above examples, we are applying the index and mappings directly from within the object, itself, which is intuitive and fast. We could also pass the `IndexBuilder` object to the `Client@cbElasticsearch` instance's `applyIndex( required IndexBuilder indexBuilder )` method, if we wished.
 
 If an explicit mapping is not specified when the index is created, Elasticsearch will assign types when the first document is saved.
 
