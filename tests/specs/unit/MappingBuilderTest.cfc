@@ -554,6 +554,28 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
                     expect( actual ).toBe( { "properties" = expected } );
                 } );
+
+                it( "multi-fields are full mapping blueprint instances", function() {
+                    var actual = builder.create( function( mapping ) {
+                        mapping.text( "text" ).fields( function( mapping ) {
+                            mapping.text( "english" ).analyzer( "english" );
+                        } );
+                    } );
+
+                    var expected = {
+                        "text" = {
+                            "type" = "text",
+                            "fields": {
+                                "english" = {
+                                    "type" = "text",
+                                    "analyzer" = "english"
+                                }
+                            }
+                        }
+                    };
+
+                    expect( actual ).toBe( { "properties" = expected } );
+                } );
             } );
 
             describe( "partials", function() {
