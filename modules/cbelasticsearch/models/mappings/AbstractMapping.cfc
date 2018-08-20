@@ -1,15 +1,13 @@
 /**
 *
-* Elasticsearch Abstract Mapping Object
+* ElasticSearch Abstract Mapping Object
 *
 * @package cbElasticsearch.models.mappings
-* @author Eric Peterson <eric@ortussolutions.com>
+* @author  Eric Peterson <eric@ortussolutions.com>
 * @license Apache v2.0 <http://www.apache.org/licenses/>
 *
 */
-component
-	accessors="true"
-{
+component accessors="true" {
 
     property name="name";
     property name="builder";

@@ -7,9 +7,8 @@
 * @license Apache v2.0 <http://www.apache.org/licenses/>
 *
 */
-component
-	accessors="true"
-{
+component singleton accessors="true" {
+
     property name="wirebox" inject="wirebox";
 
     function create( callback ) {

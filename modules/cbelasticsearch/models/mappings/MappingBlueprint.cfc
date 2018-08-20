@@ -1,15 +1,15 @@
 /**
 *
-* Elasticsearch Mapping Blueprint Object
+* ElasticSearch Mapping Blueprint Object
 *
 * @package cbElasticsearch.models.mappings
-* @author Eric Peterson <eric@ortussolutions.com>
+* @author  Eric Peterson <eric@ortussolutions.com>
 * @license Apache v2.0 <http://www.apache.org/licenses/>
 *
 */
-component
-	accessors="true"
-{
+component accessors="true" {
+
+    property name="wirebox" inject="wirebox";
 
     property name="builder";
     property name="properties";
@@ -218,7 +218,7 @@ component
 
     private function normalizePartialDefinition( definition ) {
         if ( isSimpleValue( definition ) ) {
-            return variables.builder.resolveWireBoxMapping( definition ).getPartial;
+            return wirebox.getInstance( dsl = definition ).getPartial;
         }
 
         if ( isCustomFunction( definition ) || isClosure( definition ) ) {
