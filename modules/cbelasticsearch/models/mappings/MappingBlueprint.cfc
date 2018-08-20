@@ -86,6 +86,16 @@ component
         return mapping;
     }
 
+    function partial( name, definition ) {
+        definition = normalizePartialDefinition( definition );
+        var mapping = definition( variables.builder.newBlueprint() );
+        if ( ! isNull( name ) ) {
+            mapping.setName( name );
+        }
+        variables.properties.append( mapping );
+        return mapping;
+    }
+
     function toDSL() {
         return {
             "properties" = variables.properties.reduce( function( acc, prop ) {
@@ -93,6 +103,18 @@ component
                 return acc;
             }, {} )
         };
+    }
+
+    private function normalizePartialDefinition( definition ) {
+        if ( isSimpleValue( definition ) ) {
+            return variables.builder.resolveWireBoxMapping( definition ).getPartial;
+        }
+
+        if ( isCustomFunction( definition ) || isClosure( definition ) ) {
+            return definition;
+        }
+
+        return definition.getPartial;
     }
 
 }

@@ -13,10 +13,19 @@ component
     property name="wirebox" inject="wirebox";
 
     function create( callback ) {
-        var blueprint = wirebox.getInstance( "MappingBlueprint@cbElasticSearch" );
-        blueprint.setBuilder( this );
+        var blueprint = newBlueprint();
         callback( blueprint );
         return blueprint.toDSL();
+    }
+
+    function newBlueprint() {
+        var blueprint = wirebox.getInstance( "MappingBlueprint@cbElasticSearch" );
+        blueprint.setBuilder( this );
+        return blueprint;
+    }
+
+    function resolveWireBoxMapping( dsl ) {
+        return wirebox.getInstance( dsl = dsl );
     }
 
     function newSimpleMapping( name, type ) {

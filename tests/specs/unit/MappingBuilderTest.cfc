@@ -241,6 +241,122 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( actual ).toBe( { "properties" = expected } );
                 } );
             } );
+
+            describe( "partials", function() {
+                it( "can use a callback", function() {
+                    var partialFn = function( mapping ) {
+                        return mapping.object( "user", function( mapping ) {
+                            mapping.integer( "age" );
+                            mapping.object( "name", function( mapping ) {
+                                mapping.text( "first" );
+                                mapping.text( "last" );
+                            } );
+                        } );
+                    };
+
+                    var actual = builder.create( function( mapping ) {
+                        mapping.partial( "manager", partialFn );
+                        mapping.partial( definition = partialFn );
+                    } );
+
+                    var expected = {
+                        "manager" = {
+                            "properties" = {
+                                "age" = { "type" = "integer" },
+                                "name" = {
+                                    "properties" = {
+                                        "first" = { "type" = "text" },
+                                        "last" = { "type" = "text" }
+                                    }
+                                }
+                            }
+                        },
+                        "user" = {
+                            "properties" = {
+                                "age" = { "type" = "integer" },
+                                "name" = {
+                                    "properties" = {
+                                        "first" = { "type" = "text" },
+                                        "last" = { "type" = "text" }
+                                    }
+                                }
+                            }
+                        }
+                    };
+
+                    expect( actual ).toBe( { "properties" = expected } );
+                } );
+
+                it( "can use a wirebox dsl", function() {
+                    var actual = builder.create( function( mapping ) {
+                        mapping.partial( "manager", "tests.resources.UserPartial" );
+                        mapping.partial( definition = "tests.resources.UserPartial" );
+                    } );
+
+                    var expected = {
+                        "manager" = {
+                            "properties" = {
+                                "age" = { "type" = "integer" },
+                                "name" = {
+                                    "properties" = {
+                                        "first" = { "type" = "text" },
+                                        "last" = { "type" = "text" }
+                                    }
+                                }
+                            }
+                        },
+                        "user" = {
+                            "properties" = {
+                                "age" = { "type" = "integer" },
+                                "name" = {
+                                    "properties" = {
+                                        "first" = { "type" = "text" },
+                                        "last" = { "type" = "text" }
+                                    }
+                                }
+                            }
+                        }
+                    };
+
+                    expect( actual ).toBe( { "properties" = expected } );
+                } );
+
+                it( "can use a component with a getPartial methods", function() {
+                    var userPartial = new tests.resources.UserPartial();
+
+                    var actual = builder.create( function( mapping ) {
+                        mapping.partial( "manager", userPartial );
+                        mapping.partial( definition = userPartial );
+                    } );
+
+                    var expected = {
+                        "manager" = {
+                            "properties" = {
+                                "age" = { "type" = "integer" },
+                                "name" = {
+                                    "properties" = {
+                                        "first" = { "type" = "text" },
+                                        "last" = { "type" = "text" }
+                                    }
+                                }
+                            }
+                        },
+                        "user" = {
+                            "properties" = {
+                                "age" = { "type" = "integer" },
+                                "name" = {
+                                    "properties" = {
+                                        "first" = { "type" = "text" },
+                                        "last" = { "type" = "text" }
+                                    }
+                                }
+                            }
+                        }
+                    };
+
+                    expect( actual ).toBe( { "properties" = expected } );
+                } );
+            } );
 		} );
     }
 
