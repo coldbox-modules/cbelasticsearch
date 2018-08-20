@@ -80,8 +80,76 @@ component
         return mapping;
     }
 
+    function date( name ) {
+        var mapping = variables.builder.newSimpleMapping( name, "date" );
+        variables.properties.append( mapping );
+        return mapping;
+    }
+
+    function strictDate( name ) {
+        var mapping = variables.builder.newSimpleMapping( name, "date" );
+        mapping.format( "strict_date" );
+        variables.properties.append( mapping );
+        return mapping;
+    }
+
+    function boolean( name ) {
+        var mapping = variables.builder.newSimpleMapping( name, "boolean" );
+        variables.properties.append( mapping );
+        return mapping;
+    }
+
+    function binary( name ) {
+        var mapping = variables.builder.newSimpleMapping( name, "binary" );
+        variables.properties.append( mapping );
+        return mapping;
+    }
+
+    function integerRange( name ) {
+        var mapping = variables.builder.newSimpleMapping( name, "integer_range" );
+        variables.properties.append( mapping );
+        return mapping;
+    }
+
+    function floatRange( name ) {
+        var mapping = variables.builder.newSimpleMapping( name, "float_range" );
+        variables.properties.append( mapping );
+        return mapping;
+    }
+
+    function longRange( name ) {
+        var mapping = variables.builder.newSimpleMapping( name, "long_range" );
+        variables.properties.append( mapping );
+        return mapping;
+    }
+
+    function doubleRange( name ) {
+        var mapping = variables.builder.newSimpleMapping( name, "double_range" );
+        variables.properties.append( mapping );
+        return mapping;
+    }
+
+    function dateRange( name ) {
+        var mapping = variables.builder.newSimpleMapping( name, "date_range" );
+        variables.properties.append( mapping );
+        return mapping;
+    }
+
+    function ipRange( name ) {
+        var mapping = variables.builder.newSimpleMapping( name, "ip_range" );
+        variables.properties.append( mapping );
+        return mapping;
+    }
+
     function object( name, callback ) {
         var mapping = variables.builder.newObjectMapping( name, callback );
+        variables.properties.append( mapping );
+        return mapping;
+    }
+
+    function nested( name, callback ) {
+        var mapping = variables.builder.newObjectMapping( name, callback );
+        mapping.setType( "nested" );
         variables.properties.append( mapping );
         return mapping;
     }

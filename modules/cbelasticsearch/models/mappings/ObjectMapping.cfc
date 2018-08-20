@@ -16,7 +16,9 @@ component
     property name="callback";
 
     function toDSL() {
-        return variables.builder.create( callback );
+        var result = variables.builder.create( callback );
+        result[ "type" ] = getType();
+        return result;
     }
 
 }

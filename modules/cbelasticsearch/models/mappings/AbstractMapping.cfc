@@ -12,7 +12,7 @@ component
 {
 
     property name="name";
-    property name="type";
+    property name="type" default="object";
     property name="parameters";
 
     function init() {

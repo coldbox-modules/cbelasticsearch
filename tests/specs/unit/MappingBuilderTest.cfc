@@ -148,7 +148,148 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( actual ).toBe( { "properties" = expected } );
                 } );
 
-                it( "nested objects", function() {
+                it( "date", function() {
+                    var actual = builder.create( function( mapping ) {
+                        mapping.date( "createdDate" );
+                    } );
+
+                    var expected = {
+                        "createdDate" = {
+                            "type" = "date"
+                        }
+                    };
+
+                    expect( actual ).toBe( { "properties" = expected } );
+                } );
+
+                it( "strictDate", function() {
+                    var actual = builder.create( function( mapping ) {
+                        mapping.strictDate( "publishedDate" );
+                    } );
+
+                    var expected = {
+                        "publishedDate" = {
+                            "type" = "date",
+                            "format" = "strict_date"
+                        }
+                    };
+
+                    expect( actual ).toBe( { "properties" = expected } );
+                } );
+
+                it( "boolean", function() {
+                    var actual = builder.create( function( mapping ) {
+                        mapping.boolean( "isSubscribed" );
+                    } );
+
+                    var expected = {
+                        "isSubscribed" = {
+                            "type" = "boolean"
+                        }
+                    };
+
+                    expect( actual ).toBe( { "properties" = expected } );
+                } );
+
+                it( "binary", function() {
+                    var actual = builder.create( function( mapping ) {
+                        mapping.binary( "blob" );
+                    } );
+
+                    var expected = {
+                        "blob" = {
+                            "type" = "binary"
+                        }
+                    };
+
+                    expect( actual ).toBe( { "properties" = expected } );
+                } );
+
+                it( "integerRange", function() {
+                    var actual = builder.create( function( mapping ) {
+                        mapping.integerRange( "expectedAtendees" );
+                    } );
+
+                    var expected = {
+                        "expectedAtendees" = {
+                            "type" = "integer_range"
+                        }
+                    };
+
+                    expect( actual ).toBe( { "properties" = expected } );
+                } );
+
+                it( "floatRange", function() {
+                    var actual = builder.create( function( mapping ) {
+                        mapping.floatRange( "standardDeviation" );
+                    } );
+
+                    var expected = {
+                        "standardDeviation" = {
+                            "type" = "float_range"
+                        }
+                    };
+
+                    expect( actual ).toBe( { "properties" = expected } );
+                } );
+
+                it( "longRange", function() {
+                    var actual = builder.create( function( mapping ) {
+                        mapping.longRange( "averageViews" );
+                    } );
+
+                    var expected = {
+                        "averageViews" = {
+                            "type" = "long_range"
+                        }
+                    };
+
+                    expect( actual ).toBe( { "properties" = expected } );
+                } );
+
+                it( "doubleRange", function() {
+                    var actual = builder.create( function( mapping ) {
+                        mapping.doubleRange( "over_under" );
+                    } );
+
+                    var expected = {
+                        "over_under" = {
+                            "type" = "double_range"
+                        }
+                    };
+
+                    expect( actual ).toBe( { "properties" = expected } );
+                } );
+
+                it( "dateRange", function() {
+                    var actual = builder.create( function( mapping ) {
+                        mapping.dateRange( "timeframe" );
+                    } );
+
+                    var expected = {
+                        "timeframe" = {
+                            "type" = "date_range"
+                        }
+                    };
+
+                    expect( actual ).toBe( { "properties" = expected } );
+                } );
+
+                it( "ipRange", function() {
+                    var actual = builder.create( function( mapping ) {
+                        mapping.ipRange( "ip_allowlist" );
+                    } );
+
+                    var expected = {
+                        "ip_allowlist" = {
+                            "type" = "ip_range"
+                        }
+                    };
+
+                    expect( actual ).toBe( { "properties" = expected } );
+                } );
+
+                it( "object", function() {
                     var actual = builder.create( function( mapping ) {
                         mapping.keyword( "region" );
                         mapping.object( "manager", function( mapping ) {
@@ -163,14 +304,37 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     var expected = {
                         "region" = { "type" = "keyword" },
                         "manager" = {
+                            "type" = "object",
                             "properties" = {
                                 "age" = { "type" = "integer" },
                                 "name" = {
+                                    "type" = "object",
                                     "properties" = {
                                         "first" = { "type" = "text" },
                                         "last" = { "type" = "text" }
                                     }
                                 }
+                            }
+                        }
+                    };
+
+                    expect( actual ).toBe( { "properties" = expected } );
+                } );
+
+                it( "nested", function() {
+                    var actual = builder.create( function( mapping ) {
+                        mapping.nested( "name", function( mapping ) {
+                            mapping.text( "first" );
+                            mapping.text( "last" );
+                        } );
+                    } );
+
+                    var expected = {
+                        "name" = {
+                            "type" = "nested",
+                            "properties" = {
+                                "first" = { "type" = "text" },
+                                "last" = { "type" = "text" }
                             }
                         }
                     };
@@ -261,9 +425,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
                     var expected = {
                         "manager" = {
+                            "type" = "object",
                             "properties" = {
                                 "age" = { "type" = "integer" },
                                 "name" = {
+                                    "type" = "object",
                                     "properties" = {
                                         "first" = { "type" = "text" },
                                         "last" = { "type" = "text" }
@@ -272,9 +438,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
                             }
                         },
                         "user" = {
+                            "type" = "object",
                             "properties" = {
                                 "age" = { "type" = "integer" },
                                 "name" = {
+                                    "type" ="object",
                                     "properties" = {
                                         "first" = { "type" = "text" },
                                         "last" = { "type" = "text" }
@@ -295,9 +463,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
                     var expected = {
                         "manager" = {
+                            "type" = "object",
                             "properties" = {
                                 "age" = { "type" = "integer" },
                                 "name" = {
+                                    "type" = "object",
                                     "properties" = {
                                         "first" = { "type" = "text" },
                                         "last" = { "type" = "text" }
@@ -306,9 +476,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
                             }
                         },
                         "user" = {
+                            "type" = "object",
                             "properties" = {
                                 "age" = { "type" = "integer" },
                                 "name" = {
+                                    "type" = "object",
                                     "properties" = {
                                         "first" = { "type" = "text" },
                                         "last" = { "type" = "text" }
@@ -331,9 +503,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
                     var expected = {
                         "manager" = {
+                            "type" = "object",
                             "properties" = {
                                 "age" = { "type" = "integer" },
                                 "name" = {
+                                    "type" = "object",
                                     "properties" = {
                                         "first" = { "type" = "text" },
                                         "last" = { "type" = "text" }
@@ -342,9 +516,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
                             }
                         },
                         "user" = {
+                            "type" = "object",
                             "properties" = {
                                 "age" = { "type" = "integer" },
                                 "name" = {
+                                    "type" = "object",
                                     "properties" = {
                                         "first" = { "type" = "text" },
                                         "last" = { "type" = "text" }
