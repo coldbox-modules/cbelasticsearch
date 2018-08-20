@@ -708,12 +708,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 		} );
     }
 
-    private function testCase( callback, expected ) {
-        // var builder = getBuilder();
-        // var dsl = callback( builder );
-        // expect( dsl ).toBe( { "properties" = expected } );
-    }
-
     private function getBuilder() {
         return getInstance( "MappingBuilder@cbElasticSearch" );
     }
