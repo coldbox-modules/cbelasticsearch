@@ -21,6 +21,11 @@ component
         return this;
     }
 
+    function addParameter( name, value ) {
+        variables.parameters[ name ] = value;
+        return this;
+    }
+
     function fields( callback ) {
         var dsl = variables.builder.create( callback );
         variables.parameters[ "fields" ] = dsl.properties;

@@ -485,6 +485,30 @@ component extends="coldbox.system.testing.BaseTestCase" {
                     expect( actual ).toBe( { "properties" = expected } );
                 } );
 
+                it( "can add a single parameter", function() {
+                    var actual = builder.create( function( mapping ) {
+                        mapping.text( "full_name" ).addParameter(
+                            "index_prefixes",
+                            {
+                                "min_chars" = 1,
+                                "max_chars" = 10
+                            }
+                        );
+                    } );
+
+                    var expected = {
+                        "full_name" = {
+                            "type" = "text",
+                            "index_prefixes" = {
+                                "min_chars" = 1,
+                                "max_chars" = 10
+                            }
+                        }
+                    };
+
+                    expect( actual ).toBe( { "properties" = expected } );
+                } );
+
                 it( "can set all parameters at once", function() {
                     var actual = builder.create( function( mapping ) {
                         mapping.text( "full_name" ).setParameters( {
