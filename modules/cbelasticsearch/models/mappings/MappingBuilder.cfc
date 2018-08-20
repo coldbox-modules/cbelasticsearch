@@ -32,6 +32,7 @@ component
         var mapping = wirebox.getInstance( "SimpleMapping@cbElasticSearch" );
         mapping.setName( name );
         mapping.setType( type );
+        mapping.setBuilder( this );
         return mapping;
     }
 

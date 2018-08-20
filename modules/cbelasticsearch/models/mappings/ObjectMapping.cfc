@@ -12,7 +12,6 @@ component
 	accessors="true"
 {
 
-    property name="builder";
     property name="callback";
 
     function toDSL() {

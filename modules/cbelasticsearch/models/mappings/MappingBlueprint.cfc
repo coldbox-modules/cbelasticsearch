@@ -154,6 +154,49 @@ component
         return mapping;
     }
 
+    function geoPoint( name ) {
+        var mapping = variables.builder.newSimpleMapping( name, "geo_point" );
+        variables.properties.append( mapping );
+        return mapping;
+    }
+
+    function geoShape( name ) {
+        var mapping = variables.builder.newSimpleMapping( name, "geo_shape" );
+        variables.properties.append( mapping );
+        return mapping;
+    }
+
+    function ip( name ) {
+        var mapping = variables.builder.newSimpleMapping( name, "ip" );
+        variables.properties.append( mapping );
+        return mapping;
+    }
+
+    function completion( name ) {
+        var mapping = variables.builder.newSimpleMapping( name, "completion" );
+        variables.properties.append( mapping );
+        return mapping;
+    }
+
+    function tokenCount( name ) {
+        var mapping = variables.builder.newSimpleMapping( name, "token_count" );
+        variables.properties.append( mapping );
+        return mapping;
+    }
+
+    function percolator( name ) {
+        var mapping = variables.builder.newSimpleMapping( name, "percolator" );
+        variables.properties.append( mapping );
+        return mapping;
+    }
+
+    function join( name, relations ) {
+        var mapping = variables.builder.newSimpleMapping( name, "join" );
+        mapping.relations( relations );
+        variables.properties.append( mapping );
+        return mapping;
+    }
+
     function partial( name, definition ) {
         definition = normalizePartialDefinition( definition );
         var mapping = definition( variables.builder.newBlueprint() );

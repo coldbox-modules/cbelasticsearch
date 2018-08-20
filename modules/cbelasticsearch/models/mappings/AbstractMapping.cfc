@@ -12,11 +12,18 @@ component
 {
 
     property name="name";
-    property name="type" default="object";
+    property name="builder";
     property name="parameters";
+    property name="type" default="object";
 
     function init() {
         variables.parameters = {};
+        return this;
+    }
+
+    function fields( callback ) {
+        var dsl = variables.builder.create( callback );
+        variables.parameters[ "fields" ] = dsl.properties;
         return this;
     }
 

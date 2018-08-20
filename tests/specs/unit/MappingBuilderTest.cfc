@@ -341,6 +341,111 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
                     expect( actual ).toBe( { "properties" = expected } );
                 } );
+
+                it( "geoPoint", function() {
+                    var actual = builder.create( function( mapping ) {
+                        mapping.geoPoint( "location" );
+                    } );
+
+                    var expected = {
+                        "location" = {
+                            "type" = "geo_point"
+                        }
+                    };
+
+                    expect( actual ).toBe( { "properties" = expected } );
+                } );
+
+                it( "geoShape", function() {
+                    var actual = builder.create( function( mapping ) {
+                        mapping.geoShape( "location" );
+                    } );
+
+                    var expected = {
+                        "location" = {
+                            "type" = "geo_shape"
+                        }
+                    };
+
+                    expect( actual ).toBe( { "properties" = expected } );
+                } );
+
+                it( "ip", function() {
+                    var actual = builder.create( function( mapping ) {
+                        mapping.ip( "ip_address" );
+                    } );
+
+                    var expected = {
+                        "ip_address" = {
+                            "type" = "ip"
+                        }
+                    };
+
+                    expect( actual ).toBe( { "properties" = expected } );
+                } );
+
+                it( "completion", function() {
+                    var actual = builder.create( function( mapping ) {
+                        mapping.completion( "suggest" );
+                    } );
+
+                    var expected = {
+                        "suggest" = {
+                            "type" = "completion"
+                        }
+                    };
+
+                    expect( actual ).toBe( { "properties" = expected } );
+                } );
+
+                it( "tokenCount", function() {
+                    var actual = builder.create( function( mapping ) {
+                        mapping.tokenCount( "length" );
+                    } );
+
+                    var expected = {
+                        "length" = {
+                            "type" = "token_count"
+                        }
+                    };
+
+                    expect( actual ).toBe( { "properties" = expected } );
+                } );
+
+                it( "percolator", function() {
+                    var actual = builder.create( function( mapping ) {
+                        mapping.percolator( "query" );
+                    } );
+
+                    var expected = {
+                        "query" = {
+                            "type" = "percolator"
+                        }
+                    };
+
+                    expect( actual ).toBe( { "properties" = expected } );
+                } );
+
+                it( "join", function() {
+                    var actual = builder.create( function( mapping ) {
+                        mapping.join( "my_join_field", {
+                            "question": [ "answer", "comment" ],
+                            "answer": "vote"
+                        } );
+                    } );
+
+                    var expected = {
+                        "my_join_field" = {
+                            "type" = "join",
+                            "relations": {
+                                "question": [ "answer", "comment" ],
+                                "answer": "vote"
+                            }
+                        }
+                    };
+
+                    expect( actual ).toBe( { "properties" = expected } );
+                } );
             } );
 
             describe( "parameters", function() {
@@ -398,6 +503,27 @@ component extends="coldbox.system.testing.BaseTestCase" {
                             "index_prefixes" = {
                                 "min_chars" = 1,
                                 "max_chars" = 10
+                            }
+                        }
+                    };
+
+                    expect( actual ).toBe( { "properties" = expected } );
+                } );
+
+                it( "can create multi-fields", function() {
+                    var actual = builder.create( function( mapping ) {
+                        mapping.text( "city" ).fields( function( mapping ) {
+                            mapping.keyword( "raw" );
+                        } );
+                    } );
+
+                    var expected = {
+                        "city" = {
+                            "type" = "text",
+                            "fields": {
+                                "raw" = {
+                                    "type" = "keyword"
+                                }
                             }
                         }
                     };

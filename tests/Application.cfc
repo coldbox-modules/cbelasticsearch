@@ -18,17 +18,19 @@ component{
 	//example CF Mappings
 	this.mappings[ "/cbElasticsearch" ] 	= rootPath & "modules/elasticsearch";
 	this.mappings[ "/cbjavaloader" ] 	= rootPath & "modules/cbjavaloader";
-	
+
 	// any orm definitions go here.
 
 	function onRequestStart(){
+        // applicationStop();
+        // abort;
 		// Clear out the previous framework objects so that the first spec with `loadColdbox` set to `true` will reload them
-		
+
 		if( structKeyExists( url, "persistColdbox" ) && !url.persistColdbox ){
 
 			structDelete( application, "cbController" );
-			structDelete( application, "wirebox" );	
-		
+			structDelete( application, "wirebox" );
+
 		}
 
 	}
