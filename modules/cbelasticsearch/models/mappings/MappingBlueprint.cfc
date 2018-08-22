@@ -10,8 +10,8 @@
 component accessors="true" {
 
     property name="wirebox" inject="wirebox";
+    property name="builder" inject="MappingBuilder@cbElasticSearch";
 
-    property name="builder";
     property name="properties";
 
     function init() {

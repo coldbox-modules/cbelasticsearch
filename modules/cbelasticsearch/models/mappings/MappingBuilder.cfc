@@ -18,23 +18,19 @@ component singleton accessors="true" {
     }
 
     function newBlueprint() {
-        var blueprint = wirebox.getInstance( "MappingBlueprint@cbElasticSearch" );
-        blueprint.setBuilder( this );
-        return blueprint;
+        return wirebox.getInstance( "MappingBlueprint@cbElasticSearch" );
     }
 
     function newSimpleMapping( name, type ) {
         var mapping = wirebox.getInstance( "SimpleMapping@cbElasticSearch" );
         mapping.setName( name );
         mapping.setType( type );
-        mapping.setBuilder( this );
         return mapping;
     }
 
     function newObjectMapping( name, callback ) {
         var mapping = wirebox.getInstance( "ObjectMapping@cbElasticSearch" );
         mapping.setName( name );
-        mapping.setBuilder( this );
         mapping.setCallback( callback );
         return mapping;
     }

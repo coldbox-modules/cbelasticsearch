@@ -9,8 +9,9 @@
 */
 component accessors="true" {
 
+    property name="builder" inject="MappingBuilder@cbElasticSearch";
+
     property name="name";
-    property name="builder";
     property name="parameters";
     property name="type" default="object";
 

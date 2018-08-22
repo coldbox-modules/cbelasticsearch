@@ -7,10 +7,7 @@
 * @license Apache v2.0 <http://www.apache.org/licenses/>
 *
 */
-component
-    extends="AbstractMapping"
-	accessors="true"
-{
+component extends="AbstractMapping" accessors="true" {
 
     function toDSL() {
         var dsl = {
