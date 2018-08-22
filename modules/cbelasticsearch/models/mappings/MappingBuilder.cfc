@@ -23,10 +23,6 @@ component singleton accessors="true" {
         return blueprint;
     }
 
-    function resolveWireBoxMapping( dsl ) {
-        return wirebox.getInstance( dsl = dsl );
-    }
-
     function newSimpleMapping( name, type ) {
         var mapping = wirebox.getInstance( "SimpleMapping@cbElasticSearch" );
         mapping.setName( name );
