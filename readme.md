@@ -376,7 +376,7 @@ By default this search will return an array of `Document` objects ( or an empty 
 To output the results of our search, we would use a loop, accessing the `Document` methods:
 
 ```
-for( var resultDocument in searchResult ){
+for( var resultDocument in searchResults.hits ){
 	var resultScore     = resultDocument.getScore();
 	var documentMemento = resultDocument.getMemento();
 	var bookName        = documentMemento.name;
@@ -387,7 +387,7 @@ for( var resultDocument in searchResult ){
 The "memento" is our structural representation of the document. We can also use the built-in method of the Document object:
 
 ```
-for( var resultDocument in searchResult ){
+for( var resultDocument in searchResults.hits ){
 	var resultScore     = resultDocument.getScore();
 	var bookName        = resultDocument.getValue( "name" );
 	var bookDescription = resultDoument.getValue( "description" );
