@@ -1,12 +1,12 @@
 component extends="coldbox.system.testing.BaseTestCase"{
-	
+
 	function beforeAll(){
 
 		this.loadColdbox=true;
 		super.afterAll();
 
 		setup();
-		
+
 		variables.model = getWirebox().getInstance( "SearchBuilder@cbElasticSearch" );
 
 		variables.testIndexName = lcase("searchBuilderTests");
@@ -16,7 +16,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 		//create our new index
 		getWirebox()
 			.getInstance( "IndexBuilder@cbElasticsearch" )
-			.new( 
+			.new(
 				name=variables.testIndexName,
 				properties={
 					"mappings":{
@@ -31,14 +31,14 @@ component extends="coldbox.system.testing.BaseTestCase"{
 							}
 						}
 					}
-				} 
+				}
 			).save();
 
 	}
 
 	function afterAll(){
-		
-		variables.model.getClient().deleteIndex( variables.testIndexName );	
+
+		variables.model.getClient().deleteIndex( variables.testIndexName );
 
 		super.afterAll();
 	}
@@ -57,12 +57,12 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( searchBuilder.getQuery() ).toBeStruct();
 
 				expect( structIsEmpty( searchBuilder.getQuery() ) ).toBeTrue();
-		
+
 			});
 
 			it( "Tests new() with only index and type arguments", function(){
 
-				var searchBuilder = variables.model.new( 
+				var searchBuilder = variables.model.new(
 					variables.testIndexName,
 					"testdocs"
 			 	);
@@ -76,7 +76,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			it( "Tests new() with a properties struct", function(){
 
-				var searchBuilder = variables.model.new( 
+				var searchBuilder = variables.model.new(
 					variables.testIndexName,
 					"testdocs",
 					{
@@ -96,7 +96,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 			});
 
 			it( "Tests the match() method", function(){
-				var searchBuilder = variables.model.new( 
+				var searchBuilder = variables.model.new(
 					variables.testIndexName,
 					"testdocs"
 			 	);
@@ -112,7 +112,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 
 			it( "Tests shouldMatch()", function(){
-				var searchBuilder = variables.model.new( 
+				var searchBuilder = variables.model.new(
 					variables.testIndexName,
 					"testdocs"
 			 	);
@@ -129,7 +129,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			it( "Tests mustMatch()", function(){
 
-				var searchBuilder = variables.model.new( 
+				var searchBuilder = variables.model.new(
 					variables.testIndexName,
 					"testdocs"
 			 	);
@@ -149,7 +149,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			it( "Tests mustNotMatch()", function(){
 
-				var searchBuilder = variables.model.new( 
+				var searchBuilder = variables.model.new(
 					variables.testIndexName,
 					"testdocs"
 			 	);
@@ -177,7 +177,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			it( "Tests the aggregation() method", function(){
 
-				var searchBuilder = variables.model.new( 
+				var searchBuilder = variables.model.new(
 					variables.testIndexName,
 					"testdocs"
 			 	);
@@ -198,13 +198,13 @@ component extends="coldbox.system.testing.BaseTestCase"{
 			});
 
 			it( "Tests the sort() method by providing an array", function(){
-				
-				var searchBuilder = variables.model.new( 
+
+				var searchBuilder = variables.model.new(
 					variables.testIndexName,
 					"testdocs"
 			 	);
 
-			 	var sort = [ 
+			 	var sort = [
 				 	{
 				 		"lastName" : {"order":"asc"}
 				 	}
@@ -227,7 +227,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			it( "Tests the sort() method by providing a simple SQL-type string", function(){
 
-				var searchBuilder = variables.model.new( 
+				var searchBuilder = variables.model.new(
 					variables.testIndexName,
 					"testdocs"
 			 	);
@@ -246,7 +246,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 			});
 
 			it( "Tests the sort() method by providing a single field", function(){
-				var searchBuilder = variables.model.new( 
+				var searchBuilder = variables.model.new(
 					variables.testIndexName,
 					"testdocs"
 			 	);
@@ -263,7 +263,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 			});
 
 			it( "Tests the sort() method by providing a struct", function(){
-				var searchBuilder = variables.model.new( 
+				var searchBuilder = variables.model.new(
 					variables.testIndexName,
 					"testdocs"
 			 	);
@@ -282,8 +282,8 @@ component extends="coldbox.system.testing.BaseTestCase"{
 			});
 
 			it( "Tests the default sort() method case of throwing an error", function(){
-				
-				var searchBuilder = variables.model.new( 
+
+				var searchBuilder = variables.model.new(
 					variables.testIndexName,
 					"testdocs"
 			 	);
@@ -293,8 +293,8 @@ component extends="coldbox.system.testing.BaseTestCase"{
 			});
 
 			it( "Tests the the execute() method", function(){
-				
-				var searchBuilder = variables.model.new( 
+
+				var searchBuilder = variables.model.new(
 					variables.testIndexName,
 					"testdocs",
 					{
@@ -312,7 +312,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 
 			it( "Tests the filterTerms() method with a list", function(){
-				var searchBuilder = variables.model.new( 
+				var searchBuilder = variables.model.new(
 					variables.testIndexName,
 					"testdocs"
 			 	);
@@ -333,7 +333,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				sleep( 1500 );
 
 				//insert some test documents
-				var searchBuilder = variables.model.new( 
+				var searchBuilder = variables.model.new(
 					variables.testIndexName,
 					"testdocs",
 					{
@@ -343,9 +343,113 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			 	expect( searchBuilder.deleteAll() ).toBeBoolean();
 
-			});
+            });
 
-		});	
+            it( "Tests the setSource() method", function() {
+                var searchBuilder = variables.model.new(
+                    variables.testIndexName,
+                    "testdocs"
+                );
+
+                searchBuilder.setSource( {
+                    "includes" = [ "obj1.*", "obj2.*" ],
+                    "excludes" = [ "*.description" ]
+                } );
+
+                expect( searchBuilder.getDSL() ).toBeStruct();
+                expect( searchBuilder.getDSL() ).toHaveKey( "_source" );
+                expect( searchBuilder.getDSL()[ "_source" ] ).toHaveKey( "includes" );
+                expect( searchBuilder.getDSL()[ "_source" ][ "includes" ] ).toBe( [ "obj1.*", "obj2.*" ] );
+                expect( searchBuilder.getDSL()[ "_source" ] ).toHaveKey( "excludes" );
+                expect( searchBuilder.getDSL()[ "_source" ][ "excludes" ] ).toBe( [ "*.description" ] );
+            } );
+
+            it( "Tests the setSource() method fills in excludes if left out", function() {
+                var searchBuilder = variables.model.new(
+                    variables.testIndexName,
+                    "testdocs"
+                );
+
+                searchBuilder.setSource( {
+                    "includes" = [ "obj1.*", "obj2.*" ]
+                } );
+
+                expect( searchBuilder.getDSL() ).toBeStruct();
+                expect( searchBuilder.getDSL() ).toHaveKey( "_source" );
+                expect( searchBuilder.getDSL()[ "_source" ] ).toHaveKey( "includes" );
+                expect( searchBuilder.getDSL()[ "_source" ][ "includes" ] ).toBe( [ "obj1.*", "obj2.*" ] );
+                expect( searchBuilder.getDSL()[ "_source" ] ).toHaveKey( "excludes" );
+                expect( searchBuilder.getDSL()[ "_source" ][ "excludes" ] ).toBe( [] );
+            } );
+
+            it( "Tests the setSource() method fills in includes if left out", function() {
+                var searchBuilder = variables.model.new(
+                    variables.testIndexName,
+                    "testdocs"
+                );
+
+                searchBuilder.setSource( {
+                    "excludes" = [ "*.description" ]
+                } );
+
+                expect( searchBuilder.getDSL() ).toBeStruct();
+                expect( searchBuilder.getDSL() ).toHaveKey( "_source" );
+                expect( searchBuilder.getDSL()[ "_source" ] ).toHaveKey( "includes" );
+                expect( searchBuilder.getDSL()[ "_source" ][ "includes" ] ).toBe( [] );
+                expect( searchBuilder.getDSL()[ "_source" ] ).toHaveKey( "excludes" );
+                expect( searchBuilder.getDSL()[ "_source" ][ "excludes" ] ).toBe( [ "*.description" ] );
+            } );
+
+            it( "Tests the setSourceIncludes() method", function() {
+                var searchBuilder = variables.model.new(
+                    variables.testIndexName,
+                    "testdocs"
+                );
+
+                searchBuilder.setSourceIncludes( [ "obj1.*", "obj2.*" ] );
+
+                expect( searchBuilder.getDSL() ).toBeStruct();
+                expect( searchBuilder.getDSL() ).toHaveKey( "_source" );
+                expect( searchBuilder.getDSL()[ "_source" ] ).toHaveKey( "includes" );
+                expect( searchBuilder.getDSL()[ "_source" ][ "includes" ] ).toBe( [ "obj1.*", "obj2.*" ] );
+                expect( searchBuilder.getDSL()[ "_source" ] ).toHaveKey( "excludes" );
+                expect( searchBuilder.getDSL()[ "_source" ][ "excludes" ] ).toBe( [] );
+            } );
+
+            it( "Tests the setSourceExcludes() method", function() {
+                var searchBuilder = variables.model.new(
+                    variables.testIndexName,
+                    "testdocs"
+                );
+
+                searchBuilder.setSourceExcludes( [ "*.description" ] );
+
+                expect( searchBuilder.getDSL() ).toBeStruct();
+                expect( searchBuilder.getDSL() ).toHaveKey( "_source" );
+                expect( searchBuilder.getDSL()[ "_source" ] ).toHaveKey( "includes" );
+                expect( searchBuilder.getDSL()[ "_source" ][ "includes" ] ).toBe( [] );
+                expect( searchBuilder.getDSL()[ "_source" ] ).toHaveKey( "excludes" );
+                expect( searchBuilder.getDSL()[ "_source" ][ "excludes" ] ).toBe( [ "*.description" ] );
+            } );
+
+            it( "Tests the both the setSourceIncludes() and setSourceExcludes() methods", function() {
+                var searchBuilder = variables.model.new(
+                    variables.testIndexName,
+                    "testdocs"
+                );
+
+                searchBuilder.setSourceIncludes( [ "obj1.*", "obj2.*" ] );
+                searchBuilder.setSourceExcludes( [ "*.description" ] );
+
+                expect( searchBuilder.getDSL() ).toBeStruct();
+                expect( searchBuilder.getDSL() ).toHaveKey( "_source" );
+                expect( searchBuilder.getDSL()[ "_source" ] ).toHaveKey( "includes" );
+                expect( searchBuilder.getDSL()[ "_source" ][ "includes" ] ).toBe( [ "obj1.*", "obj2.*" ] );
+                expect( searchBuilder.getDSL()[ "_source" ] ).toHaveKey( "excludes" );
+                expect( searchBuilder.getDSL()[ "_source" ][ "excludes" ] ).toBe( [ "*.description" ] );
+            } );
+
+		});
 	}
 
 }

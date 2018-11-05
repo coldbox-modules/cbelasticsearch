@@ -1,11 +1,11 @@
 /**
 *
 * Elasticsearch Search Builder Object
-* 
+*
 * @package cbElasticsearch.models
 * @author Jon Clausen <jclausen@ortussolutions.com>
 * @license Apache v2.0 <http://www.apache.org/licenses/>
-* 
+*
 */
 component accessors="true" {
 
@@ -30,7 +30,11 @@ component accessors="true" {
 	/**
 	* Property containing the struct representation of any query aggregations
 	**/
-	property name="aggregations";
+    property name="aggregations";
+    /**
+    * Property containing the struct representation of any _source properties
+    **/
+    property name="source";
 
 	/**
 	* Property containing an array of sort commands
@@ -59,19 +63,23 @@ component accessors="true" {
 
 
 	function onDIComplete(){
-		reset();		
-		
+		reset();
+
 	}
 
 	function reset(){
-		
+
 		variables.index        	= variables.configObject.get( "defaultIndex" );
-		
+
 		var nullDefaults = [ "id","sorting","aggregations","script","sortRows" ];
-		
+
 		//ensure defaults, in case we are re-using a search builder with new()
 		variables.matchType    	= "any";
-		variables.query 		= {};
+        variables.query 		= {};
+        variables.source        = {
+            "includes" = [],
+            "excludes" = []
+        };
 
 		variables.maxRows 		= 25;
 		variables.startRow		= 0;
@@ -105,9 +113,9 @@ component accessors="true" {
 	* Deletes all documents matching the currently build search query
 	**/
 	function deleteAll(){
-		return getClient().deleteByQuery( this );	
+		return getClient().deleteByQuery( this );
 	}
-	
+
 
 	/**
 	* Populates a new SearchBuilder object
@@ -115,10 +123,10 @@ component accessors="true" {
 	* @type 		string 		the index type identifier
 	* @properties 	struct		a struct representation of the search
 	**/
-	SearchBuilder function new( 
-		string index, 
-		string type, 
-		struct properties 
+	SearchBuilder function new(
+		string index,
+		string type,
+		struct properties
 	){
 		reset();
 
@@ -131,7 +139,7 @@ component accessors="true" {
 		}
 
 		if( !isNull( arguments.properties ) ){
-		
+
 			for( var propName in arguments.properties ){
 
 				switch( propName ){
@@ -145,22 +153,22 @@ component accessors="true" {
 					case "query":{
 						variables.query = arguments.properties[ propName ];
 						break;
-					}	
+					}
 					case "match":{
 
 						if( !structKeyExists( variables.query, "match" ) ){
 							variables.query[ "match" ] = {};
 						}
 
-						structAppend( variables.query.match, arguments.properties[ propName ] );					
-						
+						structAppend( variables.query.match, arguments.properties[ propName ] );
+
 						break;
 
 					}
 					case "aggregations":{
 
 						if( !isStruct( arguments.properties[ propName ] ) ){
-							throw( 
+							throw(
 								type    = "cbElasticsearch.SearchBuilder.AggregationException",
 								message = "The value #serializeJSON( arguments.properties[ propName ] )# could not be converted to a valid aggregation"
 							);
@@ -184,22 +192,22 @@ component accessors="true" {
 
 						//Assume it's a match value if providing a simple value.  Otherwise, assume it is raw DSL
 						if( isSimpleValue( arguments.properties[ propName ] ) ){
-													
-							match( 
-								propName, 
-								arguments.properties[ propName ] 
+
+							match(
+								propName,
+								arguments.properties[ propName ]
 							);
-								
+
 						} else {
 
 							variables.query[ propName ] = arguments.properties[ propName ];
 
 						}
-								
+
 					}
 
 				}
-			}	
+			}
 
 		}
 
@@ -211,37 +219,37 @@ component accessors="true" {
 	* @name 		string 		the name of the parameter to match
 	* @value 		any 		the value of the parameter to match
 	* @boost 		numeric		A numeric boost option for any exact matches
-	* 
+	*
 	**/
-	SearchBuilder function term( 
-		required string name, 
-		required any value, 
+	SearchBuilder function term(
+		required string name,
+		required any value,
 		numeric boost
 	){
 		if( !structKeyExists( variables.query, "term" ) ){
-			
+
 			variables.query[ "term" ] = {};
 
 		}
-		
-		if( !isNull( arguments.boost ) ){		
-	
+
+		if( !isNull( arguments.boost ) ){
+
 			variables.query[ "term" ][ arguments.name ] = {
 				"value" : arguments.value,
 				"boost" : javacast( "float", arguments.boost )
 			};
-	
+
 		} else {
-	
+
 			variables.query[ "term" ][ arguments.name ] = arguments.value;
-	
+
 		}
 
 		return this;
 
 	}
 
-	function filterTerms( 
+	function filterTerms(
 		required string name,
 		required any value
 	){
@@ -272,8 +280,8 @@ component accessors="true" {
 	* @name 		string 		the name of the key to search
 	* @value 		string 		the value of the key
 	**/
-	SearchBuilder function shouldMatch( 
-		required string name, 
+	SearchBuilder function shouldMatch(
+		required string name,
 		required any value,
 		numeric boost
 	){
@@ -289,12 +297,12 @@ component accessors="true" {
 	* @name 		string 		the name of the key to search
 	* @value 		string 		the value of the key
 	**/
-	SearchBuilder function mustMatch( 
-		required string name, 
+	SearchBuilder function mustMatch(
+		required string name,
 		required any value,
 		numeric boost
 	){
-		
+
 		arguments[ "matchType" ] = "must";
 		return match( argumentCollection=arguments );
 
@@ -306,12 +314,12 @@ component accessors="true" {
 	* @name 		string 		the name of the key to search
 	* @value 		string 		the value of the key
 	**/
-	SearchBuilder function mustNotMatch( 
-		required string name, 
+	SearchBuilder function mustNotMatch(
+		required string name,
 		required any value,
 		numeric boost
 	){
-		
+
 		arguments[ "matchType" ] = "must_not";
 		return match( argumentCollection=arguments );
 
@@ -324,13 +332,13 @@ component accessors="true" {
 	* @value 		string 		the value of the key
 	* @boost 		numeric	  	an optional boost value
 	**/
-	SearchBuilder function multiMatch( 
-		required array names, 
+	SearchBuilder function multiMatch(
+		required array names,
 		required any value,
 		numeric boost
 	){
 
-		return match( 
+		return match(
 			name  = arguments.names,
 			value = arguments.value,
 			matchType = 'multi_match'
@@ -352,7 +360,7 @@ component accessors="true" {
 		numeric boost
 	){
 		if( isNull( arguments.start ) && isNull( arguments.end ) ){
-			throw( 
+			throw(
 				type    = "",
 				message = ""
 			);
@@ -364,7 +372,7 @@ component accessors="true" {
 		 	"boost" : !isNull( arguments.boost ) ? arguments.boost : javacast( "null", 0 )
 		};
 
-		return match( 
+		return match(
 			name      = arguments.name,
 			value     = properties,
 			matchType = 'range'
@@ -376,11 +384,11 @@ component accessors="true" {
 	/**
 	* Applies a match requirement to the search builder query
 	* https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query.html
-	* 
+	*
 	* @name 		string|array 		the name of the key to search
 	* @value 		string 				the value of the key
 	* @boost 		numeric				A numeric boost option for any exact matches
-	* @options 		struct 				An additional struct map of Elasticsearch query options to 
+	* @options 		struct 				An additional struct map of Elasticsearch query options to
 	*									pass in to the match parameters ( e.g. - operator, zero_terms_query, etc )
 	* @matchType 	string 				a match type ( default="any" )
 	* 									Valid options:
@@ -391,12 +399,12 @@ component accessors="true" {
 	* 							 		- "should" - specifies that any documents returned should match the value(s) provided
 	*
 	**/
-	SearchBuilder function match( 
-		required any name, 
-		required any value, 
+	SearchBuilder function match(
+		required any name,
+		required any value,
 		numeric boost,
 		struct options,
-		string matchType="any" 
+		string matchType="any"
 	){
 
 		//Auto-magically make a multi-match query if our name argument is an array
@@ -422,36 +430,36 @@ component accessors="true" {
 
 		var match = {};
 
-		if( !isNull( arguments.boost ) && isSimpleValue( arguments.name ) ){		
-	
+		if( !isNull( arguments.boost ) && isSimpleValue( arguments.name ) ){
+
 			match[ arguments.name ] = {
 				"query" : arguments.value,
 				"boost" : javacast( "float", arguments.boost )
 			};
-	
+
 		} else if( isSimpleValue( arguments.name ) ) {
-	
+
 			match[ arguments.name ] = arguments.value;
-	
+
 		}
 
 		if( !isNull( arguments.options ) && isSimpleValue( arguments.name ) ){
 
 			//convert our query to the long form DSL so we can append options
 			if( !isStruct( match[ arguments.name ] ) ){
-				
+
 				match[ arguments.name ] = {
 					"query" : arguments.value
 				};
 
 			}
-			
-			
+
+
 
 			for( var optionKey in arguments.options ){
 
 				match[ arguments.name ][ optionKey ]=arguments.options[ optionKey ];
-			
+
 			}
 		}
 
@@ -469,8 +477,8 @@ component accessors="true" {
 					if( !structKeyExists( variables.query.bool, arguments.matchType ) ){
 						variables.query.bool[ arguments.matchType ] = [];
 					}
-					arrayAppend( 
-						variables.query.bool[ arguments.matchType ], 
+					arrayAppend(
+						variables.query.bool[ arguments.matchType ],
 						{
 							"#matchKey#" : match
 						}
@@ -490,12 +498,12 @@ component accessors="true" {
 					};
 
 					if( !isNull( arguments.boost ) ) matchCriteria[ "boost" ] = arguments.boost;
-					
-					arrayAppend( 
-						variables.query.bool.must, 
+
+					arrayAppend(
+						variables.query.bool.must,
 						{
 							"#arguments.matchType#" : matchCriteria
-						} 
+						}
 					);
 
 					break;
@@ -507,14 +515,14 @@ component accessors="true" {
 					if( !structKeyExists( variables.query.bool, "must" ) ){
 						variables.query.bool[ "must" ] = [];
 					}
-					
-					arrayAppend( 
-						variables.query.bool.must, 
+
+					arrayAppend(
+						variables.query.bool.must,
 						{
 							"#arguments.matchType#" : {
 								"#arguments.name#" : arguments.value
 							}
-						} 
+						}
 					);
 
 					break;
@@ -523,43 +531,43 @@ component accessors="true" {
 
 				case "must":
 				case "must_not":{
-					
+
 					if( !structKeyExists( variables.query.bool, arguments.matchType ) ){
 						variables.query.bool[ arguments.matchType ] = [];
 					}
-					
-					arrayAppend( 
+
+					arrayAppend(
 						variables.query.bool[ arguments.matchType ], {
 							"match" : {
 								"#arguments.name#" : arguments.value
 							}
-						} 
-						
+						}
+
 					);
 
 					break;
 				}
 
 				case "terms":{
-					
+
 					if( !structKeyExists( variables.query.bool, "must" ) ){
 						variables.query.bool[ "must" ] = [];
 					}
-					
-					arrayAppend( 
+
+					arrayAppend(
 						variables.query.bool.must, {
 							"terms" : {
 								"#arguments.name#" : arguments.value
 							}
-						} 
-						
+						}
+
 					);
 
 					break;
 				}
 
 				default:{
-					
+
 					if( !structKeyExists( variables.query.bool, arguments.matchType ) ){
 						variables.query.bool[ arguments.matchType ] = {};
 					}
@@ -567,11 +575,11 @@ component accessors="true" {
 					structAppend( variables.query.bool[ arguments.matchType ], match, true );
 				}
 			}
-			
+
 		} else {
 
 			if( !structKeyExists( variables.query, matchKey ) ){
-			
+
 				variables.query[ matchKey ] = {};
 
 			}
@@ -580,19 +588,19 @@ component accessors="true" {
 		}
 
 		return this;
-		
+
 
 	}
 
 	/**
 	* Performs a disjunctive search ( https://www.elastic.co/guide/en/elasticsearch/guide/current/_tuning_best_fields_queries.html )
-	* 
-	* @matches 		struct 		A struct containing the matches 
+	*
+	* @matches 		struct 		A struct containing the matches
 	* @tieBreakder 	numeric     A tie breaker value to boost more relevant matches
-	* 
+	*
 	**/
 	SearchBuilder function disjunction( required struct matches, numeric tieBreaker ){
-		
+
 		if( !structKeyExists( variables.query, "dis_max" ) ){
 			variables.query[ "dis_max" ] = {
 				"queries" : []
@@ -618,14 +626,14 @@ component accessors="true" {
 
 	/**
 	* Adds an aggregation directive to the search parameters
-	* 
+	*
 	* https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html
-	* 
+	*
 	* @name 	string 		the key of the aggregation
-	* @options 	struct      the elasticsearch aggregation DSL struct 		
+	* @options 	struct      the elasticsearch aggregation DSL struct
 	**/
 	SearchBuilder function aggregation( required string name, required struct options ){
-		
+
 		if( isNull( variables.aggregations ) ){
 			variables.aggregations = {};
 		}
@@ -637,12 +645,12 @@ component accessors="true" {
 
 	/**
 	* Applies a custom sort to the search query
-	* @sort 		any 	If passed as a string, the sortConfig argument is required, 
+	* @sort 		any 	If passed as a string, the sortConfig argument is required,
 	* 						may also accept a full struct representation, which will be appended to the custom sort
 	* @sortConfig 	string 	A configuration - either a string or a full es-compatible sort configuration struct
 	**/
 	SearchBuilder function sort( required any sort, any sortConfig ){
-			
+
 		if( isNull( variables.sorting ) ){
 			variables.sorting = [];
 		}
@@ -651,7 +659,7 @@ component accessors="true" {
 		if( isArray( arguments.sort ) ){
 
 			arrayAppend( variables.sorting, arguments.sort, true );
-		
+
 		// a friendly `[fieldName] [ORDER]` like we would use with SQL ( e.g. `name ASC` )
 		} else if( isSimpleValue( arguments.sort ) && isNull( arguments.sortConfig ) ) {
 
@@ -660,11 +668,11 @@ component accessors="true" {
 			for( var sortDirective in sortDirectives ){
 				var directiveItems = listToArray( sortDirective, " " );
 
-				arrayAppend( 
-					variables.sorting, 
+				arrayAppend(
+					variables.sorting,
 					{
 						"#directiveItems[ 1 ]#" : { "order" : arrayLen( directiveItems ) > 1 ? lcase( directiveItems[ 2 ] ) : "asc" }
-					} 
+					}
 				);
 
 			}
@@ -681,20 +689,20 @@ component accessors="true" {
 		} else if( isStruct( arguments.sort ) ){
 
 			for( var sortKey in arguments.sort ){
-			
-				arrayAppend( 
-					variables.sorting, 
+
+				arrayAppend(
+					variables.sorting,
 					{
 						"#sortKey#" : { "order"	: arguments.sort[ sortKey ] }
-					} 
+					}
 				);
 
 			}
 
 		// Throw hard if we have no idea how to handle the provided search configuration
 		} else {
-			
-			throw( 
+
+			throw(
 				type    = "cbElasticsearch.SearchBuilder.InvalidSortArgumentException",
 				message = "The provided sort argument #serializeJSON( arguments.sort )# could not be parsed to a valid SearchBuilder sort configuration"
 			);
@@ -708,16 +716,16 @@ component accessors="true" {
 	}
 
 	/**
-	* Performs a preflight on the search 
+	* Performs a preflight on the search
 	* ensures that a dynamically assembled query is well formatted before being passed on to elasticsearch
 	**/
 	void function preflightQuery(){
-        
+
         var searchQuery = getQuery();
 
         //move terms in to the boolean node as they won't play well together otherwise
         if( structKeyExists( searchQuery, "term" ) && ( structKeyExists( searchQuery, "bool" ) || arrayLen( structKeyArray( searchQuery.term ) ) > 1 ) ){
-            
+
             if( !structKeyExists( searchQuery, "bool" ) ){
                 searchQuery[ "bool" ] = {};
             }
@@ -727,16 +735,16 @@ component accessors="true" {
             }
 
             for( var key in searchQuery.term ){
-                arrayAppend( 
+                arrayAppend(
                     searchQuery.bool.must,
                     {
-                        "term" : { "#key#" : searchQuery.term[ key ] } 
+                        "term" : { "#key#" : searchQuery.term[ key ] }
                     }
                 );
             }
 
             structDelete( searchQuery, "term" );
-            
+
         }
 
         // move match directives in to boolean node if exists
@@ -747,13 +755,13 @@ component accessors="true" {
             }
 
             for( var key in searchQuery.match ){
-                arrayAppend( 
-                    searchQuery.bool.should, 
+                arrayAppend(
+                    searchQuery.bool.should,
                     {
                         "match" : {
                           "#key#": searchQuery.match[ key ]
                         }
-                    } 
+                    }
                 );
             }
 
@@ -763,7 +771,7 @@ component accessors="true" {
         //if we have multiple term filters, move them in to the "must" array
         if( structKeyExists( searchQuery, "bool" ) && structKeyExists( searchQuery.bool, "filter" ) && structKeyExists( searchQuery.bool.filter, "terms" ) ){
             if( arrayLen( structKeyArray( searchQuery.bool.filter.terms ) ) > 1 ){
-               
+
                if( !structKeyExists( searchQuery, "bool" ) ){
 	                searchQuery[ "bool" ] = {};
 	            }
@@ -774,7 +782,7 @@ component accessors="true" {
 
                 for( var termKey in searchQuery.bool.filter.terms ){
 
-                	arrayAppend( 
+                	arrayAppend(
                 		searchQuery.bool.must,
                 		{
                 			"terms" : {
@@ -783,7 +791,7 @@ component accessors="true" {
 	                	}
 
                 	);
-                	
+
                 }
 
                 structDelete( searchQuery.bool.filter, "terms" );
@@ -798,9 +806,10 @@ component accessors="true" {
 	struct function getDSL(){
 
 		var dsl = {
-			"from"  : variables.startRow,
-			"size"  : variables.maxRows,
-			"query" : variables.query
+			"from"    : variables.startRow,
+			"size"    : variables.maxRows,
+            "query"   : variables.query,
+            "_source" : variables.source
 		};
 
 		if( !isNull( variables.aggregations ) ){
@@ -846,6 +855,23 @@ component accessors="true" {
 	string function getJSON(){
 
 		return serializeJSON( getDSL() );
-	}
+    }
+
+    function setSource( struct source = {} ) {
+        param arguments.source.includes = [];
+        param arguments.source.excludes = [];
+        variables.source = arguments.source;
+        return this;
+    }
+
+    function setSourceIncludes( array includes = [] ) {
+        variables.source.includes = arguments.includes;
+        return this;
+    }
+
+    function setSourceExcludes( array excludes = [] ) {
+        variables.source.excludes = arguments.excludes;
+        return this;
+    }
 
 }
