@@ -14,11 +14,11 @@
         "Jest":"https://github.com/searchbox-io/Jest/archive/master.zip"
     },
     "installPaths":{
-        "testbox":"testbox/",
-        "coldbox":"coldbox/",
-        "workbench":"workbench/",
-        "cbjavaloader":"modules/cbjavaloader/",
-        "Jest":"build/Jest/"
+        "testbox":"testbox",
+        "coldbox":"coldbox",
+        "workbench":"workbench",
+        "cbjavaloader":"modules/cbjavaloader",
+        "Jest":"build/Jest"
     },
     "testbox":{
         "runner":"http://localhost:49616"
