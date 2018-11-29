@@ -3,6 +3,18 @@ component{
 	// Configure ColdBox Application
 	function configure(){
 
+        moduleSettings = {
+            "cbElasticsearch" = {
+                "hosts" = [
+                    {
+                        "serverProtocol" = getSystemSetting( "ELASTICSEARCH_PROTOCOL", "http" ),
+                        "serverName" = getSystemSetting( "ELASTICSEARCH_HOST", "127.0.0.1" ),
+                        "serverPort" = getSystemSetting( "ELASTICSEARCH_PORT", "9200" )
+                    }
+                ]
+            }
+        };
+
 		// coldbox directives
 		coldbox = {
 			//Application Setup
@@ -77,6 +89,6 @@ component{
 			}
 		];
 
-	}
+    }
 
 }

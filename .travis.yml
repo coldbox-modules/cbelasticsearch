@@ -1,13 +1,9 @@
 language: java
 
-addons:
-  apt:
-    packages:
-      - oracle-java8-set-default
-
-dist: trusty
-
 sudo: required
+
+jdk:
+  - oraclejdk8
 
 cache:
   directories:
@@ -25,6 +21,7 @@ env:
     - ENGINE=lucee@5
     - ENGINE=adobe@11
     - ENGINE=adobe@2016
+    - ENGINE=adobe@2018
 
 branches:
   only:
@@ -107,7 +104,6 @@ deploy:
     local-dir: build/apidocs
     upload-dir: coldbox-modules/$MODULE_ID
     acl: public_read
-
 
 after_deploy:
   - cd $TRAVIS_BUILD_DIR/build && box forgebox publish
