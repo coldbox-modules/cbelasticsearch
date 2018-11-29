@@ -122,6 +122,7 @@ var indexBuilder = getInstance( "IndexBuilder@cbElasticsearch" ).new(
 ).save();
 ```
 
+If you use Elasticsearch > 6, replace above "type":"string" with "type":"text" (Elasticsearch has dropped the string type and is now using text).
 
 We can also add mappings after the `new()` method is called:
 
