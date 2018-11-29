@@ -322,9 +322,13 @@ component extends="coldbox.system.testing.BaseTestCase"{
 			 	expect( searchBuilder.getQuery() ).toBeStruct();
 				expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
 				expect( searchBuilder.getQuery().bool ).toHaveKey( "filter" );
-				expect( searchBuilder.getQuery().bool.filter ).toHaveKey( "terms" );
-				expect( searchBuilder.getQuery().bool.filter.terms ).toBe( { "title" : [ "Foo", "Bar" ] } );
-
+				expect( searchBuilder.getQuery().bool.filter ).toHaveKey( "bool" );
+				expect( searchBuilder.getQuery().bool.filter.bool ).toHaveKey( "must" );
+				expect( searchBuilder.getQuery().bool.filter.bool.must ).toBeArray();
+				expect( searchBuilder.getQuery().bool.filter.bool.must ).toHaveLength( 1 );
+				expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ] ).toBeStruct();
+				expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ] ).toHaveKey( "term" );
+				expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ].term ).toBe( { "title" : [ "Foo", "Bar" ] } );
 			});
 
 			it( "Tests the deleteAll() method", function(){
