@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  elasticsearch:
+    image: elasticsearch
+    environment:
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+      http.host: "0.0.0.0"
+      transport.host: "127.0.0.1"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+  app:
+    image: ortussolutions/commandbox
+    depends_on:
+      - elasticsearch
+    environment:
+      CFENGINE: "adobe@11"
+      PORT: 8080
+      SSL_PORT: 8443
+      ELASTICSEARCH_HOST: elasticsearch
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+      - "8188:8088"
+    volumes:
+      # Mount our application in delgated mode
+      - .:/app:delegated
+    expose:
+      - "8080"
+      - "8443"
+      - "8088"
