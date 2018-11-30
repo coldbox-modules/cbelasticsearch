@@ -264,7 +264,7 @@ component accessors="true" {
         param variables.query.bool.filter.bool = {};
         param variables.query.bool.filter.bool.must = [];
         arrayAppend( variables.query.bool.filter.bool.must, {
-            "term": {
+            "terms": {
                 "#name#": value
             }
         });
