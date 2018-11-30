@@ -1,5 +1,10 @@
 CHANGELOG
 =========
+# 1.0.0
+* Adds support for Elasticsearch v6.0+
+* Adds a new MappingBuilder
+* Updates to SearchBuilder to alow for more complex queries with fewer syntax errors
+* ACF Compatibility Updates
 
 # 0.3.0
 * Adds `readTimeout` and `connectionTimeout` settings

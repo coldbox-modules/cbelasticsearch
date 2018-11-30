@@ -14,10 +14,10 @@
         "Jest":"https://github.com/searchbox-io/Jest/archive/master.zip"
     },
     "installPaths":{
-        "testbox":"testbox",
-        "coldbox":"coldbox",
-        "workbench":"workbench",
-        "cbjavaloader":"modules/cbjavaloader",
+        "testbox":"testbox/",
+        "coldbox":"coldbox/",
+        "workbench":"workbench/",
+        "cbjavaloader":"modules/cbjavaloader/",
         "Jest":"build/Jest"
     },
     "testbox":{
