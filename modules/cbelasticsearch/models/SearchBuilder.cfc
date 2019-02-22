@@ -331,15 +331,12 @@ component accessors="true" {
 	SearchBuilder function multiMatch(
 		required array names,
 		required any value,
-		numeric boost
+        numeric boost,
+        string type = "best_fields"
 	){
-
-		return match(
-			name  = arguments.names,
-			value = arguments.value,
-			matchType = 'multi_match'
-		);
-
+        arguments.name = arguments.names;
+        arguments.matchType = "multi_match";
+		return match( argumentCollection = arguments );
 	}
 
 	/**
@@ -400,7 +397,9 @@ component accessors="true" {
 		required any value,
 		numeric boost,
 		struct options,
-		string matchType="any"
+        string matchType="any",
+        string type = "best_fields",
+        string minimumShouldMatch
 	){
 
 		//Auto-magically make a multi-match query if our name argument is an array
@@ -489,9 +488,14 @@ component accessors="true" {
 					}
 
 					var matchCriteria = {
-						"query" :    arguments.value,
-						"fields" : isArray( arguments.name ) ? arguments.name : listToArray( arguments.name )
-					};
+						"query" : arguments.value,
+                        "fields" : isArray( arguments.name ) ? arguments.name : listToArray( arguments.name ),
+                        "type": arguments.type
+                    };
+
+                    if ( ! isNull( arguments.minimumShouldMatch ) ) {
+                        matchCriteria[ "minimum_should_match" ] = arguments.minimumShouldMatch;
+                    }
 
 					if( !isNull( arguments.boost ) ) matchCriteria[ "boost" ] = arguments.boost;
 
