@@ -108,7 +108,73 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( searchBuilder.getQuery().match ).toHaveKey( "title" );
 				expect( searchBuilder.getQuery().match.title ).toBe( "Foo" );
 
-			});
+            });
+
+            it( "Tests the multiMatch() method", function() {
+                var searchBuilder = variables.model.new(
+                    variables.testIndexName,
+                    "testdocs"
+                );
+
+                var fields = [];
+                var value = "Foo";
+
+                searchBuilder.multiMatch(
+                    names = fields,
+                    value = value
+                );
+
+                expect( searchBuilder.getQuery() ).toBeStruct();
+                expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
+                expect( searchBuilder.getQuery().bool ).toHaveKey( "must" );
+                expect( searchBuilder.getQuery().bool.must ).toBeArray();
+                expect( searchBuilder.getQuery().bool.must ).toHaveLength( 1 );
+                expect( searchBuilder.getQuery().bool.must[ 1 ] ).toHaveKey( "multi_match" );
+                expect( searchBuilder.getQuery().bool.must[ 1 ].multi_match ).toHaveKey( "query" );
+                expect( searchBuilder.getQuery().bool.must[ 1 ].multi_match.query ).toBe( "Foo" );
+                expect( searchBuilder.getQuery().bool.must[ 1 ].multi_match ).toHaveKey( "fields" );
+                expect( searchBuilder.getQuery().bool.must[ 1 ].multi_match.fields ).toBe( fields );
+                expect( searchBuilder.getQuery().bool.must[ 1 ].multi_match ).toHaveKey( "type" );
+                expect( searchBuilder.getQuery().bool.must[ 1 ].multi_match.type ).toBe( "best_fields" );
+                expect( searchBuilder.getQuery().bool.must[ 1 ].multi_match ).notToHaveKey( "boost" );
+                expect( searchBuilder.getQuery().bool.must[ 1 ].multi_match ).notToHaveKey( "minimum_should_match" );
+            } );
+
+            it( "Tests the multiMatch() method with extra arguments", function() {
+                var searchBuilder = variables.model.new(
+                    variables.testIndexName,
+                    "testdocs"
+                );
+
+                var fields = [];
+                var value = "Foo";
+                var boost = 2;
+                var type = "cross_fields";
+                var minimumShouldMatch = "80%";
+
+                searchBuilder.multiMatch(
+                    names = fields,
+                    value = value,
+                    boost = boost,
+                    type = type,
+                    minimumShouldMatch = minimumShouldMatch
+                );
+
+                expect( searchBuilder.getQuery() ).toBeStruct();
+                expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
+                expect( searchBuilder.getQuery().bool ).toHaveKey( "must" );
+                expect( searchBuilder.getQuery().bool.must ).toBeArray();
+                expect( searchBuilder.getQuery().bool.must ).toHaveLength( 1 );
+                expect( searchBuilder.getQuery().bool.must[ 1 ] ).toHaveKey( "multi_match" );
+                expect( searchBuilder.getQuery().bool.must[ 1 ].multi_match ).toHaveKey( "query" );
+                expect( searchBuilder.getQuery().bool.must[ 1 ].multi_match.query ).toBe( "Foo" );
+                expect( searchBuilder.getQuery().bool.must[ 1 ].multi_match ).toHaveKey( "fields" );
+                expect( searchBuilder.getQuery().bool.must[ 1 ].multi_match.fields ).toBe( fields );
+                expect( searchBuilder.getQuery().bool.must[ 1 ].multi_match ).toHaveKey( "type" );
+                expect( searchBuilder.getQuery().bool.must[ 1 ].multi_match.type ).toBe( type );
+                expect( searchBuilder.getQuery().bool.must[ 1 ].multi_match ).toHaveKey( "minimum_should_match" );
+                expect( searchBuilder.getQuery().bool.must[ 1 ].multi_match.minimum_should_match ).toBe( minimumShouldMatch );
+            } );
 
 
 			it( "Tests shouldMatch()", function(){
