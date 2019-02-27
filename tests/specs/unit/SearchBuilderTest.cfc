@@ -374,7 +374,20 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			 	expect( searchResult ).toBeComponent();
 
-			});
+            });
+
+            it( "Tests the terms() method", function() {
+                var searchBuilder = variables.model.new(
+                    variables.testIndexName,
+                    "testdocs"
+                );
+
+                searchBuilder.terms( "title", "Foo,Bar" );
+
+                expect( searchBuilder.getQuery() ).toBeStruct();
+                expect( searchBuilder.getQuery() ).toHaveKey( "terms" );
+                expect( searchBuilder.getQuery().terms ).toBe( { "title" : [ "Foo", "Bar" ] } );
+            } );
 
             it( "Tests the filterTerm() method", function() {
                 var searchBuilder = variables.model.new(
