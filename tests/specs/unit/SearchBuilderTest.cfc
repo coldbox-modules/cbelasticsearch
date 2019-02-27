@@ -376,6 +376,46 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			});
 
+            it( "Tests the filterTerm() method", function() {
+                var searchBuilder = variables.model.new(
+                    variables.testIndexName,
+                    "testdocs"
+                );
+
+                searchBuilder.filterTerm( "title", "Foo" );
+
+                expect( searchBuilder.getQuery() ).toBeStruct();
+                expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
+                expect( searchBuilder.getQuery().bool ).toHaveKey( "filter" );
+                expect( searchBuilder.getQuery().bool.filter ).toHaveKey( "bool" );
+                expect( searchBuilder.getQuery().bool.filter.bool ).toHaveKey( "must" );
+                expect( searchBuilder.getQuery().bool.filter.bool.must ).toBeArray();
+                expect( searchBuilder.getQuery().bool.filter.bool.must ).toHaveLength( 1 );
+                expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ] ).toBeStruct();
+                expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ] ).toHaveKey( "term" );
+                expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ].term ).toBe( { "title" : "Foo" } );
+            } );
+
+            it( "Tests the filterTerms() method with a single argument", function() {
+                var searchBuilder = variables.model.new(
+                    variables.testIndexName,
+                    "testdocs"
+                );
+
+                searchBuilder.filterTerms( "title", "Foo" );
+
+                expect( searchBuilder.getQuery() ).toBeStruct();
+                expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
+                expect( searchBuilder.getQuery().bool ).toHaveKey( "filter" );
+                expect( searchBuilder.getQuery().bool.filter ).toHaveKey( "bool" );
+                expect( searchBuilder.getQuery().bool.filter.bool ).toHaveKey( "must" );
+                expect( searchBuilder.getQuery().bool.filter.bool.must ).toBeArray();
+                expect( searchBuilder.getQuery().bool.filter.bool.must ).toHaveLength( 1 );
+                expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ] ).toBeStruct();
+                expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ] ).toHaveKey( "term" );
+                expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ].term ).toBe( { "title" : "Foo" } );
+            } );
+
 
 			it( "Tests the filterTerms() method with a list", function(){
 				var searchBuilder = variables.model.new(

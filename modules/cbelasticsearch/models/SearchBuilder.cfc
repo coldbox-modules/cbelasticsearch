@@ -249,6 +249,18 @@ component accessors="true" {
 
     }
 
+    function filterTerm( required string name, required any value ) {
+        param variables.query.bool = {};
+        param variables.query.bool.filter = {};
+        param variables.query.bool.filter.bool = {};
+        param variables.query.bool.filter.bool.must = [];
+        arrayAppend( variables.query.bool.filter.bool.must, {
+            "term": {
+                "#name#": value
+            }
+        });
+    }
+
     function filterTerms(
         required string name,
         required any value
@@ -256,7 +268,7 @@ component accessors="true" {
         if( isSimpleValue( value ) ) arguments.value = listToArray( value );
 
         if( isArray( value ) && arrayLen( value ) == 1 ){
-            return term( name=arguments.name, value=value[ 1 ] );
+            return filterTerm( name=arguments.name, value=value[ 1 ] );
         }
 
         param variables.query.bool = {};
