@@ -249,6 +249,57 @@ component accessors="true" {
 
     }
 
+    /**
+    * Adds an exact value restriction ( elasticsearch: term ) to the query
+    * @name 		string 		the name of the parameter to match
+    * @value 		any 		the value of the parameter to match
+    * @boost 		numeric		A numeric boost option for any exact matches
+    *
+    **/
+    SearchBuilder function terms(
+        required string name,
+        required any value,
+        numeric boost
+    ){
+        if ( ! isArray( arguments.value ) ) {
+            arguments.value = listToArray( arguments.value );
+        }
+
+        if( !structKeyExists( variables.query, "terms" ) ){
+
+            variables.query[ "terms" ] = {};
+
+        }
+
+        if( !isNull( arguments.boost ) ){
+
+            variables.query[ "terms" ][ arguments.name ] = {
+                "value" : arguments.value,
+                "boost" : javacast( "float", arguments.boost )
+            };
+
+        } else {
+
+            variables.query[ "terms" ][ arguments.name ] = arguments.value;
+
+        }
+
+        return this;
+
+    }
+
+    function filterTerm( required string name, required any value ) {
+        param variables.query.bool = {};
+        param variables.query.bool.filter = {};
+        param variables.query.bool.filter.bool = {};
+        param variables.query.bool.filter.bool.must = [];
+        arrayAppend( variables.query.bool.filter.bool.must, {
+            "term": {
+                "#name#": value
+            }
+        });
+    }
+
     function filterTerms(
         required string name,
         required any value
@@ -256,7 +307,7 @@ component accessors="true" {
         if( isSimpleValue( value ) ) arguments.value = listToArray( value );
 
         if( isArray( value ) && arrayLen( value ) == 1 ){
-            return term( name=arguments.name, value=value[ 1 ] );
+            return filterTerm( name=arguments.name, value=value[ 1 ] );
         }
 
         param variables.query.bool = {};
