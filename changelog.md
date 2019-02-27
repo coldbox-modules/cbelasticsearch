@@ -1,9 +1,17 @@
 CHANGELOG
 =========
+
+# 1.1.0
+* Updates to `term` and `filterTerms` SearchBuilder methods to allow for more precise filtering
+* Adds  `filterTerm` method which allows restriction of the search context
+* Adds `type` and `minimum_should_match` parameters to `multiMatch` method in SearchBuilder
+
 # 1.0.0
 * Adds support for Elasticsearch v6.0+
 * Adds a new MappingBuilder
 * Updates to SearchBuilder to alow for more complex queries with fewer syntax errors
+* Refactor filterTerms to allow other `should` or `filter` clauses
+* Add ability to specify `_source` excludes and includes in a query
 * ACF Compatibility Updates
 
 # 0.3.0
