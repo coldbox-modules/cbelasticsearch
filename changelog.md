@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+# 1.1.1
+* Updates Java Dependencies, including JEST client, to latest versions
+* Implements search term highlighting capabilities
+
 # 1.1.0
 * Updates to `term` and `filterTerms` SearchBuilder methods to allow for more precise filtering
 * Adds  `filterTerm` method which allows restriction of the search context
