@@ -29,6 +29,10 @@ component
 	**/
 	property name="score";
 	/**
+	* Highlights for the document in search results
+	**/
+	property name="highlights";
+	/**
 	* The structural representation of the document object
 	**/
 	property name="memento";
@@ -43,6 +47,7 @@ component
 		//set default document types
 		variables.index = configStruct.defaultIndex;
 		variables.type = structKeyExists( configStruct, "defaultType") ? configStruct.defaultType : javacast( "null", 0 );
+		variables.highlights = {};
 		variables.memento = {};
 
 		var nullDefaults = [ "id","score" ];
