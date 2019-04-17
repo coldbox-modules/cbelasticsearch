@@ -56,6 +56,10 @@ component accessors="true" {
     **/
     property name="preflight"
                 type="boolean";
+    /**
+    * Property containing the struct representation of highlight
+    **/
+    property name="highlight";
 
     // Optional search defaults
     property name="maxRows";
@@ -80,6 +84,8 @@ component accessors="true" {
             "includes" = [],
             "excludes" = []
         };
+
+        variables.highlight = {};
 
         variables.maxRows 		= 25;
         variables.startRow		= 0;
@@ -152,6 +158,10 @@ component accessors="true" {
                     }
                     case "query":{
                         variables.query = arguments.properties[ propName ];
+                        break;
+                    }
+                    case "highlight":{
+                        variables.highlight = arguments.properties[ propName ];
                         break;
                     }
                     case "match":{
@@ -674,6 +684,19 @@ component accessors="true" {
 
     }
 
+    /**
+    * Adds highlighting to search
+    *
+    * https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-request-highlighting.html
+    *
+    * @highlight 	struct      the elasticsearch highlight DSL struct
+    **/
+    SearchBuilder function highLight( required  highlight ){
+
+        variables.highlight = arguments.highlight;
+
+        return this;
+    }
 
     /**
     * Adds an aggregation directive to the search parameters
@@ -860,7 +883,8 @@ component accessors="true" {
             "from"    : variables.startRow,
             "size"    : variables.maxRows,
             "query"   : variables.query,
-            "_source" : variables.source
+            "_source" : variables.source,
+            "highlight" : variables.highlight
         };
 
         if( !isNull( variables.aggregations ) ){
