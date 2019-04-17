@@ -135,6 +135,10 @@ component accessors="true"{
 				doc.setScore( hit[ "_score" ] );	
 			}
 
+			if ( structKeyExists( hit, "highlight" ) ) {
+				doc.setHighlights( hit[ "highlight" ] );
+			}
+
 			arrayAppend( 
 				variables.hits, 
 				doc
