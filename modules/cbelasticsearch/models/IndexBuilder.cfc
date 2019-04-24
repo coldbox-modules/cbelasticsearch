@@ -157,7 +157,7 @@ component
 
 	string function getJSON(){
 
-		return serializeJSON( getDSL() );
+		return serializeJSON( getDSL(), false, false );
 	}
 
 

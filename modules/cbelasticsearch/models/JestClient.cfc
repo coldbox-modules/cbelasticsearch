@@ -202,7 +202,7 @@ component
 				throw( 
 					type="cbElasticsearch.JestClient.IndexCreationException",
 					message="Index creation returned an error status of #indexResult.index.status#.  Reason: #indexResult.index.error.reason#",
-					extendedInfo=serializeJSON( indexResult[ "index" ] )
+					extendedInfo=serializeJSON( indexResult[ "index" ],false , false )
 				);
 			}
 
@@ -254,7 +254,9 @@ component
 				serializeJSON( 
 					{
 						"#arguments.mappingName#":arguments.mappingConfig
-					}
+					},
+					false,
+					false
 				)
 			);
 
@@ -265,7 +267,7 @@ component
 			throw( 
 				type="cbElasticsearch.JestClient.IndexMappingException",
 				message="The mapping for #arguments.mappingName# could not be created.  Reason: #mappingResult.error.reason#",
-				extendedInfo=serializeJSON( mappingResult )
+				extendedInfo=serializeJSON( mappingResult, false, false )
 			);
 		
 		} else{
@@ -315,7 +317,7 @@ component
 			throw( 
 				type="cbElasticsearch.JestClient.MappingPersistenceException",
 				message="The mapping for #mapKey# could not be deleted.  Reason: #deleteResult.error.reason#",
-				extendedInfo=serializeJSON( deleteResult )
+				extendedInfo=serializeJSON( deleteResult, false, false )
 			);
 		}
 
@@ -444,7 +446,7 @@ component
 			throw( 
 				type="cbElasticsearch.JestClient.PersistenceException",
 				message="Document could not be saved.  The error returned was: #saveResult.error.reason#",
-				extendedInfo=serializeJSON( saveResult )
+				extendedInfo=serializeJSON( saveResult, false, false )
 			);
 		}
 
@@ -467,7 +469,7 @@ component
 			throw( 
 				type="cbElasticsearch.JestClient.PersistenceException",
 				message="Document could not be deleted.  The error returned was: #deleteResult.error.reason#",
-				extendedInfo=serializeJSON( deleteResult )
+				extendedInfo=serializeJSON( deleteResult, false, false )
 			);
 		}
 
@@ -492,7 +494,7 @@ component
 										.init( 
 											serializeJSON( {
 												"query" : arguments.searchBuilder.getQuery()
-											} )
+											}, false, false )
 										);
 		
 		deleteBuilder.addIndex( arguments.searchBuilder.getIndex() );
@@ -580,7 +582,7 @@ component
 			throw( 
 				type="cbElasticsearch.JestClient.PersistenceException",
 				message="Document could not be saved.  The error returned was: #saveResult.error.reason#",
-				extendedInfo=serializeJSON( saveResult )
+				extendedInfo=serializeJSON( saveResult, false, false )
 			);
 		}
 
@@ -625,7 +627,7 @@ component
 			throw( 
 				type="cbElasticsearch.JestClient.PersistenceException",
 				message="Document could not be deleted.  The error returned was: #deleteResult.error.reason#",
-				extendedInfo=serializeJSON( deleteResult )
+				extendedInfo=serializeJSON( deleteResult, false, false )
 			);
 		}
 
@@ -649,7 +651,7 @@ component
 		if( arguments.returnObject ){
 			return JestResult;
 		} else {
-			return deserializeJSON( JESTResult.getJSONString() ); 
+			return deserializeJSON( JESTResult.getJSONString(), false, false ); 
 		}
 
 	}

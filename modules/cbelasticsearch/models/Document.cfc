@@ -229,7 +229,7 @@ component
 	**/
 	public string function toString( boolean includeKey=false){
 
-		return serializeJSON( getDocument( argumentCollection=arguments ) );
+		return serializeJSON( getDocument( argumentCollection=arguments ), false, false );
 	}
 	
 }
