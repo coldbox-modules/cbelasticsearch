@@ -1,6 +1,9 @@
 CHANGELOG
 =========
 
+# 1.1.2
+* Adds compatibility when Secure JSON prefix setting is enabled
+
 # 1.1.1
 * Updates Java Dependencies, including JEST client, to latest versions
 * Implements search term highlighting capabilities
