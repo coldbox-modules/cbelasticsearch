@@ -157,7 +157,7 @@ component
 
 	string function getJSON(){
 
-		return serializeJSON( getDSL(), false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : false );
+		return serializeJSON( getDSL(), false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : "UTF-8" );
 	}
 
 

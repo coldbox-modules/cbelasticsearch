@@ -202,7 +202,7 @@ component
 				throw( 
 					type="cbElasticsearch.JestClient.IndexCreationException",
 					message="Index creation returned an error status of #indexResult.index.status#.  Reason: #indexResult.index.error.reason#",
-					extendedInfo=serializeJSON( indexResult[ "index" ], false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : false )
+					extendedInfo=serializeJSON( indexResult[ "index" ], false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : "UTF-8" )
 				);
 			}
 
@@ -267,7 +267,7 @@ component
 			throw( 
 				type="cbElasticsearch.JestClient.IndexMappingException",
 				message="The mapping for #arguments.mappingName# could not be created.  Reason: #mappingResult.error.reason#",
-				extendedInfo=serializeJSON( mappingResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : false )
+				extendedInfo=serializeJSON( mappingResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : "UTF-8" )
 			);
 		
 		} else{
@@ -317,7 +317,7 @@ component
 			throw( 
 				type="cbElasticsearch.JestClient.MappingPersistenceException",
 				message="The mapping for #mapKey# could not be deleted.  Reason: #deleteResult.error.reason#",
-				extendedInfo=serializeJSON( deleteResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : false )
+				extendedInfo=serializeJSON( deleteResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : "UTF-8" )
 			);
 		}
 
@@ -446,7 +446,7 @@ component
 			throw( 
 				type="cbElasticsearch.JestClient.PersistenceException",
 				message="Document could not be saved.  The error returned was: #saveResult.error.reason#",
-				extendedInfo=serializeJSON( saveResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : false )
+				extendedInfo=serializeJSON( saveResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : "UTF-8" )
 			);
 		}
 
@@ -469,7 +469,7 @@ component
 			throw( 
 				type="cbElasticsearch.JestClient.PersistenceException",
 				message="Document could not be deleted.  The error returned was: #deleteResult.error.reason#",
-				extendedInfo=serializeJSON( deleteResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : false )
+				extendedInfo=serializeJSON( deleteResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : "UTF-8" )
 			);
 		}
 
@@ -494,7 +494,7 @@ component
 										.init( 
 											serializeJSON( {
 												"query" : arguments.searchBuilder.getQuery()
-											}, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : false )
+											}, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : "UTF-8" )
 										);
 		
 		deleteBuilder.addIndex( arguments.searchBuilder.getIndex() );
@@ -582,7 +582,7 @@ component
 			throw( 
 				type="cbElasticsearch.JestClient.PersistenceException",
 				message="Document could not be saved.  The error returned was: #saveResult.error.reason#",
-				extendedInfo=serializeJSON( saveResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : false )
+				extendedInfo=serializeJSON( saveResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : "UTF-8" )
 			);
 		}
 
@@ -627,7 +627,7 @@ component
 			throw( 
 				type="cbElasticsearch.JestClient.PersistenceException",
 				message="Document could not be deleted.  The error returned was: #deleteResult.error.reason#",
-				extendedInfo=serializeJSON( deleteResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : false )
+				extendedInfo=serializeJSON( deleteResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : "UTF-8" )
 			);
 		}
 

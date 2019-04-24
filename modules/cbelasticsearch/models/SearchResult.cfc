@@ -92,7 +92,7 @@ component accessors="true"{
 
 				type            = "cbElasticsearch.SearchResult.ClientErrorException",
 				message         = "The properties provided to the populate() method do not contain a valid search response" & ( structKeyExists( arguments.properties, "error" ) ? " Reason: #arguments.properties.error.reason#" : "" ),
-				extendedInfo 	= serializeJSON( arguments.properties, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : false )
+				extendedInfo 	= serializeJSON( arguments.properties, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : "UTF-8" )
 
 			);
 
