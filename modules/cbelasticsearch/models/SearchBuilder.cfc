@@ -180,7 +180,7 @@ component accessors="true" {
                         if( !isStruct( arguments.properties[ propName ] ) ){
                             throw(
                                 type    = "cbElasticsearch.SearchBuilder.AggregationException",
-                                message = "The value #serializeJSON( arguments.properties[ propName ], false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : "UTF-8" )# could not be converted to a valid aggregation"
+                                message = "The value #serializeJSON( arguments.properties[ propName ], false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "UTF-8" : false )# could not be converted to a valid aggregation"
                             );
                         }
 
@@ -778,7 +778,7 @@ component accessors="true" {
 
             throw(
                 type    = "cbElasticsearch.SearchBuilder.InvalidSortArgumentException",
-                message = "The provided sort argument #serializeJSON( arguments.sort, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : "UTF-8" )# could not be parsed to a valid SearchBuilder sort configuration"
+                message = "The provided sort argument #serializeJSON( arguments.sort, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "UTF-8" : false )# could not be parsed to a valid SearchBuilder sort configuration"
             );
 
         }
@@ -929,7 +929,7 @@ component accessors="true" {
 
     string function getJSON(){
 
-        return serializeJSON( getDSL(), false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : "UTF-8" );
+        return serializeJSON( getDSL(), false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "UTF-8" : false );
     }
 
     function setSource( struct source = {} ) {

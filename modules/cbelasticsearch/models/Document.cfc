@@ -228,7 +228,7 @@ component
 	* @includeKey 	boolean 	Whether to include the document key in the returned packet
 	**/
 	public string function toString( boolean includeKey=false){
-		return serializeJSON( getDocument( argumentCollection=arguments ), false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : "UTF-8" );
+		return serializeJSON( getDocument( argumentCollection=arguments ), false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "UTF-8" : false );
 	}
 	
 }
