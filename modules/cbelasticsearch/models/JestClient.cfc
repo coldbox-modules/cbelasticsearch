@@ -202,7 +202,7 @@ component
 				throw( 
 					type="cbElasticsearch.JestClient.IndexCreationException",
 					message="Index creation returned an error status of #indexResult.index.status#.  Reason: #indexResult.index.error.reason#",
-					extendedInfo=serializeJSON( indexResult[ "index" ],false , false )
+					extendedInfo=serializeJSON( indexResult[ "index" ], false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : false )
 				);
 			}
 
@@ -267,7 +267,7 @@ component
 			throw( 
 				type="cbElasticsearch.JestClient.IndexMappingException",
 				message="The mapping for #arguments.mappingName# could not be created.  Reason: #mappingResult.error.reason#",
-				extendedInfo=serializeJSON( mappingResult, false, false )
+				extendedInfo=serializeJSON( mappingResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : false )
 			);
 		
 		} else{
@@ -317,7 +317,7 @@ component
 			throw( 
 				type="cbElasticsearch.JestClient.MappingPersistenceException",
 				message="The mapping for #mapKey# could not be deleted.  Reason: #deleteResult.error.reason#",
-				extendedInfo=serializeJSON( deleteResult, false, false )
+				extendedInfo=serializeJSON( deleteResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : false )
 			);
 		}
 
@@ -446,7 +446,7 @@ component
 			throw( 
 				type="cbElasticsearch.JestClient.PersistenceException",
 				message="Document could not be saved.  The error returned was: #saveResult.error.reason#",
-				extendedInfo=serializeJSON( saveResult, false, false )
+				extendedInfo=serializeJSON( saveResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : false )
 			);
 		}
 
@@ -469,7 +469,7 @@ component
 			throw( 
 				type="cbElasticsearch.JestClient.PersistenceException",
 				message="Document could not be deleted.  The error returned was: #deleteResult.error.reason#",
-				extendedInfo=serializeJSON( deleteResult, false, false )
+				extendedInfo=serializeJSON( deleteResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : false )
 			);
 		}
 
@@ -494,7 +494,7 @@ component
 										.init( 
 											serializeJSON( {
 												"query" : arguments.searchBuilder.getQuery()
-											}, false, false )
+											}, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : false )
 										);
 		
 		deleteBuilder.addIndex( arguments.searchBuilder.getIndex() );
@@ -582,7 +582,7 @@ component
 			throw( 
 				type="cbElasticsearch.JestClient.PersistenceException",
 				message="Document could not be saved.  The error returned was: #saveResult.error.reason#",
-				extendedInfo=serializeJSON( saveResult, false, false )
+				extendedInfo=serializeJSON( saveResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : false )
 			);
 		}
 
@@ -627,7 +627,7 @@ component
 			throw( 
 				type="cbElasticsearch.JestClient.PersistenceException",
 				message="Document could not be deleted.  The error returned was: #deleteResult.error.reason#",
-				extendedInfo=serializeJSON( deleteResult, false, false )
+				extendedInfo=serializeJSON( deleteResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? javacast( "null", 0 ) : false )
 			);
 		}
 
@@ -651,7 +651,7 @@ component
 		if( arguments.returnObject ){
 			return JestResult;
 		} else {
-			return deserializeJSON( JESTResult.getJSONString(), false, false ); 
+			return deserializeJSON( JESTResult.getJSONString() ); 
 		}
 
 	}
