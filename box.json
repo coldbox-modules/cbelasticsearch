@@ -18,7 +18,7 @@
         "coldbox":"coldbox/",
         "workbench":"workbench/",
         "cbjavaloader":"modules/cbjavaloader/",
-        "Jest":"build/Jest"
+        "Jest":"build/Jest/"
     },
     "testbox":{
         "runner":"http://localhost:49616"

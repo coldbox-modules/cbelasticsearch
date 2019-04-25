@@ -42,7 +42,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 											"testdocs":{
 												"_all"       : { "enabled": false },
 												"properties" : {
-													"title"      : {"type" : "string"},
+													"title"      : {"type" : "text"},
 													"createdTime": {
 														"type"  : "date",
 														"format": "date_time_no_millis"
@@ -92,7 +92,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 											"testdocs":{
 												"_all"       : { "enabled": false },
 												"properties" : {
-													"title"      : {"type" : "string"},
+													"title"      : {"type" : "text"},
 													"createdTime": {
 														"type"  : "date",
 														"format": "date_time_no_millis"

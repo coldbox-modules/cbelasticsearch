@@ -187,15 +187,15 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 					"#getProperty( "type" )#":{
 						"_all"       : { "enabled": false },
 						"properties" : {
-							"severity"    : {"type" : "string"},
-							"category"    : {"type" : "string"},
-							"appendername": {"type" : "string"},
+							"severity"    : {"type" : "text"},
+							"category"    : {"type" : "text"},
+							"appendername": {"type" : "text"},
 							"logdate"	  : {
 								"type"  : "date",
 								"format": "date_time_no_millis"
 							},
-							"message"     : {"type" : "string"},
-							"extrainfo"   : {"type" : "string"},
+							"message"     : {"type" : "text"},
+							"extrainfo"   : {"type" : "text"},
 							"entryTime"	  : {
 								"type"  : "date",
 								"format": "date_time_no_millis"
