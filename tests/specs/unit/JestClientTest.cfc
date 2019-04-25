@@ -24,6 +24,11 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 		describe( "Performs cbElasticsearch Client tests", function(){
 
+			afterEach( function(){
+				// we give ourselves a few seconds before each next test for updates to persist
+				sleep( 500 );
+			});
+
 			it( "Tests the ability to create an index", function(){
 
 				var builderProperties = {
