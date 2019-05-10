@@ -535,10 +535,7 @@ component
 											false, 
 											listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false )
 										);
-		writeDump(serializeJSON( {
-			"query" : arguments.searchBuilder.getQuery(),
-			"script": arguments.script
-		} ));
+
 		updateBuilder.addIndex( arguments.searchBuilder.getIndex() );
 		
 		if( !isNull( arguments.searchBuilder.getType() ) ){
@@ -546,7 +543,6 @@ component
 		}
 
 		var updateResult = execute( updateBuilder.build() );
-		writeDump(updateResult);
 
 		return javacast( "boolean", structKeyExists( updateResult, "updated" ) ? updateResult.updated : 0 );
 
