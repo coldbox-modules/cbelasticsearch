@@ -276,6 +276,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				sleep(2000);
 
 				var searchBuilder = getWireBox().getInstance( "SearchBuilder@cbElasticSearch" ).new( variables.testIndexName, "testdocs" );
+				
 				searchBuilder.match( "title", "My Test Document" );
 				
 				var updated = variables.model.updateByQuery( searchBuilder, {
