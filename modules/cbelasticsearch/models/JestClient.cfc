@@ -512,6 +512,46 @@ component
 
 	}
 
+	/**
+	* Updates items in the index by query
+	* @searchBuilder 		SearchBuilder 		The search builder object to use for the query
+	**/
+	boolean function updateByQuery( required SearchBuilder searchBuilder, required struct script ){
+		
+		if( isNull( arguments.searchBuilder.getIndex() ) ){
+			throw( 
+				type="cbElasticsearch.JestClient.UpdateBuilderException",
+				message="updateByQuery() could not be executed because an index was not assigned in the provided SearchBuilder object."
+			);
+		}
+		
+		var updateBuilder = variables.jLoader
+										.create( "io.searchbox.core.UpdateByQuery$Builder" )
+										.init( 
+											serializeJSON( {
+												"query" : arguments.searchBuilder.getQuery(),
+												"script": arguments.script
+											}, 
+											false, 
+											listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false )
+										);
+		writeDump(serializeJSON( {
+			"query" : arguments.searchBuilder.getQuery(),
+			"script": arguments.script
+		} ));
+		updateBuilder.addIndex( arguments.searchBuilder.getIndex() );
+		
+		if( !isNull( arguments.searchBuilder.getType() ) ){
+			updateBuilder.addtype( arguments.searchBuilder.getType() );
+		}
+
+		var updateResult = execute( updateBuilder.build() );
+		writeDump(updateResult);
+
+		return javacast( "boolean", structKeyExists( updateResult, "updated" ) ? updateResult.updated : 0 );
+
+	}	
+
 	private any function buildDeleteAction( required Document document ){
 
 		if( isNull( arguments.document.getId() ) ){
