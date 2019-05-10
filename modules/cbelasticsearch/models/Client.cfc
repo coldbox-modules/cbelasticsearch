@@ -245,6 +245,18 @@ component
 	}
 
 	/**
+	* updates documents from a query
+	* 
+	* @searchBuilder 		SearchBuilder 		The assemble search builder to use for the query
+	* @script 				struct 				script to process on the query
+	**/
+	boolean function updateByQuery( required SearchBuilder searchBuilder, required struct script  ){
+		
+		return variables.nativeClient.updateByQuery( argumentCollection=arguments );
+
+	}
+
+	/**
 	* Persists multiple items to the index
 	* @documents 		array 					An array of elasticsearch Document objects to persist
 	* 
