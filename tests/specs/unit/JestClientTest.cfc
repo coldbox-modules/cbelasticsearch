@@ -36,7 +36,14 @@ component extends="coldbox.system.testing.BaseTestCase"{
 												"testdocs":{
 													"_all"       : { "enabled"	: false },
 													"properties" : {
-														"title"      : {"type" : "text"},
+														"title"      : {
+															"type" : "text",
+															"fields": {
+																"kw":{
+																	"type":"keyword"
+																}
+															}
+														},
 														"createdTime": {
 															"type"  : "date",
 															"format": "date_time_no_millis"
@@ -248,6 +255,43 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				var deleted = variables.model.deleteByQuery( searchBuilder );
 
 				expect( deleted ).toBeTrue();
+
+			});
+
+			it( "Tests the ability to update documents by query", function(){
+			
+				expect( variables ).toHaveKey( "testIndexName" );
+
+				//create document and save
+				var testDocument = {
+					"_id"        : createUUID(),
+					"title"      : "My Test Document",
+					"createdTime": dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+				};
+
+				var document = getWirebox().getInstance( "Document@cbElasticsearch" ).new( variables.testIndexName, "testdocs", testDocument );
+
+				var saveResult = variables.model.save( document );
+
+				sleep(2000);
+
+				var searchBuilder = getWireBox().getInstance( "SearchBuilder@cbElasticSearch" ).new( variables.testIndexName, "testdocs" );
+				searchBuilder.match( "title", "My Test Document" );
+				
+				var updated = variables.model.updateByQuery( searchBuilder, {
+					"source": "ctx._source['title'] = params.newInstanceValue",
+					"lang": "painless",
+					"params": {
+						"newInstanceValue": "My Updated Test Document"
+						}
+				} );
+				
+				expect( updated ).toBeTrue();
+
+				var updatedDocument = getWirebox().getInstance( "Document@cbElasticsearch" ).get( testDocument._id, variables.testIndexName, "testdocs" );
+
+				expect( updatedDocument.getMemento().title ).toBe( "My Updated Test Document" );
+
 
 			});
 
