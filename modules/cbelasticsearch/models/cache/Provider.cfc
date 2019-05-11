@@ -13,6 +13,8 @@ component
 	implements="coldbox.system.cache.ICacheProvider" 
 	accessors=true
 {
+	property name="Logger" inject="logbox:logger:{this}";
+
 	/**
     * Constructor
     **/
@@ -20,7 +22,7 @@ component
 		//Store our clients at the application level to prevent re-creation since Wirebox scoping may or may not be available
 		if( !structKeyExists( application, "ElasticsearchProvider" ) ) application[ "ElasticsearchProvider" ] = {};
 		// prepare instance data
-		instance = {
+		structAppend( this,  {
 			// provider name
 			name 				= "",
 			// provider version
@@ -57,13 +59,13 @@ component
 			javaLoaderID		= "",
 			// The design document which tracks our keys in use
 			designDocumentName = 'CacheBox_allKeys'
-		};
+		}, true );
 
 		// JavaLoader Static ID
-		instance.javaLoaderID 		= "cbElasticsearch-#instance.version#-loader";
+		this.javaLoaderID 		= "cbElasticsearch-#this.version#-loader";
 		
 		// Provider Property Defaults
-		instance.DEFAULTS = {
+		this.DEFAULTS = {
 			maxConnections = 10
 			,defaultTimeoutUnit = "MINUTES"
 			,objectDefaultTimeout = 30
@@ -99,63 +101,63 @@ component
     * get the cache name
     */    
 	any function getName() output="false" {
-		return instance.name;
+		return this.name;
 	}
 	
 	/**
     * get the cache provider version
     */    
 	any function getVersion() output="false" {
-		return instance.version;
+		return this.version;
 	}
 	
 	/**
     * set the cache name
     */    
 	void function setName(required name) output="false" {
-		instance.name = arguments.name;
+		this.name = arguments.name;
 	}
 	
 	/**
     * set the event manager
     */
     void function setEventManager(required any EventManager) output="false" {
-    	instance.eventManager = arguments.eventManager;
+    	this.eventManager = arguments.eventManager;
     }
 	
     /**
     * get the event manager
     */
     any function getEventManager() output="false" {
-    	return instance.eventManager;
+    	return this.eventManager;
     }
     
 	/**
     * get the cache configuration structure
     */
     any function getConfiguration() output="false" {
-		return instance.config;
+		return this.config;
 	}
 	
 	/**
     * set the cache configuration structure
     */
     void function setConfiguration(required any configuration) output="false" {
-		instance.config = arguments.configuration;
+		this.config = arguments.configuration;
 	}
 	
 	/**
     * get the associated cache factory
     */
     any function getCacheFactory() output="false" {
-		return instance.cacheFactory;
+		return this.cacheFactory;
 	}
 		
 	/**
     * set the associated cache factory
     */
     void function setCacheFactory(required any cacheFactory) output="false" {
-		instance.cacheFactory = arguments.cacheFactory;
+		this.cacheFactory = arguments.cacheFactory;
 	}
 
 	/**
@@ -169,16 +171,15 @@ component
     	var i = 0;
 		
 		// Prepare the logger
-		instance.logger = getCacheFactory().getLogBox().getLogger( this );
-		instance.logger.debug("Starting up Provider Cache: #getName()# with configuration: #config.toString()#");
+		Logger.debug("Starting up Provider Cache: #getName()# with configuration: #config.toString()#");
 		
 		// Validate the configuration
 		validateConfiguration();
 
 		// enabled cache
-		instance.enabled = true;
-		instance.reportingEnabled = true;
-		instance.logger.info("Cache #getName()# started up successfully");
+		this.enabled = true;
+		this.reportingEnabled = true;
+		Logger.info("Cache #getName()# started up successfully");
 		
 	}
 	
@@ -186,21 +187,21 @@ component
     * shutdown the cache
     */
     void function shutdown() output="false" {
-    	instance.logger.info("Provider Cache: #getName()# has been shutdown.");
+    	Logger.info("Provider Cache: #getName()# has been shutdown.");
 	}
 	
 	/*
 	* Indicates if cache is ready for operation
 	*/
 	any function isEnabled() output="false" {
-		return instance.enabled;
+		return this.enabled;
 	} 
 
 	/*
 	* Indicates if cache is ready for reporting
 	*/
 	any function isReportingEnabled() output="false" {
-		return instance.reportingEnabled;
+		return this.reportingEnabled;
 	}
 	
 	/*
@@ -263,11 +264,11 @@ component
     */
     any function getKeys() output="false" {
     	
-    	local.allView = get( instance.designDocumentName );
+    	local.allView = get( this.designDocumentName );
 
     	if( isNull( local.allView ) ){
     		local.allView = [];
-    		set( instance.designDocumentName, local.allView );
+    		set( this.designDocumentName, local.allView );
     	} else if( !isArray( local.allView ) ){
     		writeDump(var="BAD FORMAT",top=1);
     		writeDump(var=local.allView);
@@ -280,17 +281,17 @@ component
 
 	void function appendCacheKey( objectKey ){
 
-		var result = get( instance.designDocumentName );
+		var result = get( this.designDocumentName );
 
 		if( !isNull( result ) && isArray( result ) ) {
 			if( isArray( arguments.objectKey ) ){
 				arrayAppend( result, arguments.objectKey, true );
 			} else if( !arrayFind( result, arguments.objectKey ) ){
 				arrayAppend( result, arguments.objectKey );
-				set( instance.designDocumentName, result );
+				set( this.designDocumentName, result );
 			}
 		} else {
-			set( instance.designDocumentName, [ arguments.objectKey ] );
+			set( this.designDocumentName, [ arguments.objectKey ] );
 		}
 
 	}
@@ -439,7 +440,7 @@ component
 			// else we deserialize and return
 			if( structKeyExists( local.inflatedElement, "data" ) ){
 
-				local.inflatedElement.data = instance.converter.deserializeGeneric( binaryObject=local.inflatedElement.data );
+				local.inflatedElement.data = this.converter.deserializeGeneric( binaryObject=local.inflatedElement.data );
 				
 				if( getConfiguration().updateStats ){
 					updateObjectStats( arguments.objectKey, duplicate( local.inflatedElement ) );	
@@ -455,7 +456,7 @@ component
 			
 		// 	if( isTimeoutException( e ) && getConfiguration().ignoreTimeouts ) {
 		// 		// log it
-		// 		instance.logger.error( "Elasticsearch timeout exception detected: #e.message# #e.detail#", e );
+		// 		Logger.error( "Elasticsearch timeout exception detected: #e.message# #e.detail#", e );
 		// 		// Return nothing as though it wasn't even found in the cache
 		// 		return;
 		// 	}
@@ -484,7 +485,7 @@ component
 		
 			var entry = document.getMemento();
 			
-			if( !entry.isSimple ) entry.data = instance.converter.deserializeGeneric( binaryObject=entry.data );
+			if( !entry.isSimple ) entry.data = this.converter.deserializeGeneric( binaryObject=entry.data );
 			
 			results[ document.getId() ] = entry.data;
 
@@ -492,7 +493,7 @@ component
 
 		var te = getTickCount();
 
-		if( getConfiguration().debug ) instance.JavaSystem.out.printLn( "Elasticsearch getMulti() executed in #( te - ts )#ms" );
+		if( getConfiguration().debug ) this.JavaSystem.out.printLn( "Elasticsearch getMulti() executed in #( te - ts )#ms" );
 
 		return results;
 	}
@@ -532,7 +533,7 @@ component
     any function set(
     	required any objectKey,
 		required any object,
-		any timeout           = instance.config.objectDefaultTimeout,
+		any timeout           = this.config.objectDefaultTimeout,
 		any lastAccessTimeout = 0, // Not in use for this provider
 		any extra             = {}
 	) output="false" {
@@ -551,13 +552,13 @@ component
 			"ElasticsearchFuture"          = future
 		};
 
-		if( arguments.objectKey != instance.designDocumentName ) appendCacheKey( arguments.objectKey );
+		if( arguments.objectKey != this.designDocumentName ) appendCacheKey( arguments.objectKey );
 
 		getEventManager().processState( state="afterCacheElementInsert", interceptData=iData, async=true );
 
     	var te = getTickCount();
 
-		if( getConfiguration().debug ) instance.JavaSystem.out.printLn( "Elasticsearch set( #objectKey# ) executed in #( te - ts )#ms" );
+		if( getConfiguration().debug ) this.JavaSystem.out.printLn( "Elasticsearch set( #objectKey# ) executed in #( te - ts )#ms" );
 
 		return future;
 	}
@@ -570,7 +571,7 @@ component
     any function setQuiet(
 	    required any objectKey,
 		required any object,
-		any timeout=instance.config.objectDefaultTimeout,
+		any timeout=this.config.objectDefaultTimeout,
 		any lastAccessTimeout=0, //Not in use for this provider
 		any extra={}
 	) output="false" {
@@ -586,7 +587,7 @@ component
     */
 	any function setMulti( 
 		required struct mapping,
-		any timeout=instance.config.objectDefaultTimeout,
+		any timeout=this.config.objectDefaultTimeout,
 		any lastAccessTimeout=0, // Not in use for this provider
 		any extra={}
 	) output="false" {
@@ -613,7 +614,7 @@ component
 
 		var te = getTickCount();
 		
-		if( getConfiguration().debug ) instance.JavaSystem.out.printLn( "Elasticsearch Cache Provider setMulti() executed in #( te - ts )#ms" );
+		if( getConfiguration().debug ) this.JavaSystem.out.printLn( "Elasticsearch Cache Provider setMulti() executed in #( te - ts )#ms" );
 		
 		appendCacheKey( structKeyArray( arguments.mapping ) );
 		
@@ -623,7 +624,7 @@ component
 
 	any function formatCacheObject( 
 		required any object,
-		any timeout=instance.config.objectDefaultTimeout,
+		any timeout=this.config.objectDefaultTimeout,
 		any lastAccessTimeout=0, //Not in use for this provider
 		any extra={}
 	) output="false" {
@@ -639,7 +640,7 @@ component
 
 		// Do we need to serialize incoming obj
 		if( !sElement.isSimple ){
-			sElement.data = instance.converter.serializeGeneric( sElement.data );
+			sElement.data = this.converter.serializeGeneric( sElement.data );
 		}
 
 		return sElement;
@@ -673,7 +674,7 @@ component
 			
 			if( isTimeoutException( e ) && getConfiguration().ignoreElasticsearchTimeouts) {
 				// log it
-				instance.logger.error( "Elasticsearch timeout exception detected: #e.message# #e.detail#", e );
+				Logger.error( "Elasticsearch timeout exception detected: #e.message# #e.detail#", e );
 				// return nothing
 				return;
 			}
@@ -695,7 +696,7 @@ component
 
 		// Do we need to serialize incoming obj
 		if( !cacheObject.isSimple && !isSimpleValue( cacheObject.data ) ){
-			cacheObject.data = instance.converter.serializeGeneric( cacheObject.data );
+			cacheObject.data = this.converter.serializeGeneric( cacheObject.data );
 		}
 
 		persistToCache( arguments.objectKey, cacheObject , true );
@@ -785,16 +786,16 @@ component
 	*/
 	void function clearByKeySnippet(required keySnippet, regex=false, async=false) output="false" {
 
-		var threadName = "clearByKeySnippet_#replace(instance.uuidHelper.randomUUID(),"-","","all")#";
+		var threadName = "clearByKeySnippet_#replace(this.uuidHelper.randomUUID(),"-","","all")#";
 		
 		// Async? IF so, do checks
-		if( arguments.async AND NOT instance.utility.inThread() ){
+		if( arguments.async AND NOT this.utility.inThread() ){
 			thread name="#threadName#"{
-				instance.elementCleaner.clearByKeySnippet(arguments.keySnippet,arguments.regex);
+				this.elementCleaner.clearByKeySnippet(arguments.keySnippet,arguments.regex);
 			}
 		}
 		else{
-			instance.elementCleaner.clearByKeySnippet(arguments.keySnippet,arguments.regex);
+			this.elementCleaner.clearByKeySnippet(arguments.keySnippet,arguments.regex);
 		}
 		
 	}
@@ -825,13 +826,13 @@ component
 		var key			= "";
 		
 		// Validate configuration values, if they don't exist, then default them to DEFAULTS
-		for(key in instance.DEFAULTS){
+		for(key in this.DEFAULTS){
 			if( !structKeyExists( cacheConfig, key) || ( !isBoolean(cacheConfig[ key ]) && isSimpleValue( cacheConfig[ key ] ) && !len( cacheConfig[ key ] ) ) ){
-				cacheConfig[ key ] = instance.DEFAULTS[ key ];
+				cacheConfig[ key ] = this.DEFAULTS[ key ];
 			}
 		}
 
-		instance.designDocumentName &= "-" &  getName();
+		this.designDocumentName &= "-" &  getName();
 
 	}
 	
@@ -854,7 +855,7 @@ component
     	
     	// It appears that there is still a useful result even if errors were returned so
     	// we'll just log it and not interrupt the request by throwing.  
-    	instance.logger.warn(arguments.message, local.detail);
+    	Logger.warn(arguments.message, local.detail);
     	//Throw(message=arguments.message, detail=local.detail);
     	
     	return this;
