@@ -1,6 +1,9 @@
 CHANGELOG
 =========
 
+# 1.1.3
+* Implements update by query API and interface
+
 # 1.1.2
 * Adds compatibility when Secure JSON prefix setting is enabled
 
