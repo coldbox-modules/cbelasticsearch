@@ -146,6 +146,13 @@ interface{
 	boolean function deleteByQuery( required SearchBuilder searchBuilder );
 
 	/**
+	* Updates items in the index by query
+	* @searchBuilder 		SearchBuilder 		The search builder object to use for the query
+	* @script 				struct 				script to process on the query
+	**/
+	boolean function updateByQuery( required SearchBuilder searchBuilder, required struct script );
+
+	/**
 	* Persists multiple items to the index
 	* @documents 		array 					An array of elasticsearch Document objects to persist
 	* 
