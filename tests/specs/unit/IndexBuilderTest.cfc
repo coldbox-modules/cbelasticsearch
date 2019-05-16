@@ -48,7 +48,8 @@ component extends="coldbox.system.testing.BaseTestCase"{
 														"format": "date_time_no_millis"
 													}
 												}
-											}
+											},
+											"aliases" = { "testalias" : {} }
 										},
 										"settings":{
 											"number_of_shards":5,
@@ -61,6 +62,8 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( newIndex.getSettings() ).toBeStruct();
 				expect( structIsEmpty( newIndex.getSettings() ) ).toBeFalse();
 				expect( newIndex.getMappings() ).toBeStruct();
+				expect( structIsEmpty( newIndex.getAliases() ) ).toBeFalse();
+				expect( newIndex.getAliases() ).toBeStruct();
 				expect( structIsEmpty( newIndex.getMappings() ) ).toBeFalse();
 				expect( newIndex.getIndexName() ).toBe( variables.testIndexName );
 
