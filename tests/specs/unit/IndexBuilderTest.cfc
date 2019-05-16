@@ -101,7 +101,8 @@ component extends="coldbox.system.testing.BaseTestCase"{
 														"format": "date_time_no_millis"
 													}
 												}
-											}
+											},
+											"aliases" = { "testalias" : {} }
 										}
 									};
 
