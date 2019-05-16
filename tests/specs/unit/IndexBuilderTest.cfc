@@ -53,8 +53,8 @@ component extends="coldbox.system.testing.BaseTestCase"{
 													}
 												}
 											},
-											"aliases" = { "testalias" : {} }
 										},
+										"aliases" = { "testalias" : {} } ,
 										"settings":{
 											"number_of_shards":5,
 											"number_of_replicas":2
@@ -106,8 +106,8 @@ component extends="coldbox.system.testing.BaseTestCase"{
 													}
 												}
 											},
-											"aliases" = { "testalias" : {} }
 										}
+										"aliases" = { "testalias" : {} }
 									};
 
 
