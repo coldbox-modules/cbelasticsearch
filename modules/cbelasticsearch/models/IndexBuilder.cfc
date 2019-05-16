@@ -22,7 +22,7 @@ component
 	// Our index mappings ( i.e. typings and fields );
 	property name="mappings";
 
-	// Our index aliases 
+	// Our index aliases
 	property name="aliases";
 
 
@@ -38,6 +38,8 @@ component
         };
 
 		variables.mappings 	= {};
+
+		variables.aliases 	= {};
 
 		variables.indexName = getConfig().get( "defaultIndex" );
 
