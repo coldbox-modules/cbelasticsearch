@@ -30,6 +30,10 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 				expect( newIndex.getMappings() ).toBeStruct();
 				expect( structIsEmpty( newIndex.getMappings() ) ).toBeTrue();
+
+				expect( newIndex.getAliases() ).toBeStruct();
+				expect( structIsEmpty( newIndex.getAliases() ) ).toBeTrue();
+
 				expect( isNull( newIndex.getSettings() ) ).toBeTrue();
 
 
