@@ -34,7 +34,7 @@ component
 	/**
 	* SearchResult provider
 	**/
-	Document function newResult() provider="SearchResult@cbElasticsearch"{}
+	SearchResult function newResult() provider="SearchResult@cbElasticsearch"{}
 	
 	/**
 	* Configure instance once DI is complete
