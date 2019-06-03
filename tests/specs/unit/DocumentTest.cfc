@@ -1,11 +1,11 @@
 component extends="coldbox.system.testing.BaseTestCase"{
-	
+
 	function beforeAll(){
 
 		this.loadColdbox=true;
 
 		setup();
-		
+
 		variables.model = getWirebox().getInstance( "Document@cbElasticSearch" );
 
 		variables.testIndexName = lcase("cbElasticSearch-DocumentTests");
@@ -27,16 +27,16 @@ component extends="coldbox.system.testing.BaseTestCase"{
 								}
 							};
 
-	getWirebox().getInstance( "IndexBuilder@cbElasticsearch" ).new( 
+	getWirebox().getInstance( "IndexBuilder@cbElasticsearch" ).new(
 											name=variables.testIndexName,
-											properties=indexSettings 
+											properties=indexSettings
 										).save();
 
 	}
 
 	function afterAll(){
-		
-		variables.model.getClient().deleteIndex( variables.testIndexName );	
+
+		variables.model.getClient().deleteIndex( variables.testIndexName );
 
 		super.afterAll();
 	}
@@ -49,7 +49,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 			});
 
 			it( "Tests the ability to reset a document", function(){
-				variables.model.new( 
+				variables.model.new(
 					variables.testIndexName,
 					"testdocs",
 					{"foo":"bar"}
@@ -58,14 +58,14 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( variables.model.getMemento() ).toBeStruct();
 				expect( variables.model.getMemento() ).toHaveKey( "foo" );
 
-				variables.model.reset();	
+				variables.model.reset();
 
 				expect( structIsEmpty( variables.model.getMemento() ) ).toBeTrue();
 			});
 
 
 			it( "Tests the ability to persist a Document via save()", function(){
-				
+
 				var testDocument = {
 					"_id"        : createUUID(),
 					"title"      : "My Test Document",
@@ -83,6 +83,24 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			});
 
+            it( "can save a document with a space in the id", function(){
+
+				var testDocument = {
+					"_id"        : "id with spaces",
+					"title"      : "My Test Document",
+					"createdTime": dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+				};
+
+				var created = variables.model.new( variables.testIndexName, "testdocs", testDocument ).save();
+
+				expect( created ).toBeComponent();
+				variables.model.reset();
+
+				var found = variables.model.get( testDocument[ "_id" ], variables.testIndexName, "testdocs" );
+
+				expect( isNull( found ) ).toBeFalse();
+
+			});
 		});
 
 	}
