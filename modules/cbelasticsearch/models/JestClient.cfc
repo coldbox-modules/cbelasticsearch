@@ -399,7 +399,7 @@ component
 													!isNull( arguments.type ) ? arguments.type : 'default'
 												);
 		for( var key in arguments.keys ){
-			actionBuilder.addId( javacast( "string", key ) );
+			actionBuilder.addId( javacast( "string", encodeForUrl( key, true ) ) );
 		}
 
 		var retrievedResult = execute( actionBuilder.build() );
@@ -559,7 +559,8 @@ component
 			);
 		}
 
-		var deleteBuilder = variables.jLoader.create( "io.searchbox.core.Delete$Builder" ).init( javacast( "string", arguments.document.getId() ) );
+        var deleteBuilder = variables.jLoader.create( "io.searchbox.core.Delete$Builder" )
+            .init( javacast( "string", encodeForUrl( arguments.document.getId(), true ) ) );
 
 		deleteBuilder.index( arguments.document.getIndex() );
 
