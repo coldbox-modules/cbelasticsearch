@@ -102,7 +102,8 @@ component
 	**/
 	SearchResult function executeSearch( required searchBuilder searchBuilder ){
 
-		var jSearchBuilder = variables.jLoader.create( "io.searchbox.core.Search$Builder" ).init( arguments.searchBuilder.getJSON() );
+        var jSearchBuilder = variables.jLoader.create( "io.searchbox.core.Search$Builder" )
+            .init( arguments.searchBuilder.getJSON() );
 
 		var indices = listToArray( arguments.searchBuilder.getIndex() );
 
@@ -346,7 +347,7 @@ component
 		var actionBuilder = variables.jLoader.create( "io.searchbox.core.Get$Builder" )
 												.init(
 													arguments.index,
-													javacast( "string", encodeForUrl( arguments.id, true ) )
+													javacast( "string", encodeForUrl( canonicalize( arguments.id, false, false ) ) )
 												);
 
 		if( !isNull( arguments.type ) ){
@@ -399,7 +400,7 @@ component
 													!isNull( arguments.type ) ? arguments.type : 'default'
 												);
 		for( var key in arguments.keys ){
-			actionBuilder.addId( javacast( "string", encodeForUrl( key, true ) ) );
+			actionBuilder.addId( javacast( "string", encodeForUrl( canonicalize( key, false, false ) ) ) );
 		}
 
 		var retrievedResult = execute( actionBuilder.build() );
@@ -560,7 +561,7 @@ component
 		}
 
         var deleteBuilder = variables.jLoader.create( "io.searchbox.core.Delete$Builder" )
-            .init( javacast( "string", encodeForUrl( arguments.document.getId(), true ) ) );
+            .init( javacast( "string", encodeForUrl( canonicalize( arguments.document.getId(), false, false ) ) ) );
 
 		deleteBuilder.index( arguments.document.getIndex() );
 
@@ -591,7 +592,7 @@ component
 		if( !isNull( arguments.document.getId() ) ){
 
 			//ensure our `_id` is always cast as a string
-			builder.id( javacast("string", encodeForUrl( arguments.document.getId(), true ) ) );
+			builder.id( javacast("string", encodeForUrl( canonicalize( arguments.document.getId(), false, false ) ) ) );
 
 		}
 
