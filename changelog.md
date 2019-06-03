@@ -1,6 +1,9 @@
 CHANGELOG
 =========
 
+# 1.1.4
+# Implements url encoding for identifiers, to allow for spaces and special characters in identifiers
+
 # 1.1.3
 * Implements update by query API and interface
 
