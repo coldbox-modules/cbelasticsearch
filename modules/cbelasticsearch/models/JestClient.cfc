@@ -58,7 +58,8 @@ component
 		var configBuilder = variables.jLoader
 										.create( "io.searchbox.client.config.HttpClientConfig$Builder" )
 										.init( hostConnections )
-										.multiThreaded( javacast( "boolean", configSettings.multiThreaded ) )
+                                        .multiThreaded( javacast( "boolean", configSettings.multiThreaded ) )
+                                        .maxConnectionIdleTime( javacast( "long", configSettings.maxConnectionIdleTime ) )
 										.defaultMaxTotalConnectionPerRoute( configSettings.maxConnectionsPerRoute )
 										.readTimeout( configSettings.readTimeout )
 										.connTimeout( configSettings.connectionTimeout )

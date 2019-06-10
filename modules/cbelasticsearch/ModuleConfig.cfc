@@ -27,7 +27,7 @@ component{
 	this.dependencies		= [ "cbjavaloader" ];
 	// Auto-parse parent settings
 	this.parseParentSettings = true;
-	
+
 	variables.configStruct = {};
 
 
@@ -49,7 +49,7 @@ component{
 					serverPort     : '9200'
 				}
 			],
-			// The default credentials for access, if any - may also be overridden when searching index collections 
+			// The default credentials for access, if any - may also be overridden when searching index collections
 			defaultCredentials = {
 				"username" : "",
 				"password" : ""
@@ -60,8 +60,10 @@ component{
 			defaultIndexShards     = 3,
 			// The default number of index replicas to create
 			defaultIndexReplicas   = 0,
-			// Whether to use separate threads for client transactions 
-			multiThreaded          = true,
+			// Whether to use separate threads for client transactions
+            multiThreaded          = true,
+            // The maximum amount of time to wait until releasing a connection (in milliseconds)
+            maxConnectionIdleTime = 30000,
 			// The maximum number of connections allowed per route ( e.g. search URI endpoint )
 			maxConnectionsPerRoute = 10,
 			// The maxium number of connectsion, in total for all Elasticsearch requests
@@ -86,10 +88,10 @@ component{
 	* Fired when the module is registered and activated.
 	*/
 	function onLoad(){
-		
+
 		// load DB jars
 		wirebox.getInstance( "loader@cbjavaloader" ).appendPaths( variables.modulePath & "/lib");
-		
+
 		/**
 		* Main Configuration Object Singleton
 		**/
@@ -109,8 +111,8 @@ component{
 		// Close all active pool connections - necessary for native driver implementation
 		if( Wirebox.containsInstance( "Client@cbElasticsearch" ) ){
 
-			Wirebox.getInstance( "Client@cbElasticsearch" ).close();		
-		
+			Wirebox.getInstance( "Client@cbElasticsearch" ).close();
+
 		}
 
 	}
