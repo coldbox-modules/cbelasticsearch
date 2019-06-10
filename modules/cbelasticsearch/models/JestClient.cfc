@@ -53,7 +53,7 @@ component
 
 		for( var host in configSettings.hosts ){
 			arrayAppend( hostConnections, host.serverProtocol & "://" & host.serverName & ":" & host.serverPort );
-		}
+        }
 
 		var configBuilder = variables.jLoader
 										.create( "io.searchbox.client.config.HttpClientConfig$Builder" )
