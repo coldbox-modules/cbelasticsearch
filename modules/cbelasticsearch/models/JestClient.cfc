@@ -59,7 +59,7 @@ component
 										.create( "io.searchbox.client.config.HttpClientConfig$Builder" )
 										.init( hostConnections )
                                         .multiThreaded( javacast( "boolean", configSettings.multiThreaded ) )
-                                        .maxConnectionIdleTime( javacast( "long", configSettings.maxConnectionIdleTime ) )
+                                        .maxConnectionIdleTime( javacast( "long", configSettings.maxConnectionIdleTime ), createObject( "java", "java.util.concurrent.TimeUnit" ).SECONDS )
 										.defaultMaxTotalConnectionPerRoute( configSettings.maxConnectionsPerRoute )
 										.readTimeout( configSettings.readTimeout )
 										.connTimeout( configSettings.connectionTimeout )
