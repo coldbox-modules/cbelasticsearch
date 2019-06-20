@@ -3,6 +3,7 @@ CHANGELOG
 
 # 1.1.5
 * Updates Apache HTTP Client to v4.5.9
+* Adds count() methods to the SearchBuilder and Client
 
 # 1.1.4
 * Implements url encoding for identifiers, to allow for spaces and special characters in identifiers
