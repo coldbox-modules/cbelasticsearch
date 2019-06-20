@@ -585,6 +585,38 @@ While our documents would still be scored, the results order would be changed to
 * `term(string name, any value, [numeric boost])` - Adds an exact value restriction ( elasticsearch: term ) to the query.
 * `aggregation(string name, struct options)`  - Adds an aggregation directive to the search parameters.
 
+Counting Documents
+===================
+
+Sometimes you only need a count of matching documents, rather than the results of the query.  When this is the case, you can call the `count()` method from the search builder ( or using the client ) to only return the number of matched documents and omit the result set and metadata:
+
+```
+var docCount = getInstance( "SearchBuilder@cbElasticsearch" )
+    .new(
+        index = "bookshop",
+        type = "books",
+        properties = {
+            "query" = {
+                "term" = {
+                    "isActive" = 1
+                },
+                "match" = {
+                    "name" = "Elasticsearch",
+                    "description" = "Elasticsearch",
+                    "shortDescription" = "Elasticsearch"
+                },
+                "match_phrase" = {
+                    "description" = {
+                        "query" = "is awesome",
+                        "boost" = 2
+                    }
+                }
+            }
+        }
+    )
+    .count();
+```
+
 ## Tests
 
 To run the test suite you need a running instance of ElasticSearch.  We have provided a `docker-compose.yml` file in

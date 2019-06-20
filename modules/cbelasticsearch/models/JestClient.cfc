@@ -125,6 +125,44 @@ component
 
 	}
 
+
+	/**
+	* Retreives a count of documents matching the given query
+	* @searchBuilder 	[SearchBuilder] 	An instance of the SearchBuilder object
+	*
+	* @return 			numeric         The returned count matching the search parameters
+	* @interfaced
+	*/
+	numeric function count( searchBuilder searchBuilder ){
+
+        var jCountBuilder = variables.jLoader.create( "io.searchbox.core.Count$Builder" )
+			.init();
+
+		if( !isNull( arguments.searchBuilder ) ){
+			// We have to pull only the query from the builder or any other arguments will throw an error
+			var JSONQuery = serializeJSON( { "query" : arguments.searchBuilder.getQuery() }, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false );
+			jCountBuilder.query( JSONQuery );
+		}
+
+		var indices = listToArray( arguments.searchBuilder.getIndex() );
+
+		for( var index in indices ){
+			jCountBuilder.addIndex( index );
+		}
+
+		if( !isNull( arguments.searchBuilder.getType() ) ){
+			var types = listToArray( arguments.searchBuilder.getType() );
+			for( var type in types ){
+				jCountBuilder.addType( type );
+			}
+		}
+
+		var searchResult = execute( jCountBuilder.build() );
+
+		return searchResult[ "count" ];
+
+	}
+
 	/**
 	* Verifies whether an index exists
 	*
@@ -326,6 +364,7 @@ component
 		return true;
 
 	}
+
 
 	/**
 	* Retrieves a document by ID

@@ -116,6 +116,17 @@ component accessors="true" {
     }
 
     /**
+    * Counts the results of the currently built search
+    **/
+    function count(){
+        if( preflight ){
+            preflightQuery();
+        }
+
+        return getClient().count( this );
+    }
+
+    /**
     * Deletes all documents matching the currently build search query
     **/
     function deleteAll(){

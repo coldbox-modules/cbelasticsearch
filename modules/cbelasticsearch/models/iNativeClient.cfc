@@ -28,6 +28,15 @@ interface{
 	SearchResult function executeSearch( required searchBuilder searchBuilder );
 
 	/**
+	* Retreives a count of documents matching the given query
+	* @searchBuilder 	SearchBuilder 	An instance of the SearchBuilder object
+	*
+	* @return 			numeric         The returned count matching the search parameters
+	* @interfaced
+	*/
+	numeric function count( searchBuilder searchBuilder );
+
+	/**
 	* Verifies whether an index exists
 	* 
 	* @indexName 		string 		the name of the index

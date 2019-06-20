@@ -199,6 +199,22 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			});
 
+			it( "Tests the ability to count documents in an index", function(){
+
+				expect( variables ).toHaveKey( "testDocumentId" );
+
+				var searchBuilder = getWirebox().getInstance( "SearchBuilder@cbElasticsearch" ).new( index=variables.testIndexName, type="testdocs" );
+
+				searchBuilder.match( "title", "Test" );
+				
+				var searchResult = variables.model.count( searchBuilder );
+
+				expect( searchResult ).toBeNumeric();
+
+				expect( searchResult ).toBeGT( 0 );
+
+			});
+
 			it( "Tests the ability to boost a specific search match", function(){
 
 				expect( variables ).toHaveKey( "bulkInserts" );
