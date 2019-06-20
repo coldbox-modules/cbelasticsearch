@@ -1,8 +1,11 @@
 CHANGELOG
 =========
 
+# 1.1.5
+* Updates Apache HTTP Client to v4.5.9
+
 # 1.1.4
-# Implements url encoding for identifiers, to allow for spaces and special characters in identifiers
+* Implements url encoding for identifiers, to allow for spaces and special characters in identifiers
 
 # 1.1.3
 * Implements update by query API and interface
