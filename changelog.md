@@ -1,6 +1,8 @@
 CHANGELOG
 =========
 
+# 1.1.6
+
 # 1.1.5
 * Updates Apache HTTP Client to v4.5.9
 * Adds count() methods to the SearchBuilder and Client
