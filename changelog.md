@@ -2,6 +2,8 @@ CHANGELOG
 =========
 
 # 1.1.6
+* Reverts to previous versions of HTTP client due to instability and connection expiration issues
+* Adds connection cleanup prior to execution
 
 # 1.1.5
 * Updates Apache HTTP Client to v4.5.9
