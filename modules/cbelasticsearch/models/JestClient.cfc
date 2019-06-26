@@ -727,6 +727,9 @@ component
 	**/
 	private any function execute( required any action, returnObject=false ){
 
+		// do a bit of cleanup before the next request
+		variables.HTTPClient.getHTTPClient().getConnectionManager().closeExpiredConnections();
+
 		var JESTResult = variables.HTTPClient.execute( arguments.action );
 
 		if( arguments.returnObject ){
