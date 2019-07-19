@@ -357,6 +357,24 @@ component extends="coldbox.system.testing.BaseTestCase"{
 			 	expect( searchBuilder.sort( variables.model.new() ) ).toThrow();
 
 			});
+			
+			it( "Tests the the count() method", function(){
+
+				var searchBuilder = variables.model.new(
+					variables.testIndexName,
+					"testdocs",
+					{
+						"match":{
+							"title":"Foo"
+						}
+					}
+			 	);
+
+			 	var docCount = searchBuilder.count();
+
+			 	expect( docCount ).toBeNumeric();
+
+            });
 
 			it( "Tests the the execute() method", function(){
 

@@ -10,15 +10,13 @@
         "cbjavaloader":"^2.0.0"
     },
     "devDependencies":{
-        "testbox":"^2.3.0",
-        "Jest":"https://github.com/searchbox-io/Jest/archive/master.zip"
+        "testbox":"^2.3.0"
     },
     "installPaths":{
         "testbox":"testbox/",
         "coldbox":"coldbox/",
         "workbench":"workbench/",
-        "cbjavaloader":"modules/cbjavaloader/",
-        "Jest":"build/Jest/"
+        "cbjavaloader":"modules/cbjavaloader/"
     },
     "testbox":{
         "runner":"http://localhost:49616"
