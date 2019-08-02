@@ -360,7 +360,7 @@ To retrieve an existing document, we must first know the `_id` value.  We can ei
 Using the `Document` object's accessors:
 
 ```
-var existingDocument = getInstance( "Document@Elasticsearch" )
+var existingDocument = getInstance( "Document@cbElasticsearch" )
     .setIndex( "bookshop" )
     .setTitle( "book" )
     .setId( bookId )
