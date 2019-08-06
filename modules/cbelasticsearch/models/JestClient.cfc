@@ -236,6 +236,14 @@ component
 				builder.settings( settingsMap );
 			}
 
+			if( structKeyExists( indexDSL, "aliases" ) ){
+				var aliasesMap = variables.jLoader.create( "java.util.HashMap" ).init();
+
+				aliasesMap.putAll( indexDSL.aliases );
+
+				builder.aliases( aliasesMap );
+			}
+
 			indexResult[ "index" ] = execute( builder.build() );
 
 			if( structKeyExists( indexResult[ "index" ], "error" ) ){

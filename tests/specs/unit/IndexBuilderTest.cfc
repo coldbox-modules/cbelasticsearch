@@ -30,6 +30,10 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 				expect( newIndex.getMappings() ).toBeStruct();
 				expect( structIsEmpty( newIndex.getMappings() ) ).toBeTrue();
+
+				expect( newIndex.getAliases() ).toBeStruct();
+				expect( structIsEmpty( newIndex.getAliases() ) ).toBeTrue();
+
 				expect( isNull( newIndex.getSettings() ) ).toBeTrue();
 
 
@@ -50,6 +54,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 												}
 											}
 										},
+										"aliases": { "testalias" : {} } ,
 										"settings":{
 											"number_of_shards":5,
 											"number_of_replicas":2
@@ -61,6 +66,8 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( newIndex.getSettings() ).toBeStruct();
 				expect( structIsEmpty( newIndex.getSettings() ) ).toBeFalse();
 				expect( newIndex.getMappings() ).toBeStruct();
+				expect( structIsEmpty( newIndex.getAliases() ) ).toBeFalse();
+				expect( newIndex.getAliases() ).toBeStruct();
 				expect( structIsEmpty( newIndex.getMappings() ) ).toBeFalse();
 				expect( newIndex.getIndexName() ).toBe( variables.testIndexName );
 
@@ -83,7 +90,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
                 expect( newIndex.getIndexName() ).toBe( variables.testIndexName );
                 expect( newIndex.getMappings() ).notToBeEmpty();
                 expect( newIndex.getMappings() ).toHaveKey( "testdocs" );
-			} );
+			});
 
 			it( "Tests the save() method ability to create an index", function(){
 				//create our new index
@@ -99,9 +106,10 @@ component extends="coldbox.system.testing.BaseTestCase"{
 													}
 												}
 											}
-										}
-									};
+										},
 
+										"aliases" : { "testalias" : {} }
+									};
 
 				var newIndex = variables.model.new(
 											name=variables.testIndexName,
@@ -122,7 +130,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( structIsEmpty( variables.model.getMappings() ) ).toBeTrue();
 				expect( isNull( variables.model.getSettings() ) ).toBeTrue();
 
-			} );
+			});
 
 			it( "Tests the delete() methods ability to remove an index", function(){
 
