@@ -151,8 +151,8 @@ var booksMapping = {
         "ISBN" = { "type" = "integer" }
     }
 };
+```
 
-// add the mapping and save
 _Deprecation notice:  The index "type" ( e.g. "books" ) [has now been deprecated](https://www.elastic.co/guide/en/elasticsearch/reference/master/removal-of-types.html) in recent versions of Elasticsearch, and should no longer be used. Only a single type will be accepted in future releases._
 
 Note that, in the above examples, we are applying the index and mappings directly from within the object, itself, which is intuitive and fast. We could also pass the `IndexBuilder` object to the `Client@cbElasticsearch` instance's `applyIndex( required IndexBuilder indexBuilder )` method, if we wished.
