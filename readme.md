@@ -362,7 +362,7 @@ Using the `Document` object's accessors:
 ```
 var existingDocument = getInstance( "Document@cbElasticsearch" )
     .setIndex( "bookshop" )
-    .setTitle( "book" )
+    .setType( "book" )
     .setId( bookId )
     .get();
 ```
