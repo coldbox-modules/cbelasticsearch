@@ -284,7 +284,52 @@ component
 		var deleteBuilder = variables.jLoader.create( "io.searchbox.indices.DeleteIndex$Builder" ).init( arguments.indexName );
 
 		return execute( deleteBuilder.build() );
-	}
+    }
+
+    /**
+    * Applies a reindex action
+    * @interfaced
+    *
+    * @source      string   The source index name or struct of options
+    * @destination string   The destination index name or struct of options
+	*
+	* @return      struct 	Struct result of the reindex action
+	**/
+	struct function reindex(
+        required any source,
+        required any destination,
+        boolean waitForCompletion = true
+    ) {
+        return execute(
+            variables.jLoader.create( "io.searchbox.indices.reindex.Reindex$Builder" )
+                .init(
+                    generateIndexMap( arguments.source ),
+                    generateIndexMap( arguments.destination )
+                )
+                .waitForCompletion( arguments.waitForCompletion )
+                .build()
+        );
+    }
+
+    private any function generateIndexMap( required any index ) {
+        if ( isSimpleValue( arguments.index ) ) {
+            return variables.jLoader
+                .create( "com.google.common.collect.ImmutableMap" )
+                .of( "index", arguments.index );
+        }
+
+        if ( ! isStruct( arguments.index ) ) {
+            throw( "Invalid type. Pass either a string or a struct of options." );
+        }
+
+        return structReduce( arguments.index, function( indexMap, key, value ) {
+            if ( key == "query" ) {
+                value = serializeJSON( value );
+            }
+            indexMap.put( key, value );
+            return indexMap;
+        }, createObject( "java", "java.util.HashMap" ).init() );
+    }
 
 
 	/**

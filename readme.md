@@ -456,6 +456,47 @@ getInstance( "SearchBuilder@cbElasticsearch" )
     .deleteAll();
 ```
 
+#### Reindexing
+
+On occassion, due to a mapping or settings change, you will need to reindex data
+from one index to another.  You can do this by calling the `reindex` method
+on the `Client`.
+
+```
+getInstance( "Client@cbElasticsearch" )
+    .reindex( "oldIndex", "newIndex" );
+```
+
+If you want the work to be done asynchronusly, you can pass `false` to the
+`waitForCompletion` flag.
+
+```
+getInstance( "Client@cbElasticsearch" )
+    .reindex(
+        source = "oldIndex",
+        destination = "newIndex"
+        waitForCompletion = false
+    );
+```
+
+If you have more settings or constriants for the reindex action, you can pass
+a struct containing valid options to `source` and `destination`.
+
+```
+getInstance( "Client@cbElasticsearch" )
+    .reindex(
+        source = {
+            "index": "oldIndex",
+            "type": "testdocs",
+            "query": {
+                "term": {
+                    "active": true
+                }
+            }
+        },
+        destination = "newIndex"
+    );
+```
 
 Searching Documents
 ===================
@@ -528,7 +569,7 @@ In the above example, documents with a `name` field containing "Elasticsearch" w
 
 #### Advanced Query DSL
 
-The SearchBuilder also allows full use of the [Elasticsearch query language](https://www.elastic.co/guide/en/elasticsearch/reference/current/_introducing_the_query_language.html), allowing detailed configuration of queries, if the basic `match()`, `sort()` and `aggregate()` methods are not enough to meet your needs. There are several methods to provide the raw query language to the Search Builder.  One is during instantiation.  
+The SearchBuilder also allows full use of the [Elasticsearch query language](https://www.elastic.co/guide/en/elasticsearch/reference/current/_introducing_the_query_language.html), allowing detailed configuration of queries, if the basic `match()`, `sort()` and `aggregate()` methods are not enough to meet your needs. There are several methods to provide the raw query language to the Search Builder.  One is during instantiation.
 
 In the following we are looking for matches of active records with "Elasticsearch" in the `name`, `description`, or `shortDescription` fields. We are also looking for a phrase match of "is awesome" and are boosting the score of the applicable document, if found.
 
