@@ -733,7 +733,7 @@ component
 	*
 	* @returns  any 	A CFML representation of the result.  If `returnObject` is flagged, will return the client JestResult
 	**/
-	private any function execute( required any action, returnObject=false ){
+	public any function execute( required any action, returnObject=false ){
 
 		// do a bit of cleanup before the next request
 		variables.HTTPClient.getHTTPClient().getConnectionManager().closeExpiredConnections();
