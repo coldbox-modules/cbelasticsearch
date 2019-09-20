@@ -202,6 +202,26 @@ indexBuilder.new(
 * [Index Settings Reference](https://www.elastic.co/guide/en/elasticsearch/guide/current/_index_settings.html)
 
 
+## Alias Builder
+
+cbElasticSearch can add or remove aliases in bulk using the `applyAliases` method
+on the cbElasticSearch client.
+
+```
+var removeAliasAction = getWireBox().getInstance( "AliasBuilder@cbElasticSearch" )
+    .remove( indexName = "testIndexName", aliasName = "aliasNameOne" );
+var addNewAliasAction = getWireBox().getInstance( "AliasBuilder@cbElasticSearch" )
+    .add( indexName = "testIndexName", aliasName = "aliasNameTwo" );
+
+variables.client.applyAliases(
+    // a single alias action can also be provided
+    aliases = [ removeAliasAction, addNewAliasAction ]
+);
+```
+
+These operations will be done in the same transaction, so it's safe to use for
+switching the alias from one index to another.
+
 
 ## Mapping Builder
 
@@ -528,7 +548,7 @@ In the above example, documents with a `name` field containing "Elasticsearch" w
 
 #### Advanced Query DSL
 
-The SearchBuilder also allows full use of the [Elasticsearch query language](https://www.elastic.co/guide/en/elasticsearch/reference/current/_introducing_the_query_language.html), allowing detailed configuration of queries, if the basic `match()`, `sort()` and `aggregate()` methods are not enough to meet your needs. There are several methods to provide the raw query language to the Search Builder.  One is during instantiation.  
+The SearchBuilder also allows full use of the [Elasticsearch query language](https://www.elastic.co/guide/en/elasticsearch/reference/current/_introducing_the_query_language.html), allowing detailed configuration of queries, if the basic `match()`, `sort()` and `aggregate()` methods are not enough to meet your needs. There are several methods to provide the raw query language to the Search Builder.  One is during instantiation.
 
 In the following we are looking for matches of active records with "Elasticsearch" in the `name`, `description`, or `shortDescription` fields. We are also looking for a phrase match of "is awesome" and are boosting the score of the applicable document, if found.
 

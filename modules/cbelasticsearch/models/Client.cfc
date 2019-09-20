@@ -5,12 +5,12 @@
 * @package cbElasticsearch.models.Elasticsearch
 * @author Jon Clausen <jclausen@ortussolutions.com>
 * @license Apache v2.0 <http://www.apache.org/licenses/>
-* 
+*
 */
-component 
-	name="ElasticsearchClient" 
-	accessors="true" 
-	threadsafe 
+component
+	name="ElasticsearchClient"
+	accessors="true"
+	threadsafe
 	singleton
 {
 	property name="wirebox" inject="wirebox";
@@ -19,7 +19,7 @@ component
 	* Properties created on init()
 	*/
 	property name="nativeClient";
-	
+
 	/**
 	* Constructor
 	*/
@@ -39,7 +39,7 @@ component
 	* After init the autowire properties
 	*/
 	public function onDIComplete(){
-		
+
 		//The Elasticsearch driver client
 		variables.nativeClient = variables.wirebox.getInstance( getConfig().get( 'client' ) );
 
@@ -60,7 +60,7 @@ component
 	/**
 	* Execute a client search request
 	* @searchBuilder 	SearchBuilder 	An instance of the SearchBuilder object
-	* 
+	*
 	* @return 			iNativeClient 	An implementation of the iNativeClient
 	* @interfaced
 	**/
@@ -85,7 +85,7 @@ component
 
 	/**
 	* Verifies whether an index exists
-	* 
+	*
 	* @indexName 		string 		the name of the index
 	**/
 	boolean function indexExists( required string indexName ){
@@ -95,13 +95,13 @@ component
 
 	/**
 	* Verifies whether an index mapping exists
-	* 
+	*
 	* @indexName 		string 		the name of the index
 	* @mapping 			string 		the name of the mapping
 	**/
-	boolean function indexMappingExists( 
-		required string indexName, 
-		required string mapping 
+	boolean function indexMappingExists(
+		required string indexName,
+		required string mapping
 	){
 
 		return variables.nativeClient.indexMappingExists( argumentCollection=arguments );
@@ -111,7 +111,7 @@ component
 	/**
 	* Applies an index item ( create/update )
 	* @indexBuilder 	IndexBuilder 	An instance of the IndexBuilder object
-	* 
+	*
 	* @return 			boolean 		Boolean result as to whether the index was created
 	**/
 	boolean function applyIndex( required IndexBuilder indexBuilder ){
@@ -122,29 +122,40 @@ component
 
 	/**
 	* Deletes an index
-	* 
+	*
 	* @indexName 		string 		the name of the index to be deleted
-	* 
+	*
 	**/
 	struct function deleteIndex( required string indexName ){
-		
+
 		return variables.nativeClient.deleteIndex( argumentCollection=arguments );
 
 	}
 
 	/**
 	* Deletes an index type
-	* 
+	*
 	* @indexName 		string 		the name of the index to be deleted
 	* @type 			type 		the index typing to be deleted
-	* 
+	*
 	**/
 	boolean function deleteType( required string indexName, required string type ){
-		
-		var searchBuilder = getSearchBuilder().new(  arguments.indexName, arguments.type, { "match_all" : {} }  );	
+
+		var searchBuilder = getSearchBuilder().new(  arguments.indexName, arguments.type, { "match_all" : {} }  );
 
 		return deleteByQuery( searchBuilder );
 
+    }
+
+    /**
+    * Applies an alias (or array of aliases)
+    *
+	* @aliases    AliasBuilder    An AliasBuilder instance (or array of instances)
+	*
+	* @return     boolean 		  Boolean result as to whether the operations were successful
+	**/
+	boolean function applyAliases( required any aliases ) {
+		return variables.nativeClient.applyAliases( argumentCollection=arguments );
 	}
 
 	/**
@@ -154,7 +165,7 @@ component
 	* @mappingConfig 			struct 		the mapping configuration struct
 	**/
 	struct function applyMapping( required string indexName, required string mappingName, required struct mappingConfig ){
-		
+
 		return variables.nativeClient.applyMapping( argumentCollection=arguments );
 	}
 
@@ -172,17 +183,17 @@ component
 
 	/**
 	* Deletes a mapping
-	* 
+	*
 	* @indexName 		string 		the name of the index which contains the mapping
 	* @mapping 			string 		the mapping ( e.g. type ) to delete
 	* @throwOnError 	boolean	  	Whether to throw an error if the mapping could not be deleted ( default=false )
-	* 
+	*
 	* @return 			struct 		the deletion transaction response
 	**/
-	boolean function deleteMapping( 
-		required string indexName, 
-		required string mapping, 
-		boolean throwOnError=false 
+	boolean function deleteMapping(
+		required string indexName,
+		required string mapping,
+		boolean throwOnError=false
 	){
 
 		return variables.nativeClient.deleteMapping( argumentCollection=arguments );
@@ -195,15 +206,15 @@ component
 	* @index 	string 		The name of the index
 	* @type 	type 		The name of the type
 	* @interfaced
-	* 
+	*
 	* @return 	any 		Returns a Document object if found, otherwise returns null
 	**/
-	any function get( 
+	any function get(
 		required any id,
 		string index,
 		string type
 	){
-		
+
 		return variables.nativeClient.get( argumentCollection=arguments );
 
 	}
@@ -214,20 +225,20 @@ component
 	* @index 	string 		The name of the index
 	* @type 	type 		The name of the type
 	* @interfaced
-	* 
+	*
 	* @return 	array 		An array of Document objects
 	**/
-	array function getMultiple( 
-		required array keys, 
-		string index, 
-		string type  
+	array function getMultiple(
+		required array keys,
+		string index,
+		string type
 	){
 		return variables.nativeClient.getMultiple( argumentCollection=arguments );
 	}
 
 	/**
 	* @document 		Document@cbElasticSearch 		An instance of the elasticsearch Document object
-	* 
+	*
 	* @return 			Document@cbElasticsearch 		The saved document object
 	**/
 	Document function save( required Document document ){
@@ -247,24 +258,24 @@ component
 
 	/**
 	* Delete documents from a query
-	* 
+	*
 	* @searchBuilder 		SearchBuilder 		The assemble search builder to use for the query
-	* 
+	*
 	**/
 	boolean function deleteByQuery( required SearchBuilder searchBuilder ){
-		
+
 		return variables.nativeClient.deleteByQuery( argumentCollection=arguments );
 
 	}
 
 	/**
 	* updates documents from a query
-	* 
+	*
 	* @searchBuilder 		SearchBuilder 		The assemble search builder to use for the query
 	* @script 				struct 				script to process on the query
 	**/
 	boolean function updateByQuery( required SearchBuilder searchBuilder, required struct script  ){
-		
+
 		return variables.nativeClient.updateByQuery( argumentCollection=arguments );
 
 	}
@@ -272,7 +283,7 @@ component
 	/**
 	* Persists multiple items to the index
 	* @documents 		array 					An array of elasticsearch Document objects to persist
-	* 
+	*
 	* @return 			array					An array of results for the saved items
 	**/
 	array function saveAll( required array documents ){
@@ -286,9 +297,9 @@ component
 	* @documents 	array 		Either an array of Document objects
 	* @throwOnError 	boolean			whether to throw an error if the document cannot be deleted ( default: false )
 	**/
-	any function deleteAll( 
-		required array documents, 
-		boolean throwOnError=false 
+	any function deleteAll(
+		required array documents,
+		boolean throwOnError=false
 	){
 
 		return variables.nativeClient.deleteAll( documents );
