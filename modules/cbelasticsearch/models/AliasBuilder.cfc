@@ -1,25 +1,25 @@
 component accessors="true" {
 
-    property name="type";
+    property name="action";
     property name="indexName";
     property name="aliasName";
 
     function add( required string indexName, required string aliasName ) {
-        arguments.type = "add";
+        arguments.action = "add";
         return new( argumentCollection = arguments );
     }
 
     function remove( required string indexName, required string aliasName ) {
-        arguments.type = "remove";
+        arguments.action = "remove";
         return new( argumentCollection = arguments );
     }
 
     function new(
-        required string type,
+        required string action,
         required string indexName,
         required string aliasName
     ) {
-        setType( arguments.type );
+        setAction( arguments.action );
         setIndexName( arguments.indexName );
         setAliasName( arguments.aliasName );
         return this;

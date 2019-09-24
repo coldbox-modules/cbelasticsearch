@@ -298,7 +298,7 @@ component
         var modifyAliasesBuilder = "";
         for ( var alias in arguments.aliases ) {
             var aliasBuilder = "";
-            switch( alias.getType() ) {
+            switch( alias.getAction() ) {
                 case "add":
                     aliasBuilder = variables.jLoader
                         .create( "io.searchbox.indices.aliases.AddAliasMapping$Builder" )
@@ -312,7 +312,7 @@ component
                         .build();
                     break;
                 default:
-                    throw( "Unsupported alias type.  Allowed types are: add, remove" );
+                    throw( "Unsupported alias action.  Allowed actions are: add, remove" );
             }
 
             if ( isSimpleValue( modifyAliasesBuilder ) ) {
@@ -324,7 +324,7 @@ component
             }
         }
 
-        return !! execute( modifyAliasesBuilder.build() ).acknowledged;
+        return execute( modifyAliasesBuilder.build() ).acknowledged;
 	}
 
 
