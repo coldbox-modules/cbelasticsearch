@@ -70,7 +70,16 @@ interface{
 	* @indexName 		string 		the name of the index to be deleted
 	*
 	**/
-	struct function deleteIndex( required string indexName );
+    struct function deleteIndex( required string indexName );
+
+    /**
+    * Applies an alias (or array of aliases)
+    *
+	* @aliases    AliasBuilder    An AliasBuilder instance (or array of instances)
+	*
+	* @return     boolean 		  Boolean result as to whether the operations were successful
+	**/
+	boolean function applyAliases( required any aliases );
 
     /**
     * Applies a reindex action

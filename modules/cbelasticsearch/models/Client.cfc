@@ -163,6 +163,17 @@ component
 
 		return deleteByQuery( searchBuilder );
 
+    }
+
+    /**
+    * Applies an alias (or array of aliases)
+    *
+	* @aliases    AliasBuilder    An AliasBuilder instance (or array of instances)
+	*
+	* @return     boolean 		  Boolean result as to whether the operations were successful
+	**/
+	boolean function applyAliases( required any aliases ) {
+		return variables.nativeClient.applyAliases( argumentCollection=arguments );
 	}
 
 	/**
