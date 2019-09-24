@@ -284,6 +284,47 @@ component
 		var deleteBuilder = variables.jLoader.create( "io.searchbox.indices.DeleteIndex$Builder" ).init( arguments.indexName );
 
 		return execute( deleteBuilder.build() );
+    }
+
+    /**
+    * Applies an alias (or array of aliases)
+    *
+	* @aliases    AliasBuilder    An AliasBuilder instance (or array of instances)
+	*
+	* @return     boolean 		  Boolean result as to whether the operations were successful
+	**/
+	boolean function applyAliases( required any aliases ) {
+        arguments.aliases = isArray( arguments.aliases ) ? arguments.aliases : [ arguments.aliases ];
+        var modifyAliasesBuilder = "";
+        for ( var alias in arguments.aliases ) {
+            var aliasBuilder = "";
+            switch( alias.getAction() ) {
+                case "add":
+                    aliasBuilder = variables.jLoader
+                        .create( "io.searchbox.indices.aliases.AddAliasMapping$Builder" )
+                        .init( alias.getIndexName(), alias.getAliasName() )
+                        .build();
+                    break;
+                case "remove":
+                    aliasBuilder = variables.jLoader
+                        .create( "io.searchbox.indices.aliases.RemoveAliasMapping$Builder" )
+                        .init( alias.getIndexName(), alias.getAliasName() )
+                        .build();
+                    break;
+                default:
+                    throw( "Unsupported alias action.  Allowed actions are: add, remove" );
+            }
+
+            if ( isSimpleValue( modifyAliasesBuilder ) ) {
+                modifyAliasesBuilder = variables.jLoader
+                    .create( "io.searchbox.indices.aliases.ModifyAliases$Builder" )
+                    .init( aliasBuilder );
+            } else {
+                modifyAliasesBuilder.addAlias( aliasBuilder );
+            }
+        }
+
+        return execute( modifyAliasesBuilder.build() ).acknowledged;
 	}
 
 
