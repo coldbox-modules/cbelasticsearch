@@ -106,7 +106,9 @@ component
 
 		return variables.nativeClient.indexMappingExists( argumentCollection=arguments );
 
-	}
+    }
+
+
 
 	/**
 	* Applies an index item ( create/update )
@@ -130,6 +132,22 @@ component
 
 		return variables.nativeClient.deleteIndex( argumentCollection=arguments );
 
+    }
+
+    /**
+    * Applies a reindex action
+    *
+    * @source      string   The source index name or struct of options
+    * @destination string   The destination index name or struct of options
+    *
+    * @return      struct 	Struct result of the reindex action
+	**/
+	struct function reindex(
+        required any source,
+        required any destination,
+        boolean waitForCompletion = true
+    ) {
+		return variables.nativeClient.reindex( argumentCollection = arguments );
 	}
 
 	/**

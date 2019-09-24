@@ -81,6 +81,20 @@ interface{
 	**/
 	boolean function applyAliases( required any aliases );
 
+    /**
+    * Applies a reindex action
+    * @interfaced
+    *
+    * @source      any   The source index name or struct of options
+    * @destination any   The destination index name or struct of options
+	*
+	* @return      struct 	Struct result of the reindex action
+	**/
+	struct function reindex(
+        required any source,
+        required any destination,
+        boolean waitForCompletion
+    );
 
 	/**
 	* Applies a single mapping to an index
