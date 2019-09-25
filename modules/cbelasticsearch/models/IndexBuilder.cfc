@@ -22,6 +22,9 @@ component
 	// Our index mappings ( i.e. typings and fields );
 	property name="mappings";
 
+	// Our index aliases
+	property name="aliases";
+
 
 	function onDIComplete(){
 		reset();
@@ -35,6 +38,8 @@ component
         };
 
 		variables.mappings 	= {};
+
+		variables.aliases 	= {};
 
 		variables.indexName = getConfig().get( "defaultIndex" );
 
@@ -107,6 +112,11 @@ component
 						variables.mappings = arguments.properties[ propName ];
 						break;
 					}
+					case "aliases":{
+						variables.aliases = arguments.properties[ propName ];
+						break;
+					}
+
 					//we assume they are mappings if we are unable to find explicit keys
 					default:{
 						variables.mappings[ propName ] = arguments.properties[ propName ];
@@ -142,6 +152,10 @@ component
 
 		if( !isNull( variables.indexName ) ){
 			dsl[ "name" ] = variables.indexName;
+		}
+
+		if( !isNull( variables.aliases ) ){
+			dsl[ "aliases" ] = variables.aliases;
 		}
 
 		if( !isNull( variables.type ) ){

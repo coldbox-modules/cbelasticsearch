@@ -21,10 +21,12 @@ Requirements
 ============
 
 * Coldbox >= v4.5
-* Elasticsearch  >= v5.0
+* Elasticsearch  >= v5.0 and < v7.0
 * Lucee >= v4.5 or Adobe Coldfusion >= v11
 
-_Note:  While only Elasticsearch 5.0 and above is supported, most of the REST-based methods will work on previous versions.  A notable exception is the multi-delete methods, which use the [delete by query](https://www.elastic.co/guide/en/elasticsearch/reference/5.4/docs-delete-by-query.html) functionality of ES5.  As such, Cachebox and Logbox functionality would be limited._
+_Note:  Most of the REST-based methods will work on Elasticsearch versions older than v5.0.  A notable exception is the multi-delete methods, which use the [delete by query](https://www.elastic.co/guide/en/elasticsearch/reference/5.4/docs-delete-by-query.html) functionality of ES5.  As such, Cachebox and Logbox functionality would be limited._
+
+_Note:  Elasticsearch 7.0+ is not currently supported due to the bundled [Jest client](https://github.com/searchbox-io/Jest/issues/644), specifically because of changes to [type handling in Elasticsearch 7.0](https://github.com/searchbox-io/Jest/issues/641)._
 
 Configuration
 =============
@@ -149,8 +151,8 @@ var booksMapping = {
         "ISBN" = { "type" = "integer" }
     }
 };
+```
 
-// add the mapping and save
 _Deprecation notice:  The index "type" ( e.g. "books" ) [has now been deprecated](https://www.elastic.co/guide/en/elasticsearch/reference/master/removal-of-types.html) in recent versions of Elasticsearch, and should no longer be used. Only a single type will be accepted in future releases._
 
 Note that, in the above examples, we are applying the index and mappings directly from within the object, itself, which is intuitive and fast. We could also pass the `IndexBuilder` object to the `Client@cbElasticsearch` instance's `applyIndex( required IndexBuilder indexBuilder )` method, if we wished.
@@ -199,6 +201,26 @@ indexBuilder.new(
 * [Elasticsearch Mapping Guide](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html)
 * [Index Settings Reference](https://www.elastic.co/guide/en/elasticsearch/guide/current/_index_settings.html)
 
+
+## Alias Builder
+
+cbElasticSearch can add or remove aliases in bulk using the `applyAliases` method
+on the cbElasticSearch client.
+
+```
+var removeAliasAction = getWireBox().getInstance( "AliasBuilder@cbElasticSearch" )
+    .remove( indexName = "testIndexName", aliasName = "aliasNameOne" );
+var addNewAliasAction = getWireBox().getInstance( "AliasBuilder@cbElasticSearch" )
+    .add( indexName = "testIndexName", aliasName = "aliasNameTwo" );
+
+variables.client.applyAliases(
+    // a single alias action can also be provided
+    aliases = [ removeAliasAction, addNewAliasAction ]
+);
+```
+
+These operations will be done in the same transaction, so it's safe to use for
+switching the alias from one index to another.
 
 
 ## Mapping Builder
@@ -360,9 +382,9 @@ To retrieve an existing document, we must first know the `_id` value.  We can ei
 Using the `Document` object's accessors:
 
 ```
-var existingDocument = getInstance( "Document@Elasticsearch" )
+var existingDocument = getInstance( "Document@cbElasticsearch" )
     .setIndex( "bookshop" )
-    .setTitle( "book" )
+    .setType( "book" )
     .setId( bookId )
     .get();
 ```
@@ -454,6 +476,47 @@ getInstance( "SearchBuilder@cbElasticsearch" )
     .deleteAll();
 ```
 
+#### Reindexing
+
+On occassion, due to a mapping or settings change, you will need to reindex data
+from one index to another.  You can do this by calling the `reindex` method
+on the `Client`.
+
+```
+getInstance( "Client@cbElasticsearch" )
+    .reindex( "oldIndex", "newIndex" );
+```
+
+If you want the work to be done asynchronusly, you can pass `false` to the
+`waitForCompletion` flag.
+
+```
+getInstance( "Client@cbElasticsearch" )
+    .reindex(
+        source = "oldIndex",
+        destination = "newIndex"
+        waitForCompletion = false
+    );
+```
+
+If you have more settings or constriants for the reindex action, you can pass
+a struct containing valid options to `source` and `destination`.
+
+```
+getInstance( "Client@cbElasticsearch" )
+    .reindex(
+        source = {
+            "index": "oldIndex",
+            "type": "testdocs",
+            "query": {
+                "term": {
+                    "active": true
+                }
+            }
+        },
+        destination = "newIndex"
+    );
+```
 
 Searching Documents
 ===================
@@ -526,7 +589,7 @@ In the above example, documents with a `name` field containing "Elasticsearch" w
 
 #### Advanced Query DSL
 
-The SearchBuilder also allows full use of the [Elasticsearch query language](https://www.elastic.co/guide/en/elasticsearch/reference/current/_introducing_the_query_language.html), allowing detailed configuration of queries, if the basic `match()`, `sort()` and `aggregate()` methods are not enough to meet your needs. There are several methods to provide the raw query language to the Search Builder.  One is during instantiation.  
+The SearchBuilder also allows full use of the [Elasticsearch query language](https://www.elastic.co/guide/en/elasticsearch/reference/current/_introducing_the_query_language.html), allowing detailed configuration of queries, if the basic `match()`, `sort()` and `aggregate()` methods are not enough to meet your needs. There are several methods to provide the raw query language to the Search Builder.  One is during instantiation.
 
 In the following we are looking for matches of active records with "Elasticsearch" in the `name`, `description`, or `shortDescription` fields. We are also looking for a phrase match of "is awesome" and are boosting the score of the applicable document, if found.
 

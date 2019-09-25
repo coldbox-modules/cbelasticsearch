@@ -236,6 +236,14 @@ component
 				builder.settings( settingsMap );
 			}
 
+			if( structKeyExists( indexDSL, "aliases" ) ){
+				var aliasesMap = variables.jLoader.create( "java.util.HashMap" ).init();
+
+				aliasesMap.putAll( indexDSL.aliases );
+
+				builder.aliases( aliasesMap );
+			}
+
 			indexResult[ "index" ] = execute( builder.build() );
 
 			if( structKeyExists( indexResult[ "index" ], "error" ) ){
@@ -276,6 +284,92 @@ component
 		var deleteBuilder = variables.jLoader.create( "io.searchbox.indices.DeleteIndex$Builder" ).init( arguments.indexName );
 
 		return execute( deleteBuilder.build() );
+    }
+
+    /**
+    * Applies a reindex action
+    * @interfaced
+    *
+    * @source      string   The source index name or struct of options
+    * @destination string   The destination index name or struct of options
+	*
+	* @return      struct 	Struct result of the reindex action
+	**/
+	struct function reindex(
+        required any source,
+        required any destination,
+        boolean waitForCompletion = true
+    ) {
+        return execute(
+            variables.jLoader.create( "io.searchbox.indices.reindex.Reindex$Builder" )
+                .init(
+                    generateIndexMap( arguments.source ),
+                    generateIndexMap( arguments.destination )
+                )
+                .waitForCompletion( arguments.waitForCompletion )
+                .build()
+        );
+    }
+
+    private any function generateIndexMap( required any index ) {
+        if ( isSimpleValue( arguments.index ) ) {
+            return variables.jLoader
+                .create( "com.google.common.collect.ImmutableMap" )
+                .of( "index", arguments.index );
+        }
+
+        if ( ! isStruct( arguments.index ) ) {
+            throw( "Invalid type. Pass either a string or a struct of options." );
+        }
+
+        return structReduce( arguments.index, function( indexMap, key, value ) {
+            if ( key == "query" ) {
+                value = serializeJSON( value );
+            }
+            indexMap.put( key, value );
+            return indexMap;
+        }, createObject( "java", "java.util.HashMap" ).init() );
+    }
+
+  /**
+  * Applies an alias (or array of aliases)
+  *
+	* @aliases    AliasBuilder    An AliasBuilder instance (or array of instances)
+	*
+	* @return     boolean 		  Boolean result as to whether the operations were successful
+	**/
+	boolean function applyAliases( required any aliases ) {
+        arguments.aliases = isArray( arguments.aliases ) ? arguments.aliases : [ arguments.aliases ];
+        var modifyAliasesBuilder = "";
+        for ( var alias in arguments.aliases ) {
+            var aliasBuilder = "";
+            switch( alias.getAction() ) {
+                case "add":
+                    aliasBuilder = variables.jLoader
+                        .create( "io.searchbox.indices.aliases.AddAliasMapping$Builder" )
+                        .init( alias.getIndexName(), alias.getAliasName() )
+                        .build();
+                    break;
+                case "remove":
+                    aliasBuilder = variables.jLoader
+                        .create( "io.searchbox.indices.aliases.RemoveAliasMapping$Builder" )
+                        .init( alias.getIndexName(), alias.getAliasName() )
+                        .build();
+                    break;
+                default:
+                    throw( "Unsupported alias action.  Allowed actions are: add, remove" );
+            }
+
+            if ( isSimpleValue( modifyAliasesBuilder ) ) {
+                modifyAliasesBuilder = variables.jLoader
+                    .create( "io.searchbox.indices.aliases.ModifyAliases$Builder" )
+                    .init( aliasBuilder );
+            } else {
+                modifyAliasesBuilder.addAlias( aliasBuilder );
+            }
+        }
+
+        return execute( modifyAliasesBuilder.build() ).acknowledged;
 	}
 
 
@@ -725,7 +819,7 @@ component
 	*
 	* @returns  any 	A CFML representation of the result.  If `returnObject` is flagged, will return the client JestResult
 	**/
-	private any function execute( required any action, returnObject=false ){
+	public any function execute( required any action, returnObject=false ){
 
 		// do a bit of cleanup before the next request
 		variables.HTTPClient.getHTTPClient().getConnectionManager().closeExpiredConnections();
