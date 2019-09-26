@@ -2,7 +2,7 @@ version: '3'
 
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.3
     environment:
       - ES_JAVA_OPTS=-Xms1g -Xmx1g
       - http.host=0.0.0.0
@@ -12,23 +12,45 @@ services:
     ports:
       - "9200:9200"
       - "9300:9300"
+
+  elasticsearch7:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.2
+    environment:
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - http.host=0.0.0.0
+      - transport.host=127.0.0.1
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+    ports:
+      - "9201:9200"
+      - "9301:9300"
+
   app:
-    image: ortussolutions/commandbox
+    image: ortussolutions/commandbox:adobe11
     depends_on:
       - elasticsearch
     environment:
       CFENGINE: "adobe@11"
-      PORT: 8080
-      SSL_PORT: 8443
       ELASTICSEARCH_HOST: elasticsearch
     ports:
       - "8080:8080"
-      - "8443:8443"
-      - "8188:8088"
     volumes:
       # Mount our application in delgated mode
       - .:/app:delegated
     expose:
       - "8080"
-      - "8443"
-      - "8088"
+  
+  app7:
+    image: ortussolutions/commandbox:adobe11
+    depends_on:
+      - elasticsearch
+    environment:
+      CFENGINE: "adobe@11"
+      ELASTICSEARCH_HOST: elasticsearch7
+    ports:
+      - "8081:8080"
+    volumes:
+      # Mount our application in delgated mode
+      - .:/app:delegated
+    expose:
+      - "8080"
