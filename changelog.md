@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+# 1.2.0
+# Implements compatibility for Elasticsearch v7
+# Adds environment variable detection for default configuration
+# Implements a new AliasBuilder object, which can be used to alias indexes
+# Implements a new `reindex()` method in the client which allows the ability to reindex
+# Implements new `mustExist` and `mustNotExist` methods to the SearchBuilder
+
 # 1.1.6
 * Reverts to previous versions of HTTP client due to instability and connection expiration issues
 * Adds connection cleanup prior to execution

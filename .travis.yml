@@ -17,11 +17,16 @@ env:
   global:
     - MODULE_ID=cbelasticsearch
   matrix:
-    - ENGINE=lucee@4.5
-    - ENGINE=lucee@5
-    - ENGINE=adobe@11
-    - ENGINE=adobe@2016
-    - ENGINE=adobe@2018
+    - ENGINE=lucee@4.5 ELASTICSEARCH_VERSION=6.8.3
+    - ENGINE=lucee@4.5 ELASTICSEARCH_VERSION=7.3.2
+    - ENGINE=lucee@5 ELASTICSEARCH_VERSION=6.8.3
+    - ENGINE=lucee@5 ELASTICSEARCH_VERSION=7.3.2
+    - ENGINE=adobe@11 ELASTICSEARCH_VERSION=6.8.3
+    - ENGINE=adobe@11 ELASTICSEARCH_VERSION=7.3.2
+    - ENGINE=adobe@2016 ELASTICSEARCH_VERSION=6.8.3
+    - ENGINE=adobe@2016 ELASTICSEARCH_VERSION=7.3.2
+    - ENGINE=adobe@2018 ELASTICSEARCH_VERSION=6.8.3
+    - ENGINE=adobe@2018 ELASTICSEARCH_VERSION=7.3.2
 
 branches:
   only:
@@ -40,8 +45,8 @@ before_install:
 
 install:
   # Install Elasticsearch
-  - curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.1.deb
-  - sudo dpkg -i --force-confnew elasticsearch-6.3.1.deb
+  - curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ELASTICSEARCH_VERSION}.deb
+  - sudo dpkg -i --force-confnew elasticsearch-${ELASTICSEARCH_VERSION}.deb
   - sudo service elasticsearch start
   # Install Commandbox
   - sudo apt-get update && sudo apt-get --assume-yes install git haveged rsync commandbox
@@ -99,7 +104,7 @@ deploy:
       branch:
         - master
         - development
-      condition: "$ENGINE = lucee@4.5"
+      condition: "$ENGINE = lucee@5 && ELASTICSEARCH_VERSION=7.3.2"
     skip_cleanup: true
     #AWS Credentials need to be set in Travis
     access_key_id: $AWS_ACCESS_KEY
