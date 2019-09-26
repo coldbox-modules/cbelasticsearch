@@ -1,7 +1,8 @@
 CHANGELOG
 =========
 
-
+# 1.2.1
+* (SNAPSHOT)
 
 # 1.2.0
 * Implements compatibility for Elasticsearch v7
