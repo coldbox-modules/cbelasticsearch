@@ -39,7 +39,7 @@ before_install:
   - sudo echo "deb http://downloads.ortussolutions.com/debs/noarch /" | sudo tee -a
     /etc/apt/sources.list.d/commandbox.list
   - wget --no-check-certificate https://www.apache.org/dist/ant/binaries/apache-ant-1.10.6-bin.tar.gz
-  - tar -xzvf apache-ant-1.10.6-bin.tar.gz
+  - tar -xzf apache-ant-1.10.6-bin.tar.gz
   - export PATH=`pwd`/apache-ant-1.10.6/bin:$PATH
   - echo $(ant -version)
 
@@ -47,7 +47,10 @@ install:
   # Install Elasticsearch
   - curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ELASTICSEARCH_VERSION}.deb
   - sudo dpkg -i --force-confnew elasticsearch-${ELASTICSEARCH_VERSION}.deb
-  - sudo service elasticsearch start
+  - sudo chown -R elasticsearch:elasticsearch /etc/default/elasticsearch
+  - sudo systemctl daemon-reload
+  - sudo systemctl enable elasticsearch.service
+  - sudo systemctl start elasticsearch.service
   # Install Commandbox
   - sudo apt-get update && sudo apt-get --assume-yes install git haveged rsync commandbox
   # Test that the box binary is available and ready for our tests
@@ -57,6 +60,7 @@ install:
   # Setup for our tests
   - mkdir tests/results
   - sudo chmod -R 775 tests/results
+  - sudo systemctl status elasticsearch.service
   - curl -v http://127.0.0.1:9200/
 
 # Build script - note module versioning is passed to ANT
@@ -68,6 +72,7 @@ script:
   - printf "\ncfengine=$ENGINE" >> workbench/build.properties
   # execute our build
   - ant -DisTravis=true -Dbuild.number=$TRAVIS_BUILD_NUMBER -Dbuild.branch=$TRAVIS_BRANCH -f workbench/build.xml
+  - sudo systemctl stop elasticsearch.service
 
 after_failure:
   - cd $TRAVIS_BUILD_DIR
