@@ -7,7 +7,8 @@ component extends="coldbox.system.testing.BaseTestCase"{
 		setup();
 
 		var props = {
-			"index" : "logboxappendertests"
+			"index" : "logboxappendertests",
+			"type" : "_doc"
 		};
 
 		variables.model = getMockBox().createMock(className="root.modules.cbelasticsearch.models.logging.ElasticsearchAppender");

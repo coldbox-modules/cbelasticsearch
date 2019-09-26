@@ -29,7 +29,6 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 
 		instance.DEFAULTS = {
 			"index"            : "logbox",
-			"type"             : "logs-" & dateFormat( now(), "yyyy-mm-dd" ),
 			"rotate"           : true,
 			"rotationDays"     : 30,
 			"rotationFrequency": 5,

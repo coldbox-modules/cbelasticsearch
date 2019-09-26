@@ -22,6 +22,11 @@ component
 	property name="HTTPClient";
 
 	/**
+	* The Elasticsearch version target for this client
+	**/
+	property name="versionTarget";
+
+	/**
 	* Config provider
 	**/
 	Config function getConfig() provider="Config@cbElasticsearch"{}
@@ -30,6 +35,11 @@ component
 	* Document provider
 	**/
 	Document function newDocument() provider="Document@cbElasticsearch"{}
+
+	/**
+	* SearchBuilder provider
+	**/
+	SearchBuilder function newBuilder() provider="SearchBuilder@cbElasticsearch"{}
 
 	/**
 	* SearchResult provider
@@ -78,6 +88,28 @@ component
 
 		variables.HTTPClient = factory.getObject();
 
+		// perform a little introspect on the start page to see what version we are on
+		if( len( configSettings.versionTarget ) ){
+			variables.versionTarget = configSettings.versionTarget;
+		} else {
+			var h = new Http(
+				url    = hostConnections[ 1 ],
+				method = 'GET'
+			);
+			if(
+				structKeyExists( configSettings, "defaultCredentials" )
+				&& len( configSettings.defaultCredentials.username )
+			){
+				h.addParam( type="header", name="Authorization", value="Basic #toBase64( configSettings.defaultCredentials.username & ':' & configSettings.defaultCredentials.password )#" );
+			}
+			var startPage = deSerializeJSON( h.send().getPrefix().fileContent );
+			if( isSimpleValue( startPage.version ) ){
+				variables.versionTarget = startPage.version;	
+			} else {
+				variables.versionTarget = startPage.version.number;
+			}
+		}
+
 	}
 
 
@@ -113,9 +145,13 @@ component
 		}
 
 		if( !isNull( arguments.searchBuilder.getType() ) ){
-			var types = listToArray( arguments.searchBuilder.getType() );
-			for( var type in types ){
-				jSearchBuilder.addType( type );
+			if( isMajorVersion( 7 ) ){
+				arguments.searchBuilder.term( "_type", arguments.searchBuilder.getType() );
+			} else {
+				var types = listToArray( arguments.searchBuilder.getType() );
+				for( var type in types ){
+					jSearchBuilder.addType( type );
+				}
 			}
 		}
 
@@ -151,9 +187,18 @@ component
 		}
 
 		if( !isNull( arguments.searchBuilder.getType() ) ){
-			var types = listToArray( arguments.searchBuilder.getType() );
-			for( var type in types ){
-				jCountBuilder.addType( type );
+			if( isMajorVersion( 7 ) ){
+				if( !structKeyExists( arguments.searchBuilder.getQuery(), "match_all" ) ){
+					var types = listToArray( arguments.searchBuilder.getType() );
+					for( var type in types ){
+						arguments.searchBuilder.shouldMatch( "_type", type );
+					}
+				}
+			} else {
+				var types = listToArray( arguments.searchBuilder.getType() );
+				for( var type in types ){
+					jCountBuilder.addType( type );
+				}
 			}
 		}
 
@@ -194,7 +239,10 @@ component
 
 		var getBuilder = variables.jLoader.create( "io.searchbox.indices.mapping.GetMapping$Builder" ).init();
 		getBuilder.addIndex( arguments.indexName );
-		getBuilder.addType( arguments.mapping );
+
+		if( !isMajorVersion( 7 ) ){
+			getBuilder.addType( arguments.mapping );
+		}
 
 		//Our exists method returns no payload so we need to check the status code
 		var mappingResult = execute( getBuilder.build(), true );
@@ -249,7 +297,7 @@ component
 			if( structKeyExists( indexResult[ "index" ], "error" ) ){
 				throw(
 					type="cbElasticsearch.JestClient.IndexCreationException",
-					message="Index creation returned an error status of #indexResult.index.status#.  Reason: #indexResult.index.error.reason#",
+					message="Index creation returned an error status of #indexResult.index.status#.  Reason: #( isSimpleValue( indexResult.index.error ) ? indexResult.index.error : indexResult.index.error.reason )#",
 					extendedInfo=serializeJSON( indexResult[ "index" ], false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false )
 				);
 			}
@@ -300,6 +348,10 @@ component
         required any destination,
         boolean waitForCompletion = true
     ) {
+		if( isMajorVersion( 7 ) && isStruct( arguments.source ) ){
+			structDelete( arguments.source, "type" );
+		}
+
         return execute(
             variables.jLoader.create( "io.searchbox.indices.reindex.Reindex$Builder" )
                 .init(
@@ -380,18 +432,34 @@ component
 	* @mappingConfig 			struct 		the mapping configuration struct
 	* @interfaced
 	**/
-	struct function applyMapping( required string indexName, required string mappingName, required struct mappingConfig ){
+	struct function applyMapping( required string indexName, string mappingName, required struct mappingConfig ){
 
-		var putBuilder = variables.jLoader.create( "io.searchbox.indices.mapping.PutMapping$Builder" ).init(
-				arguments.indexName,
-				arguments.mappingName,
-				serializeJSON(
+		if( isMajorVersion( 7 ) ){
+			// remove v7 unsupported keys
+			var unsupported = [ "_all" ];
+			unsupported.each( function( remove ){
+				structDelete( mappingConfig, remove );
+			} );
+
+			var JSONMapping = serializeJSON(
+				arguments.mappingConfig,
+				false,
+				listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false
+			);
+		} else {
+			var JSONMapping = serializeJSON(
 					{
 						"#arguments.mappingName#":arguments.mappingConfig
 					},
 					false,
 					listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false
-				)
+				);
+		}
+
+		var putBuilder = variables.jLoader.create( "io.searchbox.indices.mapping.PutMapping$Builder" ).init(
+				arguments.indexName,
+				isMajorVersion( 7 ) ? javacast( "null", 0 ) : arguments.mappingName,
+				JSONMapping
 			);
 
 		var mappingResult = execute( putBuilder.build() );
@@ -400,7 +468,7 @@ component
 
 			throw(
 				type="cbElasticsearch.JestClient.IndexMappingException",
-				message="The mapping for #arguments.mappingName# could not be created.  Reason: #mappingResult.error.reason#",
+				message="The mapping for #arguments.mappingName# could not be created.  Reason: #( isSimpleValue( mappingResult.error ) ? mappingResult.error : mappingResult.error.reason )#",
 				extendedInfo=serializeJSON( mappingResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false )
 			);
 
@@ -450,7 +518,7 @@ component
 		if( arguments.throwOnError && structKeyExists( deleteResult, "error" ) ){
 			throw(
 				type="cbElasticsearch.JestClient.MappingPersistenceException",
-				message="The mapping for #mapKey# could not be deleted.  Reason: #deleteResult.error.reason#",
+				message="The mapping for #mapKey# could not be deleted.  Reason: #( isSimpleValue( deleteResult.error ) ? deleteResult.error : deleteResult.error.reason )#",
 				extendedInfo=serializeJSON( deleteResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false )
 			);
 		}
@@ -484,7 +552,7 @@ component
 													javacast( "string", encodeForUrl( canonicalize( arguments.id, false, false ) ) )
 												);
 
-		if( !isNull( arguments.type ) ){
+		if(  !isNull( arguments.type ) && !isMajorVersion( 7 ) ){
 			actionBuilder.type( arguments.type );
 		}
 
@@ -527,11 +595,15 @@ component
 		if( isNull( arguments.index ) ){
 			arguments.index = getConfig().get( "defaultIndex" );
 		}
+		
+		if( isMajorVersion( 7 ) ){
+			arguments.type = '_doc';
+		}
 
 		var actionBuilder = variables.jLoader.create( "io.searchbox.core.MultiGet$Builder$ById" )
 												.init(
 													arguments.index,
-													!isNull( arguments.type ) ? arguments.type : 'default'
+													!isNull( arguments.type ) ? arguments.type : '_doc'
 												);
 		for( var key in arguments.keys ){
 			actionBuilder.addId( javacast( "string", encodeForUrl( canonicalize( key, false, false ) ) ) );
@@ -572,15 +644,15 @@ component
 	* @interfaced
 	**/
 	Document function save( required Document document ){
-
 		var updateAction = buildUpdateAction( arguments.document );
-
+		
 		var saveResult = execute( updateAction );
 
 		if( structKeyExists( saveResult, "error" ) ){
+
 			throw(
 				type="cbElasticsearch.JestClient.PersistenceException",
-				message="Document could not be saved.  The error returned was: #saveResult.error.reason#",
+				message="Document could not be saved.  The error returned was: #( isSimpleValue( saveResult.error ) ? saveResult.error : saveResult.error.reason )#",
 				extendedInfo=serializeJSON( saveResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false )
 			);
 		}
@@ -603,7 +675,7 @@ component
 		if( arguments.throwOnError && structKeyExists( deleteResult, "error" ) ){
 			throw(
 				type="cbElasticsearch.JestClient.PersistenceException",
-				message="Document could not be deleted.  The error returned was: #deleteResult.error.reason#",
+				message="Document could not be deleted.  The error returned was: #( isSimpleValue( deleteResult.error ) ? deleteResult.error : deleteResult.error.reason )#",
 				extendedInfo=serializeJSON( deleteResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false )
 			);
 		}
@@ -637,7 +709,11 @@ component
 		deleteBuilder.addIndex( arguments.searchBuilder.getIndex() );
 
 		if( !isNull( arguments.searchBuilder.getType() ) ){
-			deleteBuilder.addtype( arguments.searchBuilder.getType() );
+			if( isMajorVersion( 7 ) ){
+				arguments.searchBuilder.term( "_type", arguments.searchbuilder.getType() );
+			} else {
+				deleteBuilder.addtype( arguments.searchBuilder.getType() );
+			}
 		}
 
 		var deletionResult = execute( deleteBuilder.build() );
@@ -675,7 +751,11 @@ component
 		updateBuilder.addIndex( arguments.searchBuilder.getIndex() );
 
 		if( !isNull( arguments.searchBuilder.getType() ) ){
-			updateBuilder.addtype( arguments.searchBuilder.getType() );
+			if( isMajorVersion( 7 ) ){
+				arguments.searchBuilder.term( "_type", arguments.searchBuilder.getType() );
+			} else {
+				updateBuilder.addtype( arguments.searchBuilder.getType() );
+			}	
 		}
 
 		var updateResult = execute( updateBuilder.build() );
@@ -700,7 +780,11 @@ component
 		deleteBuilder.index( arguments.document.getIndex() );
 
 		if( !isNull( arguments.document.getType() ) ){
-			deleteBuilder.type( arguments.document.getType() );
+			if( isMajorVersion( 7 ) ){
+				deleteBuilder.type( "_doc" );
+			} else {
+				deleteBuilder.type( arguments.document.getType() );
+			}
 		}
 
 		return deleteBuilder.build();
@@ -710,24 +794,29 @@ component
 
 		var source = variables.jLoader.create( "java.util.LinkedHashMap" ).init();
 		source.putAll( arguments.document.getMemento() );
-
+		
 		var builder = variables.jLoader
 									.create( "io.searchbox.core.Index$Builder" )
 									.init( source );
 
 		builder.index( arguments.document.getIndex() );
 
-		if( !isNull( arguments.document.getType() ) ){
+		if( isMajorVersion( 7 ) ){
+			builder.type( "_doc" );
+		}
 
-			builder.type( arguments.document.getType() );
+		if( !isNull( arguments.document.getType() ) ){
+			if( isMajorVersion( 7 ) ){
+				document.getMemento()[ "_type" ] = arguments.document.getType();
+			} else {
+				builder.type( arguments.document.getType() );
+			}
 		}
 
 		//Specify the document ID if it is provided in our payload
 		if( !isNull( arguments.document.getId() ) ){
-
 			//ensure our `_id` is always cast as a string
 			builder.id( javacast("string", encodeForUrl( canonicalize( arguments.document.getId(), false, false ) ) ) );
-
 		}
 
 		return builder.build();
@@ -756,7 +845,7 @@ component
 		if( structKeyExists( saveResult, "error" ) ){
 			throw(
 				type="cbElasticsearch.JestClient.PersistenceException",
-				message="Document could not be saved.  The error returned was: #saveResult.error.reason#",
+				message="Document could not be saved.  The error returned was: #( isSimpleValue( saveResult.error ) ? saveResult.error : saveResult.error.reason )#",
 				extendedInfo=serializeJSON( saveResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false )
 			);
 		}
@@ -801,7 +890,7 @@ component
 
 			throw(
 				type="cbElasticsearch.JestClient.PersistenceException",
-				message="Document could not be deleted.  The error returned was: #deleteResult.error.reason#",
+				message="Document could not be deleted.  The error returned was: #( isSimpleValue( deleteResult.error ) ? deleteResult.error : deleteResult.error.reason )#",
 				extendedInfo=serializeJSON( deleteResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false )
 			);
 		}
@@ -832,6 +921,15 @@ component
 			return deserializeJSON( JESTResult.getJSONString() );
 		}
 
+	}
+
+	/**
+	 * Returns a boolean as to whether the target version matches a major version
+	 * 
+	 * @versionNumber
+	 */
+	private boolean function isMajorVersion( required numeric versionNumber ){
+		return listGetAt( variables.versionTarget, 1, "." ) == versionNumber;
 	}
 
 

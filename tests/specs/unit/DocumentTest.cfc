@@ -94,6 +94,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				var created = variables.model.new( variables.testIndexName, "testdocs", testDocument ).save();
 
 				expect( created ).toBeComponent();
+				expect( created.getId() ).toBe( testDocument[ "_id" ] );
 				variables.model.reset();
 
 				var found = variables.model.get( testDocument[ "_id" ], variables.testIndexName, "testdocs" );

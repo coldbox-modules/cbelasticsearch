@@ -103,7 +103,7 @@ interface{
 	* @mappingConfig 			struct 		the mapping configuration struct
 	* @interfaced
 	**/
-	struct function applyMapping( required string indexName, required string mappingName, required struct mappingConfig );
+	struct function applyMapping( required string indexName, string mappingName, required struct mappingConfig );
 
 
 	/**

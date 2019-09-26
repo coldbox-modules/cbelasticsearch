@@ -102,7 +102,7 @@ component accessors="true"{
 			variables.aggregations = arguments.properties.aggregations;
 		}
 
-		variables.hitCount = hits[ "total" ];
+		variables.hitCount = isSimpleValue( hits[ "total" ] ) ? hits[ "total" ] : hits[ "total" ][ "value" ];
 
 		if( structKeyExists( hits, "max_score" ) ){
 			variables.maxScore = hits[ "max_score" ];		

@@ -63,7 +63,6 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( indexBuilder.getMappings() ).toBeStruct();
 				expect( indexBuilder.getMappings() ).toHaveKey( "testdocs" );
 				expect( indexBuilder.getMappings().testdocs ).toHaveKey( "_all" );
-
 				var indexResult = variables.model.applyIndex( indexBuilder );
 
 				expect( indexResult ).toBeTrue();
@@ -78,7 +77,8 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( variables.model.indexMappingExists( variables.testIndexName, "testdocs" ) ).toBeTrue();
 			});
 
-			it( "Tests the ability to verify that a mapping does not exist", function(){
+			// this test is no longer applicable on ES v7.x
+			xit( "Tests the ability to verify that a mapping does not exist", function(){
 				expect( variables.model.indexMappingExists( variables.testIndexName, "idonotexist" ) ).toBeFalse();
 			});
 
@@ -153,6 +153,15 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( document.getMemento( true ) ).toBeStruct();
 				expect( document.getId() ).toBe( variables.testDocumentId );
 
+			});
+
+			it( "Tests the ability to retreive multiple documents with an array of identifiers", function(){
+				expect( variables ).toHaveKey( "bulkInserts" );
+				expect( variables ).toHaveKey( "testIndexName" );
+				var identifiers = variables.bulkInserts.map( function( doc ){ return doc.getId(); } );
+				var returned = variables.model.getMultiple( identifiers, variables.testIndexName );
+				expect( returned ).toBeArray();
+				expect( arrayLen( returned ) ).toBe( arrayLen( identifiers ) );
 			});
 
 			it( "Tests the ability to update a document in an index", function(){
@@ -260,6 +269,18 @@ component extends="coldbox.system.testing.BaseTestCase"{
 			
 				expect( variables ).toHaveKey( "testIndexName" );
 
+				var testDocument = {
+					"_id"        : createUUID(),
+					"title"      : "My Test Document",
+					"createdTime": dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+				};
+
+				var document = getWirebox().getInstance( "Document@cbElasticsearch" ).new( variables.testIndexName, "testdocs", testDocument );
+
+				var saveResult = variables.model.save( document );
+
+				expect( variables.model.get( testDocument[ "_id"], variables.testIndexName ) ).notToBeNull();
+
 				var searchBuilder = getWirebox().getInstance( "SearchBuilder@cbElasticsearch" ).new( 
 					variables.testIndexName,
 					"testdocs",
@@ -320,7 +341,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 				expect( deletion ).toBeStruct();
 				expect( deletion ).toHaveKey( "acknowledged" );
-				expect( deletion.acknowledged ).toBeTrue();
+				expect( deletion[ "acknowledged" ] ).toBeTrue();
 
 			});
 

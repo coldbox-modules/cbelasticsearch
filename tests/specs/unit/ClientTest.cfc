@@ -21,7 +21,8 @@ component extends="JestClientTest"{
 
 		describe( "It performs specific Client Tests", function(){
 
-			it( "Tests the ability to delete a type", function(){
+            // This test is no longer applicable on ES v7.x
+			xit( "Tests the ability to delete a type", function(){
 
 				//insert some documents to delete
 				var documents = [];
@@ -168,9 +169,11 @@ component extends="JestClientTest"{
                                 }
                             }
                         },
-                        destination = variables.testIndexNameTwo
+                        destination = variables.testIndexNameTwo,
+                        waitForCompletion = true
                     );
 
+                    // We still have to wait for background indexing to update
                     sleep( 1500 );
 
                     expect( variables.model.count( searchTwo ) ).toBe( 5 );

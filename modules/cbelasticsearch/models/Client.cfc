@@ -156,6 +156,8 @@ component
 	* @indexName 		string 		the name of the index to be deleted
 	* @type 			type 		the index typing to be deleted
 	*
+	* @deprecated   This method will be removed once support for ES v6.x has ended
+	*
 	**/
 	boolean function deleteType( required string indexName, required string type ){
 
