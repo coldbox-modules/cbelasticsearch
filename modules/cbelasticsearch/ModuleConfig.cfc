@@ -40,26 +40,26 @@ component{
             // The default hosts - an array of host connections
             //  - REST-based clients (e.g. JEST):  round robin connections will be used
             //  - Socket-based clients (e.g. Transport):  cluster-aware routing used
+            versionTarget = getSystemSetting( "ELASTICSEARCH_VERSION", '' ),
             hosts = [
                 //The default connection is made to http://127.0.0.1:9200
                 {
-                    serverProtocol : 'http',
-                    serverName     : '127.0.0.1',
-                    //Socket-based connections will use 9300
-                    serverPort     : '9200'
+                    serverProtocol: getSystemSetting( "ELASTICSEARCH_PROTOCOL", "http" ),
+                    serverName: getSystemSetting( "ELASTICSEARCH_HOST", "127.0.0.1" ),
+                    serverPort: getSystemSetting( "ELASTICSEARCH_PORT", 9200 )
                 }
             ],
             // The default credentials for access, if any - may also be overridden when searching index collections
             defaultCredentials = {
-                "username" : "",
-                "password" : ""
+                "username" : getSystemSetting( "ELASTICSEARCH_USERNAME", "" ),
+                "password" : getSystemSetting( "ELASTICSEARCH_PASSWORD", "" )
             },
             // The default index
-            defaultIndex           = "cbElasticsearch",
+            defaultIndex           = getSystemSetting( "ELASTICSEARCH_INDEX", "cbElasticsearch" ),
             // The default number of shards to use when creating an index
-            defaultIndexShards     = 3,
+            defaultIndexShards     = getSystemSetting( "ELASTICSEARCH_SHARDS", 5 ),
             // The default number of index replicas to create
-            defaultIndexReplicas   = 0,
+            defaultIndexReplicas   = getSystemSetting( "ELASTICSEARCH_REPLICAS", 0 ),
             // Whether to use separate threads for client transactions
             multiThreaded          = true,
             // The maximum amount of time to wait until releasing a connection (in seconds)
@@ -67,11 +67,11 @@ component{
             // The maximum number of connections allowed per route ( e.g. search URI endpoint )
             maxConnectionsPerRoute = 10,
             // The maxium number of connectsion, in total for all Elasticsearch requests
-            maxConnections         = 100,
+            maxConnections         = getSystemSetting( "ELASTICSEARCH_MAX_CONNECTIONS", 100 ),
             // Read timeout - the read timeout in milliseconds
-            readTimeout            = 3000,
+            readTimeout            = getSystemSetting( "ELASTICSEARCH_READ_TIMEOUT", 3000 ),
             // Connection timeout - timeout attempts to connect to elasticsearch after this timeout
-            connectionTimeout      = 3000
+            connectionTimeout      = getSystemSetting( "ELASTICSEARCH_CONNECT_TIMEOUT", 3000 )
         };
 
         // Custom Declared Points
