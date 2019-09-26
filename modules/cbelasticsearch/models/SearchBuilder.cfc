@@ -394,6 +394,57 @@ component accessors="true" {
     }
 
     /**
+    * Assigns a key which must exists to the query
+    *
+    * @name 		string 		the name of the key to search
+    **/
+    SearchBuilder function mustExist(
+        required string name
+    ){
+        if( !structKeyExists( variables.query, "bool" ) ){
+            variables.query[ "bool" ] = {};
+        }
+
+        if( !structKeyExists( variables.query.bool, "must" ) ){
+            variables.query.bool[ "must" ] = [];
+        }
+
+        arrayAppend( 
+            variables.query.bool.must,
+            { "exists" : { "field" : arguments.name } }
+        );
+
+        return this;
+
+    }
+
+    /**
+    * Assigns a key which must not exist to the query
+    *
+    * @name 		string 		the name of the key to search
+    **/
+    SearchBuilder function mustNotExist(
+        required string name
+    ){
+
+        if( !structKeyExists( variables.query, "bool" ) ){
+            variables.query[ "bool" ] = {};
+        }
+
+        if( !structKeyExists( variables.query.bool, "must_not" ) ){
+            variables.query.bool[ "must_not" ] = [];
+        }
+
+        arrayAppend( 
+            variables.query.bool.must_not,
+            { "exists" : { "field" : arguments.name } }
+        );
+
+        return this;
+
+    }
+
+    /**
     * 'multi_match' query alias for match()
     *
     * @names 		array 		an array of keys to search

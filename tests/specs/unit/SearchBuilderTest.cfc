@@ -92,6 +92,8 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( searchBuilder.getType() ).toBe( "testdocs" );
 				expect( searchBuilder.getQuery() ).toBeStruct();
 				expect( searchBuilder.getQuery() ).toHaveKey( "match" );
+				
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
 
 			});
 
@@ -107,6 +109,8 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( searchBuilder.getQuery() ).toHaveKey( "match" );
 				expect( searchBuilder.getQuery().match ).toHaveKey( "title" );
 				expect( searchBuilder.getQuery().match.title ).toBe( "Foo" );
+				
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
 
             });
 
@@ -138,6 +142,8 @@ component extends="coldbox.system.testing.BaseTestCase"{
                 expect( searchBuilder.getQuery().bool.must[ 1 ].multi_match.type ).toBe( "best_fields" );
                 expect( searchBuilder.getQuery().bool.must[ 1 ].multi_match ).notToHaveKey( "boost" );
                 expect( searchBuilder.getQuery().bool.must[ 1 ].multi_match ).notToHaveKey( "minimum_should_match" );
+				
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
             } );
 
             it( "Tests the multiMatch() method with extra arguments", function() {
@@ -173,7 +179,10 @@ component extends="coldbox.system.testing.BaseTestCase"{
                 expect( searchBuilder.getQuery().bool.must[ 1 ].multi_match ).toHaveKey( "type" );
                 expect( searchBuilder.getQuery().bool.must[ 1 ].multi_match.type ).toBe( type );
                 expect( searchBuilder.getQuery().bool.must[ 1 ].multi_match ).toHaveKey( "minimum_should_match" );
-                expect( searchBuilder.getQuery().bool.must[ 1 ].multi_match.minimum_should_match ).toBe( minimumShouldMatch );
+				expect( searchBuilder.getQuery().bool.must[ 1 ].multi_match.minimum_should_match ).toBe( minimumShouldMatch );
+				
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
+				
             } );
 
 
@@ -191,6 +200,8 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( searchBuilder.getQuery().bool.should ).toBeArray();
 				expect( searchBuilder.getQuery().bool.should[ 1 ] ).toHaveKey("match");
 				expect( searchBuilder.getQuery().bool.should[ 1 ].match ).toHaveKey("title");
+				
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
 			});
 
 			it( "Tests mustMatch()", function(){
@@ -210,6 +221,8 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( searchBuilder.getQuery().bool.must[ 1 ] ).toHaveKey( "match" );
 				expect( searchBuilder.getQuery().bool.must[ 1 ][ "match" ] ).toBeStruct();
 				expect( searchBuilder.getQuery().bool.must[ 1 ][ "match" ] ).toHaveKey("title");
+
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
 
 			});
 
@@ -235,7 +248,54 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( searchBuilder.getQuery().bool.must_not[ 1 ].match ).toHaveKey("title");
 				expect( searchBuilder.getQuery().bool.must_not[ 1 ].match.title ).toBe( "Foo" );
 
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
+
 			});
+
+            it( "Tests the mustExist() method", function() {
+                var searchBuilder = variables.model.new(
+                    variables.testIndexName,
+                    "testdocs"
+                );
+
+                searchBuilder.mustExist( "testkey" );
+
+                expect( searchBuilder.getQuery() ).toBeStruct();
+                expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
+                expect( searchBuilder.getQuery().bool ).toHaveKey( "must" );
+                expect( searchBuilder.getQuery().bool.must ).toBeArray();
+                expect( searchBuilder.getQuery().bool.must ).toHaveLength( 1 );
+                expect( searchBuilder.getQuery().bool.must[ 1 ] ).toHaveKey( "exists" );
+				expect( searchBuilder.getQuery().bool.must[ 1 ].exists ).toBeStruct();
+				expect( searchBuilder.getQuery().bool.must[ 1 ].exists ).toHaveKey( "field" );
+				expect( searchBuilder.getQuery().bool.must[ 1 ].exists.field ).toBe( "testkey" );
+
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
+				
+			} );
+			
+
+
+            it( "Tests the mustNotExist() method", function() {
+                var searchBuilder = variables.model.new(
+                    variables.testIndexName,
+                    "testdocs"
+                );
+
+                searchBuilder.mustNotExist( "testkey" );
+
+                expect( searchBuilder.getQuery() ).toBeStruct();
+                expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
+                expect( searchBuilder.getQuery().bool ).toHaveKey( "must_not" );
+                expect( searchBuilder.getQuery().bool.must_not ).toBeArray();
+                expect( searchBuilder.getQuery().bool.must_not ).toHaveLength( 1 );
+                expect( searchBuilder.getQuery().bool.must_not[ 1 ] ).toHaveKey( "exists" );
+				expect( searchBuilder.getQuery().bool.must_not[ 1 ].exists ).toBeStruct();
+				expect( searchBuilder.getQuery().bool.must_not[ 1 ].exists ).toHaveKey( "field" );
+				expect( searchBuilder.getQuery().bool.must_not[ 1 ].exists.field ).toBe( "testkey" );
+				
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
+            } );
 
 			it( "Tests disjunction()", function(){
 
@@ -249,16 +309,20 @@ component extends="coldbox.system.testing.BaseTestCase"{
 			 	);
 
 			 	searchBuilder.match( "title", "Foo" );
-			 	searchBuilder.aggregation( "fullName", {
+			 	searchBuilder.aggregation( "titles", {
 			 		"terms":{
-			 			"script":"firstName + ' ' + lastName"
+						"field" = "title.keyword",
+						"size" = 20000,
+						"order" : { "_key" : "asc" }
 			 		}
 			 	} );
 
 			 	expect( searchBuilder.getAggregations() ).toBeStruct();
-			 	expect( searchBuilder.getAggregations() ).toHaveKey( "fullName" );
-			 	expect( searchBuilder.getAggregations().fullName ).toHaveKey( "terms" );
-			 	expect( searchBuilder.getAggregations().fullName.terms ).toBeStruct();
+			 	expect( searchBuilder.getAggregations() ).toHaveKey( "titles" );
+			 	expect( searchBuilder.getAggregations().titles ).toHaveKey( "terms" );
+			 	expect( searchBuilder.getAggregations().titles.terms ).toBeStruct();
+				
+				 expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
 
 
 			});
@@ -389,8 +453,8 @@ component extends="coldbox.system.testing.BaseTestCase"{
 			 	);
 
 			 	var searchResult = searchBuilder.execute();
-
-			 	expect( searchResult ).toBeComponent();
+				
+				 expect( searchResult ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
 
             });
 
@@ -405,6 +469,8 @@ component extends="coldbox.system.testing.BaseTestCase"{
                 expect( searchBuilder.getQuery() ).toBeStruct();
                 expect( searchBuilder.getQuery() ).toHaveKey( "terms" );
                 expect( searchBuilder.getQuery().terms ).toBe( { "title" : [ "Foo", "Bar" ] } );
+				
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
             } );
 
             it( "Tests the filterTerm() method", function() {
@@ -425,6 +491,8 @@ component extends="coldbox.system.testing.BaseTestCase"{
                 expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ] ).toBeStruct();
                 expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ] ).toHaveKey( "term" );
                 expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ].term ).toBe( { "title" : "Foo" } );
+				
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
             } );
 
             it( "Tests the filterTerms() method with a single argument", function() {
@@ -445,6 +513,8 @@ component extends="coldbox.system.testing.BaseTestCase"{
                 expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ] ).toBeStruct();
                 expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ] ).toHaveKey( "term" );
                 expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ].term ).toBe( { "title" : "Foo" } );
+				
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
             } );
 
 
@@ -466,6 +536,8 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ] ).toBeStruct();
 				expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ] ).toHaveKey( "terms" );
 				expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ].terms ).toBe( { "title" : [ "Foo", "Bar" ] } );
+				
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
 			});
 
 			it( "Tests the deleteAll() method", function(){
