@@ -16,6 +16,8 @@ component
 {
 
 	property name="jLoader" inject="loader@cbjavaloader";
+
+	property name="log" inject="logbox:logger:{this}";
 	/**
 	* The HTTP Jest Client
 	**/
@@ -102,11 +104,16 @@ component
 			){
 				h.addParam( type="header", name="Authorization", value="Basic #toBase64( configSettings.defaultCredentials.username & ':' & configSettings.defaultCredentials.password )#" );
 			}
-			var startPage = deSerializeJSON( h.send().getPrefix().fileContent );
-			if( isSimpleValue( startPage.version ) ){
-				variables.versionTarget = startPage.version;	
-			} else {
-				variables.versionTarget = startPage.version.number;
+			try{
+				var startPage = deSerializeJSON( h.send().getPrefix().fileContent );
+				if( isSimpleValue( startPage.version ) ){
+					variables.versionTarget = startPage.version;	
+				} else {
+					variables.versionTarget = startPage.version.number;
+				}
+			} catch( any e ){
+				variables.versionTarget = '6.8.4';
+				log.error( "A connection to the elasticsearch server at #hostConnections[ 1 ]# could not be established.  This may be due to an authentication issue or the server may not be available at this time.  The version target has been set to #variables.versionTarget#." );	
 			}
 		}
 
