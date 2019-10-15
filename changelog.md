@@ -1,8 +1,10 @@
 CHANGELOG
 =========
+# 1.2.2
+* (SNAPSHOT)
 
 # 1.2.1
-* (SNAPSHOT)
+* Adds a soft fail to the version target check when a connection to the ES start page cannot be established
 
 # 1.2.0
 * Implements compatibility for Elasticsearch v7
