@@ -1,5 +1,8 @@
 CHANGELOG
 =========
+# 1.2.3
+* (SNAPSHOT)
+
 # 1.2.2
 * Adds fallback attempt when connection pool is unexpectedly closed
 
