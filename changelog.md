@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 # 1.2.2
-* (SNAPSHOT)
+* Adds fallback attempt when connection pool is unexpectedly closed
 
 # 1.2.1
 * Adds a soft fail to the version target check when a connection to the ES start page cannot be established
