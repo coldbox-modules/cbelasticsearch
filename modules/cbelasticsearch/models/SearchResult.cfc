@@ -91,7 +91,7 @@ component accessors="true"{
 			throw( 
 
 				type            = "cbElasticsearch.SearchResult.ClientErrorException",
-				message         = "The properties provided to the populate() method do not contain a valid search response" & ( structKeyExists( arguments.properties, "error" ) ? " Reason: #arguments.properties.error.reason#" : "" ),
+				message         = "The server did not return a valid search response. This may be due to syntax errors in your query or credentials." & ( structKeyExists( arguments.properties, "error" ) ? " Reason: #arguments.properties.error.reason#" : "" ),
 				extendedInfo 	= serializeJSON( arguments.properties, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false )
 
 			);
