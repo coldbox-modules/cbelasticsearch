@@ -920,7 +920,20 @@ component
 		// do a bit of cleanup before the next request
 		variables.HTTPClient.getHTTPClient().getConnectionManager().closeExpiredConnections();
 
-		var JESTResult = variables.HTTPClient.execute( arguments.action );
+		// try catch with a fallback in case our connection has been closed for any reason
+		try{
+			var JESTResult = variables.HTTPClient.execute( arguments.action );
+		} catch( any e ){
+			log.error( "An attempt to execute an action on the Elasticsearch server failed. An attempt to reconnect was performed The message received was #e.message#.", e );
+			try{
+				close();
+				configure();
+				var JESTResult = variables.HTTPClient.execute( arguments.action );
+			} catch( any e ){
+				log.error( "An attempt to reconnect to the elasticsearch server failed with an error message of #e.message#.", e );
+				rethrow;
+			}
+		}
 
 		if( arguments.returnObject ){
 			return JestResult;
