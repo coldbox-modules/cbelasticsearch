@@ -59,62 +59,65 @@ component
 
 	void function configure(){
 
-		var configSettings = getConfig().getConfigStruct();
+		lock type="exclusive" name="JestClientConfigurationLock" timeout="10"{
+			var configSettings = getConfig().getConfigStruct();
 
-		var hostConnections = jLoader.create( "java.util.ArrayList" ).init();
-
-		for( var host in configSettings.hosts ){
-			arrayAppend( hostConnections, host.serverProtocol & "://" & host.serverName & ":" & host.serverPort );
-        }
-
-		var configBuilder = variables.jLoader
-										.create( "io.searchbox.client.config.HttpClientConfig$Builder" )
-										.init( hostConnections )
-                                        .multiThreaded( javacast( "boolean", configSettings.multiThreaded ) )
-                                        .maxConnectionIdleTime( javacast( "long", configSettings.maxConnectionIdleTime ), createObject( "java", "java.util.concurrent.TimeUnit" ).SECONDS )
-										.defaultMaxTotalConnectionPerRoute( configSettings.maxConnectionsPerRoute )
-										.readTimeout( configSettings.readTimeout )
-										.connTimeout( configSettings.connectionTimeout )
-										.maxTotalConnection( configSettings.maxConnections );
-
-		if(
-			structKeyExists( configSettings, "defaultCredentials" )
-			&& len( configSettings.defaultCredentials.username )
-		){
-			configBuilder.defaultCredentials( configSettings.defaultCredentials.username, configSettings.defaultCredentials.password );
-		}
-
-		var factory = variables.jLoader.create( "io.searchbox.client.JestClientFactory" ).init();
-
-		factory.setHttpClientConfig( configBuilder.build() );
-
-		variables.HTTPClient = factory.getObject();
-
-		// perform a little introspect on the start page to see what version we are on
-		if( len( configSettings.versionTarget ) ){
-			variables.versionTarget = configSettings.versionTarget;
-		} else {
-			var h = new Http(
-				url    = hostConnections[ 1 ],
-				method = 'GET'
-			);
+			var hostConnections = jLoader.create( "java.util.ArrayList" ).init();
+	
+			for( var host in configSettings.hosts ){
+				arrayAppend( hostConnections, host.serverProtocol & "://" & host.serverName & ":" & host.serverPort );
+			}
+	
+			var configBuilder = variables.jLoader
+											.create( "io.searchbox.client.config.HttpClientConfig$Builder" )
+											.init( hostConnections )
+											.multiThreaded( javacast( "boolean", configSettings.multiThreaded ) )
+											.maxConnectionIdleTime( javacast( "long", configSettings.maxConnectionIdleTime ), createObject( "java", "java.util.concurrent.TimeUnit" ).SECONDS )
+											.defaultMaxTotalConnectionPerRoute( configSettings.maxConnectionsPerRoute )
+											.readTimeout( configSettings.readTimeout )
+											.connTimeout( configSettings.connectionTimeout )
+											.maxTotalConnection( configSettings.maxConnections );
+	
 			if(
 				structKeyExists( configSettings, "defaultCredentials" )
 				&& len( configSettings.defaultCredentials.username )
 			){
-				h.addParam( type="header", name="Authorization", value="Basic #toBase64( configSettings.defaultCredentials.username & ':' & configSettings.defaultCredentials.password )#" );
+				configBuilder.defaultCredentials( configSettings.defaultCredentials.username, configSettings.defaultCredentials.password );
 			}
-			try{
-				var startPage = deSerializeJSON( h.send().getPrefix().fileContent );
-				if( isSimpleValue( startPage.version ) ){
-					variables.versionTarget = startPage.version;	
-				} else {
-					variables.versionTarget = startPage.version.number;
+	
+			var factory = variables.jLoader.create( "io.searchbox.client.JestClientFactory" ).init();
+	
+			factory.setHttpClientConfig( configBuilder.build() );
+	
+			variables.HTTPClient = factory.getObject();
+	
+			// perform a little introspect on the start page to see what version we are on
+			if( len( configSettings.versionTarget ) ){
+				variables.versionTarget = configSettings.versionTarget;
+			} else {
+				var h = new Http(
+					url    = hostConnections[ 1 ],
+					method = 'GET'
+				);
+				if(
+					structKeyExists( configSettings, "defaultCredentials" )
+					&& len( configSettings.defaultCredentials.username )
+				){
+					h.addParam( type="header", name="Authorization", value="Basic #toBase64( configSettings.defaultCredentials.username & ':' & configSettings.defaultCredentials.password )#" );
 				}
-			} catch( any e ){
-				variables.versionTarget = '6.8.4';
-				log.error( "A connection to the elasticsearch server at #hostConnections[ 1 ]# could not be established.  This may be due to an authentication issue or the server may not be available at this time.  The version target has been set to #variables.versionTarget#." );	
+				try{
+					var startPage = deSerializeJSON( h.send().getPrefix().fileContent );
+					if( isSimpleValue( startPage.version ) ){
+						variables.versionTarget = startPage.version;	
+					} else {
+						variables.versionTarget = startPage.version.number;
+					}
+				} catch( any e ){
+					variables.versionTarget = '6.8.4';
+					log.error( "A connection to the elasticsearch server at #hostConnections[ 1 ]# could not be established.  This may be due to an authentication issue or the server may not be available at this time.  The version target has been set to #variables.versionTarget#." );	
+				}
 			}
+	
 		}
 
 	}
@@ -926,8 +929,10 @@ component
 		} catch( any e ){
 			log.error( "An attempt to execute an action on the Elasticsearch server failed. An attempt to reconnect was performed The message received was #e.message#.", e );
 			try{
-				close();
-				configure();
+				lock type="exclusive" name="JestClientReConfigurationAttempt" timeout="10"{
+					close();
+					configure();
+				}
 				var JESTResult = variables.HTTPClient.execute( arguments.action );
 			} catch( any e ){
 				log.error( "An attempt to reconnect to the elasticsearch server failed with an error message of #e.message#.", e );
