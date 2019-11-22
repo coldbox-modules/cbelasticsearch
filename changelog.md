@@ -1,7 +1,11 @@
 CHANGELOG
 =========
-# 1.2.3
-* (SNAPSHOT)
+# 1.3.0
+* Adds the ability to pass URL parameters to SearchBuilder-aware client methods.  Adds a `param( name, value )` supporting method to the SearchBuilder
+* Adds a new Task object which can be refreshed and used in a loop as long-running tasks complete in the background ( e.g.  `while( !task.isComplete() )` )
+* ( Breaking ) Changes the return type of the `deleteByQuery` and `updateByQuery` to return the full API response which may be inspected or used to follow-up on tasks
+* implements a `getAllTasks()` method in the client, which will return an array of Task objects
+* implements a `getTask` method in the client to retreive tasks by identifier ( e.g. - `[node]:[id]` ). 
 
 # 1.2.2
 * Adds fallback attempt when connection pool is unexpectedly closed
