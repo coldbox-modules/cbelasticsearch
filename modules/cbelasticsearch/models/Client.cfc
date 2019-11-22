@@ -150,6 +150,24 @@ component
 	}
 
 	/**
+	 * Returns a struct containing all indices in the system, with statistics
+	 * 
+	 * @verbose 	boolean 	whether to return the full stats output for the index
+	 */
+	struct function getIndices( verbose = false ){
+		return variables.nativeClient.getIndices( argumentCollection = arguments );
+	}
+
+	/**
+	 * Returns a struct containing the mappings of all aliases in the cluster
+	 *
+	 * @aliases 
+	 */
+	struct function getAliases(){
+		return variables.nativeClient.getAliases( argumentCollection=arguments );
+	}
+
+	/**
 	* Deletes an index type
 	*
 	* @indexName 		string 		the name of the index to be deleted

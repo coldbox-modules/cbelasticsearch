@@ -409,7 +409,77 @@ component
             indexMap.put( key, value );
             return indexMap;
         }, createObject( "java", "java.util.HashMap" ).init() );
-    }
+	}
+
+	/**
+	 * Returns a struct containing all indices in the system, with statistics
+	 * 
+	 * @verbose 	boolean 	whether to return the full stats output for the index
+	 */
+	struct function getIndices( verbose = false ){
+		// we can access all of our indices from the status
+		var statsBuilder = variables.jLoader.create( "io.searchbox.indices.Stats$Builder" );
+		statsBuilder.refresh( javacast("boolean", true ) )
+					.store( javacast( "boolean", true ) )
+					.docs( javacast( "boolean", true ) );
+
+		if( arguments.verbose ){
+
+			statsBuilder.fielddata( javacast( 'boolean', true ) )
+						.indexing( javacast( "boolean", true ) );
+		}
+
+		var statsResult = execute( statsBuilder.build() );
+
+		if( arguments.verbose ){
+			return statsResult.indices;
+		} else {
+			// var scoping this outside of the reduce method seems to prevent missing data on ACF, post-reduction
+			var indexMap = {};
+			statsResult.indices.keyArray().reduce( function( obj, key ){
+				obj[ key ] = {
+					"uuid" : statsResult.indices[ key ][ "uuid" ],
+					"size_in_bytes": statsResult.indices[ key ][ "total" ][ "store" ][ "size_in_bytes" ],
+					"docs": statsResult.indices[ key ][ "total" ][ "docs" ][ "count" ]
+				};
+			}, indexMap );
+			return indexMap;
+		}
+	}
+	
+	/**
+	 * Returns a struct containing the mappings of all aliases in the cluster
+	 *
+	 * @aliases 
+	 */
+	struct function getAliases(){
+		var getBuilder = variables.jLoader.create( "io.searchbox.indices.aliases.GetAliases$Builder" );
+		var aliasesResult = execute( getBuilder.build() );
+
+		// var scoping this outside of the reduce method seems to prevent missing data on ACF, post-reduction
+		var aliasesMap = {
+			"aliases" : {},
+			"unassigned" : []
+		};
+		
+		aliasesResult.keyArray().reduce( 
+			function( aliasesMap, indexName ){ 
+				if( structKeyExists( aliasesResult[ indexName], "aliases" ) && !structIsEmpty( aliasesResult[ indexName].aliases ) ){
+					// we need to scope this for the ACF compiler
+					var indexObj = aliasesResult[ indexName];
+					indexObj.aliases.keyArray().each( function( alias ){
+						aliasesMap.aliases[ alias ] = indexName;
+					} );
+				} else {
+					aliasesMap.unassigned.append( indexName );
+				}
+			},
+			aliasesMap
+		);
+
+		return aliasesMap;
+
+	}
 
   /**
   * Applies an alias (or array of aliases)

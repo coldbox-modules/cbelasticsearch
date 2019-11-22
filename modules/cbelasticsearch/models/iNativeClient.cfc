@@ -95,7 +95,22 @@ interface{
         required any destination,
 		boolean waitForCompletion,
 		array params = []
-    );
+	);
+	
+	/**
+	 * Returns a struct containing all indices in the system, with statistics
+	 * 
+	 * @verbose 	boolean 	whether to return the full stats output for the index
+	 */
+	struct function getIndices( verbose = false );
+
+
+	/**
+	 * Returns a struct containing the mappings of all aliases in the cluster
+	 *
+	 * @aliases 
+	 */
+	struct function getAliases();
 
 	/**
 	* Applies a single mapping to an index
