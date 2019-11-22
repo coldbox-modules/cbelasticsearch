@@ -114,6 +114,61 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( variables.model.indexExists( variables.testIndexName ) ).toBeTrue();
 			});
 
+			it( "tests the getIndices method", function(){
+
+				// test default ( verbose = false )
+				var allIndices = variables.model.getIndices();
+
+				expect( allIndices ).toBeStruct();
+
+				allIndices.keyArray().each( function( key ){
+					expect( allIndices[ key ] )
+							.toBeStruct()
+							.toHaveKey( "uuid" )
+							.toHaveKey( "docs" )
+							.toHaveKey( "size_in_bytes" );
+
+				} );
+				
+				// test verbose
+				var allIndices = variables.model.getIndices( verbose =true );
+				
+
+				expect( allIndices ).toBeStruct();
+
+				allIndices.keyArray().each( function( key ){
+					expect( allIndices[ key ] )
+							.toBeStruct()
+							.toHaveKey( "uuid" )
+							.toHaveKey( "primaries" )
+							.toHaveKey( "total" );
+
+				} );
+							
+			});
+
+			it( "can retreive a map of all aliases", function(){
+				// create an alias so we can test
+                var aliasName = lcase( "GetAliasesTestAlias" );
+
+                var addAliasAction = getWireBox().getInstance( "AliasBuilder@cbElasticSearch" )
+                    .add( indexName = variables.testIndexName, aliasName = aliasName );
+
+                variables.model.applyAliases( aliases = addAliasAction );
+				
+				var allAliases = variables.model.getAliases();
+				
+				expect( allAliases ).toHaveKey( "aliases")
+									.toHaveKey( "unassigned" );
+
+				expect( allAliases.unassigned ).toBeArray();
+
+				expect( allAliases.aliases )
+									.toBeStruct()
+									.toHaveKey( aliasName );
+
+			});
+
 			it( "Tests the ability to verify that a mapping exists", function(){
 				expect( variables.model.indexMappingExists( variables.testIndexName, "testdocs" ) ).toBeTrue();
 			});
@@ -322,12 +377,9 @@ component extends="coldbox.system.testing.BaseTestCase"{
 					expect( taskObj.getIdentifier() ).toBe( taskId );
 					expect( taskObj.isComplete() ).toBeBoolean();
 
-					debug( taskObj.getStatus() );
-
 					// expect a while loop to complete
 					while( !taskObj.isComplete() ){
 						expect( taskObj.getCompleted() ).toBeFalse();
-						debug( taskObj.getStatus() );
 					}
 
 				} );
