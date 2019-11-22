@@ -90,7 +90,7 @@ component
      * @delay      numeric      The delay time in milliseconds - useful to slow down a while() loop
      */
     public boolean function isComplete( boolean refresh=true, numeric delay=0 ){
-        if( arguments.refresh ){
+        if( !variables.completed && arguments.refresh ){
             if( arguments.delay > 0 ){
                 sleep( arguments.delay );
             }
