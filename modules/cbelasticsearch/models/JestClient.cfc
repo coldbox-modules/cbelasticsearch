@@ -752,7 +752,11 @@ component
 		);
 
 		if( !structKeyExists( taskResult, "task" ) ){
-			return javacast( "null", 0 );
+			throw(
+				type="cbElasticsearch.JestClient.InvalidTaskException",
+				message="A task with an identifier of #arguments.taskId# could not be found. The error returned was: #( isSimpleValue( taskResult.error ) ? taskResult.error : taskResult.error.reason )#",
+				extendedInfo=serializeJSON( taskResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false )
+			);
 		}
 
 		return taskObj.populate( taskResult );
