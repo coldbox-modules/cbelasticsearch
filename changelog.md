@@ -6,6 +6,8 @@ CHANGELOG
 * ( Breaking ) Changes the return type of the `deleteByQuery` and `updateByQuery` to return the full API response which may be inspected or used to follow-up on tasks
 * implements a `getAllTasks()` method in the client, which will return an array of Task objects
 * implements a `getTask` method in the client to retreive tasks by identifier ( e.g. - `[node]:[id]` ). 
+* implements a `getIndices` method in the client to retreive a map of indices with stats
+* implements a `getAliases` method in the client to retreive a map of aliases
 
 # 1.2.2
 * Adds fallback attempt when connection pool is unexpectedly closed
