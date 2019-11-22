@@ -39,6 +39,11 @@ component
 	Document function newDocument() provider="Document@cbElasticsearch"{}
 
 	/**
+	* Task provider
+	**/
+	Task function newTask() provider="Task@cbElasticsearch"{}
+
+	/**
 	* SearchBuilder provider
 	**/
 	SearchBuilder function newBuilder() provider="SearchBuilder@cbElasticsearch"{}
@@ -164,6 +169,10 @@ component
 				}
 			}
 		}
+
+		arguments.searchBuilder.getParams().each( function( param ){
+			jSearchBuilder.setParameter( param.name, param.value );
+		} );
 
 		var searchResult = execute( jSearchBuilder.build() );
 
@@ -351,26 +360,35 @@ component
     * @source      string   The source index name or struct of options
     * @destination string   The destination index name or struct of options
 	*
-	* @return      struct 	Struct result of the reindex action
+	* @return      any 	Struct result of the reindex action if waiting for completion or a Task object if dispatched asnyc
 	**/
-	struct function reindex(
+	any function reindex(
         required any source,
         required any destination,
-        boolean waitForCompletion = true
+		boolean waitForCompletion = true,
+		array params = []
     ) {
 		if( isMajorVersion( 7 ) && isStruct( arguments.source ) ){
 			structDelete( arguments.source, "type" );
 		}
 
-        return execute(
-            variables.jLoader.create( "io.searchbox.indices.reindex.Reindex$Builder" )
-                .init(
-                    generateIndexMap( arguments.source ),
-                    generateIndexMap( arguments.destination )
-                )
-                .waitForCompletion( arguments.waitForCompletion )
-                .build()
-        );
+		var reindexBuilder = variables.jLoader.create( "io.searchbox.indices.reindex.Reindex$Builder" )
+		.init(
+			generateIndexMap( arguments.source ),
+			generateIndexMap( arguments.destination )
+		)
+		.waitForCompletion( arguments.waitForCompletion );
+
+		arguments.params.each( function( param ){
+			reindexBuilder.setParameter( param.name, param.value );
+		} );
+
+		var reindexResult =  execute( reindexBuilder.build() );
+		if( arguments.waitForCompletion ){
+			return reindexResult;
+		} else {
+			return getTask( reindexResult.task );
+		}
     }
 
     private any function generateIndexMap( required any index ) {
@@ -648,6 +666,55 @@ component
 	}
 
 	/**
+	 * Retreives a task and its status 
+	 * 
+	 * @taskId          string                          The identifier of the task to retreive
+	 * @taskObj         Task                            The task object used for population - defaults to a new task
+	 * 
+	 * @interfaced
+	 */
+	any function getTask( required string taskId, Task taskObj=newTask() ){
+		var taskResult = execute(
+			variables.jLoader.create( "io.searchbox.cluster.TasksInformation$Builder" )
+								.init()
+								.task( arguments.taskId )
+								.build()
+		);
+
+		if( !structKeyExists( taskResult, "task" ) ){
+			return javacast( "null", 0 );
+		}
+
+		return taskObj.populate( taskResult );
+
+	}
+
+	/**
+	 * Retreives all tasks running on the cluster
+	 * 
+	 * @interfaced
+	 */
+	any function getTasks(){
+		
+		var taskObj = execute(
+			variables.jLoader.create( "io.searchbox.cluster.TasksInformation$Builder" )
+								.init()
+								.setParameter( "detailed", javacast( "boolean", true ) )
+								.build()
+		);
+		var tasks = [];
+		taskObj.nodes.keyArray().each( function( node ){
+			var nodeObj = taskObj.nodes[ node ];
+			nodeObj.tasks.keyArray().each( function( taskId ){
+				var taskProperties = nodeObj.tasks[ taskId ];
+				tasks.append( newTask().populate( taskProperties) );
+			} );
+		} );
+
+		return tasks;
+	}
+
+	/**
 	* @document 		Document@cbElasticSearch 		An instance of the elasticsearch Document object
 	*
 	* @return 			iNativeClient 					An implementation of the iNativeClient
@@ -696,8 +763,9 @@ component
 	/**
 	* Deletes items in the index by query
 	* @searchBuilder 		SearchBuilder 		The search builder object to use for the query
+	* @waitForCompletion    boolean             Whether to block the request until completion or return a task which can be checked
 	**/
-	boolean function deleteByQuery( required SearchBuilder searchBuilder ){
+	any function deleteByQuery( required SearchBuilder searchBuilder, boolean waitForCompletion = true ){
 
 		if( isNull( arguments.searchBuilder.getIndex() ) ){
 			throw(
@@ -726,10 +794,23 @@ component
 			}
 		}
 
-		var deletionResult = execute( deleteBuilder.build() );
+		arguments.searchBuilder.getParams().each( function( param ){
+			deleteBuilder.setParameter( param.name, param.value );
+			if( param.name == 'wait_for_completion' ){
+				arguments.waitForCompletion = param.value;
+			}
+		} );
 
+		if( !arguments.waitForCompletion ){
+			deleteBuilder.setParameter( "wait_for_completion", false );
+		}
 
-		return javacast( "boolean", structKeyExists( deletionResult, "deleted" ) ? deletionResult.deleted : 0 );
+		var deletionResult =  execute( deleteBuilder.build() );
+		if( arguments.waitForCompletion ){
+			return deletionResult;
+		} else {
+			return getTask( deletionResult.task );
+		}
 
 	}
 
@@ -737,8 +818,9 @@ component
 	* Updates items in the index by query
 	* @searchBuilder 		SearchBuilder 		The search builder object to use for the query
 	* @script 				struct 				script to process on the query
+	* @waitForCompletion    boolean             Whether to block the request until completion or return a task which can be checked
 	**/
-	boolean function updateByQuery( required SearchBuilder searchBuilder, required struct script ){
+	any function updateByQuery( required SearchBuilder searchBuilder, required struct script, boolean waitForCompletion = true ){
 
 		if( isNull( arguments.searchBuilder.getIndex() ) ){
 			throw(
@@ -768,9 +850,24 @@ component
 			}	
 		}
 
-		var updateResult = execute( updateBuilder.build() );
+		arguments.searchBuilder.getParams().each( function( param ){
+			updateBuilder.setParameter( param.name, param.value );
+			if( param.name == 'wait_for_completion' ){
+				arguments.waitForCompletion = param.value;
+			}
+		} );
 
-		return javacast( "boolean", structKeyExists( updateResult, "updated" ) ? updateResult.updated : 0 );
+		if( !arguments.waitForCompletion ){
+			updateBuilder.setParameter( "wait_for_completion", false );
+		}
+
+
+		var updateResult =  execute( updateBuilder.build() );
+		if( arguments.waitForCompletion ){
+			return updateResult;
+		} else {
+			return getTask( updateResult.task );
+		}
 
 	}
 

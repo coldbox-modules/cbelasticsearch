@@ -88,12 +88,13 @@ interface{
     * @source      any   The source index name or struct of options
     * @destination any   The destination index name or struct of options
 	*
-	* @return      struct 	Struct result of the reindex action
+	* @return      any 	Struct result of the reindex action if waiting for completion or a Task object if dispatched asnyc
 	**/
-	struct function reindex(
+	any function reindex(
         required any source,
         required any destination,
-        boolean waitForCompletion
+		boolean waitForCompletion,
+		array params = []
     );
 
 	/**
@@ -156,6 +157,20 @@ interface{
 	);
 
 	/**
+	 * Retreives a task and its status 
+	 * 
+	 * @taskId          string                          The identifier of the task to retreive
+	 * 
+	 * @interfaced
+	 */
+	any function getTask( required string taskId, Task taskObj );
+
+	/**
+	 * Retreives all tasks running on the cluster
+	 */
+	any function getTasks();
+
+	/**
 	* @document 		Document@cbElasticSearch 		An instance of the elasticsearch Document object
 	*
 	* @return 			iNativeClient 					An implementation of the iNativeClient
@@ -174,15 +189,17 @@ interface{
 	/**
 	* Deletes items in the index by query
 	* @searchBuilder 		SearchBuilder 		The search builder object to use for the query
+	* @waitForCompletion    boolean             Whether to block the request until completion or return a task which can be checked
 	**/
-	boolean function deleteByQuery( required SearchBuilder searchBuilder );
+	any function deleteByQuery( required SearchBuilder searchBuilder, boolean waitForCompletion = true );
 
 	/**
 	* Updates items in the index by query
 	* @searchBuilder 		SearchBuilder 		The search builder object to use for the query
 	* @script 				struct 				script to process on the query
+	* @waitForCompletion    boolean             Whether to block the request until completion or return a task which can be checked
 	**/
-	boolean function updateByQuery( required SearchBuilder searchBuilder, required struct script );
+	any function updateByQuery( required SearchBuilder searchBuilder, required struct script, boolean waitForCompletion = true );
 
 	/**
 	* Persists multiple items to the index

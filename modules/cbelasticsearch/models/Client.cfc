@@ -56,7 +56,6 @@ component
 	**/
 	public function getSearchBuilder() provider="SearchBuilder@cbElasticsearch"{}
 
-
 	/**
 	* Execute a client search request
 	* @searchBuilder 	SearchBuilder 	An instance of the SearchBuilder object
@@ -140,9 +139,9 @@ component
     * @source      string   The source index name or struct of options
     * @destination string   The destination index name or struct of options
     *
-    * @return      struct 	Struct result of the reindex action
+    * @return      any 	Struct result of the reindex action if waiting for completion or a Task object if dispatched asnyc
 	**/
-	struct function reindex(
+	any function reindex(
         required any source,
         required any destination,
         boolean waitForCompletion = true
@@ -257,6 +256,27 @@ component
 	}
 
 	/**
+	 * Retreives a task and its status 
+	 * 
+	 * @taskId          string                          The identifier of the task to retreive
+	 * @taskObj         Task                            The task object used for population - defaults to a new task
+	 * 
+	 * @interfaced
+	 */
+	any function getTask( required string taskId, Task taskObj ){
+		return variables.nativeClient.getTask( argumentCollection=arguments );
+	}
+
+	/**
+	 * Retreives all tasks running on the cluster
+	 * 
+	 * @interfaced
+	 */
+	any function getTasks(){
+		return variables.nativeClient.getTasks();
+	}
+
+	/**
 	* @document 		Document@cbElasticSearch 		An instance of the elasticsearch Document object
 	*
 	* @return 			Document@cbElasticsearch 		The saved document object
@@ -277,24 +297,23 @@ component
 	}
 
 	/**
-	* Delete documents from a query
-	*
-	* @searchBuilder 		SearchBuilder 		The assemble search builder to use for the query
-	*
+	* Deletes items in the index by query
+	* @searchBuilder 		SearchBuilder 		The search builder object to use for the query
+	* @waitForCompletion    boolean             Whether to block the request until completion or return a task which can be checked
 	**/
-	boolean function deleteByQuery( required SearchBuilder searchBuilder ){
+	any function deleteByQuery( required SearchBuilder searchBuilder, boolean waitForCompletion = true ){
 
 		return variables.nativeClient.deleteByQuery( argumentCollection=arguments );
 
 	}
 
 	/**
-	* updates documents from a query
-	*
-	* @searchBuilder 		SearchBuilder 		The assemble search builder to use for the query
+	* Updates items in the index by query
+	* @searchBuilder 		SearchBuilder 		The search builder object to use for the query
 	* @script 				struct 				script to process on the query
+	* @waitForCompletion    boolean             Whether to block the request until completion or return a task which can be checked
 	**/
-	boolean function updateByQuery( required SearchBuilder searchBuilder, required struct script  ){
+	any function updateByQuery( required SearchBuilder searchBuilder, required struct script, boolean waitForCompletion = true ){
 
 		return variables.nativeClient.updateByQuery( argumentCollection=arguments );
 
