@@ -436,13 +436,14 @@ component
 		} else {
 			// var scoping this outside of the reduce method seems to prevent missing data on ACF, post-reduction
 			var indexMap = {};
-			statsResult.indices.keyArray().reduce( function( obj, key ){
-				obj[ key ] = {
+			// using an each loop as keys seem to be skipped on ACF 
+			statsResult.indices.keyArray().each( function( key ){
+				indexMap[ key ] = {
 					"uuid" : statsResult.indices[ key ][ "uuid" ],
 					"size_in_bytes": statsResult.indices[ key ][ "total" ][ "store" ][ "size_in_bytes" ],
 					"docs": statsResult.indices[ key ][ "total" ][ "docs" ][ "count" ]
 				};
-			}, indexMap );
+			} );
 			return indexMap;
 		}
 	}
@@ -462,8 +463,9 @@ component
 			"unassigned" : []
 		};
 		
-		aliasesResult.keyArray().reduce( 
-			function( aliasesMap, indexName ){ 
+		// using an each loop since reduce seems to cause an empty "unassigned" array to disappear on Lucee 5 and keys to come up missing on ACF
+		aliasesResult.keyArray().each( 
+			function( indexName ){ 
 				if( structKeyExists( aliasesResult[ indexName], "aliases" ) && !structIsEmpty( aliasesResult[ indexName].aliases ) ){
 					// we need to scope this for the ACF compiler
 					var indexObj = aliasesResult[ indexName];
@@ -473,8 +475,7 @@ component
 				} else {
 					aliasesMap.unassigned.append( indexName );
 				}
-			},
-			aliasesMap
+			}
 		);
 
 		return aliasesMap;
