@@ -8,3 +8,4 @@ include:
   - readme.md
   - changelog.md
   - license.md
+theme: jekyll-theme-minimal
