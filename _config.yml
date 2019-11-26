@@ -1,0 +1,10 @@
+# Github pages configuration
+plugins:
+  - jekyll-relative-links
+relative_links:
+  enabled: true
+  collections: true
+include:
+  - readme.md
+  - changelog.md
+  - license.md
