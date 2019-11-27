@@ -1,0 +1,9 @@
+{
+    "title" : "cbElasticsearch",
+    "description" : "Elasticsearch Integration for the Coldbox Platform",
+    "language" : "en",
+    "root" : "docs",
+    "structure": {
+        "readme": "Introduction.md"
+    }
+}

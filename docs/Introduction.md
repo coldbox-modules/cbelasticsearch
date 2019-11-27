@@ -36,13 +36,6 @@ _Note:  Most of the REST-based methods will work on Elasticsearch versions older
 _Note:  Elasticsearch 7.0+ is not currently supported due to the bundled [Jest client](https://github.com/searchbox-io/Jest/issues/644), specifically because of changes to [type handling in Elasticsearch 7.0](https://github.com/searchbox-io/Jest/issues/641)._
 
 
-Documentation
-=============
-
-Read the full documentation for the module and its capabilites at (cbelasticsearch.ortusbooks.com)[https://cbelasticsearch.ortusbooks.com]
-
-
-
 ********************************************************************************
 Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
 www.coldbox.org | www.luismajano.com | www.ortussolutions.com

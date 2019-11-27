@@ -14,6 +14,10 @@ coldbox/*
 testbox/*
 modules/cbjavaloader
 
+# Gitbook artifacts
+_book/*
+
+
 # Build artifacts
 artifacts/*
 apidocs/docbox/*
