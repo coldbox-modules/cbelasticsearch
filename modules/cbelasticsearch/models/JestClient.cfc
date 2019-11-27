@@ -1137,8 +1137,8 @@ component
 			return arguments.params;
 		} else if( isSimpleValue( arguments.params ) ){
 			return listToArray( urlDecode( arguments.params ), "&" ).map( function( paramString ){
-				var paramName = listFirst( param, "=" );
-				var paramValue = listLast( param, "=" );
+				var paramName = listFirst( paramString, "=" );
+				var paramValue = listLast( paramString, "=" );
 				return {
 					"name" : paramName,
 					// the conditional allows us to accept a param like `&wait_for_completion`
@@ -1147,7 +1147,7 @@ component
 			} );
 		} else {
 			return arguments.params.keyArray().map( function( key ){
-				return { "name" : key, "value" : arguments.params[ key ] };
+				return { "name" : key, "value" : params[ key ] };
 			} );
 		}
 	}
