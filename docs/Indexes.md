@@ -249,3 +249,45 @@ builder.create( function( mapping ) {
 
 The first approach is great for partials that are reused in the same index.
 The second two approaches work better for partials that are reused across indexes.
+
+#### Reindexing
+
+On occassion, due to a mapping or settings change, you will need to reindex data
+from one index to another.  You can do this by calling the `reindex` method
+on the `Client`.
+
+```
+getInstance( "Client@cbElasticsearch" )
+    .reindex( "oldIndex", "newIndex" );
+```
+
+If you want the work to be done asynchronusly, you can pass `false` to the
+`waitForCompletion` flag.  When this flag is set to false the method will return a [`Task` instance](Tasks.md), which can be used to follow up on the completion status of the reindex process.
+
+```
+getInstance( "Client@cbElasticsearch" )
+    .reindex(
+        source = "oldIndex",
+        destination = "newIndex"
+        waitForCompletion = false
+    );
+```
+
+If you have more settings or constriants for the reindex action, you can pass
+a struct containing valid options to `source` and `destination`.
+
+```
+getInstance( "Client@cbElasticsearch" )
+    .reindex(
+        source = {
+            "index": "oldIndex",
+            "type": "testdocs",
+            "query": {
+                "term": {
+                    "active": true
+                }
+            }
+        },
+        destination = "newIndex"
+    );
+```
