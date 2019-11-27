@@ -120,6 +120,31 @@ for( var myStruct in myArray ){
 getInstance( "Client@cbElasticsearch" ).saveAll( documents );
 ```
 
+
+### Update by Query
+
+For advanced updates to documents in the index, the `updateByQuery` method can provide a powerful way to make bulk transformations on documents in your index.  The `updateByQuery` method requires the passing of a "script" argument, which is a struct containing two strings - the language and the script. Elasticsearch [supports a number of languages](https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-scripting.html) however, most of the time, the "painless" language is the easiest choice.
+
+Let's say, for example, that you need to add a new key, with a default value, to every document in your index where the key does not already exist:
+
+```
+var searchBuilder = getInstance( "SearchBuilder@cbElasticsearch" )
+                        .mustNotExist( "isInPrint" );
+getInstance( "Client@cbElasticsearch" )
+            .updateByQuery(
+                searchBuilder,
+                {
+                    "script" : "ctx._source.isInPrint = true",
+                    "lang" : "painless"
+                }
+            );
+```
+
+In the above case, we queried for a lack of existence on the `isInPrint` key and created all documents which matched to use a default value of `false`.
+
+Note the variable `ctx._source` used in the script, which is a reference to the document being iterated in the update loop.  More information on crafting complex, scripted, query-based updates can be found in [the official elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-update-by-query.html).
+
+
 #### Deleting a Document
 
 Deleting documents is similar to the process of saving.  The `Document` object may be used to delete a single item.
@@ -151,44 +176,27 @@ getInstance( "SearchBuilder@cbElasticsearch" )
     .deleteAll();
 ```
 
-#### Reindexing
+### Parameters
 
-On occassion, due to a mapping or settings change, you will need to reindex data
-from one index to another.  You can do this by calling the `reindex` method
-on the `Client`.
+The search builder also supports the addition of URL parameters, which may be used to transform or modify the behavior of bulk document actions.  Comprehensive lists of these parameters may be found at the official Elasticsearch docs:
 
-```
-getInstance( "Client@cbElasticsearch" )
-    .reindex( "oldIndex", "newIndex" );
-```
+* [Update by Query](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-update-by-query.html#_url_parameters)
+* [Delete by Query](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html)
 
-If you want the work to be done asynchronusly, you can pass `false` to the
-`waitForCompletion` flag.
+Of note are the throttling parameters, which are usefull in dealing with large documents and/or indices.  By default elasticsearch processes batch operations in groups of 1000 documents.  Depending on the size of your documents and the collection, it may be preferable to throttle the batch to a smaller number of documents per batch:
 
 ```
-getInstance( "Client@cbElasticsearch" )
-    .reindex(
-        source = "oldIndex",
-        destination = "newIndex"
-        waitForCompletion = false
-    );
+getInstance( "SearchBuilder@cbElasticsearch" )
+    .new( index="bookshop", type="books" )
+    .match( "name", "Elasticsearch for Coldbox" )
+    .param( "scroll_size", 100 )
+    .deleteAll();
 ```
 
-If you have more settings or constriants for the reindex action, you can pass
-a struct containing valid options to `source` and `destination`.
+or
 
-```
-getInstance( "Client@cbElasticsearch" )
-    .reindex(
-        source = {
-            "index": "oldIndex",
-            "type": "testdocs",
-            "query": {
-                "term": {
-                    "active": true
-                }
-            }
-        },
-        destination = "newIndex"
-    );
-```
+
+
+#### Asynchronous Bulk Operations
+
+Both the `updateByQuery` and `deleteByQuery` methods support a `waitForCompletion` argument. By default, this is set to `true`.  When passed as false, however, the method will return a [`Task` instance](Tasks.md), which can be used to follow up on the completion status of the action process. _Note: You may also provide this argument in the SearchBuilder Params ( see "Parameters" above ): `searchBuilder.param( 'wait_for_completion', false )`, in lieu of providing the argument to the action.  The end result is the same._
