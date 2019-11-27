@@ -15,18 +15,12 @@ var reindexTask = getInstance( "Client@cbElasticsearch" )
                             source = oldIndex,
                             destination = newIndex,
                             waitForCompletion = false,
-                            params = [
+                            params = {
                                 // throttle our reindexing tasks to ensure we don't kill the ES server on a big index - https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-reindex.html#docs-reindex-throttle
-                                {
-                                    "name" : "requests_per_second", 
-                                    "value" : 50
-                                },
+                                "requests_per_second" : 50,
                                 // slice the reindex to concurrent 5 batches at a time - https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-reindex.html#docs-reindex-automatic-slice
-                                {
-                                    "name" : "slices", 
-                                    "value" : 5
-                                }
-                            ]
+                                "slices" : 5
+                            }
                         );
 
 while( !reindexTask.isComplete() ){
