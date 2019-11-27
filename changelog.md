@@ -8,9 +8,10 @@ CHANGELOG
 * implements a `getTask` method in the client to retreive tasks by identifier ( e.g. - `[node]:[id]` ). 
 * implements a `getIndices` method in the client to retreive a map of indices with stats
 * implements a `getAliases` method in the client to retreive a map of aliases
+* Resolves Issue #12 - slf4j missing on non-Runwar installations
 
 # 1.2.2
-* Adds fallback attempt when connection pool is unexpectedly closed
+* Adds fallback attempt when connection pool is unexpectedly closed upstream
 
 # 1.2.1
 * Adds a soft fail to the version target check when a connection to the ES start page cannot be established
