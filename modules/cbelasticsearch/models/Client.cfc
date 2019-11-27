@@ -137,14 +137,18 @@ component
     * Applies a reindex action
     *
     * @source      string   The source index name or struct of options
-    * @destination string   The destination index name or struct of options
-    *
-    * @return      any 	Struct result of the reindex action if waiting for completion or a Task object if dispatched asnyc
+	* @destination string   The destination index name or struct of options
+	* @waitForCompletion boolean whether to return the result or an asynchronous task
+	* @params any   Additional url params to add to the reindex action. 
+	*               Supports multiple formats : `requests_per_second=50&slices=5`, `{ "requests_per_second" : 50, "slices" : 5 }`, or `[ { "name" : "requests_per_second", "value" : 50 } ]` )
+	*
+	* @return      any 	Struct result of the reindex action if waiting for completion or a Task object if dispatched asnyc
 	**/
 	any function reindex(
         required any source,
         required any destination,
-        boolean waitForCompletion = true
+		boolean waitForCompletion = true,
+		any params
     ) {
 		return variables.nativeClient.reindex( argumentCollection = arguments );
 	}
@@ -361,6 +365,17 @@ component
 
 		return variables.nativeClient.deleteAll( documents );
 
+	}
+
+
+	/**
+	 * Parses a parameter argument.
+	 * upports multiple formats : `requests_per_second=50&slices=5`, `{ "requests_per_second" : 50, "slices" : 5 }`, or `[ { "name" : "requests_per_second", "value" : 50 } ]` )
+	 * 
+	 * @params any the parameters to filter and transform
+	 */
+	array function parseParams( required any params ){
+		return variables.nativeClient.parseParams( argumentCollection=arguments );
 	}
 
 

@@ -83,19 +83,21 @@ interface{
 
     /**
     * Applies a reindex action
-    * @interfaced
     *
-    * @source      any   The source index name or struct of options
-    * @destination any   The destination index name or struct of options
+    * @source      string   The source index name or struct of options
+	* @destination string   The destination index name or struct of options
+	* @waitForCompletion boolean whether to return the result or an asynchronous task
+	* @params any   Additional url params to add to the reindex action. 
+	*               Supports multiple formats : `requests_per_second=50&slices=5`, `{ "requests_per_second" : 50, "slices" : 5 }`, or `[ { "name" : "requests_per_second", "value" : 50 } ]` )
 	*
 	* @return      any 	Struct result of the reindex action if waiting for completion or a Task object if dispatched asnyc
 	**/
 	any function reindex(
         required any source,
         required any destination,
-		boolean waitForCompletion,
-		array params = []
-	);
+		boolean waitForCompletion = true,
+		any params
+    );
 	
 	/**
 	 * Returns a struct containing all indices in the system, with statistics
@@ -234,6 +236,14 @@ interface{
 		required array documents,
 		boolean throwOnError=false
 	);
+
+	/**
+	 * Parses a parameter argument.
+	 * upports multiple formats : `requests_per_second=50&slices=5`, `{ "requests_per_second" : 50, "slices" : 5 }`, or `[ { "name" : "requests_per_second", "value" : 50 } ]` )
+	 * 
+	 * @params any the parameters to filter and transform
+	 */
+	array function parseParams( required any params );
 
 
 }

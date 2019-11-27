@@ -200,6 +200,27 @@ component extends="coldbox.system.testing.BaseTestCase"{
 			});
 
 			describe( "reindex", function() {
+				it( "tests the parseParams method", function(){
+					it( "can accept an query string", function(){
+						var parsed = variables.model.parseParams( "wait_for_completion=true&scroll_size=10" );
+						expect( parsed ).toBeArray();
+						expect( parsed.len() ).toBe( 2 );
+						expect( parsed[ 1 ] ).toBeStruct().toHaveKey( "name" ).toHaveKey( "value" );
+					} );
+					it( "can accept a struct", function(){
+						var parsed = variables.model.parseParams( { "wait_for_completion" : false, "scroll_size" : 10 } );
+						expect( parsed ).toBeArray();
+						expect( parsed.len() ).toBe( 2 );
+						expect( parsed[ 1 ] ).toBeStruct().toHaveKey( "name" ).toHaveKey( "value" );
+					} );
+					it( "can accept a preformatted array", function(){
+						var parsed = variables.model.parseParams( [{ "name" : "wait_for_completion", "value" : false }, { "name" : "scroll_size", "value" : 10 } ] );
+						expect( parsed ).toBeArray();
+						expect( parsed.len() ).toBe( 2 );
+						expect( parsed[ 1 ] ).toBeStruct().toHaveKey( "name" ).toHaveKey( "value" );
+					} );
+				});
+
 				it( "can reindex from one index to another", function() {
 					getWireBox().getInstance( "IndexBuilder@cbElasticSearch" )
 						.new( variables.testIndexNameTwo )

@@ -170,7 +170,7 @@ component
 			}
 		}
 
-		arguments.searchBuilder.getParams().each( function( param ){
+		parseParams( arguments.searchBuilder.getParams() ).each( function( param ){
 			jSearchBuilder.setParameter( param.name, param.value );
 		} );
 
@@ -358,7 +358,10 @@ component
     * @interfaced
     *
     * @source      string   The source index name or struct of options
-    * @destination string   The destination index name or struct of options
+	* @destination string   The destination index name or struct of options
+	* @waitForCompletion boolean whether to return the result or an asynchronous task
+	* @params any   Additional url params to add to the reindex action. 
+	*               Supports multiple formats : `requests_per_second=50&slices=5`, `{ "requests_per_second" : 50, "slices" : 5 }`, or `[ { "name" : "requests_per_second", "value" : 50 } ]` )
 	*
 	* @return      any 	Struct result of the reindex action if waiting for completion or a Task object if dispatched asnyc
 	**/
@@ -366,7 +369,7 @@ component
         required any source,
         required any destination,
 		boolean waitForCompletion = true,
-		array params = []
+		any params
     ) {
 		if( isMajorVersion( 7 ) && isStruct( arguments.source ) ){
 			structDelete( arguments.source, "type" );
@@ -379,9 +382,11 @@ component
 		)
 		.waitForCompletion( arguments.waitForCompletion );
 
-		arguments.params.each( function( param ){
-			reindexBuilder.setParameter( param.name, param.value );
-		} );
+		if( structKeyExists( arguments, "params" ) ){
+			parseParams( arguments.params ).each( function( param ){
+				reindexBuilder.setParameter( param.name, param.value );
+			} );
+		}
 
 		var reindexResult =  execute( reindexBuilder.build() );
 		if( arguments.waitForCompletion ){
@@ -869,7 +874,7 @@ component
 			}
 		}
 
-		arguments.searchBuilder.getParams().each( function( param ){
+		parseParams( arguments.searchBuilder.getParams() ).each( function( param ){
 			deleteBuilder.setParameter( param.name, param.value );
 			if( param.name == 'wait_for_completion' ){
 				arguments.waitForCompletion = param.value;
@@ -925,7 +930,7 @@ component
 			}	
 		}
 
-		arguments.searchBuilder.getParams().each( function( param ){
+		parseParams( arguments.searchBuilder.getParams() ).each( function( param ){
 			updateBuilder.setParameter( param.name, param.value );
 			if( param.name == 'wait_for_completion' ){
 				arguments.waitForCompletion = param.value;
@@ -1118,6 +1123,33 @@ component
 			return deserializeJSON( JESTResult.getJSONString() );
 		}
 
+	}
+
+	/**
+	 * Parses a parameter argument.
+	 * upports multiple formats : `requests_per_second=50&slices=5`, `{ "requests_per_second" : 50, "slices" : 5 }`, or `[ { "name" : "requests_per_second", "value" : 50 } ]` )
+	 * 
+	 * @params any the parameters to filter and transform
+	 */
+	array function parseParams( required any params ){
+		if( isArray( arguments.params ) ){
+			// assume this is the return format - [ { "name" : name, "value", "value" } ]
+			return arguments.params;
+		} else if( isSimpleValue( arguments.params ) ){
+			return listToArray( urlDecode( arguments.params ), "&" ).map( function( paramString ){
+				var paramName = listFirst( param, "=" );
+				var paramValue = listLast( param, "=" );
+				return {
+					"name" : paramName,
+					// the conditional allows us to accept a param like `&wait_for_completion`
+					"value" : paramValue != paramName ? paramValue : true;
+				}
+			} );
+		} else {
+			return arguments.params.keyArray().map( function( key ){
+				return { "name" : key, "value" : arguments.params[ key ] };
+			} )
+		}
 	}
 
 	/**
