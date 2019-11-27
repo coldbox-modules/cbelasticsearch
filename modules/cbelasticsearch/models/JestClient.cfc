@@ -1142,13 +1142,13 @@ component
 				return {
 					"name" : paramName,
 					// the conditional allows us to accept a param like `&wait_for_completion`
-					"value" : paramValue != paramName ? paramValue : true;
-				}
+					"value" : ( paramValue != paramName ) ? paramValue : true
+				};
 			} );
 		} else {
 			return arguments.params.keyArray().map( function( key ){
 				return { "name" : key, "value" : arguments.params[ key ] };
-			} )
+			} );
 		}
 	}
 
