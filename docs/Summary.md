@@ -6,3 +6,4 @@
 * [Documents](Documents.md)
 * [Searching](Search.md)
 * [Contributing](Contributing.md)
+* [Tasks](Tasks.md)
