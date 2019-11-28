@@ -2,7 +2,7 @@
     "title" : "cbElasticsearch",
     "description" : "Elasticsearch Integration for the Coldbox Platform",
     "language" : "en",
-    "root" : "docs",
+    "root" : "modules/cbelasticsearch/docs",
     "structure": {
         "readme": "Introduction.md"
     }
