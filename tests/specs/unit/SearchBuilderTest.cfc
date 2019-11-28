@@ -553,8 +553,9 @@ component extends="coldbox.system.testing.BaseTestCase"{
 						"match_all":{}
 					}
 			 	);
-
-			 	expect( searchBuilder.deleteAll() ).toBeBoolean();
+					
+				expect( searchBuilder.deleteAll() ).toBeStruct()
+				 						 .toHaveKey( "deleted" );
 
             });
 

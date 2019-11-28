@@ -90,16 +90,24 @@ component{
     function onLoad(){
 
         // load DB jars
-        wirebox.getInstance( "loader@cbjavaloader" ).appendPaths( variables.modulePath & "/lib");
+        var jLoader = wirebox.getInstance( "Loader@cbjavaloader" );
+        jLoader.appendPaths( variables.modulePath & "/lib/java" );
+
+        try{
+            //test for slf4j installation - if isn't available in the engine, add the optional directory to the paths to provide it
+            createObject( "java", "org.slf4j.helpers.Util" );
+        } catch( any e ){
+            jLoader.appendPaths( variables.modulePath & "/lib/optional" );
+        }
 
         /**
         * Main Configuration Object Singleton
         **/
 
-        binder.map("Config@cbElasticsearch")
-            .to( '#moduleMapping#.models.Config' )
-            .threadSafe()
-            .asSingleton();
+        binder.map( "Config@cbElasticsearch" )
+                        .to( '#moduleMapping#.models.Config' )
+                        .threadSafe()
+                        .asSingleton();
 
     }
 

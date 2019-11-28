@@ -52,6 +52,11 @@ component accessors="true" {
     property name="matchType";
 
     /**
+     * URL parameters which will be passed to transform the execution output
+     */
+    property name="params";
+
+    /**
     * Whether to preflight the query prior to execution( recommended ) - ensures consistent formatting to prevent errors
     **/
     property name="preflight"
@@ -86,6 +91,7 @@ component accessors="true" {
         };
 
         variables.highlight = {};
+        variables.params = [];
 
         variables.maxRows 		= 25;
         variables.startRow		= 0;
@@ -314,11 +320,13 @@ component accessors="true" {
         param variables.query.bool.filter = {};
         param variables.query.bool.filter.bool = {};
         param variables.query.bool.filter.bool.must = [];
-        arrayAppend( variables.query.bool.filter.bool.must, {
-            "term": {
-                "#name#": value
+        variables.query.bool.filter.bool.must.append(
+            {
+                "term": {
+                    "#name#": value
+                }
             }
-        });
+        );
     }
 
     function filterTerms(
@@ -335,11 +343,15 @@ component accessors="true" {
         param variables.query.bool.filter = {};
         param variables.query.bool.filter.bool = {};
         param variables.query.bool.filter.bool.must = [];
-        arrayAppend( variables.query.bool.filter.bool.must, {
-            "terms": {
-                "#name#": value
+
+        variables.query.bool.filter.bool.must.append(
+            {
+                "terms": {
+                    "#name#": value
+                }
             }
-        });
+        );
+
     }
 
     /**
@@ -409,10 +421,7 @@ component accessors="true" {
             variables.query.bool[ "must" ] = [];
         }
 
-        arrayAppend( 
-            variables.query.bool.must,
-            { "exists" : { "field" : arguments.name } }
-        );
+        variables.query.bool.must.append( { "exists" : { "field" : arguments.name } } );
 
         return this;
 
@@ -435,10 +444,7 @@ component accessors="true" {
             variables.query.bool[ "must_not" ] = [];
         }
 
-        arrayAppend( 
-            variables.query.bool.must_not,
-            { "exists" : { "field" : arguments.name } }
-        );
+        variables.query.bool.must_not.append( { "exists" : { "field" : arguments.name } } );
 
         return this;
 
@@ -595,6 +601,7 @@ component accessors="true" {
                     if( !structKeyExists( variables.query.bool, arguments.matchType ) ){
                         variables.query.bool[ arguments.matchType ] = [];
                     }
+                    // we can't use member functions or the ACF2016 compiler blows up
                     arrayAppend(
                         variables.query.bool[ arguments.matchType ],
                         {
@@ -622,8 +629,7 @@ component accessors="true" {
 
                     if( !isNull( arguments.boost ) ) matchCriteria[ "boost" ] = arguments.boost;
 
-                    arrayAppend(
-                        variables.query.bool.must,
+                    variables.query.bool.must.append(
                         {
                             "#arguments.matchType#" : matchCriteria
                         }
@@ -638,9 +644,7 @@ component accessors="true" {
                     if( !structKeyExists( variables.query.bool, "must" ) ){
                         variables.query.bool[ "must" ] = [];
                     }
-
-                    arrayAppend(
-                        variables.query.bool.must,
+                    variables.query.bool.must.append(
                         {
                             "#arguments.matchType#" : {
                                 "#arguments.name#" : arguments.value
@@ -659,6 +663,7 @@ component accessors="true" {
                         variables.query.bool[ arguments.matchType ] = [];
                     }
 
+                    // We can't use member functions here or the ACF 2016 compiler blows up
                     arrayAppend(
                         variables.query.bool[ arguments.matchType ], {
                             "match" : {
@@ -677,13 +682,12 @@ component accessors="true" {
                         variables.query.bool[ "must" ] = [];
                     }
 
-                    arrayAppend(
-                        variables.query.bool.must, {
+                    variables.query.bool.must.append(
+                        {
                             "terms" : {
                                 "#arguments.name#" : arguments.value
                             }
                         }
-
                     );
 
                     break;
@@ -747,6 +751,27 @@ component accessors="true" {
     }
 
     /**
+     * Adds a URL parameter to the request ( transformation, throttling, etc. )
+     * Example https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-update-by-query.html#_url_parameters
+     * 
+     * @name  the name of the URL param
+     * @value  the value of the param
+     */
+    SearchBuilder function param( required string name, required any value ){
+        if( !isSimpleValue( arguments.value ) ){
+            throw(
+                type    = "cbElasticsearch.SearchBuilder.InvalidParamTypeException",
+                message = "The URL parameter of #arguments.name# was not valid.  URL parameters may only be simple values"
+            );
+        }
+
+        variables.params.append( arguments );
+
+        return this;
+
+    }
+
+    /**
     * Adds highlighting to search
     *
     * https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-request-highlighting.html
@@ -793,9 +818,7 @@ component accessors="true" {
 
         // represents the actual sort array passed to the client
         if( isArray( arguments.sort ) ){
-
-            arrayAppend( variables.sorting, arguments.sort, true );
-
+            variables.sorting.append( arguments.sort, true );
         // a friendly `[fieldName] [ORDER]` like we would use with SQL ( e.g. `name ASC` )
         } else if( isSimpleValue( arguments.sort ) && isNull( arguments.sortConfig ) ) {
 
@@ -803,9 +826,7 @@ component accessors="true" {
 
             for( var sortDirective in sortDirectives ){
                 var directiveItems = listToArray( sortDirective, " " );
-
-                arrayAppend(
-                    variables.sorting,
+                variables.sorting.append( 
                     {
                         "#directiveItems[ 1 ]#" : { "order" : arrayLen( directiveItems ) > 1 ? lcase( directiveItems[ 2 ] ) : "asc" }
                     }
@@ -817,22 +838,21 @@ component accessors="true" {
         } else if( isSimpleValue( arguments.sort ) && !isNull( arguments.sortConfig ) ) {
 
             // Our sort config argument can be a complex struct or a simple value
-            arrayAppend( variables.sorting, {
-                arguments.sort : isStruct( arguments.sortConfig ) ? arguments.sortConfig : { "order" : arguments.sortConfig }
-            } );
+            variables.sorting.append(
+                {
+                    arguments.sort : isStruct( arguments.sortConfig ) ? arguments.sortConfig : { "order" : arguments.sortConfig }
+                }
+            );
 
         // Structural representation, which will be treated as individual items in the sort array
         } else if( isStruct( arguments.sort ) ){
 
             for( var sortKey in arguments.sort ){
-
-                arrayAppend(
-                    variables.sorting,
+                variables.sorting.append(
                     {
                         "#sortKey#" : { "order"	: arguments.sort[ sortKey ] }
                     }
                 );
-
             }
 
         // Throw hard if we have no idea how to handle the provided search configuration
@@ -871,8 +891,7 @@ component accessors="true" {
             }
 
             for( var key in searchQuery.term ){
-                arrayAppend(
-                    searchQuery.bool.must,
+                searchQuery.bool.must.append(
                     {
                         "term" : { "#key#" : searchQuery.term[ key ] }
                     }
@@ -891,8 +910,7 @@ component accessors="true" {
             }
 
             for( var key in searchQuery.match ){
-                arrayAppend(
-                    searchQuery.bool.should,
+                searchQuery.bool.should.append(
                     {
                         "match" : {
                           "#key#": searchQuery.match[ key ]
@@ -917,17 +935,13 @@ component accessors="true" {
                 }
 
                 for( var termKey in searchQuery.bool.filter.terms ){
-
-                    arrayAppend(
-                        searchQuery.bool.must,
+                    searchQuery.bool.must.append(
                         {
                             "terms" : {
                                 "#termKey#" : searchQuery.bool.filter.terms[ termKey ]
                             }
                         }
-
                     );
-
                 }
 
                 structDelete( searchQuery.bool.filter, "terms" );

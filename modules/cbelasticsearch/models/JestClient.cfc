@@ -29,6 +29,11 @@ component
 	property name="versionTarget";
 
 	/**
+	 * Instance configuration object
+	 */
+	property name="instanceConfig";
+
+	/**
 	* Config provider
 	**/
 	Config function getConfig() provider="Config@cbElasticsearch"{}
@@ -37,6 +42,11 @@ component
 	* Document provider
 	**/
 	Document function newDocument() provider="Document@cbElasticsearch"{}
+
+	/**
+	* Task provider
+	**/
+	Task function newTask() provider="Task@cbElasticsearch"{}
 
 	/**
 	* SearchBuilder provider
@@ -48,6 +58,12 @@ component
 	**/
 	SearchResult function newResult() provider="SearchResult@cbElasticsearch"{}
 
+	function init( Config configuration ){
+		if( structKeyExists( arguments, "configuration" ) ){
+			variables.instanceConfig = arguments.configuration;
+		}
+	}
+
 	/**
 	* Configure instance once DI is complete
 	**/
@@ -57,10 +73,15 @@ component
 
 	}
 
-	void function configure(){
+	void function configure( Config configuration ){
 
 		lock type="exclusive" name="JestClientConfigurationLock" timeout="10"{
-			var configSettings = getConfig().getConfigStruct();
+			
+			if( isNull( getInstanceConfig() ) ){
+				variables.instanceConfig =  getConfig();
+			}
+
+			var configSettings = variables.instanceConfig.getConfigStruct();
 
 			var hostConnections = jLoader.create( "java.util.ArrayList" ).init();
 	
@@ -164,6 +185,10 @@ component
 				}
 			}
 		}
+
+		parseParams( arguments.searchBuilder.getParams() ).each( function( param ){
+			jSearchBuilder.setParameter( param.name, param.value );
+		} );
 
 		var searchResult = execute( jSearchBuilder.build() );
 
@@ -349,28 +374,42 @@ component
     * @interfaced
     *
     * @source      string   The source index name or struct of options
-    * @destination string   The destination index name or struct of options
+	* @destination string   The destination index name or struct of options
+	* @waitForCompletion boolean whether to return the result or an asynchronous task
+	* @params any   Additional url params to add to the reindex action. 
+	*               Supports multiple formats : `requests_per_second=50&slices=5`, `{ "requests_per_second" : 50, "slices" : 5 }`, or `[ { "name" : "requests_per_second", "value" : 50 } ]` )
 	*
-	* @return      struct 	Struct result of the reindex action
+	* @return      any 	Struct result of the reindex action if waiting for completion or a Task object if dispatched asnyc
 	**/
-	struct function reindex(
+	any function reindex(
         required any source,
         required any destination,
-        boolean waitForCompletion = true
+		boolean waitForCompletion = true,
+		any params
     ) {
 		if( isMajorVersion( 7 ) && isStruct( arguments.source ) ){
 			structDelete( arguments.source, "type" );
 		}
 
-        return execute(
-            variables.jLoader.create( "io.searchbox.indices.reindex.Reindex$Builder" )
-                .init(
-                    generateIndexMap( arguments.source ),
-                    generateIndexMap( arguments.destination )
-                )
-                .waitForCompletion( arguments.waitForCompletion )
-                .build()
-        );
+		var reindexBuilder = variables.jLoader.create( "io.searchbox.indices.reindex.Reindex$Builder" )
+		.init(
+			generateIndexMap( arguments.source ),
+			generateIndexMap( arguments.destination )
+		)
+		.waitForCompletion( arguments.waitForCompletion );
+
+		if( structKeyExists( arguments, "params" ) ){
+			parseParams( arguments.params ).each( function( param ){
+				reindexBuilder.setParameter( param.name, param.value );
+			} );
+		}
+
+		var reindexResult =  execute( reindexBuilder.build() );
+		if( arguments.waitForCompletion ){
+			return reindexResult;
+		} else {
+			return getTask( reindexResult.task );
+		}
     }
 
     private any function generateIndexMap( required any index ) {
@@ -391,7 +430,78 @@ component
             indexMap.put( key, value );
             return indexMap;
         }, createObject( "java", "java.util.HashMap" ).init() );
-    }
+	}
+
+	/**
+	 * Returns a struct containing all indices in the system, with statistics
+	 * 
+	 * @verbose 	boolean 	whether to return the full stats output for the index
+	 */
+	struct function getIndices( verbose = false ){
+		// we can access all of our indices from the status
+		var statsBuilder = variables.jLoader.create( "io.searchbox.indices.Stats$Builder" );
+		statsBuilder.refresh( javacast("boolean", true ) )
+					.store( javacast( "boolean", true ) )
+					.docs( javacast( "boolean", true ) );
+
+		if( arguments.verbose ){
+
+			statsBuilder.fielddata( javacast( 'boolean', true ) )
+						.indexing( javacast( "boolean", true ) );
+		}
+
+		var statsResult = execute( statsBuilder.build() );
+
+		if( arguments.verbose ){
+			return statsResult.indices;
+		} else {
+			// var scoping this outside of the reduce method seems to prevent missing data on ACF, post-reduction
+			var indexMap = {};
+			// using an each loop as keys seem to be skipped on ACF 
+			statsResult.indices.keyArray().each( function( key ){
+				indexMap[ key ] = {
+					"uuid" : statsResult.indices[ key ][ "uuid" ],
+					"size_in_bytes": statsResult.indices[ key ][ "total" ][ "store" ][ "size_in_bytes" ],
+					"docs": statsResult.indices[ key ][ "total" ][ "docs" ][ "count" ]
+				};
+			} );
+			return indexMap;
+		}
+	}
+	
+	/**
+	 * Returns a struct containing the mappings of all aliases in the cluster
+	 *
+	 * @aliases 
+	 */
+	struct function getAliases(){
+		var getBuilder = variables.jLoader.create( "io.searchbox.indices.aliases.GetAliases$Builder" );
+		var aliasesResult = execute( getBuilder.build() );
+
+		// var scoping this outside of the reduce method seems to prevent missing data on ACF, post-reduction
+		var aliasesMap = {
+			"aliases" : {},
+			"unassigned" : []
+		};
+		
+		// using an each loop since reduce seems to cause an empty "unassigned" array to disappear on Lucee 5 and keys to come up missing on ACF
+		aliasesResult.keyArray().each( 
+			function( indexName ){ 
+				if( structKeyExists( aliasesResult[ indexName], "aliases" ) && !structIsEmpty( aliasesResult[ indexName].aliases ) ){
+					// we need to scope this for the ACF compiler
+					var indexObj = aliasesResult[ indexName];
+					indexObj.aliases.keyArray().each( function( alias ){
+						aliasesMap.aliases[ alias ] = indexName;
+					} );
+				} else {
+					aliasesMap.unassigned.append( indexName );
+				}
+			}
+		);
+
+		return aliasesMap;
+
+	}
 
   /**
   * Applies an alias (or array of aliases)
@@ -553,7 +663,7 @@ component
 		string type
 	){
 		if( isNull( arguments.index ) ){
-			arguments.index = getConfig().get( "defaultIndex" );
+			arguments.index = variables.instanceConfig.get( "defaultIndex" );
 		}
 
 		var actionBuilder = variables.jLoader.create( "io.searchbox.core.Get$Builder" )
@@ -603,7 +713,7 @@ component
 		string type
 	){
 		if( isNull( arguments.index ) ){
-			arguments.index = getConfig().get( "defaultIndex" );
+			arguments.index = variables.instanceConfig.get( "defaultIndex" );
 		}
 		
 		if( isMajorVersion( 7 ) ){
@@ -645,6 +755,59 @@ component
 
 			return documents;
 		}
+	}
+
+	/**
+	 * Retreives a task and its status 
+	 * 
+	 * @taskId          string                          The identifier of the task to retreive
+	 * @taskObj         Task                            The task object used for population - defaults to a new task
+	 * 
+	 * @interfaced
+	 */
+	any function getTask( required string taskId, Task taskObj=newTask() ){
+		var taskResult = execute(
+			variables.jLoader.create( "io.searchbox.cluster.TasksInformation$Builder" )
+								.init()
+								.task( arguments.taskId )
+								.build()
+		);
+
+		if( !structKeyExists( taskResult, "task" ) ){
+			throw(
+				type="cbElasticsearch.JestClient.InvalidTaskException",
+				message="A task with an identifier of #arguments.taskId# could not be found. The error returned was: #( isSimpleValue( taskResult.error ) ? taskResult.error : taskResult.error.reason )#",
+				extendedInfo=serializeJSON( taskResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false )
+			);
+		}
+
+		return taskObj.populate( taskResult );
+
+	}
+
+	/**
+	 * Retreives all tasks running on the cluster
+	 * 
+	 * @interfaced
+	 */
+	any function getTasks(){
+		
+		var taskObj = execute(
+			variables.jLoader.create( "io.searchbox.cluster.TasksInformation$Builder" )
+								.init()
+								.setParameter( "detailed", javacast( "boolean", true ) )
+								.build()
+		);
+		var tasks = [];
+		taskObj.nodes.keyArray().each( function( node ){
+			var nodeObj = taskObj.nodes[ node ];
+			nodeObj.tasks.keyArray().each( function( taskId ){
+				var taskProperties = nodeObj.tasks[ taskId ];
+				tasks.append( newTask().populate( taskProperties) );
+			} );
+		} );
+
+		return tasks;
 	}
 
 	/**
@@ -696,8 +859,9 @@ component
 	/**
 	* Deletes items in the index by query
 	* @searchBuilder 		SearchBuilder 		The search builder object to use for the query
+	* @waitForCompletion    boolean             Whether to block the request until completion or return a task which can be checked
 	**/
-	boolean function deleteByQuery( required SearchBuilder searchBuilder ){
+	any function deleteByQuery( required SearchBuilder searchBuilder, boolean waitForCompletion = true ){
 
 		if( isNull( arguments.searchBuilder.getIndex() ) ){
 			throw(
@@ -726,10 +890,23 @@ component
 			}
 		}
 
-		var deletionResult = execute( deleteBuilder.build() );
+		parseParams( arguments.searchBuilder.getParams() ).each( function( param ){
+			deleteBuilder.setParameter( param.name, param.value );
+			if( param.name == 'wait_for_completion' ){
+				arguments.waitForCompletion = param.value;
+			}
+		} );
 
+		if( !arguments.waitForCompletion ){
+			deleteBuilder.setParameter( "wait_for_completion", false );
+		}
 
-		return javacast( "boolean", structKeyExists( deletionResult, "deleted" ) ? deletionResult.deleted : 0 );
+		var deletionResult =  execute( deleteBuilder.build() );
+		if( arguments.waitForCompletion ){
+			return deletionResult;
+		} else {
+			return getTask( deletionResult.task );
+		}
 
 	}
 
@@ -737,8 +914,9 @@ component
 	* Updates items in the index by query
 	* @searchBuilder 		SearchBuilder 		The search builder object to use for the query
 	* @script 				struct 				script to process on the query
+	* @waitForCompletion    boolean             Whether to block the request until completion or return a task which can be checked
 	**/
-	boolean function updateByQuery( required SearchBuilder searchBuilder, required struct script ){
+	any function updateByQuery( required SearchBuilder searchBuilder, required struct script, boolean waitForCompletion = true ){
 
 		if( isNull( arguments.searchBuilder.getIndex() ) ){
 			throw(
@@ -768,9 +946,24 @@ component
 			}	
 		}
 
-		var updateResult = execute( updateBuilder.build() );
+		parseParams( arguments.searchBuilder.getParams() ).each( function( param ){
+			updateBuilder.setParameter( param.name, param.value );
+			if( param.name == 'wait_for_completion' ){
+				arguments.waitForCompletion = param.value;
+			}
+		} );
 
-		return javacast( "boolean", structKeyExists( updateResult, "updated" ) ? updateResult.updated : 0 );
+		if( !arguments.waitForCompletion ){
+			updateBuilder.setParameter( "wait_for_completion", false );
+		}
+
+
+		var updateResult =  execute( updateBuilder.build() );
+		if( arguments.waitForCompletion ){
+			return updateResult;
+		} else {
+			return getTask( updateResult.task );
+		}
 
 	}
 
@@ -946,6 +1139,33 @@ component
 			return deserializeJSON( JESTResult.getJSONString() );
 		}
 
+	}
+
+	/**
+	 * Parses a parameter argument.
+	 * upports multiple formats : `requests_per_second=50&slices=5`, `{ "requests_per_second" : 50, "slices" : 5 }`, or `[ { "name" : "requests_per_second", "value" : 50 } ]` )
+	 * 
+	 * @params any the parameters to filter and transform
+	 */
+	array function parseParams( required any params ){
+		if( isArray( arguments.params ) ){
+			// assume this is the return format - [ { "name" : name, "value", "value" } ]
+			return arguments.params;
+		} else if( isSimpleValue( arguments.params ) ){
+			return listToArray( urlDecode( arguments.params ), "&" ).map( function( paramString ){
+				var paramName = listFirst( paramString, "=" );
+				var paramValue = listLast( paramString, "=" );
+				return {
+					"name" : paramName,
+					// the conditional allows us to accept a param like `&wait_for_completion`
+					"value" : ( paramValue != paramName ) ? paramValue : true
+				};
+			} );
+		} else {
+			return arguments.params.keyArray().map( function( key ){
+				return { "name" : key, "value" : params[ key ] };
+			} );
+		}
 	}
 
 	/**

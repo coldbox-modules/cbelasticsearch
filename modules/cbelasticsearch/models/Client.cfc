@@ -56,7 +56,6 @@ component
 	**/
 	public function getSearchBuilder() provider="SearchBuilder@cbElasticsearch"{}
 
-
 	/**
 	* Execute a client search request
 	* @searchBuilder 	SearchBuilder 	An instance of the SearchBuilder object
@@ -138,16 +137,38 @@ component
     * Applies a reindex action
     *
     * @source      string   The source index name or struct of options
-    * @destination string   The destination index name or struct of options
-    *
-    * @return      struct 	Struct result of the reindex action
+	* @destination string   The destination index name or struct of options
+	* @waitForCompletion boolean whether to return the result or an asynchronous task
+	* @params any   Additional url params to add to the reindex action. 
+	*               Supports multiple formats : `requests_per_second=50&slices=5`, `{ "requests_per_second" : 50, "slices" : 5 }`, or `[ { "name" : "requests_per_second", "value" : 50 } ]` )
+	*
+	* @return      any 	Struct result of the reindex action if waiting for completion or a Task object if dispatched asnyc
 	**/
-	struct function reindex(
+	any function reindex(
         required any source,
         required any destination,
-        boolean waitForCompletion = true
+		boolean waitForCompletion = true,
+		any params
     ) {
 		return variables.nativeClient.reindex( argumentCollection = arguments );
+	}
+
+	/**
+	 * Returns a struct containing all indices in the system, with statistics
+	 * 
+	 * @verbose 	boolean 	whether to return the full stats output for the index
+	 */
+	struct function getIndices( verbose = false ){
+		return variables.nativeClient.getIndices( argumentCollection = arguments );
+	}
+
+	/**
+	 * Returns a struct containing the mappings of all aliases in the cluster
+	 *
+	 * @aliases 
+	 */
+	struct function getAliases(){
+		return variables.nativeClient.getAliases( argumentCollection=arguments );
 	}
 
 	/**
@@ -257,6 +278,27 @@ component
 	}
 
 	/**
+	 * Retreives a task and its status 
+	 * 
+	 * @taskId          string                          The identifier of the task to retreive
+	 * @taskObj         Task                            The task object used for population - defaults to a new task
+	 * 
+	 * @interfaced
+	 */
+	any function getTask( required string taskId, Task taskObj ){
+		return variables.nativeClient.getTask( argumentCollection=arguments );
+	}
+
+	/**
+	 * Retreives all tasks running on the cluster
+	 * 
+	 * @interfaced
+	 */
+	any function getTasks(){
+		return variables.nativeClient.getTasks();
+	}
+
+	/**
 	* @document 		Document@cbElasticSearch 		An instance of the elasticsearch Document object
 	*
 	* @return 			Document@cbElasticsearch 		The saved document object
@@ -277,24 +319,23 @@ component
 	}
 
 	/**
-	* Delete documents from a query
-	*
-	* @searchBuilder 		SearchBuilder 		The assemble search builder to use for the query
-	*
+	* Deletes items in the index by query
+	* @searchBuilder 		SearchBuilder 		The search builder object to use for the query
+	* @waitForCompletion    boolean             Whether to block the request until completion or return a task which can be checked
 	**/
-	boolean function deleteByQuery( required SearchBuilder searchBuilder ){
+	any function deleteByQuery( required SearchBuilder searchBuilder, boolean waitForCompletion = true ){
 
 		return variables.nativeClient.deleteByQuery( argumentCollection=arguments );
 
 	}
 
 	/**
-	* updates documents from a query
-	*
-	* @searchBuilder 		SearchBuilder 		The assemble search builder to use for the query
+	* Updates items in the index by query
+	* @searchBuilder 		SearchBuilder 		The search builder object to use for the query
 	* @script 				struct 				script to process on the query
+	* @waitForCompletion    boolean             Whether to block the request until completion or return a task which can be checked
 	**/
-	boolean function updateByQuery( required SearchBuilder searchBuilder, required struct script  ){
+	any function updateByQuery( required SearchBuilder searchBuilder, required struct script, boolean waitForCompletion = true ){
 
 		return variables.nativeClient.updateByQuery( argumentCollection=arguments );
 
@@ -324,6 +365,17 @@ component
 
 		return variables.nativeClient.deleteAll( documents );
 
+	}
+
+
+	/**
+	 * Parses a parameter argument.
+	 * upports multiple formats : `requests_per_second=50&slices=5`, `{ "requests_per_second" : 50, "slices" : 5 }`, or `[ { "name" : "requests_per_second", "value" : 50 } ]` )
+	 * 
+	 * @params any the parameters to filter and transform
+	 */
+	array function parseParams( required any params ){
+		return variables.nativeClient.parseParams( argumentCollection=arguments );
 	}
 
 

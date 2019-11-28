@@ -83,18 +83,36 @@ interface{
 
     /**
     * Applies a reindex action
-    * @interfaced
     *
-    * @source      any   The source index name or struct of options
-    * @destination any   The destination index name or struct of options
+    * @source      string   The source index name or struct of options
+	* @destination string   The destination index name or struct of options
+	* @waitForCompletion boolean whether to return the result or an asynchronous task
+	* @params any   Additional url params to add to the reindex action. 
+	*               Supports multiple formats : `requests_per_second=50&slices=5`, `{ "requests_per_second" : 50, "slices" : 5 }`, or `[ { "name" : "requests_per_second", "value" : 50 } ]` )
 	*
-	* @return      struct 	Struct result of the reindex action
+	* @return      any 	Struct result of the reindex action if waiting for completion or a Task object if dispatched asnyc
 	**/
-	struct function reindex(
+	any function reindex(
         required any source,
         required any destination,
-        boolean waitForCompletion
+		boolean waitForCompletion = true,
+		any params
     );
+	
+	/**
+	 * Returns a struct containing all indices in the system, with statistics
+	 * 
+	 * @verbose 	boolean 	whether to return the full stats output for the index
+	 */
+	struct function getIndices( verbose = false );
+
+
+	/**
+	 * Returns a struct containing the mappings of all aliases in the cluster
+	 *
+	 * @aliases 
+	 */
+	struct function getAliases();
 
 	/**
 	* Applies a single mapping to an index
@@ -156,6 +174,20 @@ interface{
 	);
 
 	/**
+	 * Retreives a task and its status 
+	 * 
+	 * @taskId          string                          The identifier of the task to retreive
+	 * 
+	 * @interfaced
+	 */
+	any function getTask( required string taskId, Task taskObj );
+
+	/**
+	 * Retreives all tasks running on the cluster
+	 */
+	any function getTasks();
+
+	/**
 	* @document 		Document@cbElasticSearch 		An instance of the elasticsearch Document object
 	*
 	* @return 			iNativeClient 					An implementation of the iNativeClient
@@ -174,15 +206,17 @@ interface{
 	/**
 	* Deletes items in the index by query
 	* @searchBuilder 		SearchBuilder 		The search builder object to use for the query
+	* @waitForCompletion    boolean             Whether to block the request until completion or return a task which can be checked
 	**/
-	boolean function deleteByQuery( required SearchBuilder searchBuilder );
+	any function deleteByQuery( required SearchBuilder searchBuilder, boolean waitForCompletion = true );
 
 	/**
 	* Updates items in the index by query
 	* @searchBuilder 		SearchBuilder 		The search builder object to use for the query
 	* @script 				struct 				script to process on the query
+	* @waitForCompletion    boolean             Whether to block the request until completion or return a task which can be checked
 	**/
-	boolean function updateByQuery( required SearchBuilder searchBuilder, required struct script );
+	any function updateByQuery( required SearchBuilder searchBuilder, required struct script, boolean waitForCompletion = true );
 
 	/**
 	* Persists multiple items to the index
@@ -202,6 +236,14 @@ interface{
 		required array documents,
 		boolean throwOnError=false
 	);
+
+	/**
+	 * Parses a parameter argument.
+	 * upports multiple formats : `requests_per_second=50&slices=5`, `{ "requests_per_second" : 50, "slices" : 5 }`, or `[ { "name" : "requests_per_second", "value" : 50 } ]` )
+	 * 
+	 * @params any the parameters to filter and transform
+	 */
+	array function parseParams( required any params );
 
 
 }

@@ -22,10 +22,9 @@ component{
 	// any orm definitions go here.
 
 	function onRequestStart(){
-        // applicationStop();
-        // abort;
+		setting requestTimeout="180";
+		
 		// Clear out the previous framework objects so that the first spec with `loadColdbox` set to `true` will reload them
-
 		if( structKeyExists( url, "persistColdbox" ) && !url.persistColdbox ){
 
 			structDelete( application, "cbController" );

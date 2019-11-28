@@ -1,7 +1,18 @@
 CHANGELOG
 =========
+# 1.3.0
+* Adds the ability to pass URL parameters to SearchBuilder-aware client methods.  Adds a `param( name, value )` supporting method to the SearchBuilder
+* Adds a new Task object which can be refreshed and used in a loop as long-running tasks complete in the background ( e.g.  `while( !task.isComplete() )` )
+* ( Breaking ) Changes the return type of the `deleteByQuery` and `updateByQuery` to return the full API response which may be inspected or used to follow-up on tasks
+* implements a `getAllTasks()` method in the client, which will return an array of Task objects
+* implements a `getTask` method in the client to retreive tasks by identifier ( e.g. - `[node]:[id]` ). 
+* implements a `getIndices` method in the client to retreive a map of indices with stats
+* implements a `getAliases` method in the client to retreive a map of aliases
+* Resolves Issue #12 - slf4j missing on non-Runwar installations
+* Resolves Issue #17 - implements workarounds and adds documentation on how to configure and use a connection to a secondary elasticsearch cluster
+
 # 1.2.2
-* Adds fallback attempt when connection pool is unexpectedly closed
+* Adds fallback attempt when connection pool is unexpectedly closed upstream
 
 # 1.2.1
 * Adds a soft fail to the version target check when a connection to the ES start page cannot be established
