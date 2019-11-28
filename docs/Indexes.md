@@ -21,6 +21,20 @@ On types:
 
 In short, indexes have a higher overhead and make the aggregation of search results between types very more expensive.  If it is desired that your application search interfaces return multiple entity or domain types, then those should respresent distinctive types within a single index, allowing them to be aggregated, sorted, and ordered in search results.
 
+### Retreiving information on Indices
+
+To retreive a list of all indices on the connected cluster, use the client `getIndices` method:
+
+```
+var indexMap = getInstance( "Client@cbElasticsearch" ).getIndices();
+```
+
+This will return a struct of all indexes ( with the names as keys ), which will provide additional information on each index, such as:
+
+* Any assigned aliases
+* The number of documents in the index
+* The size of the storage space used for the index in bytes
+
 
 #### Creating and Mapping an Index
 
@@ -128,6 +142,16 @@ indexBuilder.new(
 
 * [Elasticsearch Mapping Guide](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html)
 * [Index Settings Reference](https://www.elastic.co/guide/en/elasticsearch/guide/current/_index_settings.html)
+
+### Retreiving information on Aliases
+
+The client's `getAliases` method allows you to retreive a map containing information on aliases in use in the connected cluster.
+
+```
+var aliasMap = getInstance( "Client@cbElasticsearch" ).getAliases();
+```
+
+The corresponding object will have two keys: `aliases` and `unassgined`. The former is a map of aliases with their corresponding index, the latter is an array of indexes which are unassigned to any alias.
 
 
 ## Alias Builder
