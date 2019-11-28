@@ -65,6 +65,9 @@ install:
 
 # Build script - note module versioning is passed to ANT
 script:
+  # Remove our secondary client tests and module since travis only has one instance of ES available
+  - rm -rf modules_app
+  - rm -f tests/specs/unit/SecondaryClientTest.cfc
   # run our dependency install to ensure the workbench is in place
   - box install
   # add our module-specific build properties
