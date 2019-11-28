@@ -25,7 +25,20 @@ services:
       - "9201:9200"
       - "9301:9300"
 
+  elasticsearch-cluster2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.2
+    environment:
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - http.host=0.0.0.0
+      - transport.host=127.0.0.1
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+    ports:
+      - "9202:9200"
+      - "9302:9300"
+
   app:
+    # We always develop and test with the lowest common denominator - in this case, the oldest engine we support with the most restrictive compiler
     image: ortussolutions/commandbox:adobe11
     depends_on:
       - elasticsearch
@@ -41,6 +54,7 @@ services:
       - "8080"
   
   app7:
+    # We always develop and test with the lowest common denominator - in this case, the oldest engine we support with the most restrictive compiler
     image: ortussolutions/commandbox:adobe11
     depends_on:
       - elasticsearch

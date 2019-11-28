@@ -3,14 +3,12 @@ component extends="coldbox.system.testing.BaseTestCase"{
 	
 	function beforeAll(){
 
-		if( !structKeyExists( variables, "model" ) ){
-			setup();
-			variables.model = getWirebox().getInstance( "JestClient@cbElasticsearch" );
-		}
+        setup();
+        variables.model = getWirebox().getInstance( "Client@SecondaryCluster" );
 
-		variables.testIndexName = lcase( "ElasticsearchClientTests" );
-		variables.testIndexNameOne = lcase( "ElasticsearchClientTestsOne" );
-		variables.testIndexNameTwo = lcase( "ElasticsearchClientTestsTwo" );
+		variables.testIndexName = lcase( "SecondaryClientTests" );
+		variables.testIndexNameOne = lcase( "SecondaryClientTestsOne" );
+		variables.testIndexNameTwo = lcase( "SecondaryClientTestsTwo" );
 
 		variables.model.deleteIndex( variables.testIndexName );
 		variables.model.deleteIndex( variables.testIndexNameOne );
@@ -29,43 +27,11 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 	function run(){
 
-		describe( "Performs cbElasticsearch JestClient tests", function(){
+		describe( "Performs cbElasticsearch SecondaryClient tests", function(){
 
 			afterEach( function(){
 				// we give ourselves a few seconds before each next test for updates to persist
 				sleep( 500 );
-			});
-
-			// This test is no longer applicable on ES v7.x
-			xit( "Tests the ability to delete a type", function(){
-
-				//insert some documents to delete
-				var documents = [];
-
-				for( var i=1; i <= 13; i++ ){
-					arrayAppend(
-						documents, getInstance( "Document@cbElasticsearch" ).new(
-							variables.testIndexName,
-							"testdocs",
-							{
-								"_id": createUUID(),
-								"title": "Test Document Number #i#",
-								"createdTime": dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
-							}
-						)
-
-					);
-				}
-
-				var savedDocs = variables.model.saveAll( documents );
-
-				//sleep for 1.5 seconds to ensure full persistence
-				sleep( 1500 );
-
-				var deleted = variables.model.deleteType( variables.testIndexName, "testdocs" );
-
-				expect( deleted ).toBeTrue();
-
 			});
 			
 			it( "Tests the ability to create an index", function(){
@@ -109,7 +75,9 @@ component extends="coldbox.system.testing.BaseTestCase"{
 			});
 
 			it( "Tests the ability to verify that an index exists", function(){
-				expect( variables.model.indexExists( variables.testIndexName ) ).toBeTrue();
+                expect( variables.model.indexExists( variables.testIndexName ) ).toBeTrue();
+                // verify that it only exists in our secondary cluster and that our primary cluster is untouched
+                expect( getWirebox().getInstance( "Client@cbElasticsearch" ).indexExists( variables.testIndexName ) ).toBeFalse();
 			});
 
 			it( "tests the getIndices method", function(){
@@ -169,6 +137,8 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			it( "Tests the ability to verify that a mapping exists", function(){
 				expect( variables.model.indexMappingExists( variables.testIndexName, "testdocs" ) ).toBeTrue();
+                // verify that it only exists in our secondary cluster
+                expect( getWirebox().getInstance( "Client@cbElasticsearch" ).indexMappingExists( variables.testIndexName, "testdocs" ) ).toBeFalse();
 			});
 
 			// this test is no longer applicable on ES v7.x
@@ -193,7 +163,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( saveResult ).toBeComponent();
 				expect( saveResult.getId() ).toBe( testDocument[ "_id" ] );
 
-				variables.testDocumentId = saveResult.getId();
+                variables.testDocumentId = saveResult.getId();
 
 			});
 
@@ -221,9 +191,10 @@ component extends="coldbox.system.testing.BaseTestCase"{
 			describe( "reindex", function() {
 
 				it( "can reindex from one index to another", function() {
-					getWireBox().getInstance( "IndexBuilder@cbElasticSearch" )
-						.new( variables.testIndexNameTwo )
-						.save();
+					var indexBuilder = getWireBox().getInstance( "IndexBuilder@cbElasticSearch" )
+                        .new( variables.testIndexNameTwo );
+                
+                    variables.model.applyIndex( indexBuilder );
 
 					//insert some documents to reindex
 					var documents = [];
@@ -280,9 +251,10 @@ component extends="coldbox.system.testing.BaseTestCase"{
 					variables.model.deleteIndex( variables.testIndexNameOne );
 					variables.model.deleteIndex( variables.testIndexNameTwo );
 
-					getWireBox().getInstance( "IndexBuilder@cbElasticSearch" )
-						.new( variables.testIndexNameTwo )
-						.save();
+					var indexBuilder = getWireBox().getInstance( "IndexBuilder@cbElasticSearch" )
+                        .new( variables.testIndexNameTwo );
+                    
+                    variables.model.applyIndex( indexBuilder );
 
 					// //insert some documents to reindex
 					var documents = [];
@@ -394,13 +366,10 @@ component extends="coldbox.system.testing.BaseTestCase"{
 					var taskObj = variables.model.getTask( taskId );
 					expect( taskObj ).toBeInstanceOf( "cbelasticsearch.models.Task" );
 					expect( taskObj.getCompleted() ).toBeBoolean();
-					expect( taskObj.getIdentifier() ).toBe( taskId );
-					expect( taskObj.isComplete() ).toBeBoolean();
+                    expect( taskObj.getIdentifier() ).toBe( taskId );
+                    // with a secondary client tasks will need to be manually re-invoked
+					expect( taskObj.isComplete( false ) ).toBeBoolean();
 
-					// expect a while loop to complete
-					while( !taskObj.isComplete() ){
-						expect( taskObj.getCompleted() ).toBeFalse();
-					}
 
 				} );
 			} );
@@ -662,7 +631,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( updateResult ).toHaveKey( "updated" );
 				expect( updateResult.updated ).toBeGT( 0 );
 
-				var updatedDocument = getWirebox().getInstance( "Document@cbElasticsearch" ).get( testDocument._id, variables.testIndexName, "testdocs" );
+				var updatedDocument = variables.model.get( testDocument._id, variables.testIndexName, "testdocs" );
 
 				expect( updatedDocument.getMemento().title ).toBe( "My Updated Test Document" );
 

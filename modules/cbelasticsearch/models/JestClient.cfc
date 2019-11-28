@@ -29,6 +29,11 @@ component
 	property name="versionTarget";
 
 	/**
+	 * Instance configuration object
+	 */
+	property name="instanceConfig";
+
+	/**
 	* Config provider
 	**/
 	Config function getConfig() provider="Config@cbElasticsearch"{}
@@ -53,6 +58,12 @@ component
 	**/
 	SearchResult function newResult() provider="SearchResult@cbElasticsearch"{}
 
+	function init( Config configuration ){
+		if( structKeyExists( arguments, "configuration" ) ){
+			variables.instanceConfig = arguments.configuration;
+		}
+	}
+
 	/**
 	* Configure instance once DI is complete
 	**/
@@ -62,10 +73,15 @@ component
 
 	}
 
-	void function configure(){
+	void function configure( Config configuration ){
 
 		lock type="exclusive" name="JestClientConfigurationLock" timeout="10"{
-			var configSettings = getConfig().getConfigStruct();
+			
+			if( isNull( getInstanceConfig() ) ){
+				variables.instanceConfig =  getConfig();
+			}
+
+			var configSettings = variables.instanceConfig.getConfigStruct();
 
 			var hostConnections = jLoader.create( "java.util.ArrayList" ).init();
 	
@@ -647,7 +663,7 @@ component
 		string type
 	){
 		if( isNull( arguments.index ) ){
-			arguments.index = getConfig().get( "defaultIndex" );
+			arguments.index = variables.instanceConfig.get( "defaultIndex" );
 		}
 
 		var actionBuilder = variables.jLoader.create( "io.searchbox.core.Get$Builder" )
@@ -697,7 +713,7 @@ component
 		string type
 	){
 		if( isNull( arguments.index ) ){
-			arguments.index = getConfig().get( "defaultIndex" );
+			arguments.index = variables.instanceConfig.get( "defaultIndex" );
 		}
 		
 		if( isMajorVersion( 7 ) ){

@@ -104,10 +104,10 @@ component{
         * Main Configuration Object Singleton
         **/
 
-        binder.map("Config@cbElasticsearch")
-            .to( '#moduleMapping#.models.Config' )
-            .threadSafe()
-            .asSingleton();
+        binder.map( "Config@cbElasticsearch" )
+                        .to( '#moduleMapping#.models.Config' )
+                        .threadSafe()
+                        .asSingleton();
 
     }
 

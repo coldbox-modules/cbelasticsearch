@@ -2,7 +2,7 @@
 *
 * Elasticsearch Config
 *
-* The configuration object for the module
+* The configuration object for the module 
 * @singleton
 * @package cbElasticsearch.models.Elasticsearch
 * @author Jon Clausen <jclausen@ortussolutions.com>

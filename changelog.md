@@ -9,6 +9,7 @@ CHANGELOG
 * implements a `getIndices` method in the client to retreive a map of indices with stats
 * implements a `getAliases` method in the client to retreive a map of aliases
 * Resolves Issue #12 - slf4j missing on non-Runwar installations
+* Resolves Issue #17 - implements workarounds and adds documentation on how to configure and use a connection to a secondary elasticsearch cluster
 
 # 1.2.2
 * Adds fallback attempt when connection pool is unexpectedly closed upstream
