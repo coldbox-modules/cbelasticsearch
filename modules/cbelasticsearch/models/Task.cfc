@@ -24,6 +24,7 @@ component
     property name="running_time_in_nanos";
     property name="parent_task_id";
     property name="headers";
+    property name="response";
     property name="completed" type="boolean" default=false;
 
     // aggregates
@@ -37,6 +38,9 @@ component
                 var taskProperties = arguments.properties.task;
                 if( structKeyExists( arguments.properties, "completed" ) ){
                     variables.completed = arguments.properties.completed;
+                }
+                if( structKeyExists( arguments.properties, "response" ) ){
+                    variables.response = arguments.properties.response;
                 }
             } else {
                 var taskProperties = arguments.properties;
