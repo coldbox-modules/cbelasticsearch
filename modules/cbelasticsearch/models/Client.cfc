@@ -148,7 +148,8 @@ component
         required any source,
         required any destination,
 		boolean waitForCompletion = true,
-		any params
+		any params,
+		any script
     ) {
 		return variables.nativeClient.reindex( argumentCollection = arguments );
 	}

@@ -1,5 +1,9 @@
 CHANGELOG
 =========
+# 1.3.1
+* Adds responses to task model
+* Adds the ability to provide a transformation script to the client `reindex` method
+
 # 1.3.0
 * Adds the ability to pass URL parameters to SearchBuilder-aware client methods.  Adds a `param( name, value )` supporting method to the SearchBuilder
 * Adds a new Task object which can be refreshed and used in a loop as long-running tasks complete in the background ( e.g.  `while( !task.isComplete() )` )

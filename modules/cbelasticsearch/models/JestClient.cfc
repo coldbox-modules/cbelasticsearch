@@ -385,7 +385,8 @@ component
         required any source,
         required any destination,
 		boolean waitForCompletion = true,
-		any params
+		any params,
+		any script
     ) {
 		if( isMajorVersion( 7 ) && isStruct( arguments.source ) ){
 			structDelete( arguments.source, "type" );
@@ -403,9 +404,17 @@ component
 				reindexBuilder.setParameter( param.name, param.value );
 			} );
 		}
+		
+		if( structKeyExists( arguments, "script" ) ){
+			if( isSimpleValue( arguments.script ) ){
+				reindexBuilder.script( { "lang" : "painless", "source" : arguments.script } );
+			} else {
+				reindexBuilder.script( arguments.script );
+			}
+		}
 
 		var reindexResult =  execute( reindexBuilder.build() );
-		if( arguments.waitForCompletion ){
+		if( arguments.waitForCompletion || !structKeyExists( reindexResult, "task" ) ){
 			return reindexResult;
 		} else {
 			return getTask( reindexResult.task );
