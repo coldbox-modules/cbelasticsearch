@@ -315,3 +315,25 @@ getInstance( "Client@cbElasticsearch" )
         destination = "newIndex"
     );
 ```
+
+You may also pass a script in to the reindex method to transform objects as they are being transferred from one index to another:
+
+```
+getInstance( "Client@cbElasticsearch" )
+    .reindex(
+        source = {
+            "index": "oldIndex",
+            "type": "testdocs",
+            "query": {
+                "term": {
+                    "active": true
+                }
+            }
+        },
+        destination = "newIndex"
+        script = {
+            "lang" : "painless",
+            "source" : "if( ctx._source.foo != null && ctx._source.foo == 'baz' ){ ctx._source.foo = 'bar' }"
+        }
+    );
+```
