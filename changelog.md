@@ -1,5 +1,8 @@
 CHANGELOG
 =========
+# 1.3.2
+* ( Snapshot documentation )
+
 # 1.3.1
 * Adds responses to task model
 * Adds the ability to provide a transformation script to the client `reindex` method
