@@ -330,10 +330,10 @@ getInstance( "Client@cbElasticsearch" )
                 }
             }
         },
-        destination = "newIndex"
+        destination = "newIndex",
         script = {
             "lang" : "painless",
-            "source" : "if( ctx._source.foo != null && ctx._source.foo == 'baz' ){ ctx._source.foo = 'bar' }"
+            "source" : "if( ctx._source.foo != null && ctx._source.foo == 'baz' ){ ctx._source.foo = 'bar'; }"
         }
     );
 ```
