@@ -40,4 +40,6 @@ while( !reindexTask.isComplete( delay=5000 ) ){
 }
 ```
 
+At time a reindex process may be marked as complete, but the documents were not transfered. If this happens ( e.g. `getStatus().total != getStatus().created` ), or the `reindexTask.getStatus().total` count is not the correct number of documents in your index, you can inspect the content of `reindexTask.getResponse()` to determine the reindexing errors.
+
 When managing large indexes, a task-based approach to bulk operations can allow you to optimize the resource usage of both your Elasticsearch and CFML Application servers.
