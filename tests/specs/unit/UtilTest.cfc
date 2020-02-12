@@ -109,7 +109,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
                 
                 if( currentClass == 'coldfusion.runtime.CFBoolean' ){
                     var testConversion = deserializeJSON( gson.toJSON( settings ) );
-                    if( isStruct( testConvert.mapping.ignore_malformed ) ){
+                    if( isStruct( testConversion.mapping.ignore_malformed ) ){
                         debug( "ACF Bug CF-4206423 is still open: https://tracker.adobe.com/##/view/CF-4206423" );
                     } else {
                         settings.mapping.ignore_malformed = "yes";
