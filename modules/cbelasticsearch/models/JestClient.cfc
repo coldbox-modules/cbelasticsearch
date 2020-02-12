@@ -1038,11 +1038,12 @@ component
 	/**
 	* Persists multiple items to the index
 	* @documents 		array 					An array of elasticsearch Document objects to persist
+	* @throwOnError     boolean                 Whether to throw an exception on error on individual documents which were not persisted
 	*
 	* @return 			array					An array of results for the saved items
 	* @interfaced
 	**/
-	array function saveAll( required array documents ){
+	array function saveAll( required array documents, boolean throwOnError=false ){
 
 		var bulkBuilder = variables.jLoader.create( "io.searchbox.core.Bulk$Builder" ).init();
 
@@ -1066,11 +1067,20 @@ component
 		var results = [];
 
 		for( var item in saveResult.items ){
+
+			if( arguments.throwOnError && item.index.keyExists( "error" ) ){
+				throw(
+					type="cbElasticsearch.JestClient.PersistenceException",
+					message="A document with an identifier of #item.index[ "_id" ]# could not be saved.  The error returned was: #( isSimpleValue( item.index.error ) ? item.index.error : item.index.error.reason )#",
+					extendedInfo=serializeJSON( saveResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false )
+				);
+			}
 			arrayAppend(
 				results,
 				{
 					"_id"    : item.index[ "_id" ],
-					"result" : item.index.result
+					"result" : item.index.keyExists( "result" ) ? item.index.result : javacast( "null", 0 ),
+					"error" : item.index.keyExists( "error" ) ? item.index.error : javacast( "null", 0 )
 				}
 			);
 		}

@@ -443,6 +443,51 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			} );
 
+			it( "Tests error handling of updates/additions when one of the documents to be updated contains an invalid value", function(){
+				
+				var documents = [];
+
+				for( var i=1; i <= 13; i++ ){
+
+					var bulkDoc  = {
+						"_id": createUUID(),
+						"title": "Test Document Number #i#",
+						"createdTime": dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+					};
+
+					arrayAppend( 
+						documents, 
+						getInstance( "Document@cbElasticsearch" ).new(  
+							variables.testIndexName,
+							"testdocs",
+							bulkDoc	
+						)
+						
+					);
+				}
+
+				documents[ documents.len() ].getMemento()[ "createdTime" ] = "not a date";
+
+				var savedDocs = variables.model.saveAll( documents );
+
+				expect( savedDocs ).toBeArray();
+
+				for( var i = 1; i  < savedDocs.len(); i++ ){
+					expect( savedDocs[ i ] ).toHaveKey( "result" );
+					expect( savedDocs[ i ].result ).toBe( "created" );
+				}
+
+				
+				expect( savedDocs[ savedDocs.len() ] ).toHaveKey( "error" );
+				expect( savedDocs[ savedDocs.len() ].error ).toHaveKey( "reason" );
+
+				// test the ability throw an error when the flag is up
+				expect( function(){
+					variables.model.saveAll( documents, true );
+				}).toThrow( "cbElasticsearch.JestClient.PersistenceException" );
+
+			} );
+
 			it( "Tests the ability to retrieve a document by an _id value", function(){
 
 				expect( variables ).toHaveKey( "testDocumentId" );

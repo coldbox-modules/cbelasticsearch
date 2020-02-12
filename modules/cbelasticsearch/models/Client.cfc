@@ -345,10 +345,11 @@ component
 	/**
 	* Persists multiple items to the index
 	* @documents 		array 					An array of elasticsearch Document objects to persist
+	* @throwOnError     boolean                 Whether to throw an exception on error on individual documents which were not persisted
 	*
 	* @return 			array					An array of results for the saved items
 	**/
-	array function saveAll( required array documents ){
+	array function saveAll( required array documents, boolean throwOnError=false ){
 
 		return variables.nativeClient.saveAll( argumentCollection=arguments );
 
