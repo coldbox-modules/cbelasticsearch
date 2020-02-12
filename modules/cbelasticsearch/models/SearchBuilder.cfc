@@ -327,6 +327,8 @@ component accessors="true" {
                 }
             }
         );
+
+        return this;
     }
 
     function filterTerms(
@@ -351,6 +353,8 @@ component accessors="true" {
                 }
             }
         );
+
+        return this;
 
     }
 
