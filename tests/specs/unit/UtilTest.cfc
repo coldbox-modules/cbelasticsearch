@@ -108,7 +108,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
                 var expectedClass = "java.lang.Boolean";
                 
                 if( currentClass == 'coldfusion.runtime.CFBoolean' ){
-                    var testConversion = deserialzeJSON( gson.toJSON( settings ) );
+                    var testConversion = deserializeJSON( gson.toJSON( settings ) );
                     if( isStruct( testConvert.mapping.ignore_malformed ) ){
                         debug( "ACF Bug CF-4206423 is still open: https://tracker.adobe.com/##/view/CF-4206423" );
                     } else {
