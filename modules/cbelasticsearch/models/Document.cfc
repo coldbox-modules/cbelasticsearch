@@ -181,11 +181,12 @@ component
 	* @name 	string 		the key name
 	* @value 	string 		the key value
 	**/
-	public function setValue( 
+	public Document function setValue( 
 		required string name, 
 		required any value
 	){
 		variables.memento[ arguments.name ] = arguments.value;
+		return this;
 	}
 
 	/**
