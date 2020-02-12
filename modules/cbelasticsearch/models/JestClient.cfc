@@ -34,9 +34,19 @@ component
 	property name="instanceConfig";
 
 	/**
+	 * Utility object
+	 */
+	property name="util";
+
+	/**
 	* Config provider
 	**/
 	Config function getConfig() provider="Config@cbElasticsearch"{}
+
+	/**
+	 * Util provider
+	 */
+	Util function getUtil() provider="Util@cbElasticsearch"{}
 
 	/**
 	* Document provider
@@ -80,6 +90,8 @@ component
 			if( isNull( getInstanceConfig() ) ){
 				variables.instanceConfig =  getConfig();
 			}
+
+			variables.util = getUtil();
 
 			var configSettings = variables.instanceConfig.getConfigStruct();
 
@@ -312,19 +324,11 @@ component
 			var builder = variables.jloader.create( "io.searchbox.indices.CreateIndex$Builder" ).init( indexDSL.name );
 
 			if( structKeyExists( indexDSL, "settings" ) ){
-				var settingsMap = variables.jLoader.create( "java.util.HashMap" ).init();
-
-				settingsMap.putAll( indexDSL.settings );
-
-				builder.settings( settingsMap );
+				builder.settings( util.newHashMap( indexDSL.settings ) );
 			}
 
 			if( structKeyExists( indexDSL, "aliases" ) ){
-				var aliasesMap = variables.jLoader.create( "java.util.HashMap" ).init();
-
-				aliasesMap.putAll( indexDSL.aliases );
-
-				builder.aliases( aliasesMap );
+				builder.aliases( util.newHashMap( indexDSL.aliases ) );
 			}
 
 			indexResult[ "index" ] = execute( builder.build() );
@@ -438,7 +442,7 @@ component
             }
             indexMap.put( key, value );
             return indexMap;
-        }, createObject( "java", "java.util.HashMap" ).init() );
+        }, util.newHashMap() );
 	}
 
 	/**
@@ -696,7 +700,7 @@ component
 			var document = newDocument()
 								.setId( arguments.id )
 								.setIndex( arguments.index )
-								.populate( retrievedResult[ "_source" ] );
+								.populate( util.ensureNativeStruct( retrievedResult[ "_source" ] ) );
 
 			if( !isNull( arguments.type ) ){
 				document.setType( arguments.type );
@@ -755,7 +759,7 @@ component
 				var document = newDocument().new(
 					result[ "_index" ],
 					result[ "_type" ],
-					result[ "_source" ]
+					util.ensureNativeStruct( result[ "_source" ] )
 				).setId( result[ "_id" ] );
 
 				arrayAppend( documents, document );
@@ -1004,12 +1008,9 @@ component
 
 	private any function buildUpdateAction( required Document document ){
 
-		var source = variables.jLoader.create( "java.util.LinkedHashMap" ).init();
-		source.putAll( arguments.document.getMemento() );
-		
 		var builder = variables.jLoader
 									.create( "io.searchbox.core.Index$Builder" )
-									.init( source );
+									.init( util.newHashMap( arguments.document.getMemento() ) );
 
 		builder.index( arguments.document.getIndex() );
 

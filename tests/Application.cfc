@@ -22,6 +22,7 @@ component{
 	// any orm definitions go here.
 
 	function onRequestStart(){
+
 		setting requestTimeout="180";
 		
 		// Clear out the previous framework objects so that the first spec with `loadColdbox` set to `true` will reload them
