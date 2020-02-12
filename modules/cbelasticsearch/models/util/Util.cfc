@@ -1,6 +1,5 @@
 component accessors="true" singleton{
     property name="jLoader" inject="loader@cbjavaloader";
-    property name="streamBuilder" inject="StreamBuilder@cbstreams";
 
     /**
      * Ensures a CF native struct is returned ( allowing for dot-notation )
