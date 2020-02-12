@@ -121,6 +121,8 @@ While our documents would still be scored, the results order would be changed to
 * `execute()` - Executes the built search
 * `getDSL()` - Returns a struct containing the assembled Elasticsearch query DSL
 * `match(string name, any value, [numeric boost], [struct options], [string matchType='any'])` - Applies a match requirement to the search builder query.
+* `multiMatch( array names, any value, [numeric boost], [type="best_fields"])` - Search an array of fields with a given search value.
+* `dateMatch( string name, string start, string end, [numeric boost])` - Adds a date range match.
 * `mustMatch(string name, any value, [numeric boost])` - `must` query alias for match().
 * `mustNotMatch(string name, any value, [numeric boost])` - `must_not` query alias for match().
 * `shouldMatch(string name, any value, [numeric boost])` - `should` query alias for match().
