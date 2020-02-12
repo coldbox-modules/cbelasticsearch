@@ -18,17 +18,19 @@ component accessors="true" singleton{
      * @memento  a struct to populate the memento with
      */
     function newHashMap( struct memento ){
-        var map = variables.jLoader.create( "java.util.HashMap" ).init();
+        var hashMap = variables.jLoader.create( "java.util.HashMap" ).init();
 
         if( !isNull( arguments.memento ) ){
-            map.putAll( ensureBooleanCasting( arguments.memento ) );
-            for( var key in map ){
-                if( isStruct( map[ key ] ) && !isInstanceOf( map[ key ], "java.util.HashMap" ) ){
-                    map[ key ] = newHashMap( ensureBooleanCasting( map[ key ] ) );
-                } else if( isArray( map[ key ] ) ){
-                    map[ key ].each( function( item, index ){
+            hashMap.putAll( ensureBooleanCasting( arguments.memento ) );
+            for( var key in hashMap ){
+                if( isStruct( hashMap[ key ] ) && !isInstanceOf( hashMap[ key ], "java.util.HashMap" ) ){
+                    hashMap[ key ] = newHashMap( ensureBooleanCasting( hashMap[ key ] ) );
+                } else if( isArray( hashMap[ key ] ) ){
+                    // scope this in for CF's compiler
+                    var segment = hashMap[ key ];
+                    segment.each( function( item, index ){
                         if( isStruct( item ) && !isInstanceOf( item, "java.util.HashMap" ) ){
-                            map[ key ][ index ] = newHashMap( ensureBooleanCasting( item ) );
+                            hashMap[ key ][ index ] = newHashMap( ensureBooleanCasting( item ) );
                         }
                     } );
                 }
@@ -37,7 +39,7 @@ component accessors="true" singleton{
             
         }
 
-        return map;
+        return hashMap;
     }
 
     /**

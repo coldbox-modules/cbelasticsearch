@@ -30,6 +30,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
                     ]
                 };
                 var hashMap = variables.model.newHashMap( ref );
+                
                 expect( function(){
                     var bar = hashMap.baz;
                 } ).toThrow();
