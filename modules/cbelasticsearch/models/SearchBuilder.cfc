@@ -315,7 +315,7 @@ component accessors="true" {
 
     }
 
-    function filterTerm( required string name, required any value ) {
+    SearchBuilder function filterTerm( required string name, required any value ) {
         param variables.query.bool = {};
         param variables.query.bool.filter = {};
         param variables.query.bool.filter.bool = {};
@@ -327,9 +327,11 @@ component accessors="true" {
                 }
             }
         );
+
+        return this;
     }
 
-    function filterTerms(
+    SearchBuilder function filterTerms(
         required string name,
         required any value
     ){
@@ -351,6 +353,8 @@ component accessors="true" {
                 }
             }
         );
+
+        return this;
 
     }
 

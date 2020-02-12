@@ -1,5 +1,11 @@
 CHANGELOG
 =========
+# 1.3.2
+* Modifies search builder methods of `filterTerm` and `filterTerms` to return the builder instance ( Issue #43 )
+* Adds a Util component for common inbound and outbound conversions and casting
+* Modifies Document `setValue` method to return instance, for method chaining ( Issue #40 )
+* Fixes an error when individual documents in a bulk save contained errors ( Issue #44 )
+
 # 1.3.1
 * Adds responses to task model
 * Adds the ability to provide a transformation script to the client `reindex` method
