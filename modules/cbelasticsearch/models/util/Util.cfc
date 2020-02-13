@@ -9,7 +9,6 @@ component accessors="true" singleton{
     function ensureNativeStruct( required struct memento ){
         // deserialize/serialize JSON is currently the only way to to ensure deeply nested items are converted without deep recursion 
         return deserializeJSON( serializeJSON( memento, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false ) );
-
     }
 
     /**

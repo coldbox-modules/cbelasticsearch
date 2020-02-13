@@ -845,6 +845,9 @@ component
 
 		arguments.document.setId( saveResult[ "_id" ] );
 
+		// ensure the document returned on save is a native struct - workaround for a reference mutation that is occurring on deeply nested objects
+		arguments.document.setMemento( variables.util.ensureNativeStruct( arguments.document.getMemento() ) );
+
 		return arguments.document;
 
 	}
@@ -1009,8 +1012,8 @@ component
 	private any function buildUpdateAction( required Document document ){
 
 		var builder = variables.jLoader
-									.create( "io.searchbox.core.Index$Builder" )
-									.init( util.newHashMap( arguments.document.getMemento() ) );
+			.create( "io.searchbox.core.Index$Builder" )
+			.init( util.newHashMap( arguments.document.getMemento() ) );
 
 		builder.index( arguments.document.getIndex() );
 
