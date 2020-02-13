@@ -53,7 +53,7 @@ component accessors="true" singleton{
             memento.keyArray().each( function( key ){
                 if( !isNull( memento[ key ] ) && !isNumeric( memento[ key ] ) && isBoolean( memento[ key ] ) ){
                     memento[ key ] = javacast( "boolean", memento[ key ] );
-                } else if( !isSimpleValue( memento[ key ] ) ){
+                } else if( !isNull( memento[ key ] ) && !isSimpleValue( memento[ key ] ) ){
                     ensureBooleanCasting( memento[ key ] );
                 }
             } );
