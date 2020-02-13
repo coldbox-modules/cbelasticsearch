@@ -21,7 +21,8 @@ component accessors="true" singleton{
         var hashMap = variables.jLoader.create( "java.util.HashMap" ).init();
 
         if( !isNull( arguments.memento ) ){
-            hashMap.putAll( ensureBooleanCasting( arguments.memento ) );
+            // make sure we detach any references
+            hashMap.putAll( ensureBooleanCasting( duplicate( arguments.memento ) ) );
             for( var key in hashMap ){
                 if( isStruct( hashMap[ key ] ) && !isInstanceOf( hashMap[ key ], "java.util.HashMap" ) ){
                     hashMap[ key ] = newHashMap( ensureBooleanCasting( hashMap[ key ] ) );
