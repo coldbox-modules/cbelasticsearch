@@ -297,7 +297,7 @@ getInstance( "Client@cbElasticsearch" )
     );
 ```
 
-If you have more settings or constriants for the reindex action, you can pass
+If you have more settings or constraints for the reindex action, you can pass
 a struct containing valid options to `source` and `destination`.
 
 ```
