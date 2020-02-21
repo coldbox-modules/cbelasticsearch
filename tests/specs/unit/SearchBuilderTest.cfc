@@ -724,7 +724,393 @@ component extends="coldbox.system.testing.BaseTestCase"{
                 expect( searchBuilder.getDSL()[ "_source" ][ "excludes" ] ).toBe( [ "*.description" ] );
             } );
 
-		});
+            describe( "suggestions", function() {
+                describe( "suggestTerm", function() {
+                    it( "can add a term suggestion for a field", function() {
+                        var searchBuilder = variables.model.new(
+                            variables.testIndexName,
+                            "testdocs"
+                        );
+
+                        var text = "misspellde";
+                        var suggestionName = "suggestionName";
+                        var fieldName = "fieldName";
+
+                        searchBuilder.suggestTerm(
+                            text = text,
+                            name = suggestionName,
+                            field = fieldName,
+                            options = {}
+                        );
+
+                        var dsl = searchBuilder.getDSL();
+                        expect( dsl ).toBeStruct();
+                        expect( dsl ).toHaveKey( "suggest" );
+                        expect( dsl.suggest ).toBeStruct();
+                        expect( dsl.suggest ).toHaveLength( 1 );
+                        expect( dsl.suggest ).toHaveKey( suggestionName );
+                        expect( dsl.suggest[ suggestionName ] ).toBeStruct();
+                        expect( dsl.suggest[ suggestionName ] ).toHaveLength( 2 );
+                        expect( dsl.suggest[ suggestionName ] ).toHaveKey( "text" );
+                        expect( dsl.suggest[ suggestionName ].text ).toBe( text );
+                        expect( dsl.suggest[ suggestionName ] ).toHaveKey( "term" );
+                        expect( dsl.suggest[ suggestionName ].term ).toBeStruct();
+                        expect( dsl.suggest[ suggestionName ].term ).toHaveLength( 1 );
+                        expect( dsl.suggest[ suggestionName ].term ).toHaveKey( "field" );
+                        expect( dsl.suggest[ suggestionName ].term.field ).toBe( fieldName );
+                    } );
+
+                    it( "uses the suggestionName as the fieldName if not provided", function() {
+                        var searchBuilder = variables.model.new(
+                            variables.testIndexName,
+                            "testdocs"
+                        );
+
+                        var text = "misspellde";
+                        var suggestionName = "suggestionName";
+
+                        searchBuilder.suggestTerm(
+                            text = text,
+                            name = suggestionName,
+                            options = {}
+                        );
+
+                        var dsl = searchBuilder.getDSL();
+                        expect( dsl ).toBeStruct();
+                        expect( dsl ).toHaveKey( "suggest" );
+                        expect( dsl.suggest ).toBeStruct();
+                        expect( dsl.suggest ).toHaveLength( 1 );
+                        expect( dsl.suggest ).toHaveKey( suggestionName );
+                        expect( dsl.suggest[ suggestionName ] ).toBeStruct();
+                        expect( dsl.suggest[ suggestionName ] ).toHaveLength( 2 );
+                        expect( dsl.suggest[ suggestionName ] ).toHaveKey( "text" );
+                        expect( dsl.suggest[ suggestionName ].text ).toBe( text );
+                        expect( dsl.suggest[ suggestionName ] ).toHaveKey( "term" );
+                        expect( dsl.suggest[ suggestionName ].term ).toBeStruct();
+                        expect( dsl.suggest[ suggestionName ].term ).toHaveLength( 1 );
+                        expect( dsl.suggest[ suggestionName ].term ).toHaveKey( "field" );
+                        expect( dsl.suggest[ suggestionName ].term.field ).toBe( suggestionName );
+                    } );
+
+                    it( "mixes in the options to the definition", function() {
+                        var searchBuilder = variables.model.new(
+                            variables.testIndexName,
+                            "testdocs"
+                        );
+
+                        var text = "misspellde";
+                        var suggestionName = "suggestionName";
+                        var size = 5;
+
+                        searchBuilder.suggestTerm(
+                            text = text,
+                            name = suggestionName,
+                            options = {
+                                "size": size
+                            }
+                        );
+
+                        var dsl = searchBuilder.getDSL();
+                        expect( dsl ).toBeStruct();
+                        expect( dsl ).toHaveKey( "suggest" );
+                        expect( dsl.suggest ).toBeStruct();
+                        expect( dsl.suggest ).toHaveLength( 1 );
+                        expect( dsl.suggest ).toHaveKey( suggestionName );
+                        expect( dsl.suggest[ suggestionName ] ).toBeStruct();
+                        expect( dsl.suggest[ suggestionName ] ).toHaveLength( 2 );
+                        expect( dsl.suggest[ suggestionName ] ).toHaveKey( "text" );
+                        expect( dsl.suggest[ suggestionName ].text ).toBe( text );
+                        expect( dsl.suggest[ suggestionName ] ).toHaveKey( "term" );
+                        expect( dsl.suggest[ suggestionName ].term ).toBeStruct();
+                        expect( dsl.suggest[ suggestionName ].term ).toHaveLength( 2 );
+                        expect( dsl.suggest[ suggestionName ].term ).toHaveKey( "field" );
+                        expect( dsl.suggest[ suggestionName ].term.field ).toBe( suggestionName );
+                        expect( dsl.suggest[ suggestionName ].term ).toHaveKey( "size" );
+                        expect( dsl.suggest[ suggestionName ].term.size ).toBe( size );
+                    } );
+                } );
+
+                describe( "suggestPhrase", function() {
+                    it( "can add a phrase suggestion for a field", function() {
+                        var searchBuilder = variables.model.new(
+                            variables.testIndexName,
+                            "testdocs"
+                        );
+
+                        var text = "misspellde phrase";
+                        var suggestionName = "suggestionName";
+                        var fieldName = "fieldName";
+
+                        searchBuilder.suggestPhrase(
+                            text = text,
+                            name = suggestionName,
+                            field = fieldName,
+                            options = {}
+                        );
+
+                        var dsl = searchBuilder.getDSL();
+                        expect( dsl ).toBeStruct();
+                        expect( dsl ).toHaveKey( "suggest" );
+                        expect( dsl.suggest ).toBeStruct();
+                        expect( dsl.suggest ).toHaveLength( 1 );
+                        expect( dsl.suggest ).toHaveKey( suggestionName );
+                        expect( dsl.suggest[ suggestionName ] ).toBeStruct();
+                        expect( dsl.suggest[ suggestionName ] ).toHaveLength( 2 );
+                        expect( dsl.suggest[ suggestionName ] ).toHaveKey( "text" );
+                        expect( dsl.suggest[ suggestionName ].text ).toBe( text );
+                        expect( dsl.suggest[ suggestionName ] ).toHaveKey( "phrase" );
+                        expect( dsl.suggest[ suggestionName ].phrase ).toBeStruct();
+                        expect( dsl.suggest[ suggestionName ].phrase ).toHaveLength( 1 );
+                        expect( dsl.suggest[ suggestionName ].phrase ).toHaveKey( "field" );
+                        expect( dsl.suggest[ suggestionName ].phrase.field ).toBe( fieldName );
+                    } );
+
+                    it( "uses the suggestionName as the fieldName if not provided", function() {
+                        var searchBuilder = variables.model.new(
+                            variables.testIndexName,
+                            "testdocs"
+                        );
+
+                        var text = "misspellde phrase";
+                        var suggestionName = "suggestionName";
+
+                        searchBuilder.suggestPhrase(
+                            text = text,
+                            name = suggestionName,
+                            options = {}
+                        );
+
+                        var dsl = searchBuilder.getDSL();
+                        expect( dsl ).toBeStruct();
+                        expect( dsl ).toHaveKey( "suggest" );
+                        expect( dsl.suggest ).toBeStruct();
+                        expect( dsl.suggest ).toHaveLength( 1 );
+                        expect( dsl.suggest ).toHaveKey( suggestionName );
+                        expect( dsl.suggest[ suggestionName ] ).toBeStruct();
+                        expect( dsl.suggest[ suggestionName ] ).toHaveLength( 2 );
+                        expect( dsl.suggest[ suggestionName ] ).toHaveKey( "text" );
+                        expect( dsl.suggest[ suggestionName ].text ).toBe( text );
+                        expect( dsl.suggest[ suggestionName ] ).toHaveKey( "phrase" );
+                        expect( dsl.suggest[ suggestionName ].phrase ).toBeStruct();
+                        expect( dsl.suggest[ suggestionName ].phrase ).toHaveLength( 1 );
+                        expect( dsl.suggest[ suggestionName ].phrase ).toHaveKey( "field" );
+                        expect( dsl.suggest[ suggestionName ].phrase.field ).toBe( suggestionName );
+                    } );
+
+                    it( "mixes in the options to the definition", function() {
+                        var searchBuilder = variables.model.new(
+                            variables.testIndexName,
+                            "testdocs"
+                        );
+
+                        var text = "misspellde phrase";
+                        var suggestionName = "suggestionName";
+                        var size = 5;
+
+                        searchBuilder.suggestPhrase(
+                            text = text,
+                            name = suggestionName,
+                            options = {
+                                "size": size
+                            }
+                        );
+
+                        var dsl = searchBuilder.getDSL();
+                        expect( dsl ).toBeStruct();
+                        expect( dsl ).toHaveKey( "suggest" );
+                        expect( dsl.suggest ).toBeStruct();
+                        expect( dsl.suggest ).toHaveLength( 1 );
+                        expect( dsl.suggest ).toHaveKey( suggestionName );
+                        expect( dsl.suggest[ suggestionName ] ).toBeStruct();
+                        expect( dsl.suggest[ suggestionName ] ).toHaveLength( 2 );
+                        expect( dsl.suggest[ suggestionName ] ).toHaveKey( "text" );
+                        expect( dsl.suggest[ suggestionName ].text ).toBe( text );
+                        expect( dsl.suggest[ suggestionName ] ).toHaveKey( "phrase" );
+                        expect( dsl.suggest[ suggestionName ].phrase ).toBeStruct();
+                        expect( dsl.suggest[ suggestionName ].phrase ).toHaveLength( 2 );
+                        expect( dsl.suggest[ suggestionName ].phrase ).toHaveKey( "field" );
+                        expect( dsl.suggest[ suggestionName ].phrase.field ).toBe( suggestionName );
+                        expect( dsl.suggest[ suggestionName ].phrase ).toHaveKey( "size" );
+                        expect( dsl.suggest[ suggestionName ].phrase.size ).toBe( size );
+                    } );
+                } );
+
+                describe( "suggestCompletion", function() {
+                    it( "can add a completion for a field", function() {
+                        var searchBuilder = variables.model.new(
+                            variables.testIndexName,
+                            "testdocs"
+                        );
+
+                        var prefix = "search term";
+                        var completionName = "completionName";
+                        var fieldName = "fieldName";
+
+                        searchBuilder.suggestCompletion(
+                            text = prefix,
+                            name = completionName,
+                            field = fieldName,
+                            options = {}
+                        );
+
+                        var dsl = searchBuilder.getDSL();
+                        expect( dsl ).toBeStruct();
+                        expect( dsl ).toHaveKey( "suggest" );
+                        expect( dsl.suggest ).toBeStruct();
+                        expect( dsl.suggest ).toHaveLength( 1 );
+                        expect( dsl.suggest ).toHaveKey( completionName );
+                        expect( dsl.suggest[ completionName ] ).toBeStruct();
+                        expect( dsl.suggest[ completionName ] ).toHaveLength( 2 );
+                        expect( dsl.suggest[ completionName ] ).toHaveKey( "prefix" );
+                        expect( dsl.suggest[ completionName ].prefix ).toBe( prefix );
+                        expect( dsl.suggest[ completionName ] ).toHaveKey( "completion" );
+                        expect( dsl.suggest[ completionName ].completion ).toBeStruct();
+                        expect( dsl.suggest[ completionName ].completion ).toHaveLength( 1 );
+                        expect( dsl.suggest[ completionName ].completion ).toHaveKey( "field" );
+                        expect( dsl.suggest[ completionName ].completion.field ).toBe( fieldName );
+                    } );
+
+                    it( "uses the completion name as the field name if not provided", function() {
+                        var searchBuilder = variables.model.new(
+                            variables.testIndexName,
+                            "testdocs"
+                        );
+
+                        var prefix = "search term";
+                        var completionName = "completionName";
+
+                        searchBuilder.suggestCompletion(
+                            text = prefix,
+                            name = completionName,
+                            options = {}
+                        );
+
+                        var dsl = searchBuilder.getDSL();
+                        expect( dsl ).toBeStruct();
+                        expect( dsl ).toHaveKey( "suggest" );
+                        expect( dsl.suggest ).toBeStruct();
+                        expect( dsl.suggest ).toHaveLength( 1 );
+                        expect( dsl.suggest ).toHaveKey( completionName );
+                        expect( dsl.suggest[ completionName ] ).toBeStruct();
+                        expect( dsl.suggest[ completionName ] ).toHaveLength( 2 );
+                        expect( dsl.suggest[ completionName ] ).toHaveKey( "prefix" );
+                        expect( dsl.suggest[ completionName ].prefix ).toBe( prefix );
+                        expect( dsl.suggest[ completionName ] ).toHaveKey( "completion" );
+                        expect( dsl.suggest[ completionName ].completion ).toBeStruct();
+                        expect( dsl.suggest[ completionName ].completion ).toHaveLength( 1 );
+                        expect( dsl.suggest[ completionName ].completion ).toHaveKey( "field" );
+                        expect( dsl.suggest[ completionName ].completion.field ).toBe( completionName );
+                    } );
+
+                    it( "mixes in options to the completion struct", function() {
+                        var searchBuilder = variables.model.new(
+                            variables.testIndexName,
+                            "testdocs"
+                        );
+
+                        var prefix = "search term";
+                        var completionName = "completionName";
+
+                        searchBuilder.suggestCompletion(
+                            text = prefix,
+                            name = completionName,
+                            options = {
+                                "fuzzy": true
+                            }
+                        );
+
+                        var dsl = searchBuilder.getDSL();
+                        expect( dsl ).toBeStruct();
+                        expect( dsl ).toHaveKey( "suggest" );
+                        expect( dsl.suggest ).toBeStruct();
+                        expect( dsl.suggest ).toHaveLength( 1 );
+                        expect( dsl.suggest ).toHaveKey( completionName );
+                        expect( dsl.suggest[ completionName ] ).toBeStruct();
+                        expect( dsl.suggest[ completionName ] ).toHaveLength( 2 );
+                        expect( dsl.suggest[ completionName ] ).toHaveKey( "prefix" );
+                        expect( dsl.suggest[ completionName ].prefix ).toBe( prefix );
+                        expect( dsl.suggest[ completionName ] ).toHaveKey( "completion" );
+                        expect( dsl.suggest[ completionName ].completion ).toBeStruct();
+                        expect( dsl.suggest[ completionName ].completion ).toHaveLength( 2 );
+                        expect( dsl.suggest[ completionName ].completion ).toHaveKey( "field" );
+                        expect( dsl.suggest[ completionName ].completion.field ).toBe( completionName );
+                        expect( dsl.suggest[ completionName ].completion ).toHaveKey( "fuzzy" );
+                        expect( dsl.suggest[ completionName ].completion.fuzzy ).toBe( true );
+                    } );
+                } );
+
+                it( "can mix in many different suggestions", function() {
+                    var searchBuilder = variables.model.new(
+                        variables.testIndexName,
+                        "testdocs"
+                    );
+
+                    var termText = "misspellde";
+                    var termSuggestionName = "termSuggestionName";
+                    searchBuilder.suggestTerm( termText, termSuggestionName );
+
+                    var phraseText = "misspellde phrase";
+                    var phraseSuggestionName = "phraseSuggestionName";
+                    searchBuilder.suggestPhrase( phraseText, phraseSuggestionName );
+
+                    var completionText = "search term";
+                    var completionNameOne = "completionNameOne";
+                    searchBuilder.suggestCompletion( completionText, completionNameOne );
+                    var completionNameTwo = "completionNameTwo";
+                    searchBuilder.suggestCompletion( completionText, completionNameTwo );
+
+                    var dsl = searchBuilder.getDSL();
+                    expect( dsl ).toBeStruct();
+                    expect( dsl ).toHaveKey( "suggest" );
+                    expect( dsl.suggest ).toBeStruct();
+                    expect( dsl.suggest ).toHaveLength( 4 );
+
+                    expect( dsl.suggest ).toHaveKey( termSuggestionName );
+                    expect( dsl.suggest[ termSuggestionName ] ).toBeStruct();
+                    expect( dsl.suggest[ termSuggestionName ] ).toHaveLength( 2 );
+                    expect( dsl.suggest[ termSuggestionName ] ).toHaveKey( "text" );
+                    expect( dsl.suggest[ termSuggestionName ].text ).toBe( termText );
+                    expect( dsl.suggest[ termSuggestionName ] ).toHaveKey( "term" );
+                    expect( dsl.suggest[ termSuggestionName ].term ).toBeStruct();
+                    expect( dsl.suggest[ termSuggestionName ].term ).toHaveLength( 1 );
+                    expect( dsl.suggest[ termSuggestionName ].term ).toHaveKey( "field" );
+                    expect( dsl.suggest[ termSuggestionName ].term.field ).toBe( termSuggestionName );
+
+                    expect( dsl.suggest ).toHaveKey( phraseSuggestionName );
+                    expect( dsl.suggest[ phraseSuggestionName ] ).toBeStruct();
+                    expect( dsl.suggest[ phraseSuggestionName ] ).toHaveLength( 2 );
+                    expect( dsl.suggest[ phraseSuggestionName ] ).toHaveKey( "text" );
+                    expect( dsl.suggest[ phraseSuggestionName ].text ).toBe( phraseText );
+                    expect( dsl.suggest[ phraseSuggestionName ] ).toHaveKey( "phrase" );
+                    expect( dsl.suggest[ phraseSuggestionName ].phrase ).toBeStruct();
+                    expect( dsl.suggest[ phraseSuggestionName ].phrase ).toHaveLength( 1 );
+                    expect( dsl.suggest[ phraseSuggestionName ].phrase ).toHaveKey( "field" );
+                    expect( dsl.suggest[ phraseSuggestionName ].phrase.field ).toBe( phraseSuggestionName );
+
+                    expect( dsl.suggest ).toHaveKey( completionNameOne );
+                    expect( dsl.suggest[ completionNameOne ] ).toBeStruct();
+                    expect( dsl.suggest[ completionNameOne ] ).toHaveLength( 2 );
+                    expect( dsl.suggest[ completionNameOne ] ).toHaveKey( "prefix" );
+                    expect( dsl.suggest[ completionNameOne ].prefix ).toBe( completionText );
+                    expect( dsl.suggest[ completionNameOne ] ).toHaveKey( "completion" );
+                    expect( dsl.suggest[ completionNameOne ].completion ).toBeStruct();
+                    expect( dsl.suggest[ completionNameOne ].completion ).toHaveLength( 1 );
+                    expect( dsl.suggest[ completionNameOne ].completion ).toHaveKey( "field" );
+                    expect( dsl.suggest[ completionNameOne ].completion.field ).toBe( completionNameOne );
+
+                    expect( dsl.suggest ).toHaveKey( completionNameTwo );
+                    expect( dsl.suggest[ completionNameTwo ] ).toBeStruct();
+                    expect( dsl.suggest[ completionNameTwo ] ).toHaveLength( 2 );
+                    expect( dsl.suggest[ completionNameTwo ] ).toHaveKey( "prefix" );
+                    expect( dsl.suggest[ completionNameTwo ].prefix ).toBe( completionText );
+                    expect( dsl.suggest[ completionNameTwo ] ).toHaveKey( "completion" );
+                    expect( dsl.suggest[ completionNameTwo ].completion ).toBeStruct();
+                    expect( dsl.suggest[ completionNameTwo ].completion ).toHaveLength( 1 );
+                    expect( dsl.suggest[ completionNameTwo ].completion ).toHaveKey( "field" );
+                    expect( dsl.suggest[ completionNameTwo ].completion.field ).toBe( completionNameTwo );
+                } );
+            } );
+		} );
 	}
 
 }

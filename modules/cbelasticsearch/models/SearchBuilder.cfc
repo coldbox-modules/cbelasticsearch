@@ -66,6 +66,11 @@ component accessors="true" {
     **/
     property name="highlight";
 
+    /**
+    * Property containing the struct representation of suggest
+    **/
+    property name="suggest";
+
     // Optional search defaults
     property name="maxRows";
     property name="startRow";
@@ -88,6 +93,7 @@ component accessors="true" {
         variables.source        = javacast( "null", 0 );
 
         variables.highlight = {};
+        variables.suggest = {};
         variables.params = [];
 
         variables.maxRows 		= 25;
@@ -787,6 +793,81 @@ component accessors="true" {
     }
 
     /**
+    * Adds a term suggestion to a search query.
+    *
+    * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters.html
+    *
+    * @text     string  The text to match to a term suggestion.
+    * @name     string  The name for the term suggestion parameter.
+    * @field    string  The field name to match against.  Uses the `name` if not provided.
+    * @options  struct  Any additional options to specify for the term suggestion.
+    **/
+    public SearchBuilder function suggestTerm(
+        required string text,
+        required string name,
+        string field = arguments.name,
+        struct options = {}
+    ) {
+        var suggestion = { "field": arguments.field };
+        structAppend( suggestion, arguments.options, false );
+        variables.suggest[ arguments.name ] = {
+            "text": arguments.text,
+            "term": suggestion
+        };
+        return this;
+    }
+
+    /**
+    * Adds a term suggestion to a search query.
+    *
+    * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters.html
+    *
+    * @text     string  The text to match to a term suggestion.
+    * @name     string  The name for the term suggestion parameter.
+    * @field    string  The field name to match against.  Uses the `name` if not provided.
+    * @options  struct  Any additional options to specify for the term suggestion.
+    **/
+    public SearchBuilder function suggestPhrase(
+        required string text,
+        required string name,
+        string field = arguments.name,
+        struct options = {}
+    ) {
+        var suggestion = { "field": arguments.field };
+        structAppend( suggestion, arguments.options, false );
+        variables.suggest[ arguments.name ] = {
+            "text": arguments.text,
+            "phrase": suggestion
+        };
+        return this;
+    }
+
+    /**
+    * Adds a completion to a search query.
+    *
+    * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters.html
+    *
+    * @text     string  The prefix text to match to a completion.
+    * @name     string  The name for the completion parameter.
+    * @field    string  The field name to match against.  Uses the `name` if not provided.
+    * @options  struct  Any additional options to specify for the completion.
+    **/
+    public SearchBuilder function suggestCompletion(
+        required string text,
+        required string name,
+        string field = arguments.name,
+        struct options = {}
+    ) {
+        var completion = { "field": arguments.field };
+        structAppend( completion, arguments.options, false );
+        variables.suggest[ arguments.name ] = {
+            "prefix": arguments.text,
+            "completion": completion
+        };
+        return this;
+    }
+
+    /**
     * Adds an aggregation directive to the search parameters
     *
     * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html
@@ -971,17 +1052,20 @@ component accessors="true" {
             dsl[ "_source" ] = variables.source;
         }
 
-        if( !isNull( variables.aggregations ) ){
+        if ( !isNull( variables.suggest ) && !structIsEmpty( variables.suggest ) ) {
+            dsl[ "suggest" ] = variables.suggest;
+        }
+
+        if ( !isNull( variables.aggregations ) ) {
             dsl[ "aggs" ] = variables.aggregations;
         }
 
-        if( !isNull( variables.script ) ){
+        if ( !isNull( variables.script ) ) {
             dsl[ "script" ] = variables.script;
         }
 
-        if( !isNull( variables.sorting ) ){
-
-            //we used a linked hashmap for sorting to maintain order
+        if ( !isNull( variables.sorting ) ) {
+            // we used a linked hashmap for sorting to maintain order
             dsl[ "sort" ] = createObject( "java", "java.util.LinkedHashMap" ).init();
 
             for( var sort in variables.sorting ){
@@ -989,19 +1073,19 @@ component accessors="true" {
             }
         }
 
-        if( variables.matchType != 'any' ){
-            switch( variables.matchType ){
-                case "all":{
-                    dsl["query"][ "match_all" ] = {};
-                    if( !isNull( varibles.matchBoost ) ){
-                        dsl["query"][ "match_all" ][ "boost" ] = variables.matchBoost;
+        if ( variables.matchType != 'any' ) {
+            switch ( variables.matchType ) {
+                case "all": {
+                    dsl[ "query" ][ "match_all" ] = {};
+                    if ( !isNull( varibles.matchBoost ) ) {
+                        dsl[ "query" ][ "match_all" ][ "boost" ] = variables.matchBoost;
                     }
                     break;
                 }
-                case "none":{
-                    dsl["query"][ "match_none" ] = {};
-                    if( !isNull( varibles.matchBoost ) ){
-                        dsl["query"][ "match_none" ][ "boost" ] = variables.matchBoost;
+                case "none": {
+                    dsl[ "query" ][ "match_none" ] = {};
+                    if ( !isNull( varibles.matchBoost ) ) {
+                        dsl[ "query" ][ "match_none" ][ "boost" ] = variables.matchBoost;
                     }
                     break;
                 }
