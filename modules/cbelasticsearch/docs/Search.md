@@ -127,6 +127,10 @@ While our documents would still be scored, the results order would be changed to
 * `sort(any sort, [any sortConfig])` - Applies a custom sort to the search query.
 * `term(string name, any value, [numeric boost])` - Adds an exact value restriction ( elasticsearch: term ) to the query.
 * `aggregation(string name, struct options)`  - Adds an aggregation directive to the search parameters.
+* `highlight(struct highlight)`  - Adds a highlight directive to the search parameters.
+* `suggestTerm(string text, string name, string field, struct options)`  - Adds a term suggestion to the query.
+* `suggestPhrase(string text, string name, string field, struct options)`  - Adds a phrase suggestion to the query.
+* `suggestCompletion(string text, string name, string field, struct options)`  - Adds a completion suggestion to the query.
 
 Counting Documents
 ===================

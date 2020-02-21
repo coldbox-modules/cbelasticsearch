@@ -785,10 +785,8 @@ component accessors="true" {
     *
     * @highlight 	struct      the elasticsearch highlight DSL struct
     **/
-    SearchBuilder function highLight( required  highlight ){
-
+    public SearchBuilder function highlight( required struct highlight ) {
         variables.highlight = arguments.highlight;
-
         return this;
     }
 
