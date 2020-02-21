@@ -85,10 +85,7 @@ component accessors="true" {
         //ensure defaults, in case we are re-using a search builder with new()
         variables.matchType    	= "any";
         variables.query 		= {};
-        variables.source        = {
-            "includes" = [],
-            "excludes" = []
-        };
+        variables.source        = javacast( "null", 0 );
 
         variables.highlight = {};
         variables.params = [];
@@ -757,7 +754,7 @@ component accessors="true" {
     /**
      * Adds a URL parameter to the request ( transformation, throttling, etc. )
      * Example https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-update-by-query.html#_url_parameters
-     * 
+     *
      * @name  the name of the URL param
      * @value  the value of the param
      */
@@ -830,7 +827,7 @@ component accessors="true" {
 
             for( var sortDirective in sortDirectives ){
                 var directiveItems = listToArray( sortDirective, " " );
-                variables.sorting.append( 
+                variables.sorting.append(
                     {
                         "#directiveItems[ 1 ]#" : { "order" : arrayLen( directiveItems ) > 1 ? lcase( directiveItems[ 2 ] ) : "asc" }
                     }
@@ -957,15 +954,22 @@ component accessors="true" {
 
     }
 
-    struct function getDSL(){
+    any function getDSL() {
+        var dsl = {};
 
-        var dsl = {
-            "from"    : variables.startRow,
-            "size"    : variables.maxRows,
-            "query"   : variables.query,
-            "_source" : variables.source,
-            "highlight" : variables.highlight
-        };
+        if ( !isNull( variables.query ) && !structIsEmpty( variables.query ) ) {
+            dsl[ "query" ] = variables.query;
+            dsl[ "from"] = variables.startRow;
+            dsl[ "size" ] = variables.maxRows;
+        }
+
+        if ( !isNull( variables.highlight ) && !structIsEmpty( variables.highlight ) ) {
+            dsl[ "highlight" ] = variables.highlight;
+        }
+
+        if ( !isNull( variables.source ) ) {
+            dsl[ "_source" ] = variables.source;
+        }
 
         if( !isNull( variables.aggregations ) ){
             dsl[ "aggs" ] = variables.aggregations;
@@ -1012,19 +1016,33 @@ component accessors="true" {
         return serializeJSON( getDSL(), false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false );
     }
 
-    function setSource( struct source = {} ) {
-        param arguments.source.includes = [];
-        param arguments.source.excludes = [];
-        variables.source = arguments.source;
+    function setSource( any source ) {
+        if ( isNull( arguments.source ) ) {
+            variables.source = javacast( "null", 0 );
+        } else {
+            if ( isStruct( arguments.source ) ) {
+                param arguments.source.includes = [];
+                param arguments.source.excludes = [];
+            }
+            variables.source = arguments.source;
+        }
         return this;
     }
 
     function setSourceIncludes( array includes = [] ) {
+        param variables.source = {
+            "includes": [],
+            "excludes": []
+        };
         variables.source.includes = arguments.includes;
         return this;
     }
 
     function setSourceExcludes( array excludes = [] ) {
+        param variables.source = {
+            "includes": [],
+            "excludes": []
+        };
         variables.source.excludes = arguments.excludes;
         return this;
     }
