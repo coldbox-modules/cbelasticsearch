@@ -84,25 +84,29 @@ interface{
     /**
     * Applies a reindex action
     *
-    * @source      string   The source index name or struct of options
-	* @destination string   The destination index name or struct of options
-	* @waitForCompletion boolean whether to return the result or an asynchronous task
-	* @params any   Additional url params to add to the reindex action. 
-	*               Supports multiple formats : `requests_per_second=50&slices=5`, `{ "requests_per_second" : 50, "slices" : 5 }`, or `[ { "name" : "requests_per_second", "value" : 50 } ]` )
+    * @source               string      The source index name or struct of options
+	* @destination          string      The destination index name or struct of options
+	* @waitForCompletion    boolean     Whether to return the result or an asynchronous task
+	* @params               any         Additional url params to add to the reindex action.
+    *                                   Supports multiple formats : `requests_per_second=50&slices=5`, `{ "requests_per_second" : 50, "slices" : 5 }`, or `[ { "name" : "requests_per_second", "value" : 50 } ]` )
+    * @script               any         A script to run while reindexing.
+    * @throwOnError         boolean     Whether to throw an exception if the reindexing fails.  This flag is
+    *                                   only used if `waitForCompletion` is `true`.
 	*
-	* @return      any 	Struct result of the reindex action if waiting for completion or a Task object if dispatched asnyc
+	* @return               any 	    Struct result of the reindex action if waiting for completion or a Task object if dispatched asnyc
 	**/
 	any function reindex(
         required any source,
         required any destination,
 		boolean waitForCompletion = true,
 		any params,
-		any script
+        any script,
+        boolean throwOnError = true
     );
-	
+
 	/**
 	 * Returns a struct containing all indices in the system, with statistics
-	 * 
+	 *
 	 * @verbose 	boolean 	whether to return the full stats output for the index
 	 */
 	struct function getIndices( verbose = false );
@@ -111,7 +115,7 @@ interface{
 	/**
 	 * Returns a struct containing the mappings of all aliases in the cluster
 	 *
-	 * @aliases 
+	 * @aliases
 	 */
 	struct function getAliases();
 
@@ -175,10 +179,10 @@ interface{
 	);
 
 	/**
-	 * Retreives a task and its status 
-	 * 
+	 * Retreives a task and its status
+	 *
 	 * @taskId          string                          The identifier of the task to retreive
-	 * 
+	 *
 	 * @interfaced
 	 */
 	any function getTask( required string taskId, Task taskObj );
@@ -241,7 +245,7 @@ interface{
 	/**
 	 * Parses a parameter argument.
 	 * upports multiple formats : `requests_per_second=50&slices=5`, `{ "requests_per_second" : 50, "slices" : 5 }`, or `[ { "name" : "requests_per_second", "value" : 50 } ]` )
-	 * 
+	 *
 	 * @params any the parameters to filter and transform
 	 */
 	array function parseParams( required any params );

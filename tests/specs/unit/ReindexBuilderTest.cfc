@@ -155,6 +155,19 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
                 expect( variables.model.count( searchTwo ) ).toBe( 5 );
             } );
+
+            it( "throws an exception when an error occurs by default", function() {
+                expect( function() {
+                    variables.model.reindex(
+                        source = {
+                            "index": "no_such_index",
+                            "type": "testdocs"
+                        },
+                        destination = "another_nonexistent_index",
+                        waitForCompletion = true
+                    );
+                } ).toThrow( type = "cbElasticsearch.JestClient.ReindexFailedException" );
+            } );
         } );
     }
 }
