@@ -66,6 +66,11 @@ component accessors="true" {
     **/
     property name="highlight";
 
+    /**
+    * Property containing the struct representation of suggest
+    **/
+    property name="suggest";
+
     // Optional search defaults
     property name="maxRows";
     property name="startRow";
@@ -85,12 +90,10 @@ component accessors="true" {
         //ensure defaults, in case we are re-using a search builder with new()
         variables.matchType    	= "any";
         variables.query 		= {};
-        variables.source        = {
-            "includes" = [],
-            "excludes" = []
-        };
+        variables.source        = javacast( "null", 0 );
 
         variables.highlight = {};
+        variables.suggest = {};
         variables.params = [];
 
         variables.maxRows 		= 25;
@@ -757,7 +760,7 @@ component accessors="true" {
     /**
      * Adds a URL parameter to the request ( transformation, throttling, etc. )
      * Example https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-update-by-query.html#_url_parameters
-     * 
+     *
      * @name  the name of the URL param
      * @value  the value of the param
      */
@@ -782,10 +785,83 @@ component accessors="true" {
     *
     * @highlight 	struct      the elasticsearch highlight DSL struct
     **/
-    SearchBuilder function highLight( required  highlight ){
-
+    public SearchBuilder function highlight( required struct highlight ) {
         variables.highlight = arguments.highlight;
+        return this;
+    }
 
+    /**
+    * Adds a term suggestion to a search query.
+    *
+    * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters.html
+    *
+    * @text     string  The text to match to a term suggestion.
+    * @name     string  The name for the term suggestion parameter.
+    * @field    string  The field name to match against.  Uses the `name` if not provided.
+    * @options  struct  Any additional options to specify for the term suggestion.
+    **/
+    public SearchBuilder function suggestTerm(
+        required string text,
+        required string name,
+        string field = arguments.name,
+        struct options = {}
+    ) {
+        var suggestion = { "field": arguments.field };
+        structAppend( suggestion, arguments.options, false );
+        variables.suggest[ arguments.name ] = {
+            "text": arguments.text,
+            "term": suggestion
+        };
+        return this;
+    }
+
+    /**
+    * Adds a term suggestion to a search query.
+    *
+    * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters.html
+    *
+    * @text     string  The text to match to a term suggestion.
+    * @name     string  The name for the term suggestion parameter.
+    * @field    string  The field name to match against.  Uses the `name` if not provided.
+    * @options  struct  Any additional options to specify for the term suggestion.
+    **/
+    public SearchBuilder function suggestPhrase(
+        required string text,
+        required string name,
+        string field = arguments.name,
+        struct options = {}
+    ) {
+        var suggestion = { "field": arguments.field };
+        structAppend( suggestion, arguments.options, false );
+        variables.suggest[ arguments.name ] = {
+            "text": arguments.text,
+            "phrase": suggestion
+        };
+        return this;
+    }
+
+    /**
+    * Adds a completion to a search query.
+    *
+    * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters.html
+    *
+    * @text     string  The prefix text to match to a completion.
+    * @name     string  The name for the completion parameter.
+    * @field    string  The field name to match against.  Uses the `name` if not provided.
+    * @options  struct  Any additional options to specify for the completion.
+    **/
+    public SearchBuilder function suggestCompletion(
+        required string text,
+        required string name,
+        string field = arguments.name,
+        struct options = {}
+    ) {
+        var completion = { "field": arguments.field };
+        structAppend( completion, arguments.options, false );
+        variables.suggest[ arguments.name ] = {
+            "prefix": arguments.text,
+            "completion": completion
+        };
         return this;
     }
 
@@ -830,7 +906,7 @@ component accessors="true" {
 
             for( var sortDirective in sortDirectives ){
                 var directiveItems = listToArray( sortDirective, " " );
-                variables.sorting.append( 
+                variables.sorting.append(
                     {
                         "#directiveItems[ 1 ]#" : { "order" : arrayLen( directiveItems ) > 1 ? lcase( directiveItems[ 2 ] ) : "asc" }
                     }
@@ -957,27 +1033,37 @@ component accessors="true" {
 
     }
 
-    struct function getDSL(){
+    any function getDSL() {
+        var dsl = {};
 
-        var dsl = {
-            "from"    : variables.startRow,
-            "size"    : variables.maxRows,
-            "query"   : variables.query,
-            "_source" : variables.source,
-            "highlight" : variables.highlight
-        };
+        if ( !isNull( variables.query ) && !structIsEmpty( variables.query ) ) {
+            dsl[ "query" ] = variables.query;
+            dsl[ "from"] = variables.startRow;
+            dsl[ "size" ] = variables.maxRows;
+        }
 
-        if( !isNull( variables.aggregations ) ){
+        if ( !isNull( variables.highlight ) && !structIsEmpty( variables.highlight ) ) {
+            dsl[ "highlight" ] = variables.highlight;
+        }
+
+        if ( !isNull( variables.source ) ) {
+            dsl[ "_source" ] = variables.source;
+        }
+
+        if ( !isNull( variables.suggest ) && !structIsEmpty( variables.suggest ) ) {
+            dsl[ "suggest" ] = variables.suggest;
+        }
+
+        if ( !isNull( variables.aggregations ) ) {
             dsl[ "aggs" ] = variables.aggregations;
         }
 
-        if( !isNull( variables.script ) ){
+        if ( !isNull( variables.script ) ) {
             dsl[ "script" ] = variables.script;
         }
 
-        if( !isNull( variables.sorting ) ){
-
-            //we used a linked hashmap for sorting to maintain order
+        if ( !isNull( variables.sorting ) ) {
+            // we used a linked hashmap for sorting to maintain order
             dsl[ "sort" ] = createObject( "java", "java.util.LinkedHashMap" ).init();
 
             for( var sort in variables.sorting ){
@@ -985,19 +1071,19 @@ component accessors="true" {
             }
         }
 
-        if( variables.matchType != 'any' ){
-            switch( variables.matchType ){
-                case "all":{
-                    dsl["query"][ "match_all" ] = {};
-                    if( !isNull( varibles.matchBoost ) ){
-                        dsl["query"][ "match_all" ][ "boost" ] = variables.matchBoost;
+        if ( variables.matchType != 'any' ) {
+            switch ( variables.matchType ) {
+                case "all": {
+                    dsl[ "query" ][ "match_all" ] = {};
+                    if ( !isNull( varibles.matchBoost ) ) {
+                        dsl[ "query" ][ "match_all" ][ "boost" ] = variables.matchBoost;
                     }
                     break;
                 }
-                case "none":{
-                    dsl["query"][ "match_none" ] = {};
-                    if( !isNull( varibles.matchBoost ) ){
-                        dsl["query"][ "match_none" ][ "boost" ] = variables.matchBoost;
+                case "none": {
+                    dsl[ "query" ][ "match_none" ] = {};
+                    if ( !isNull( varibles.matchBoost ) ) {
+                        dsl[ "query" ][ "match_none" ][ "boost" ] = variables.matchBoost;
                     }
                     break;
                 }
@@ -1012,19 +1098,33 @@ component accessors="true" {
         return serializeJSON( getDSL(), false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false );
     }
 
-    function setSource( struct source = {} ) {
-        param arguments.source.includes = [];
-        param arguments.source.excludes = [];
-        variables.source = arguments.source;
+    function setSource( any source ) {
+        if ( isNull( arguments.source ) ) {
+            variables.source = javacast( "null", 0 );
+        } else {
+            if ( isStruct( arguments.source ) ) {
+                param arguments.source.includes = [];
+                param arguments.source.excludes = [];
+            }
+            variables.source = arguments.source;
+        }
         return this;
     }
 
     function setSourceIncludes( array includes = [] ) {
+        param variables.source = {
+            "includes": [],
+            "excludes": []
+        };
         variables.source.includes = arguments.includes;
         return this;
     }
 
     function setSourceExcludes( array excludes = [] ) {
+        param variables.source = {
+            "includes": [],
+            "excludes": []
+        };
         variables.source.excludes = arguments.excludes;
         return this;
     }
