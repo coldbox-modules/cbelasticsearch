@@ -86,7 +86,7 @@ component
 	void function configure( Config configuration ){
 
 		lock type="exclusive" name="JestClientConfigurationLock" timeout="10"{
-			
+
 			if( isNull( getInstanceConfig() ) ){
 				variables.instanceConfig =  getConfig();
 			}
@@ -96,11 +96,11 @@ component
 			var configSettings = variables.instanceConfig.getConfigStruct();
 
 			var hostConnections = jLoader.create( "java.util.ArrayList" ).init();
-	
+
 			for( var host in configSettings.hosts ){
 				arrayAppend( hostConnections, host.serverProtocol & "://" & host.serverName & ":" & host.serverPort );
 			}
-	
+
 			var configBuilder = variables.jLoader
 											.create( "io.searchbox.client.config.HttpClientConfig$Builder" )
 											.init( hostConnections )
@@ -110,20 +110,20 @@ component
 											.readTimeout( configSettings.readTimeout )
 											.connTimeout( configSettings.connectionTimeout )
 											.maxTotalConnection( configSettings.maxConnections );
-	
+
 			if(
 				structKeyExists( configSettings, "defaultCredentials" )
 				&& len( configSettings.defaultCredentials.username )
 			){
 				configBuilder.defaultCredentials( configSettings.defaultCredentials.username, configSettings.defaultCredentials.password );
 			}
-	
+
 			var factory = variables.jLoader.create( "io.searchbox.client.JestClientFactory" ).init();
-	
+
 			factory.setHttpClientConfig( configBuilder.build() );
-	
+
 			variables.HTTPClient = factory.getObject();
-	
+
 			// perform a little introspect on the start page to see what version we are on
 			if( len( configSettings.versionTarget ) ){
 				variables.versionTarget = configSettings.versionTarget;
@@ -141,16 +141,16 @@ component
 				try{
 					var startPage = deSerializeJSON( h.send().getPrefix().fileContent );
 					if( isSimpleValue( startPage.version ) ){
-						variables.versionTarget = startPage.version;	
+						variables.versionTarget = startPage.version;
 					} else {
 						variables.versionTarget = startPage.version.number;
 					}
 				} catch( any e ){
 					variables.versionTarget = '6.8.4';
-					log.error( "A connection to the elasticsearch server at #hostConnections[ 1 ]# could not be established.  This may be due to an authentication issue or the server may not be available at this time.  The version target has been set to #variables.versionTarget#." );	
+					log.error( "A connection to the elasticsearch server at #hostConnections[ 1 ]# could not be established.  This may be due to an authentication issue or the server may not be available at this time.  The version target has been set to #variables.versionTarget#." );
 				}
 			}
-	
+
 		}
 
 	}
@@ -377,20 +377,24 @@ component
     * Applies a reindex action
     * @interfaced
     *
-    * @source      string   The source index name or struct of options
-	* @destination string   The destination index name or struct of options
-	* @waitForCompletion boolean whether to return the result or an asynchronous task
-	* @params any   Additional url params to add to the reindex action. 
-	*               Supports multiple formats : `requests_per_second=50&slices=5`, `{ "requests_per_second" : 50, "slices" : 5 }`, or `[ { "name" : "requests_per_second", "value" : 50 } ]` )
+    * @source               string      The source index name or struct of options
+	* @destination          string      The destination index name or struct of options
+	* @waitForCompletion    boolean     Whether to return the result or an asynchronous task
+	* @params               any         Additional url params to add to the reindex action.
+    *                                   Supports multiple formats : `requests_per_second=50&slices=5`, `{ "requests_per_second" : 50, "slices" : 5 }`, or `[ { "name" : "requests_per_second", "value" : 50 } ]` )
+    * @script               any         A script to run while reindexing.
+    * @throwOnError         boolean     Whether to throw an exception if the reindexing fails.  This flag is
+    *                                   only used if `waitForCompletion` is `true`.
 	*
-	* @return      any 	Struct result of the reindex action if waiting for completion or a Task object if dispatched asnyc
+	* @return               any 	    Struct result of the reindex action if waiting for completion or a Task object if dispatched asnyc
 	**/
 	any function reindex(
         required any source,
         required any destination,
 		boolean waitForCompletion = true,
 		any params,
-		any script
+        any script,
+        boolean throwOnError = true
     ) {
 		if( isMajorVersion( 7 ) && isStruct( arguments.source ) ){
 			structDelete( arguments.source, "type" );
@@ -408,7 +412,7 @@ component
 				reindexBuilder.setParameter( param.name, param.value );
 			} );
 		}
-		
+
 		if( structKeyExists( arguments, "script" ) ){
 			if( isSimpleValue( arguments.script ) ){
 				reindexBuilder.script( { "lang" : "painless", "source" : arguments.script } );
@@ -417,8 +421,23 @@ component
 			}
 		}
 
-		var reindexResult =  execute( reindexBuilder.build() );
-		if( arguments.waitForCompletion || !structKeyExists( reindexResult, "task" ) ){
+		var reindexResult = execute(
+            action = reindexBuilder.build(),
+            returnObject = arguments.waitForCompletion && arguments.throwOnError
+        );
+
+        if ( arguments.waitForCompletion && arguments.throwOnError ) {
+            if ( !reindexResult.isSucceeded() ) {
+                throw(
+                    type = "cbElasticsearch.JestClient.ReindexFailedException",
+                    message = "The reindex action failed with response code [#reindexResult.getResponseCode()#].  Error message: #reindexResult.getErrorMessage()#",
+                    extendedInfo = reindexResult.getJSONString()
+                )
+            }
+            reindexResult = deserializeJSON( reindexResult.getJSONString() );
+        }
+
+		if ( arguments.waitForCompletion || !structKeyExists( reindexResult, "task" ) ) {
 			return reindexResult;
 		} else {
 			return getTask( reindexResult.task );
@@ -447,7 +466,7 @@ component
 
 	/**
 	 * Returns a struct containing all indices in the system, with statistics
-	 * 
+	 *
 	 * @verbose 	boolean 	whether to return the full stats output for the index
 	 */
 	struct function getIndices( verbose = false ){
@@ -470,7 +489,7 @@ component
 		} else {
 			// var scoping this outside of the reduce method seems to prevent missing data on ACF, post-reduction
 			var indexMap = {};
-			// using an each loop as keys seem to be skipped on ACF 
+			// using an each loop as keys seem to be skipped on ACF
 			statsResult.indices.keyArray().each( function( key ){
 				indexMap[ key ] = {
 					"uuid" : statsResult.indices[ key ][ "uuid" ],
@@ -481,11 +500,11 @@ component
 			return indexMap;
 		}
 	}
-	
+
 	/**
 	 * Returns a struct containing the mappings of all aliases in the cluster
 	 *
-	 * @aliases 
+	 * @aliases
 	 */
 	struct function getAliases(){
 		var getBuilder = variables.jLoader.create( "io.searchbox.indices.aliases.GetAliases$Builder" );
@@ -496,10 +515,10 @@ component
 			"aliases" : {},
 			"unassigned" : []
 		};
-		
+
 		// using an each loop since reduce seems to cause an empty "unassigned" array to disappear on Lucee 5 and keys to come up missing on ACF
-		aliasesResult.keyArray().each( 
-			function( indexName ){ 
+		aliasesResult.keyArray().each(
+			function( indexName ){
 				if( structKeyExists( aliasesResult[ indexName], "aliases" ) && !structIsEmpty( aliasesResult[ indexName].aliases ) ){
 					// we need to scope this for the ACF compiler
 					var indexObj = aliasesResult[ indexName];
@@ -728,7 +747,7 @@ component
 		if( isNull( arguments.index ) ){
 			arguments.index = variables.instanceConfig.get( "defaultIndex" );
 		}
-		
+
 		if( isMajorVersion( 7 ) ){
 			arguments.type = '_doc';
 		}
@@ -771,11 +790,11 @@ component
 	}
 
 	/**
-	 * Retreives a task and its status 
-	 * 
+	 * Retreives a task and its status
+	 *
 	 * @taskId          string                          The identifier of the task to retreive
 	 * @taskObj         Task                            The task object used for population - defaults to a new task
-	 * 
+	 *
 	 * @interfaced
 	 */
 	any function getTask( required string taskId, Task taskObj=newTask() ){
@@ -800,11 +819,11 @@ component
 
 	/**
 	 * Retreives all tasks running on the cluster
-	 * 
+	 *
 	 * @interfaced
 	 */
 	any function getTasks(){
-		
+
 		var taskObj = execute(
 			variables.jLoader.create( "io.searchbox.cluster.TasksInformation$Builder" )
 								.init()
@@ -831,7 +850,7 @@ component
 	**/
 	Document function save( required Document document ){
 		var updateAction = buildUpdateAction( arguments.document );
-		
+
 		var saveResult = execute( updateAction );
 
 		if( structKeyExists( saveResult, "error" ) ){
@@ -956,7 +975,7 @@ component
 				arguments.searchBuilder.term( "_type", arguments.searchBuilder.getType() );
 			} else {
 				updateBuilder.addtype( arguments.searchBuilder.getType() );
-			}	
+			}
 		}
 
 		parseParams( arguments.searchBuilder.getParams() ).each( function( param ){
@@ -1164,7 +1183,7 @@ component
 	/**
 	 * Parses a parameter argument.
 	 * upports multiple formats : `requests_per_second=50&slices=5`, `{ "requests_per_second" : 50, "slices" : 5 }`, or `[ { "name" : "requests_per_second", "value" : 50 } ]` )
-	 * 
+	 *
 	 * @params any the parameters to filter and transform
 	 */
 	array function parseParams( required any params ){
@@ -1190,7 +1209,7 @@ component
 
 	/**
 	 * Returns a boolean as to whether the target version matches a major version
-	 * 
+	 *
 	 * @versionNumber
 	 */
 	private boolean function isMajorVersion( required numeric versionNumber ){

@@ -337,3 +337,6 @@ getInstance( "Client@cbElasticsearch" )
         }
     );
 ```
+
+If you `waitForCompletion` and the reindex action fails, a `cbElasticsearch.JestClient.ReindexFailedException`
+will be thrown.  You can disable the exception by passing `false` to the `throwOnError` parameter.
