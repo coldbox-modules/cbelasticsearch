@@ -98,6 +98,9 @@ component
 			for( var propName in arguments.properties ){
 				switch( propName ){
 					case "settings":{
+						for ( var key in arguments.properties[ propName ] ) 
+							variables.settings[ key ] = arguments.properties[ propName ][ key ];
+						}
 						variables.settings = arguments.properties[ propName ];
 						//ensure we cast our keys properly
 						if( structKeyExists( variables.settings, "number_of_shards" ) ){
