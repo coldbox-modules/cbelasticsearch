@@ -1,6 +1,6 @@
 CHANGELOG
 =========
-# 1.3.3
+# 1.4.0
 * Adds new search builder methods `suggestTerm`, `suggestPhrase`, and `suggestCompletion` for auto-completion and auto-suggestion queries
 * Adds a throw on error argument, with a default of true, to client reindex() method when waiting for completion
 * Fixes an issue where default shard/replica settings were being overwritten when passing a complete config
