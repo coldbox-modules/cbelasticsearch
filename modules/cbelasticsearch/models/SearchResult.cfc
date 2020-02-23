@@ -1,13 +1,13 @@
 /**
 *
 * Elasticsearch Search Result Object
-* 
+*
 * @package cbElasticsearch.models
 * @author Jon Clausen <jclausen@ortussolutions.com>
 * @license Apache v2.0 <http://www.apache.org/licenses/>
-* 
+*
 */
-component accessors="true"{
+component accessors="true" {
 
 	/**
 	* The array of result hits
@@ -17,7 +17,12 @@ component accessors="true"{
 	/**
 	* The array of result of aggregations
 	**/
-	property name="aggregations";
+    property name="aggregations";
+
+    /**
+	* The struct result of suggestions
+	**/
+	property name="suggestions";
 
 	/**
 	* The total number of hits
@@ -61,11 +66,11 @@ component accessors="true"{
 	SearchResult function new( struct properties ){
 
 		init();
-		
+
 		if( structKeyExists( arguments, "properties" ) ){
 
 			populate( arguments.properties );
-	
+
 		}
 
 		return this;
@@ -88,7 +93,7 @@ component accessors="true"{
 		// Throw if our configuration doesn't contain a valid search response
 		if( !isStruct( hits ) || !structKeyExists( hits, "total" ) ){
 
-			throw( 
+			throw(
 
 				type            = "cbElasticsearch.SearchResult.ClientErrorException",
 				message         = "The server did not return a valid search response. This may be due to syntax errors in your query or credentials." & ( structKeyExists( arguments.properties, "error" ) ? " Reason: #arguments.properties.error.reason#" : "" ),
@@ -100,12 +105,16 @@ component accessors="true"{
 
 		if( structKeyExists( arguments.properties, "aggregations" ) ){
 			variables.aggregations = arguments.properties.aggregations;
+        }
+
+        if ( structKeyExists( arguments.properties, "suggest" ) ) {
+			variables.suggestions = arguments.properties.suggest;
 		}
 
 		variables.hitCount = isSimpleValue( hits[ "total" ] ) ? hits[ "total" ] : hits[ "total" ][ "value" ];
 
 		if( structKeyExists( hits, "max_score" ) ){
-			variables.maxScore = hits[ "max_score" ];		
+			variables.maxScore = hits[ "max_score" ];
 		}
 
 		return populateHits( hits.hits );
@@ -117,30 +126,30 @@ component accessors="true"{
 	* @hits 	array 		The array of search results hits
 	**/
 	SearchResult function populateHits( required array hits ){
-		
+
 		variables.hits = [];
 
 		for( var hit in arguments.hits ){
 			var doc = newDocument().populate( hit[ "_source" ] );
-			
+
 			doc.setIndex( hit[ "_index" ] );
-			
+
 			if( structKeyExists( hit, "_type" ) ){
 				doc.setType( hit[ "_type" ] );
 			}
 
 			doc.setId( hit[ "_id" ] );
 
-			if( structKeyExists( hit, "_score" ) ){			
-				doc.setScore( hit[ "_score" ] );	
+			if( structKeyExists( hit, "_score" ) ){
+				doc.setScore( hit[ "_score" ] );
 			}
 
 			if ( structKeyExists( hit, "highlight" ) ) {
 				doc.setHighlights( hit[ "highlight" ] );
 			}
 
-			arrayAppend( 
-				variables.hits, 
+			arrayAppend(
+				variables.hits,
 				doc
 			);
 		}

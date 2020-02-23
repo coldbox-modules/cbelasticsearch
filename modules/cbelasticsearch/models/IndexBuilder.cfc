@@ -43,13 +43,6 @@ component
 
 		variables.indexName = getConfig().get( "defaultIndex" );
 
-		var nullDefaults = [ "settings" ];
-
-		for( var nullable in nullDefaults ){
-			if( !isNull( variables[ nullable ] ) ){
-				variables[ nullable ] = javacast( "null", 0 );
-			}
-		}
 	}
 
 	/**
@@ -98,7 +91,9 @@ component
 			for( var propName in arguments.properties ){
 				switch( propName ){
 					case "settings":{
-						variables.settings = arguments.properties[ propName ];
+						for ( var key in arguments.properties[ propName ] ){ 
+							variables.settings[ key ] = arguments.properties[ propName ][ key ];
+						}
 						//ensure we cast our keys properly
 						if( structKeyExists( variables.settings, "number_of_shards" ) ){
 							variables.settings.number_of_shards = javacast( "int", variables.settings.number_of_shards );
