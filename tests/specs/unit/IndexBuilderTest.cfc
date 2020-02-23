@@ -34,7 +34,12 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( newIndex.getAliases() ).toBeStruct();
 				expect( structIsEmpty( newIndex.getAliases() ) ).toBeTrue();
 
-				expect( isNull( newIndex.getSettings() ) ).toBeTrue();
+				expect( newIndex.getSettings() ).toBeStruct()
+												.toHaveKey( "number_of_shards" )
+												.toHaveKey( "number_of_replicas" );
+
+				expect( newIndex.getSettings().number_of_shards ).toBe( newIndex.getConfig().get( "defaultIndexShards" ) );
+				expect( newIndex.getSettings().number_of_replicas ).toBe( newIndex.getConfig().get( "defaultIndexReplicas" ) );
 
 
 			});
@@ -70,6 +75,42 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( newIndex.getAliases() ).toBeStruct();
 				expect( structIsEmpty( newIndex.getMappings() ) ).toBeFalse();
 				expect( newIndex.getIndexName() ).toBe( variables.testIndexName );
+
+			});
+			
+			it( "Tests that a partial settings struct passed to new() will not override the defaults", function(){
+
+				var indexSettings = {
+										"mappings":{
+											"testdocs":{
+												"_all"       : { "enabled": false },
+												"properties" : {
+													"title"      : {"type" : "text"},
+													"createdTime": {
+														"type"  : "date",
+														"format": "date_time_no_millis"
+													}
+												}
+											}
+										},
+										"aliases": { "testalias" : {} } ,
+										"settings":{
+											"index.mapping.total_fields.limit": 500000
+										}
+									};
+
+				var newIndex = variables.model.new( name=variables.testIndexName, properties=indexSettings );
+
+				expect( newIndex.getSettings() ).toBeStruct();
+				expect( structIsEmpty( newIndex.getSettings() ) ).toBeFalse();
+				expect( newIndex.getMappings() ).toBeStruct();
+				expect( structIsEmpty( newIndex.getAliases() ) ).toBeFalse();
+				expect( newIndex.getAliases() ).toBeStruct();
+				expect( structIsEmpty( newIndex.getMappings() ) ).toBeFalse();
+				expect( newIndex.getIndexName() ).toBe( variables.testIndexName );
+
+				expect( newIndex.getSettings() ).toHaveKey( "number_of_shards" )
+												.toHaveKey( "number_of_replicas" );
 
             });
 
@@ -128,7 +169,13 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 				expect( variables.model.getMappings() ).toBeStruct();
 				expect( structIsEmpty( variables.model.getMappings() ) ).toBeTrue();
-				expect( isNull( variables.model.getSettings() ) ).toBeTrue();
+				
+				expect( variables.model.getSettings() ).toBeStruct()
+												.toHaveKey( "number_of_shards" )
+												.toHaveKey( "number_of_replicas" );
+
+				expect( variables.model.getSettings().number_of_shards ).toBe( variables.model.getConfig().get( "defaultIndexShards" ) );
+				expect( variables.model.getSettings().number_of_replicas ).toBe( variables.model.getConfig().get( "defaultIndexReplicas" ) );
 
 			});
 
