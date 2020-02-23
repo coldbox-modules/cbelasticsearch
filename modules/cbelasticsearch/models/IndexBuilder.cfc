@@ -98,7 +98,7 @@ component
 			for( var propName in arguments.properties ){
 				switch( propName ){
 					case "settings":{
-						for ( var key in arguments.properties[ propName ] ) 
+						for ( var key in arguments.properties[ propName ] ){ 
 							variables.settings[ key ] = arguments.properties[ propName ][ key ];
 						}
 						variables.settings = arguments.properties[ propName ];
