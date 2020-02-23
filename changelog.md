@@ -1,5 +1,8 @@
 CHANGELOG
 =========
+# 1.4.1
+* ( snapshot updates )
+
 # 1.4.0
 * Adds new search builder methods `suggestTerm`, `suggestPhrase`, and `suggestCompletion` for auto-completion and auto-suggestion queries
 * Adds a throw on error argument, with a default of true, to client reindex() method when waiting for completion
