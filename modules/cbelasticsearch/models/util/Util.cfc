@@ -23,6 +23,8 @@ component accessors="true" singleton{
             // make sure we detach any references
             hashMap.putAll( ensureBooleanCasting( duplicate( arguments.memento ) ) );
             for( var key in hashMap ){
+                if( isNull( hashMap[ key ] ) ) continue;
+
                 if( isStruct( hashMap[ key ] ) && !isInstanceOf( hashMap[ key ], "java.util.HashMap" ) ){
                     hashMap[ key ] = newHashMap( ensureBooleanCasting( hashMap[ key ] ) );
                 } else if( isArray( hashMap[ key ] ) ){
