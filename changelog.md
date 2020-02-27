@@ -1,5 +1,8 @@
 CHANGELOG
 =========
+# 1.4.2
+* (Snapshot changes go here)
+
 # 1.4.1
 * Fixes an issue where a null value would throw an error when creating a native Java HashMap
 
