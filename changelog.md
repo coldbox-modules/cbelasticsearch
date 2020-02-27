@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 # 1.4.1
-* ( snapshot updates )
+* Fixes an issue where a null value would throw an error when creating a native Java HashMap
 
 # 1.4.0
 * Adds new search builder methods `suggestTerm`, `suggestPhrase`, and `suggestCompletion` for auto-completion and auto-suggestion queries
