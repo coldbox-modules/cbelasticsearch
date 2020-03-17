@@ -462,13 +462,16 @@ component accessors="true" {
     *
     * @names 		array 		an array of keys to search
     * @value 		string 		the value of the key
+    * @options 		struct 		An additional struct map of Elasticsearch query options to
+    *					pass in to the match parameters ( e.g. - operator, minimum_should_match, etc )
     * @boost 		numeric	  	an optional boost value
     **/
     SearchBuilder function multiMatch(
         required array names,
         required any value,
         numeric boost,
-        string type = "best_fields"
+        string type = "best_fields",
+        struct options
     ){
         arguments.name = arguments.names;
         arguments.matchType = "multi_match";
@@ -634,7 +637,15 @@ component accessors="true" {
                         matchCriteria[ "minimum_should_match" ] = arguments.minimumShouldMatch;
                     }
 
-                    if( !isNull( arguments.boost ) ) matchCriteria[ "boost" ] = arguments.boost;
+                    if( !isNull( arguments.boost ) ) {
+                        matchCriteria[ "boost" ] = arguments.boost;
+                    }
+
+                    if( !isNull( arguments.options ) ) {
+                        for( var optionKey in arguments.options ){
+                            matchCriteria[ optionKey ]=arguments.options[ optionKey ];
+                        }
+                    }
 
                     variables.query.bool.must.append(
                         {
