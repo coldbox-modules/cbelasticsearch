@@ -66,7 +66,7 @@ component{
             maxConnectionIdleTime = 30,
             // The maximum number of connections allowed per route ( e.g. search URI endpoint )
             maxConnectionsPerRoute = 10,
-            // The maxium number of connectsion, in total for all Elasticsearch requests
+            // The maxium number of connections, in total for all Elasticsearch requests
             maxConnections         = getSystemSetting( "ELASTICSEARCH_MAX_CONNECTIONS", 100 ),
             // Read timeout - the read timeout in milliseconds
             readTimeout            = getSystemSetting( "ELASTICSEARCH_READ_TIMEOUT", 3000 ),

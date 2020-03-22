@@ -1086,14 +1086,14 @@ component accessors="true" {
             switch ( variables.matchType ) {
                 case "all": {
                     dsl[ "query" ][ "match_all" ] = {};
-                    if ( !isNull( varibles.matchBoost ) ) {
+                    if ( !isNull( variables.matchBoost ) ) {
                         dsl[ "query" ][ "match_all" ][ "boost" ] = variables.matchBoost;
                     }
                     break;
                 }
                 case "none": {
                     dsl[ "query" ][ "match_none" ] = {};
-                    if ( !isNull( varibles.matchBoost ) ) {
+                    if ( !isNull( variables.matchBoost ) ) {
                         dsl[ "query" ][ "match_none" ][ "boost" ] = variables.matchBoost;
                     }
                     break;
