@@ -172,9 +172,11 @@ component accessors="true" {
                     case "offset":
                     case "startRow":{
                         variables.startRow = arguments.properties[ propName ];
+                        break;
                     }
                     case "maxRows":{
                         variables.maxRows = arguments.properties[ propName ];
+                        break;
                     }
                     case "query":{
                         variables.query = arguments.properties[ propName ];
