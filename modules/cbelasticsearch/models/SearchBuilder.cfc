@@ -499,12 +499,17 @@ component accessors="true" {
                 message = ""
             );
         }
-
-        var properties = {
-             "gte" : !isNull( arguments.start ) ? arguments.start : javacast( "null", 0 ),
-             "lte" : !isNull( arguments.end ) ? arguments.end : javacast( "null", 0 ),
-             "boost" : !isNull( arguments.boost ) ? arguments.boost : javacast( "null", 0 )
-        };
+        
+        var properties = {};
+        if ( !isNull( arguments.start ) ) {
+            properties[ "gte" ] = arguments.start;
+        }
+        if ( !isNull( arguments.end ) ) {
+            properties[ "lte" ] = arguments.end;
+        }
+        if ( !isNull( arguments.boost ) ) {
+            properties[ "boost" ] = arguments.boost;
+        }
 
         return match(
             name      = arguments.name,
