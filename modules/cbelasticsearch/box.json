@@ -21,6 +21,8 @@
     },
     "ignore":[
         "**/.*",
+        "apidocs",
+        "docs",
         "tests",
         "*/.md"
     ]
