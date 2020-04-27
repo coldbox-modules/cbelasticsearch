@@ -341,13 +341,6 @@ component
 				);
 			}
 
-		} else {
-
-			indexResult[ "index" ] = {
-				"error"  : true,
-				"message": "Index #indexDSL.name# already exists"
-			};
-
 		}
 
 		if( structKeyExists( indexDSL, "mappings" ) ){
