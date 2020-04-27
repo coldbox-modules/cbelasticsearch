@@ -163,6 +163,39 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			});
 
+			it( "Tests the update() method ability to update an index mapping", function(){
+				// updated mapping for the index
+				var indexSettings = {
+										"mappings":{
+											"testdocs":{
+												"_all"       : { "enabled": false },
+												"properties" : {
+													"title"      : {"type" : "text"},
+													"authorName" : {"type" : "text"},
+													"createdTime": {
+														"type"  : "date",
+														"format": "date_time_no_millis"
+													}
+												}
+											}
+										},
+
+										"aliases" : { "testalias" : {} }
+									};
+
+				var newIndex = variables.model.update(
+											name=variables.testIndexName,
+											properties=indexSettings
+										);
+
+				expect( newIndex.save() ).toBeTrue();
+
+				// Not a very bulletproof spec... the index already exists!
+				// How can we test the `authorName` property exists after the update?
+				expect( variables.model.getClient().indexExists( variables.testIndexName ) ).toBeTrue();
+
+			});
+
 			it( "Tests the ability to reset the index builder", function(){
 
 				variables.model.reset();
