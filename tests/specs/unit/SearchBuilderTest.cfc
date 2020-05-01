@@ -530,6 +530,28 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
             } );
 
+            it( "Tests the filterMatch() method", function() {
+                var searchBuilder = variables.model.new(
+                    variables.testIndexName,
+                    "testdocs"
+                );
+
+                searchBuilder.filterMatch( "description", "Star" );
+
+                expect( searchBuilder.getQuery() ).toBeStruct();
+                expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
+                expect( searchBuilder.getQuery().bool ).toHaveKey( "filter" );
+                expect( searchBuilder.getQuery().bool.filter ).toHaveKey( "bool" );
+                expect( searchBuilder.getQuery().bool.filter.bool ).toHaveKey( "must" );
+                expect( searchBuilder.getQuery().bool.filter.bool.must ).toBeArray();
+                expect( searchBuilder.getQuery().bool.filter.bool.must ).toHaveLength( 1 );
+                expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ] ).toBeStruct();
+                expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ] ).toHaveKey( "match" );
+                expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ].match ).toBe( { "description" : "Star" } );
+
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
+            } );
+
             it( "Tests the filterTerms() method with a single argument", function() {
                 var searchBuilder = variables.model.new(
                     variables.testIndexName,

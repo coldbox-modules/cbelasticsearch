@@ -320,6 +320,34 @@ component accessors="true" {
 
     }
 
+    /**
+    * Adds a fuzzy value restriction ( elasticsearch: match ) and ignore relevance scoring
+    *
+    * @name 		string 		the name of the key to search
+    * @value 		string 		the value of the key
+    **/
+    SearchBuilder function filterMatch( required string name, required any value ) {
+        param variables.query.bool = {};
+        param variables.query.bool.filter = {};
+        param variables.query.bool.filter.bool = {};
+        param variables.query.bool.filter.bool.must = [];
+        variables.query.bool.filter.bool.must.append(
+            {
+                "match": {
+                    "#name#": value
+                }
+            }
+        );
+
+        return this;
+    }
+
+    /**
+    * Adds an exact value restriction ( elasticsearch: term ) and ignore relevance scoring
+    *
+    * @name 		string 		the name of the key to search
+    * @value 		string 		the value of the key
+    **/
     SearchBuilder function filterTerm( required string name, required any value ) {
         param variables.query.bool = {};
         param variables.query.bool.filter = {};
