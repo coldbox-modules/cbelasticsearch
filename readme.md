@@ -18,11 +18,6 @@ Instructions
 
 The elasticsearch module for the Coldbox Platform provides you with a fluent search interface for Elasticsearch, in addition to a CacheBox Cache provider and a Logbox Appender.  Both the cache provider and logbox appender rely on Wirebox DSL mappings to the Elasticsearch client.  As such additional Wirebox configuration is necessary to use them outside of the Coldbox context.
 
-Installation
-============
-
-Via CommandBox:  `install cbelasticsearch`
-
 
 Requirements
 ============
