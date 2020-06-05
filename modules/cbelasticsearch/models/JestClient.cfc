@@ -415,7 +415,7 @@ component
 
 		if( structKeyExists( arguments, "script" ) ){
 			if( isSimpleValue( arguments.script ) ){
-				reindexBuilder.script( { "lang" : "painless", "source" : arguments.script } );
+				reindexBuilder.script( { "lang" : "painless", "source" : reReplace(arguments.script,"\n|\r|\t","","ALL") } );
 			} else {
 				reindexBuilder.script( arguments.script );
 			}
@@ -963,12 +963,18 @@ component
 		var updateBuilder = variables.jLoader
 										.create( "io.searchbox.core.UpdateByQuery$Builder" )
 										.init(
-											serializeJSON( {
-												"query" : arguments.searchBuilder.getQuery(),
-												"script": arguments.script
-											},
-											false,
-											listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false )
+											reReplace(
+												serializeJSON(
+													{
+														"query" : arguments.searchBuilder.getQuery(),
+														"script": arguments.script
+													},
+													false,
+													listFindNoCase( "Lucee", server.coldfusion.productname )
+													? "utf-8" : false
+												),
+												"\n|\r|\t","","ALL"
+											)
 										);
 
 		updateBuilder.addIndex( arguments.searchBuilder.getIndex() );
