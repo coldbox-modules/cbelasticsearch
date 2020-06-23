@@ -13,6 +13,7 @@ tests/results/*
 coldbox/*
 testbox/*
 modules/cbjavaloader
+modules/cbelasticsearch-jest
 
 # Gitbook artifacts
 _book/*

@@ -1,4 +1,4 @@
-component extends="JestClientTest"{
+component extends="HyperClientTest"{
 
 	function beforeAll(){
         setup();

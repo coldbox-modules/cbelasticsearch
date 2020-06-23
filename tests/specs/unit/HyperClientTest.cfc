@@ -5,7 +5,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 	function beforeAll() {
 		if ( !structKeyExists( variables, "model" ) ) {
 			setup();
-			variables.model = getWirebox().getInstance( "JestClient@cbElasticsearch" );
+			variables.model = getWirebox().getInstance( "HyperClient@cbElasticsearch" );
 		}
 
 		variables.testIndexName = lcase( "ElasticsearchClientTests" );
@@ -19,43 +19,11 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 	function run(){
 
-		describe( "Performs cbElasticsearch JestClient tests", function(){
+		describe( "Performs cbElasticsearch HyperClient tests", function(){
 
 			afterEach( function(){
 				// we give ourselves a few seconds before each next test for updates to persist
 				sleep( 500 );
-			});
-
-			// This test is no longer applicable on ES v7.x
-			xit( "Tests the ability to delete a type", function(){
-
-				//insert some documents to delete
-				var documents = [];
-
-				for( var i=1; i <= 13; i++ ){
-					arrayAppend(
-						documents, getInstance( "Document@cbElasticsearch" ).new(
-							variables.testIndexName,
-							"testdocs",
-							{
-								"_id": createUUID(),
-								"title": "Test Document Number #i#",
-								"createdTime": dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
-							}
-						)
-
-					);
-				}
-
-				var savedDocs = variables.model.saveAll( documents );
-
-				//sleep for 1.5 seconds to ensure full persistence
-				sleep( 1500 );
-
-				var deleted = variables.model.deleteType( variables.testIndexName, "testdocs" );
-
-				expect( deleted ).toBeTrue();
-
 			});
 
 			it( "Tests the ability to create an index", function(){
@@ -157,15 +125,6 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			});
 
-			it( "Tests the ability to verify that a mapping exists", function(){
-				expect( variables.model.indexMappingExists( variables.testIndexName, "testdocs" ) ).toBeTrue();
-			});
-
-			// this test is no longer applicable on ES v7.x
-			xit( "Tests the ability to verify that a mapping does not exist", function(){
-				expect( variables.model.indexMappingExists( variables.testIndexName, "idonotexist" ) ).toBeFalse();
-			});
-
 			it( "Tests the ability to insert a document in to an index", function(){
 
 				expect( variables ).toHaveKey( "testIndexName" );
@@ -208,223 +167,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				} );
             });
 
-            describe( "reindex", function() {
-                beforeEach( function() {
-                    variables.testIndexNameOne = lcase( "ElasticsearchClientTestsOne" );
-                    variables.testIndexNameTwo = lcase( "ElasticsearchClientTestsTwo" );
-
-                    variables.model.deleteIndex( variables.testIndexNameOne );
-                    variables.model.deleteIndex( variables.testIndexNameTwo );
-                } );
-
-                it( "can reindex from one index to another", function() {
-                    getWireBox().getInstance( "IndexBuilder@cbElasticSearch" )
-                        .new( variables.testIndexNameOne )
-                        .save();
-
-                    getWireBox().getInstance( "IndexBuilder@cbElasticSearch" )
-                        .new( variables.testIndexNameTwo )
-                        .save();
-
-                    // insert some documents to reindex
-                    var documents = [];
-                    for ( var i = 1; i <= 13; i++ ) {
-                        arrayAppend(
-                            documents,
-                            getInstance( "Document@cbElasticsearch" ).new(
-                                variables.testIndexNameOne,
-                                "testdocs",
-                                {
-                                    "_id": createUUID(),
-                                    "title": "Test Document Number #i#",
-                                    "createdTime": dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
-                                }
-                            )
-                        );
-                    }
-
-                    var savedDocs = variables.model.saveAll( documents );
-
-                    //sleep for 1.5 seconds to ensure full persistence
-                    sleep( 1500 );
-
-                    var searchOne = getWireBox().getInstance( "SearchBuilder@cbElasticSearch" )
-                        .new( variables.testIndexNameOne, "testdocs", {
-                            "query": {
-                                "match_all": {}
-                            }
-                        } );
-
-                    var searchTwo = getWireBox().getInstance( "SearchBuilder@cbElasticSearch" )
-                        .new( variables.testIndexNameTwo, "testdocs", {
-                            "query": {
-                                "match_all": {}
-                            }
-                        } );
-
-                    expect( variables.model.count( searchOne ) ).toBe( 13 );
-                    expect( variables.model.count( searchTwo ) )
-                        .toBe( 0, "No documents should exists in the second index" );
-
-                    variables.model.reindex(
-                        source = variables.testIndexNameOne,
-                        destination = variables.testIndexNameTwo
-                    );
-
-                    sleep( 1500 );
-
-                    expect( variables.model.count( searchTwo ) )
-                        .toBe(
-                            variables.model.count( searchOne ),
-                            "All the documents from the first index should exist in the second index"
-                        );
-                } );
-
-                it( "can pass structs for the source and destination when reindexing", function() {
-                    variables.model.deleteIndex( variables.testIndexNameOne );
-                    variables.model.deleteIndex( variables.testIndexNameTwo );
-
-                    getWireBox().getInstance( "IndexBuilder@cbElasticSearch" )
-                        .new( variables.testIndexNameOne )
-                        .save();
-
-                    getWireBox().getInstance( "IndexBuilder@cbElasticSearch" )
-                        .new( variables.testIndexNameTwo )
-                        .save();
-
-                    // //insert some documents to reindex
-                    var documents = [];
-                    for ( var i = 1; i <= 10; i++ ) {
-                        arrayAppend(
-                            documents,
-                            getInstance( "Document@cbElasticsearch" ).new(
-                                variables.testIndexNameOne,
-                                "testdocs",
-                                {
-                                    "_id": createUUID(),
-                                    "title": "Test Document Number #i#",
-                                    "flag": i % 2 == 0 ? "flag" : "noflag",
-                                    "createdTime": dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
-                                }
-                            )
-                        );
-                    }
-
-                    var savedDocs = variables.model.saveAll( documents );
-
-                    //sleep for 1.5 seconds to ensure full persistence
-                    sleep( 1500 );
-
-                    var searchOne = getWireBox().getInstance( "SearchBuilder@cbElasticSearch" )
-                        .new( variables.testIndexNameOne, "testdocs", {
-                            "query": {
-                                "match_all": {}
-                            }
-                        } );
-
-                    var searchTwo = getWireBox().getInstance( "SearchBuilder@cbElasticSearch" )
-                        .new( variables.testIndexNameTwo, "testdocs", {
-                            "query": {
-                                "match_all": {}
-                            }
-                        } );
-
-                    expect( variables.model.count( searchOne ) ).toBe( 10 );
-                    expect( variables.model.count( searchTwo ) ).toBe( 0 );
-
-                    variables.model.reindex(
-                        source = {
-                            "index": variables.testIndexNameOne,
-                            "type": "testdocs",
-                            "query": {
-                                "term": {
-                                    "flag.keyword": "flag"
-                                }
-                            }
-                        },
-                        destination = variables.testIndexNameTwo,
-                        waitForCompletion = true
-                    );
-
-                    // We still have to wait for background indexing to update
-                    sleep( 1500 );
-
-                    expect( variables.model.count( searchTwo ) ).toBe( 5 );
-                } );
-
-                it( "throws an exception when a reindex error occurs by default", function() {
-                    expect( function() {
-                        variables.model.reindex(
-                            source = {
-                                "index": "no_such_index",
-                                "type": "testdocs"
-                            },
-                            destination = "another_nonexistent_index",
-                            waitForCompletion = true
-                        );
-                    } ).toThrow( type = "cbElasticsearch.JestClient.ReindexFailedException" );
-                } );
-            } );
-
-			describe( "tasks", function(){
-				it( "can retreive all tasks on the cluster", function(){
-					var activeTasks = variables.model.getTasks();
-					expect( activeTasks ).toBeArray();
-					activeTasks.each( function( task ){
-						expect( task ).toBeInstanceOf( "cbelasticsearch.models.Task" );
-					} );
-				} );
-
-				it( "can retreive the status of a single task", function(){
-					// create some documents so we can fire an upate by query
-					var documents = [];
-					for( var i = 1; i <= 10000; i++ ){
-						var bulkDoc  = {
-							"_id": createUUID(),
-							"title": "Test Document Number #i#",
-							"createdTime": dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
-							"description" : "Document Number #i# of 10,000"
-						};
-
-						arrayAppend(
-							documents,
-							getInstance( "Document@cbElasticsearch" ).new(
-								variables.testIndexName,
-								"testdocs",
-								bulkDoc
-							)
-						);
-					}
-
-					variables.model.saveAll( documents );
-
-					var searchBuilder = getInstance( "SearchBuilder@cbelasticsearch" ).new( variables.testIndexName, "testdocs" );
-					searchBuilder.match( "title", "Test" );
-
-					searchBuilder.param( "wait_for_completion", false );
-
-					var taskId = variables.model.updateByQuery(
-						searchBuilder,
-						{
-							"source" : "ctx._source.longDescription = ctx._source.description;",
-							"lang" : "painless"
-						}
-					).task;
-
-					var taskObj = variables.model.getTask( taskId );
-					expect( taskObj ).toBeInstanceOf( "cbelasticsearch.models.Task" );
-					expect( taskObj.getCompleted() ).toBeBoolean();
-					expect( taskObj.getIdentifier() ).toBe( taskId );
-					expect( taskObj.isComplete() ).toBeBoolean();
-
-					// expect a while loop to complete
-					while( !taskObj.isComplete() ){
-						expect( taskObj.getCompleted() ).toBeFalse();
-					}
-
-				} );
-			} );
-
+            
 			it( "Tests the ability to perform bulk document updates/additions", function(){
 
 				var documents = [];
@@ -504,7 +247,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				// test the ability throw an error when the flag is up
 				expect( function(){
 					variables.model.saveAll( documents, true );
-				}).toThrow( "cbElasticsearch.JestClient.PersistenceException" );
+				}).toThrow( "cbElasticsearch.HyperClient.BulkSaveException" );
 
 			} );
 
@@ -783,6 +526,227 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( deletion[ "acknowledged" ] ).toBeTrue();
 
 			});
+
+			describe( "reindex", function() {
+                beforeEach( function() {
+                    variables.testIndexNameOne = lcase( "ElasticsearchClientTestsOne" );
+                    variables.testIndexNameTwo = lcase( "ElasticsearchClientTestsTwo" );
+
+                    variables.model.deleteIndex( variables.testIndexNameOne );
+                    variables.model.deleteIndex( variables.testIndexNameTwo );
+                } );
+
+                it( "can reindex from one index to another", function() {
+                    var indexOne = getWireBox().getInstance( "IndexBuilder@cbElasticSearch" )
+						.new( variables.testIndexNameOne );
+
+					variables.model.applyIndex( indexOne );
+
+                    var indexTwo = getWireBox().getInstance( "IndexBuilder@cbElasticSearch" )
+						.new( variables.testIndexNameTwo );
+					
+					variables.model.applyIndex( indexTwo );
+
+                    // insert some documents to reindex
+                    var documents = [];
+                    for ( var i = 1; i <= 13; i++ ) {
+                        arrayAppend(
+                            documents,
+                            getInstance( "Document@cbElasticsearch" ).new(
+                                variables.testIndexNameOne,
+                                "testdocs",
+                                {
+                                    "_id": createUUID(),
+                                    "title": "Test Document Number #i#",
+                                    "createdTime": dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+                                }
+                            )
+                        );
+                    }
+
+                    var savedDocs = variables.model.saveAll( documents );
+
+                    //sleep for 1.5 seconds to ensure full persistence
+                    sleep( 1500 );
+
+                    var searchOne = getWireBox().getInstance( "SearchBuilder@cbElasticSearch" )
+                        .new( variables.testIndexNameOne, "testdocs", {
+                            "query": {
+                                "match_all": {}
+                            }
+                        } );
+
+                    var searchTwo = getWireBox().getInstance( "SearchBuilder@cbElasticSearch" )
+                        .new( variables.testIndexNameTwo, "testdocs", {
+                            "query": {
+                                "match_all": {}
+                            }
+                        } );
+
+                    expect( variables.model.count( searchOne ) ).toBe( 13 );
+                    expect( variables.model.count( searchTwo ) )
+                        .toBe( 0, "No documents should exists in the second index" );
+
+                    variables.model.reindex(
+                        source = variables.testIndexNameOne,
+                        destination = variables.testIndexNameTwo
+                    );
+
+                    sleep( 1500 );
+
+                    expect( variables.model.count( searchTwo ) )
+                        .toBe(
+                            variables.model.count( searchOne ),
+                            "All the documents from the first index should exist in the second index"
+                        );
+                } );
+
+                it( "can pass structs for the source and destination when reindexing", function() {
+                    variables.model.deleteIndex( variables.testIndexNameOne );
+                    variables.model.deleteIndex( variables.testIndexNameTwo );
+
+                    var indexOne = getWireBox().getInstance( "IndexBuilder@cbElasticSearch" )
+						.new( variables.testIndexNameOne );
+
+					variables.model.applyIndex( indexOne );
+
+                    var indexTwo = getWireBox().getInstance( "IndexBuilder@cbElasticSearch" )
+						.new( variables.testIndexNameTwo );
+					
+					variables.model.applyIndex( indexTwo );
+
+                    // //insert some documents to reindex
+                    var documents = [];
+                    for ( var i = 1; i <= 10; i++ ) {
+                        arrayAppend(
+                            documents,
+                            getInstance( "Document@cbElasticsearch" ).new(
+                                variables.testIndexNameOne,
+                                "testdocs",
+                                {
+                                    "_id": createUUID(),
+                                    "title": "Test Document Number #i#",
+                                    "flag": i % 2 == 0 ? "flag" : "noflag",
+                                    "createdTime": dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+                                }
+                            )
+                        );
+                    }
+
+                    var savedDocs = variables.model.saveAll( documents );
+
+                    //sleep for 1.5 seconds to ensure full persistence
+                    sleep( 1500 );
+
+                    var searchOne = getWireBox().getInstance( "SearchBuilder@cbElasticSearch" )
+                        .new( variables.testIndexNameOne, "testdocs", {
+                            "query": {
+                                "match_all": {}
+                            }
+                        } );
+
+                    var searchTwo = getWireBox().getInstance( "SearchBuilder@cbElasticSearch" )
+                        .new( variables.testIndexNameTwo, "testdocs", {
+                            "query": {
+                                "match_all": {}
+                            }
+                        } );
+
+                    expect( variables.model.count( searchOne ) ).toBe( 10 );
+                    expect( variables.model.count( searchTwo ) ).toBe( 0 );
+
+                    variables.model.reindex(
+                        source = {
+                            "index": variables.testIndexNameOne,
+                            "query": {
+                                "term": {
+                                    "flag.keyword": "flag"
+                                }
+                            }
+                        },
+                        destination = variables.testIndexNameTwo,
+                        waitForCompletion = true
+                    );
+
+                    // We still have to wait for background indexing to update
+                    sleep( 1500 );
+
+                    expect( variables.model.count( searchTwo ) ).toBe( 5 );
+                } );
+
+                it( "throws an exception when a reindex error occurs by default", function() {
+                    expect( function() {
+                        variables.model.reindex(
+                            source = {
+                                "index": "no_such_index",
+                                "type": "testdocs"
+                            },
+                            destination = "another_nonexistent_index",
+                            waitForCompletion = true
+                        );
+                    } ).toThrow( type = "cbElasticsearch.HyperClient.ReindexFailedException" );
+                } );
+            } );
+
+			describe( "tasks", function(){
+				it( "can retreive all tasks on the cluster", function(){
+					var activeTasks = variables.model.getTasks();
+					expect( activeTasks ).toBeArray();
+					activeTasks.each( function( task ){
+						expect( task ).toBeInstanceOf( "cbelasticsearch.models.Task" );
+					} );
+				} );
+
+				it( "can retreive the status of a single task", function(){
+					// create some documents so we can fire an upate by query
+					var documents = [];
+					for( var i = 1; i <= 10000; i++ ){
+						var bulkDoc  = {
+							"_id": createUUID(),
+							"title": "Test Document Number #i#",
+							"createdTime": dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
+							"description" : "Document Number #i# of 10,000"
+						};
+
+						arrayAppend(
+							documents,
+							getInstance( "Document@cbElasticsearch" ).new(
+								variables.testIndexName,
+								"testdocs",
+								bulkDoc
+							)
+						);
+					}
+
+					variables.model.saveAll( documents );
+
+					var searchBuilder = getInstance( "SearchBuilder@cbelasticsearch" ).new( variables.testIndexName, "testdocs" );
+					searchBuilder.match( "title", "Test" );
+
+					searchBuilder.param( "wait_for_completion", false );
+
+					var taskId = variables.model.updateByQuery(
+						searchBuilder,
+						{
+							"source" : "ctx._source.longDescription = ctx._source.description;",
+							"lang" : "painless"
+						}
+					).task;
+
+					var taskObj = variables.model.getTask( taskId );
+					expect( taskObj ).toBeInstanceOf( "cbelasticsearch.models.Task" );
+					expect( taskObj.getCompleted() ).toBeBoolean();
+					expect( taskObj.getIdentifier() ).toBe( taskId );
+					expect( taskObj.isComplete() ).toBeBoolean();
+
+					// expect a while loop to complete
+					while( !taskObj.isComplete() ){
+						expect( taskObj.getCompleted() ).toBeFalse();
+					}
+
+				} );
+			} );
+
 
 		});
 	}

@@ -7,16 +7,19 @@
     "dependencies":{
         "coldbox":"^5.5.0",
         "workbench":"git+https://github.com/Ortus-Solutions/unified-workbench.git",
-        "cbjavaloader":"^2.0.0"
+        "cbjavaloader":"^2.0.0",
+        "hyper":"^2.2.1"
     },
     "devDependencies":{
-        "testbox":"^3.0.0"
+        "testbox":"^3.0.0",
+        "cbelasticsearch-jest":"^1.0.0"
     },
     "installPaths":{
         "testbox":"testbox/",
         "coldbox":"coldbox/",
         "workbench":"workbench/",
-        "cbjavaloader":"modules/cbjavaloader/"
+        "cbjavaloader":"modules/cbjavaloader/",
+        "hyper":"modules/hyper/"
     },
     "testbox":{
         "runner":"http://localhost:49616"
