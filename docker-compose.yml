@@ -40,4 +40,20 @@ services:
       - .:/app:delegated
     expose:
       - "8080"
+      
+  app-lucee5:
+    # We always develop and test with the lowest common denominator - in this case, the oldest engine we support with the most restrictive compiler
+    image: ortussolutions/commandbox:lucee5
+    depends_on:
+      - elasticsearch
+    environment:
+      CFENGINE: "adobe@11"
+      ELASTICSEARCH_HOST: elasticsearch
+    ports:
+      - "8081:8080"
+    volumes:
+      # Mount our application in delgated mode
+      - .:/app:delegated
+    expose:
+      - "8081"
   
