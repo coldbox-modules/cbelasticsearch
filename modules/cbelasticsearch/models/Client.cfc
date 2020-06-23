@@ -228,25 +228,6 @@ component
 	}
 
 	/**
-	* Deletes a mapping
-	*
-	* @indexName 		string 		the name of the index which contains the mapping
-	* @mapping 			string 		the mapping ( e.g. type ) to delete
-	* @throwOnError 	boolean	  	Whether to throw an error if the mapping could not be deleted ( default=false )
-	*
-	* @return 			struct 		the deletion transaction response
-	**/
-	boolean function deleteMapping(
-		required string indexName,
-		required string mapping,
-		boolean throwOnError=false
-	){
-
-		return variables.nativeClient.deleteMapping( argumentCollection=arguments );
-
-	}
-
-	/**
 	* Retrieves a document by ID
 	* @id 		any 		The document key
 	* @index 	string 		The name of the index

@@ -1,7 +1,8 @@
 CHANGELOG
 =========
-# 1.4.2
-* (Snapshot changes go here)
+# 2.0.0
+* Converts default native client to HyperClient ( native CFML implementation )
+* Removes the `deleteMapping` method in the main client, as it is no longer supported in ES versions 6.5 and up.
 
 # 1.4.1
 * Fixes an issue where a null value would throw an error when creating a native Java HashMap

@@ -25,7 +25,7 @@ interface{
 	* @return 			iNativeClient 	An implementation of the iNativeClient
 	* @interfaced
 	**/
-	SearchResult function executeSearch( required searchBuilder searchBuilder );
+	cbElasticsearch.models.SearchResult function executeSearch( required cbElasticsearch.models.searchBuilder searchBuilder );
 
 	/**
 	* Retreives a count of documents matching the given query
@@ -34,7 +34,7 @@ interface{
 	* @return 			numeric         The returned count matching the search parameters
 	* @interfaced
 	*/
-	numeric function count( searchBuilder searchBuilder );
+	numeric function count( cbElasticsearch.models.searchBuilder searchBuilder );
 
 	/**
 	* Verifies whether an index exists
@@ -62,7 +62,7 @@ interface{
 	* @return 			struct 		A struct representation of the transaction result
 	* @interfaced
 	**/
-	boolean function applyIndex( required IndexBuilder indexBuilder );
+	boolean function applyIndex( required cbElasticsearch.models.IndexBuilder indexBuilder );
 
 	/**
 	* Deletes an index
@@ -138,17 +138,6 @@ interface{
 	struct function applyMappings( required string indexName, required struct mappings );
 
 	/**
-	* Deletes a mapping
-	*
-	* @indexName 		string 		the name of the index which contains the mapping
-	* @mapping 			string 		the mapping ( e.g. type ) to delete
-	* @throwOnError 	boolean	  	Whether to throw an error if the mapping could not be deleted ( default=false )
-	*
-	* @return 			struct 		the deletion transaction response
-	**/
-	boolean function deleteMapping( required string indexName, required string mapping, boolean throwOnError=false );
-
-	/**
 	* Retrieves a document by ID
 	* @id 		any 		The document key
 	* @index 	string 		The name of the index
@@ -185,7 +174,7 @@ interface{
 	 *
 	 * @interfaced
 	 */
-	any function getTask( required string taskId, Task taskObj );
+	any function getTask( required string taskId, cbElasticsearch.models.Task taskObj );
 
 	/**
 	 * Retreives all tasks running on the cluster
@@ -198,7 +187,7 @@ interface{
 	* @return 			iNativeClient 					An implementation of the iNativeClient
 	* @interfaced
 	**/
-	Document function save( required Document document );
+	cbElasticsearch.models.Document function save( required cbElasticsearch.models.Document document );
 
 	/**
 	* Deletes a single document
@@ -213,7 +202,7 @@ interface{
 	* @searchBuilder 		SearchBuilder 		The search builder object to use for the query
 	* @waitForCompletion    boolean             Whether to block the request until completion or return a task which can be checked
 	**/
-	any function deleteByQuery( required SearchBuilder searchBuilder, boolean waitForCompletion = true );
+	any function deleteByQuery( required cbElasticsearch.models.SearchBuilder searchBuilder, boolean waitForCompletion = true );
 
 	/**
 	* Updates items in the index by query
@@ -221,7 +210,7 @@ interface{
 	* @script 				struct 				script to process on the query
 	* @waitForCompletion    boolean             Whether to block the request until completion or return a task which can be checked
 	**/
-	any function updateByQuery( required SearchBuilder searchBuilder, required struct script, boolean waitForCompletion = true );
+	any function updateByQuery( required cbElasticsearch.models.SearchBuilder searchBuilder, required struct script, boolean waitForCompletion = true );
 
 	/**
 	* Persists multiple items to the index
