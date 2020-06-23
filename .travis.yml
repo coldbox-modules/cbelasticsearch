@@ -17,9 +17,7 @@ env:
   global:
     - MODULE_ID=cbelasticsearch
   matrix:
-    - ENGINE=lucee@4.5 ELASTICSEARCH_VERSION=7.5.2-amd64
     - ENGINE=lucee@5 ELASTICSEARCH_VERSION=7.5.2-amd64
-    - ENGINE=adobe@11 ELASTICSEARCH_VERSION=7.5.2-amd64
     - ENGINE=adobe@2016 ELASTICSEARCH_VERSION=7.5.2-amd64
     - ENGINE=adobe@2018 ELASTICSEARCH_VERSION=7.5.2-amd64
 
