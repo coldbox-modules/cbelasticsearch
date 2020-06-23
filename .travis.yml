@@ -17,16 +17,11 @@ env:
   global:
     - MODULE_ID=cbelasticsearch
   matrix:
-    - ENGINE=lucee@4.5 ELASTICSEARCH_VERSION=6.8.3
-    - ENGINE=lucee@4.5 ELASTICSEARCH_VERSION=7.3.2-amd64
-    - ENGINE=lucee@5 ELASTICSEARCH_VERSION=6.8.3
-    - ENGINE=lucee@5 ELASTICSEARCH_VERSION=7.3.2-amd64
-    - ENGINE=adobe@11 ELASTICSEARCH_VERSION=6.8.3
-    - ENGINE=adobe@11 ELASTICSEARCH_VERSION=7.3.2-amd64
-    - ENGINE=adobe@2016 ELASTICSEARCH_VERSION=6.8.3
-    - ENGINE=adobe@2016 ELASTICSEARCH_VERSION=7.3.2-amd64
-    - ENGINE=adobe@2018 ELASTICSEARCH_VERSION=6.8.3
-    - ENGINE=adobe@2018 ELASTICSEARCH_VERSION=7.3.2-amd64
+    - ENGINE=lucee@4.5 ELASTICSEARCH_VERSION=7.5.2-amd64
+    - ENGINE=lucee@5 ELASTICSEARCH_VERSION=7.5.2-amd64
+    - ENGINE=adobe@11 ELASTICSEARCH_VERSION=7.5.2-amd64
+    - ENGINE=adobe@2016 ELASTICSEARCH_VERSION=7.5.2-amd64
+    - ENGINE=adobe@2018 ELASTICSEARCH_VERSION=7.5.2-amd64
 
 branches:
   only:
@@ -112,7 +107,7 @@ deploy:
       branch:
         - master
         - development
-      condition: "$ENGINE = lucee@5 && ELASTICSEARCH_VERSION=7.3.2"
+      condition: "$ENGINE = lucee@5 && ELASTICSEARCH_VERSION=7.5.2"
     skip_cleanup: true
     #AWS Credentials need to be set in Travis
     access_key_id: $AWS_ACCESS_KEY

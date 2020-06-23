@@ -93,7 +93,7 @@ component{
         **/
 
         binder.map( "Config@cbElasticsearch" )
-                        .to( '#moduleMapping#.models.Config' )
+                        .to( '#this.cfmapping#.models.Config' )
                         .threadSafe()
                         .asSingleton();
 
