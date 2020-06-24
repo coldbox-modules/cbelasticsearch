@@ -354,6 +354,45 @@ component
 
 	}
 
+	/**
+	 * Ingest Pipeline Management
+	 */
+
+	/**
+	 * Create or update pipeline
+	 *
+	 * @pipeline The Pipeline object
+	 */
+	boolean function applyPipeline( required cbElasticsearch.models.Pipeline pipeline ){
+		return variables.nativeClient.applyPipeline( argumentCollection = arguments );
+	}
+
+
+	/**
+	 * Retreives the definition of a pipeline
+	 *
+	 * @id  The identifier of the pipeline to retreive
+	 */
+	any function getPipeline( required string id ){
+		return variables.nativeClient.getPipeline( argumentCollection = arguments );
+	}
+
+	/**
+	 * Retreives all pipeline definitions
+	 */
+	any function getPipelines(){
+		return variables.nativeClient.getPipelines( argumentCollection = arguments );
+	}
+
+	/**
+	 * Deletes a pipeline
+	 *
+	 * @id  The identifier of the pipeline to delete
+	 */
+	boolean function deletePipeline( required string id ){
+		return variables.nativeClient.deletePipeline( argumentCollection = arguments );
+	}
+
 
 	/**
 	 * Parses a parameter argument.
