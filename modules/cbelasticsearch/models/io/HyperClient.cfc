@@ -404,7 +404,7 @@ component
                                     "POST"
                                 ).setQueryParam(
                                     "wait_for_completion",
-                                    arguments.waitForCompletion ? "true" : "false"
+                                    arguments.waitForCompletion
                                 );
         
         var body = {
@@ -951,7 +951,7 @@ component
         } );
         
         if( !arguments.waitForCompletion ){
-			deleteRequest.setQueryParam( "wait_for_completion", "false" );
+			deleteRequest.setQueryParam( "wait_for_completion", false );
         }
         
         deleteRequest.setBody(
@@ -1011,7 +1011,7 @@ component
 		} );
 
 		if( !arguments.waitForCompletion ){
-			updateRequest.setQueryParam( "wait_for_completion", "false" );
+			updateRequest.setQueryParam( "wait_for_completion", false );
 		}
 
 
