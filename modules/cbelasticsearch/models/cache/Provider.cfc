@@ -55,14 +55,9 @@ component
 			converter			= createObject("component","coldbox.system.core.conversion.ObjectMarshaller").init(),
 			// Java System for Debug Messages
 			JavaSystem 			= createObject("java","java.lang.System"),
-			// Javaloader ID placeholder
-			javaLoaderID		= "",
 			// The design document which tracks our keys in use
 			designDocumentName = 'CacheBox_allKeys'
 		}, true );
-
-		// JavaLoader Static ID
-		this.javaLoaderID 		= "cbElasticsearch-#this.version#-loader";
 		
 		// Provider Property Defaults
 		this.DEFAULTS = {

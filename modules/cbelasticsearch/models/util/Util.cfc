@@ -1,5 +1,4 @@
 component accessors="true" singleton{
-    property name="jLoader" inject="loader@cbjavaloader";
 
     /**
      * Ensures a CF native struct is returned ( allowing for dot-notation )
@@ -17,7 +16,7 @@ component accessors="true" singleton{
      * @memento  a struct to populate the memento with
      */
     function newHashMap( struct memento ){
-        var hashMap = variables.jLoader.create( "java.util.HashMap" ).init();
+        var hashMap = createObject( "java", "java.util.HashMap" ).init();
 
         if( !isNull( arguments.memento ) ){
             // make sure we detach any references

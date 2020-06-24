@@ -24,7 +24,7 @@ component{
     // Auto-map models
     this.autoMapModels		= true;
     // Module Dependencies That Must Be Loaded First, use internal names or aliases
-    this.dependencies		= [ "cbjavaloader" ];
+    this.dependencies		= [ "hyper" ];
     // Auto-parse parent settings
     this.parseParentSettings = true;
 
