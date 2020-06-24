@@ -27,11 +27,10 @@ services:
 
   app:
     # We always develop and test with the lowest common denominator - in this case, the oldest engine we support with the most restrictive compiler
-    image: ortussolutions/commandbox:adobe11
+    image: ortussolutions/commandbox:adobe2016
     depends_on:
       - elasticsearch
     environment:
-      CFENGINE: "adobe@11"
       ELASTICSEARCH_HOST: elasticsearch
     ports:
       - "8080:8080"
