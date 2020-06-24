@@ -73,6 +73,6 @@ component accessors="true" singleton{
             obj, 
             false, 
             listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false 
-        )
+        );
     }
 }

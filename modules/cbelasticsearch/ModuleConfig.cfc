@@ -76,7 +76,10 @@ component{
 
         // Custom Declared Points
         interceptorSettings = {
-            customInterceptionPoints = ""
+            customInterceptionPoints = [
+				"cbElasticsearchPreSave",
+				"cbElasticsearchPostSave"
+			]
         };
 
         // Custom Declared Interceptors
@@ -91,7 +94,6 @@ component{
         /**
         * Main Configuration Object Singleton
         **/
-
         binder.map( "Config@cbElasticsearch" )
                         .to( '#this.cfmapping#.models.Config' )
                         .threadSafe()

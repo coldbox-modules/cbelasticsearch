@@ -37,6 +37,17 @@ component
 	**/
 	property name="memento";
 
+	/**
+	 * The pipeline used to process this document
+	 */
+	property name="pipeline";
+
+	/**
+	 * Parameters to pass through on the save request
+	 */
+	property name="params";
+
+
 	function onDIComplete(){
 		reset();
 	}
@@ -49,6 +60,7 @@ component
 		variables.type = structKeyExists( configStruct, "defaultType") ? configStruct.defaultType : javacast( "null", 0 );
 		variables.highlights = {};
 		variables.memento = {};
+		variables.params = {};
 
 		var nullDefaults = [ "id","score" ];
 
@@ -222,6 +234,14 @@ component
 		}
 
 		return documentObject;
+	}
+
+	/**
+	* Adds a parameter for the document save
+	*/
+	public Document function addParam( required string key, required any value ){
+		variables.params[ key ] = urlEncodedFormat( value );
+		return this;
 	}
 
 	/**

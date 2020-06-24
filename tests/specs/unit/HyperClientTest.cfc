@@ -747,6 +747,91 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				} );
 			} );
 
+			describe( "pipelines", function(){
+
+				beforeEach( function() {
+                    variables.testPipeline = getWirebox().getInstance( "Pipeline@cbelasticsearch" ).new( {
+						"id" : "pipeline-test",
+						"description" : "A test pipeline",
+						"version" : 1,
+						"processors" : [
+							{
+								"set" : {
+									"if" : "ctx.foo == null",
+									"field" : "foo",
+									"value" : "bar"
+								}
+							}
+						]
+					} );
+                } );
+
+				it( "Tests the ability to create pipeline", function(){
+					var created = variables.model.applyPipeline( variables.testPipeline );
+					expect( created ).toBeBoolean().toBeTrue();
+				} );
+
+				it( "Tests the ability to get the definition of a pipeline", function(){
+					var pipeline = variables.model.getPipeline( variables.testPipeline.getId() );
+					expect( pipeline ).toBeStruct()
+										.toHaveKey( "version" )
+										.toHaveKey( "processors" )
+										.toHaveKey( "description" );
+
+				});
+
+				it( "Tests the ability to update an existing pipeline", function(){
+					variables.testPipeline.setVersion( 2 );
+					variables.testPipeline.addProcessor(
+						{
+							"set" : {
+								"if" : "ctx.foo == 'bar'",
+								"field" : "foo",
+								"value" : "baz"
+							}
+						}
+					);
+					var updated = variables.model.applyPipeline( variables.testPipeline );
+					expect( updated ).toBeBoolean().toBeTrue();
+
+					var pipeline = variables.model.getPipeline( variables.testPipeline.getId() );
+					
+					expect( pipeline.processors ).toBeArray().toHaveLength( 2 );
+					
+				});
+
+				it( "Tests the ability to delete a pipeline", function(){
+					expect( variables.model.deletePipeline( variables.testPipeline.getId() ) ).toBeBoolean().toBeTrue();
+				});
+
+				it( "Tests that deleting a pipeline will return false if the pipline does not exist", function(){
+					expect( variables.model.deletePipeline( "my-non-existent-pipeline" ) ).toBeBoolean().toBeFalse();
+				});
+
+				it( "Can save documents with an applied pipeline", function(){
+
+					variables.model.applyPipeline( variables.testPipeline );
+
+					expect( isNull( variables.model.getPipeline( 'pipeline-test' ) ) ).toBeFalse();
+
+					var document = getWirebox().getInstance( "Document@cbElasticsearch" ).new( 
+						index=variables.testIndexName, 
+						properties={ "id" : createUUID(), "name" : "My test document" } 
+					);
+					document.setPipeline( 'pipeline-test' );
+
+					// refresh immediately so we can grab our changed document
+					document.addParam( "refresh", true );
+
+					document = variables.model.save( document, true );
+
+					expect( document.getMemento() ).toHaveKey( "foo" );
+
+					expect( document.getMemento()[ "foo"] ).toBe( "bar" );
+					
+				} );
+
+			} );
 
 		});
 	}

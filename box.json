@@ -11,8 +11,7 @@
         "hyper":"^2.2.1"
     },
     "devDependencies":{
-        "testbox":"^3.0.0",
-        "cbelasticsearch-jest":"^1.0.0"
+        "testbox":"^3.0.0"
     },
     "installPaths":{
         "testbox":"testbox/",

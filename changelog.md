@@ -3,6 +3,15 @@ CHANGELOG
 # 2.0.0
 * Converts default native client to HyperClient ( native CFML implementation )
 * Removes the `deleteMapping` method in the main client, as it is no longer supported in ES versions 6.5 and up.
+* Removes support for Adobe Coldfusion 11
+* Removes support for Lucee 4.x
+* Moves previous native JEST Client to [`cbelasticsearch-jest` module](https://forgebox.io/view/cbelasticsearch-jest).
+* Ends official support for 6.x versions of Elasticsearch
+* Adds `cbElasticsearchPreSave` and `cbElasticsearchPostSave` interceptions when saving individual or bulk documents
+* Adds the ability to create, update, read, and delete [Elasticsearch pipelines](https://www.elastic.co/guide/en/elasticsearch/reference/master/ingest-apis.html)
+* Adds the ability to configure a pipeline for document processing ( e.g. `myDocument.setPipeline( 'my-pipeline' )` )
+* Adds the ability to add save [query parameters](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html#docs-index-api-query-params) when saving individual documents ( e.g. `myDocument.addParam( 'refresh', true )` )
+* Adds the ability to pass a struct of [params to bulk save operations](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html#docs-bulk-api-query-params)  (e.g. `client.saveAll( documents, false, { "refresh" : true } )` )
 
 # 1.4.1
 * Fixes an issue where a null value would throw an error when creating a native Java HashMap

@@ -89,6 +89,14 @@ component
 
 	}
 
+	/**
+	* Interceptor Service Pseudo-Provider
+	**/
+	function getInterceptorService(){
+		return application.cbController.getInterceptorService();
+	}
+
+
 	void function configure( cbElasticsearch.models.Config configuration ){
 
 		lock type="exclusive" name="HyperClientConfigurationLock" timeout="10"{
@@ -191,14 +199,11 @@ component
                                     SearchBuilder.getIndex() & '/_count',
                                     "POST"
                                 )
-                                .setBody( serializeJSON( 
+                                .setBody( getUtil().toJSON( 
                                     { 
                                         "query" : arguments.searchBuilder.getQuery() 
-                                    }, 
-                                    false, 
-                                    listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false  )
-                                )
-                                .asJSON();
+									}
+								) ).asJSON();
         
         var response = requestBuilder.send();
 
@@ -313,10 +318,8 @@ component
                             "PUT"
                         )
                         .setBody( 
-							serializeJSON( 
-								indexDSL, 
-								false, 
-								listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false 
+							getUtil().toJSON( 
+								indexDSL
 							)
 						 )
                         .asJSON();
@@ -330,7 +333,7 @@ component
                     throw(
                         type="cbElasticsearch.HyperClient.IndexCreationException",
                         message="Index creation returned an error status of #indexResult.index.status#.  Reason: #( isSimpleValue( indexResult.index.error ) ? indexResult.index.error : indexResult.index.error.reason )#",
-                        extendedInfo=serializeJSON( indexResult[ "index" ], false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false )
+                        extendedInfo=getUtil().toJSON( indexResult[ "index" ] )
                     );
                 }
             } else {
@@ -425,11 +428,7 @@ component
 		}
         
         requestBuilder.setBody(
-            serializeJSON(
-                body,
-				false,
-				listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false
-			)
+            getUtil().toJSON( body )
         );
 
 		var reindexResult = requestBuilder.send().json();
@@ -440,21 +439,13 @@ component
                 throw(
                     type = "cbElasticsearch.HyperClient.ReindexFailedException",
                     message = "The reindex action failed with response code [#reindexResult.status#].  There were #reindexResult.failures.len()# errors.",
-                    extendedInfo = serializeJSON(
-						reindexResult,
-						false,
-						listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false
-					)
+                    extendedInfo = getUtil().toJSON( reindexResult )
                 );
             } else if ( reindexResult.keyExists( "error" ) ) {
                 throw(
                     type = "cbElasticsearch.HyperClient.ReindexFailedException",
                     message = "The reindex action failed with response code [#reindexResult.status#].  The cause of this exception was #reindexResult.error.reason#",
-                    extendedInfo = serializeJSON(
-						reindexResult,
-						false,
-						listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false
-					)
+                    extendedInfo = getUtil().toJSON( reindexResult )
                 );
             }
         }
@@ -576,13 +567,7 @@ component
                             "_aliases",
                             "POST"
                         )
-                        .setBody( 
-                            serializeJSON(
-                                requestBody,
-                                false,
-                                listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false
-                            )
-                        )
+                        .setBody( getUtil().toJSON( requestBody ) )
                         .asJSON()
                         .setThrowOnError( true )
                         .send()
@@ -608,18 +593,12 @@ component
 				structDelete( mappingConfig, remove );
 			} );
 
-			var JSONMapping = serializeJSON(
-				arguments.mappingConfig,
-				false,
-				listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false
-			);
+			var JSONMapping = getUtil().toJSON( arguments.mappingConfig );
 		} else {
-			var JSONMapping = serializeJSON(
+			var JSONMapping = getUtil().toJSON(
 					{
 						"#arguments.mappingName#":arguments.mappingConfig
-					},
-					false,
-					listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false
+					}
 				);
         }
 
@@ -639,7 +618,7 @@ component
 			throw(
 				type="cbElasticsearch.HyperClient.InvalidMappingException",
 				message="The mapping for #arguments.mappingName# could not be created.  Reason: #( isSimpleValue( mappingResult.error ) ? mappingResult.error : mappingResult.error.reason )#",
-				extendedInfo=serializeJSON( mappingResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false )
+				extendedInfo=getUtil().toJSON( mappingResult )
 			);
 
 		} else{
@@ -762,11 +741,7 @@ component
 									"POST"
                                 )
                                 .setBody( 
-                                    serializeJSON(
-                                        requestBody,
-                                        false,
-                                        listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false
-                                    )
+                                    getUtil().toJSON( requestBody )
                                 )
                                 .asJSON()
                                 .send()
@@ -817,7 +792,7 @@ component
             throw(
 				type="cbElasticsearch.JestClient.InvalidTaskException",
 				message="A task with an identifier of #arguments.taskId# could not be found. The error returned was: #( isSimpleValue( taskResult.error ) ? taskResult.error : taskResult.error.reason )#",
-				extendedInfo=serializeJSON( taskResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false )
+				extendedInfo=getUtil().toJSON( taskResult )
 			);
         }
 
@@ -853,34 +828,47 @@ component
 
 	/**
 	* @document 		Document@cbElasticSearch 		An instance of the elasticsearch Document object
+	* @refresh          boolean                         Whether to return a refreshed document - useful when processing via pipelines
 	*
 	* @return 			iNativeClient 					An implementation of the iNativeClient
 	* @interfaced
 	**/
-	cbElasticsearch.models.Document function save( required cbElasticsearch.models.Document document ){
+	cbElasticsearch.models.Document function save( required cbElasticsearch.models.Document document, boolean refresh=false ){
 
-       if( isNull( document.getId() ) ){
+       if( isNull( arguments.document.getId() ) ){
         var saveRequest = variables.nodePool
                             .newRequest( 
-                                "#document.getIndex()#/_doc",
+                                "#arguments.document.getIndex()#/_doc",
                                 "POST" 
                             );
        } else {
         var saveRequest = variables.nodePool
                             .newRequest( 
-                                "#document.getIndex()#/_doc/#urlEncodedFormat( document.getId() )#",
+                                "#arguments.document.getIndex()#/_doc/#urlEncodedFormat( arguments.document.getId() )#",
                                 "PUT" 
                             );
-       }
+	   }
+	   
+	   if( arguments.refresh ){
+		   saveRequest.setQueryParam( "refresh", true );
+	   }
 
+	   if( !isNull( arguments.document.getPipeline() ) ){
+		   saveRequest.setQueryParam( "pipeline", document.getPipeline() );
+	   }
+
+	   arguments.document.getParams().keyArray().each( function( key ){
+			saveRequest.setQueryParam( key, document.getParams()[ key ] );
+	   } );
+
+	   getInterceptorService().processState(
+		   "cbElasticsearchPreSave",
+		   { "document" : arguments.document }
+	   );
 
        var saveResult = saveRequest
                                 .setBody( 
-                                    serializeJSON( 
-                                        document.getMemento(), 
-                                        false, 
-                                        listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false 
-                                    ) 
+                                    getUtil().toJSON( arguments.document.getMemento() ) 
                                 )
 								.send()
 								.json();
@@ -890,13 +878,20 @@ component
 			throw(
 				type="cbElasticsearch.HyperClient.SaveException",
 				message="Document could not be saved.  The error returned was: #( isSimpleValue( saveResult.error ) ? saveResult.error : saveResult.error.reason )#",
-				extendedInfo=serializeJSON( saveResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false )
+				extendedInfo=getUtil().toJSON( saveResult )
 			);
-        }
+		}
 
-		arguments.document.setId( saveResult[ "_id" ] );
+		if( arguments.refresh ){
+			arguments.document = this.get( saveResult[ "_id" ], arguments.document.getIndex() );
+		} else {
+			arguments.document.setId( saveResult[ "_id" ] );
+		}
 
-		arguments.document.setMemento( arguments.document.getMemento() );
+		getInterceptorService().processState(
+		   "cbElasticsearchPostSave",
+		   { "document" : arguments.document }
+	   );
 
 		return arguments.document;
 
@@ -921,7 +916,7 @@ component
 			throw(
 				type="cbElasticsearch.HyperClient.DocumentDeletionException",
 				message="Document could not be deleted.  The error returned was: #( isSimpleValue( deleteResult.error ) ? deleteResult.error : deleteResult.error.reason )#",
-				extendedInfo=serializeJSON( deleteResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false )
+				extendedInfo=getUtil().toJSON( deleteResult )
 			);
 		}
 
@@ -960,12 +955,10 @@ component
         }
         
         deleteRequest.setBody(
-            serializeJSON( 
+            getUtil().toJSON( 
                 {
                     "query" : arguments.searchBuilder.getQuery()
-                },
-                false,
-                listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false 
+                }
             )
         );
 
@@ -1000,15 +993,12 @@ component
                             )
                             .setBody(
                                 reReplace(
-                                    serializeJSON(
+                                    getUtil().toJSON( 
                                         {
                                             "query" : arguments.searchBuilder.getQuery(),
                                             "script": arguments.script
-                                        },
-                                        false,
-                                        listFindNoCase( "Lucee", server.coldfusion.productname )
-                                        ? "utf-8" : false
-                                    ),
+										}
+									),
                                     "\n|\r|\t","","ALL"
                                 )
                             );
@@ -1043,15 +1033,39 @@ component
 	* @return 			array					An array of results for the saved items
 	* @interfaced
 	**/
-	array function saveAll( required array documents, boolean throwOnError=false ){
+	array function saveAll( required array documents, boolean throwOnError=false, struct params={} ){
 
-        var requests = [];
+		var requests = [];
+		
+		var saveRequest = variables.nodePool.newRequest( 
+			"_bulk",
+			"POST" 
+		);
+
+		arguments.params.keyArray().each( function( key ){
+			saveRequest.setQueryParam( key, params[ key ] );
+		});
 
         arguments.documents.each( function( doc ){
+			getInterceptorService().processState(
+				"cbElasticsearchPreSave",
+				{ "document" : doc }
+			);
             // ensure the _id value is normalized in to the doc for upserts
             var memento = doc.getMemento();
             if( !isNull( doc.getId() ) ){
                 memento[ "_id" ] = doc.getId();
+			}
+
+			if( !isNull( doc.getPipeline() ) ){
+				if( !len( saveRequest.getQueryParam( "pipeline" ) ) ){
+					saveRequest.setQueryParam( "pipeline", doc.getPipeline() );
+				} else if( saveRequest.getQueryParam( "pipeline" ) != doc.getPipeline()  ){
+					throw(
+						type="cbElasticsearch.HyperClient.IllegalBulkSaveParam",
+						message="The documents provided for bulk save contained multiple pipeline configurations. All documents in the bulk save request must share the same pipeline."
+					);
+				}
 			}
 			
             requests.append(
@@ -1063,10 +1077,7 @@ component
             );
 		} );
 
-        var saveResult = variables.nodePool.newRequest( 
-								"_bulk",
-								"POST" 
-							)
+        var saveResult = saveRequest
 							.setBody( 
 								requests.reduce( 
 									function( acc, action ){
@@ -1084,18 +1095,10 @@ component
 										structDelete( action.doc, "_id" );
 
 										// action directive
-										acc &= serializeJSON(
-										updateObj, 
-										false, 
-										listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false
-										) & chr(10);
+										acc &= getUtil().toJSON( updateObj ) & chr(10);
 
 										// document directive
-										acc &= serializeJSON( 
-											action, 
-											false, 
-											listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false
-										) & chr(10);
+										acc &= getUtil().toJSON( action ) & chr(10);
 										
 										return acc;
 									},
@@ -1110,21 +1113,32 @@ component
 			throw(
 				type="cbElasticsearch.HyperClient.BulkSaveException",
 				message="Documents could not be saved.  The error returned was: #( isSimpleValue( saveResult.error ) ? saveResult.error : saveResult.error.reason )#",
-				extendedInfo=serializeJSON( saveResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false )
+				extendedInfo=getUtil().toJSON( saveResult )
 			);
 		}
 
 		var results = [];
 
-		for( var item in saveResult.items ){
+		for( var i = 1; i <= saveResult.items.len(); i++ ){
+
+			var item = saveResult.items[ i ];
+			var document = arguments.documents[ i ];
 
 			if( arguments.throwOnError && item.update.keyExists( "error" ) ){
 				throw(
 					type="cbElasticsearch.HyperClient.BulkSaveException",
 					message="A document with an identifier of #item.update[ "_id" ]# could not be saved.  The error returned was: #( isSimpleValue( item.update.error ) ? item.update.error : item.update.error.reason )#",
-					extendedInfo=serializeJSON( saveResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false )
+					extendedInfo=getUtil().toJSON( saveResult )
 				);
 			}
+
+			document.setId( item.update[ "_id" ] );
+
+			getInterceptorService().processState(
+				"cbElasticsearchPostSave",
+				{ "document" : document }
+			);
+
 			arrayAppend(
 				results,
 				{
@@ -1167,11 +1181,7 @@ component
                             .setBody( 
                                 requests.reduce( 
                                     function( acc, action ){
-                                        acc &= serializeJSON( 
-                                            action, 
-                                            false, 
-                                            listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false
-										) & chr(13);
+                                        acc &= getUtil().toJSON( action ) & chr(13);
 										return acc;
                                     },
                                     ""
@@ -1186,21 +1196,108 @@ component
 			throw(
 				type="cbElasticsearch.HyperClient.PersistByQuery",
 				message="Document could not be deleted.  The error returned was: #( isSimpleValue( deleteResult.error ) ? deleteResult.error : deleteResult.error.reason )#",
-				extendedInfo=serializeJSON( deleteResult, false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false )
+				extendedInfo=getUtil().toJSON( deleteResult )
 			);
 		}
 
 		return true;
 
-    }
-    
+	}
+	
+	/**
+	 * Ingest Pipeline Management
+	 */
+
+	/**
+	 * Create or update pipeline
+	 *
+	 * @pipeline The Pipeline object
+	 */
+	boolean function applyPipeline( required cbElasticsearch.models.Pipeline pipeline ){
+		var response = variables.nodePool.newRequest( 
+									"_ingest/pipeline/#urlEncodedFormat( arguments.pipeline.getId() )#",
+									"PUT" 
+								)
+								.setBody( 
+									arguments.pipeline.getJSON()
+								)
+								.send()
+								.json();
+								
+		if( response.keyExists( "acknowledged" ) ){
+			return response.acknowledged;
+		} else if( response.keyExists( "error" ) ) {
+			throw(
+				type="cbElasticsearch.HyperClient.ApplyPipelineException",
+				message="The pipeline could not be applied.  The error returned was: #( isSimpleValue( deleteResult.error ) ? deleteResult.error : deleteResult.error.reason )#",
+				extendedInfo=getUtil().toJSON( deleteResult )
+			);
+		} else {
+			return false;
+		}
+	}
+
+
+	/**
+	 * Retreives the definition of a pipeline
+	 *
+	 * @id  The identifier of the pipeline to retreive
+	 */
+	any function getPipeline( required string id ){
+		var definition = variables.nodePool.newRequest( 
+							"_ingest/pipeline/#urlEncodedFormat( arguments.id )#"
+						)
+						.send()
+						.json();
+		return definition.keyExists( arguments.id ) ? definition[ arguments.id ] : javacast( "null", 0 );
+	}
+
+	/**
+	 * Retreives all pipeline definitions
+	 */
+	any function getPipelines(){
+		return variables.nodePool.newRequest( 
+									"_ingest/pipeline"
+								)
+								.send()
+								.json();
+	}
+
+	/**
+	 * Deletes a pipeline
+	 *
+	 * @id  The identifier of the pipeline to delete
+	 */
+	boolean function deletePipeline( required string id ){
+		
+		var response = variables.nodePool.newRequest( 
+									"_ingest/pipeline/#urlEncodedFormat( arguments.id )#",
+									"DELETE" 
+								)
+								.send()
+								.json();
+
+		if( response.keyExists( "acknowledged" ) ){
+			return response.acknowledged;
+		} else if( response.status != 404 && response.keyExists( "error" ) ) {
+			throw(
+				type="cbElasticsearch.HyperClient.DeletePipelineException",
+				message="The pipeline could not be deleted.  The error returned was: #( isSimpleValue( response.error ) ? response.error : response.error.reason )#",
+				extendedInfo=getUtil().toJSON( response )
+			);
+		} else {
+			return false;
+		}
+	}
     
     function onResponseFailure( required Hyper.models.HyperResponse response ){
         throw( 
             type = "cbElasticsearch.invalidRequest",
-            message = "Your request was invalid.  The response returned was #serializeJSON( response.getData() )#"
+            message = "Your request was invalid.  The response returned was #getUtil().toJSON( response.getData() )#"
         );
-    }
+	}
+	
+	
 
 	/**
 	 * Parses a parameter argument.
