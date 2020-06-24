@@ -93,7 +93,7 @@ component{
                 break;
             }
             case "POST":
-                if( findNoCase( '_search', arguments.route ) ){
+                if( findNoCase( '_search', arguments.route ) || findNoCase( '_mget', arguments.route ) ){
                     nodeUsage = "read";
                 }
                 break;
