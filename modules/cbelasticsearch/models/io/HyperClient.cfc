@@ -344,11 +344,11 @@ component
 
 			indexResult[ "index" ] = {
 				"error"  : true,
-				"message": "Index #indexDSL.name# already exists"
+				"message": "Index #indexName# already exists"
             };
 
             if( structKeyExists( indexDSL, "mappings" ) ){
-                indexResult[ "mappings" ] = applyMappings( indexDSL.name, indexDSL.mappings );
+                indexResult[ "mappings" ] = applyMappings( indexName, indexDSL.mappings );
             }
 
 		}
