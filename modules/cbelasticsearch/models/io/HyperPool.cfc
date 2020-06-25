@@ -109,8 +109,8 @@ component{
         uriParts.prepend( node.url );
         requestObj.setUrl( uriParts.toList( '/' ) );
 
-        if( variables.authenticationScheme == 'basic' && node.username && node.password ){
-            if( node.username && node.password ){
+        if( variables.authenticationScheme == 'basic' && node.keyExists( "username" ) && node.keyExists( "password" ) ){
+            if( len( node.username ) && len( node.password ) ){
                 requestObj.withBasicAuth( node.username, node.password );   
             } else {
                 throw(
