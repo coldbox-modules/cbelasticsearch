@@ -81,9 +81,11 @@ component
 
 	/**
 	* Persists the document to Elasticsearch
+	*
+	* @refresh  boolean if true, will return a newly populated instance of the document retreived from the index ( useful for pipelined saves )
 	**/
-	function save(){
-		return getClient().save( this );
+	function save( boolean refresh=false ){
+		return getClient().save( this, arguments.refresh );
 	}
 
 	/**
