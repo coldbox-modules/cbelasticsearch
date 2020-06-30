@@ -96,11 +96,11 @@ component
 	* Verifies whether an index mapping exists
 	*
 	* @indexName 		string 		the name of the index
-	* @mapping 			string 		the name of the mapping
+	* @mapping 			string 		the name of the mapping - deprecated and not passed to the hyper client
 	**/
 	boolean function indexMappingExists(
 		required string indexName,
-		required string mapping
+		string mapping
 	){
 
 		return variables.nativeClient.indexMappingExists( argumentCollection=arguments );

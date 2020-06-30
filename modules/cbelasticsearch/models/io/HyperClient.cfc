@@ -238,21 +238,16 @@ component
 	* Verifies whether an index mapping exists
 	*
 	* @indexName 		string 		the name of the index
-	* @mapping 			string 		the name of the mapping
 	* @interfaced
 	**/
-	boolean function indexMappingExists(
-		required string indexName,
-		required string mapping
-	){
+	boolean function indexMappingExists( required string indexName ){
 
         var request =  variables.nodePool
                         .newRequest( 
-                            arguments.indexName & '/mapping/' & arguments.mapping,
-                            "HEAD"
+                            arguments.indexName & '/_mapping',
+                            "GET"
                         ).send();
         return ( 
-           
             request.getStatusCode() == 200
             &&
             !structIsEmpty( request.json() ) 
