@@ -251,6 +251,7 @@ component
 	* @keys 	array 		An array of keys to retrieve
 	* @index 	string 		The name of the index
 	* @type 	type 		The name of the type
+	* @params   struct      A struct of params to apply to the request
 	* @interfaced
 	*
 	* @return 	array 		An array of Document objects
@@ -258,7 +259,8 @@ component
 	array function getMultiple(
 		required array keys,
 		string index,
-		string type
+		string type,
+		struct params = {}
 	){
 		return variables.nativeClient.getMultiple( argumentCollection=arguments );
 	}

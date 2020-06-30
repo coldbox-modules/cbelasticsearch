@@ -348,7 +348,11 @@ component
             };
 
             if( structKeyExists( indexDSL, "mappings" ) ){
-                indexResult[ "mappings" ] = applyMappings( indexName, indexDSL.mappings );
+				if( isMajorVersion( 7 ) ){
+					indexResult[ "mappings" ] = applyMapping( indexName, "_doc", indexDSL.mappings );
+				} else {
+					indexResult[ "mappings" ] = applyMappings( indexName, indexDSL.mappings );
+				}
             }
 
 		}
@@ -609,7 +613,6 @@ component
                             )
                             .setBody( JSONMapping )
                             .asJSON()
-                            .setThrowOnError( true )
                             .send()
                             .json();
 
@@ -702,6 +705,7 @@ component
 	* @keys 	array 		An array of keys to retrieve
 	* @index 	string 		The name of the index
 	* @type 	type 		The name of the type
+	* @params   struct      A struct of params to apply to the request
 	* @interfaced
 	*
 	* @return 	array 		An array of Document objects
@@ -1234,8 +1238,8 @@ component
 		} else if( response.keyExists( "error" ) ) {
 			throw(
 				type="cbElasticsearch.HyperClient.ApplyPipelineException",
-				message="The pipeline could not be applied.  The error returned was: #( isSimpleValue( deleteResult.error ) ? deleteResult.error : deleteResult.error.reason )#",
-				extendedInfo=getUtil().toJSON( deleteResult )
+				message="The pipeline could not be applied.  The error returned was: #( isSimpleValue( response.error ) ? response.error : response.error.reason )#",
+				extendedInfo=getUtil().toJSON( response )
 			);
 		} else {
 			return false;
