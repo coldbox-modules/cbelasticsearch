@@ -709,7 +709,8 @@ component
 	array function getMultiple(
 		required array keys,
 		string index,
-		string type
+		string type,
+		struct params = {}
 	){
 		if( isNull( arguments.index ) ){
 			arguments.index = variables.instanceConfig.get( "defaultIndex" );
@@ -733,19 +734,23 @@ component
                     }
                 );
             }
-        } );
+		} );
+		
+		var multiRequest = variables.nodePool
+							.newRequest( 
+								"_mget",
+								"POST"
+							)
+							.setBody( 
+								getUtil().toJSON( requestBody )
+							)
+							.asJSON();
+		
+		arguments.params.keyArray().each( function( key ){
+			multiRequest.setQueryParam( key, params[ key ] );
+		} );
 
-        var retrievedResult = variables.nodePool
-                                .newRequest( 
-									"_mget",
-									"POST"
-                                )
-                                .setBody( 
-                                    getUtil().toJSON( requestBody )
-                                )
-                                .asJSON()
-                                .send()
-								.json();
+        var retrievedResult = multiRequest.send().json();
 
 		if( !structKeyExists( retrievedResult, "docs" ) ){
 
