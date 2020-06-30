@@ -700,7 +700,6 @@ component
 	* @keys 	array 		An array of keys to retrieve
 	* @index 	string 		The name of the index
 	* @type 	type 		The name of the type
-	* @params   struct      A struct of params to apply to the request
 	* @interfaced
 	*
 	* @return 	array 		An array of Document objects
@@ -749,7 +748,7 @@ component
 			multiRequest.setQueryParam( key, params[ key ] );
 		} );
 
-        var retrievedResult = multiRequest.send().json();
+		var retrievedResult = multiRequest.send().json();
 
 		if( !structKeyExists( retrievedResult, "docs" ) ){
 
@@ -757,21 +756,17 @@ component
 
 		} else {
 
-			var documents = [];
-
-			for( var result in retrievedResult.docs ){
-
-				if( !structKeyExists( result, "_source" ) ) continue;
-
-				var document = newDocument().new(
-					result[ "_index" ],
-					result[ "_type" ],
-					result[ "_source" ]
-				).setId( result[ "_id" ] );
-
-				arrayAppend( documents, document );
-
-			}
+			var documents = retrievedResult.docs.map(
+				function( doc ){
+					return doc.found
+							? newDocument().new(
+								result[ "_index" ],
+								result[ "_type" ],
+								result[ "_source" ]
+							).setId( result[ "_id" ] )
+							: doc						   
+				}
+			);
 
 			return documents;
 		}
