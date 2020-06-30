@@ -242,7 +242,11 @@ component
 	* Adds a parameter for the document save
 	*/
 	public Document function addParam( required string key, required any value ){
-		variables.params[ key ] = urlEncodedFormat( value );
+		// pipelines cannot be url escaped or they will not be found
+		if( key != "pipeline" ){
+			arguments.value = urlEncodedFormat( arguments.value );
+		} 
+		variables.params[ key ] = arguments.value;
 		return this;
 	}
 
