@@ -760,10 +760,10 @@ component
 				function( doc ){
 					return doc.found
 							? newDocument().new(
-								result[ "_index" ],
-								result[ "_type" ],
-								result[ "_source" ]
-							).setId( result[ "_id" ] )
+								doc[ "_index" ],
+								doc[ "_type" ],
+								doc[ "_source" ]
+							).setId( doc[ "_id" ] )
 							: doc						   
 				}
 			);
