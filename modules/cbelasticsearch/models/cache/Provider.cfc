@@ -472,11 +472,12 @@ component
 
 		var documents = getClient().getMultiple( 
 			arguments.objectKeys,
-			getConfiguration().index,
-			getConfiguration().type
+			getConfiguration().index
 		);
 
 		for( var document in documents ){
+
+			if( !isInstanceOf( document, "cbelasticsearch.models.Document" ) ) continue;
 		
 			var entry = document.getMemento();
 			

@@ -758,13 +758,13 @@ component
 
 			var documents = retrievedResult.docs.map(
 				function( doc ){
-					return doc.found
+					return structKeyExists( doc, "found" ) && doc.found
 							? newDocument().new(
 								doc[ "_index" ],
 								doc[ "_type" ],
 								doc[ "_source" ]
 							).setId( doc[ "_id" ] )
-							: doc						   
+							: doc;	   
 				}
 			);
 
