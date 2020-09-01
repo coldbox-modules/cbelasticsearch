@@ -7,5 +7,6 @@
     "root": "./modules/cbelasticsearch/docs",
     "structure": {
         "readme": "Introduction.md"
-    }
+    },
+    "plugins": ["theme-api"]
 }
