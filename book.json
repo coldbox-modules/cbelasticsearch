@@ -7,6 +7,5 @@
     "root": "./modules/cbelasticsearch/docs",
     "structure": {
         "readme": "Introduction.md"
-    },
-    "plugins": ["jekyll-relative-links"]
+    }
 }
