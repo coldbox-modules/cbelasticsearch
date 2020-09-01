@@ -1,5 +1,5 @@
 {
-    "gitbook": "3.2.3",
+    "gitbook": "2.0.0",
     "title": "cbElasticsearch",
     "description": "Elasticsearch Integration for the Coldbox Platform",
     "language": "en",
