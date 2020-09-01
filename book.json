@@ -6,7 +6,7 @@
     "language": "en",
     "root": "./modules/cbelasticsearch/docs",
     "structure": {
-        "readme": "Introduction.md"
-    },
-    "plugins": ["theme-api"]
+        "readme": "Introduction.md",
+        "summary": "Summary.md"
+    }
 }
