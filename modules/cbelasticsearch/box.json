@@ -1,29 +1,31 @@
 {
-    "name"      : "Elasticsearch for the Coldbox Framework",
-    "author"    : "Ortus Solutions <info@ortussolutions.com",
-    "location"  : "https://downloads.ortussolutions.com/ortussolutions/coldbox-modules/cbelasticsearch/@build.version@/cbelasticsearch-@build.version@.zip",
-    "version"   : "@build.version@+@build.number@",
-    "slug"      : "cbelasticsearch",
-    "type"      : "modules",
-    "homepage"  : "https://github.com/coldbox-modules/cbox-elasticsearch",
-    "bugs"      : "https://github.com/coldbox-modules/cbox-elasticsearch/issues",
-    "documentation"     : "https://github.com/coldbox-modules/cbox-elasticsearch",
-    "repository"        : { "type" : "git", "url" : "https://github.com/coldbox-modules/cbox-elasticsearch" },
-    "shortDescription"  : "Elasticsearch Module for the Coldbox Framework",
-    "license"           : [ 
-        { "type" : "Apache2", "url" : "http://www.apache.org/licenses/LICENSE-2.0.html" } 
-    ],
-    "contributors"      : [
-        "Jon Clausen <jclausen@ortussolutions.com>"
-    ],
-    "dependencies"  :{
-        "hyper":"^2.3.1"
+    "name": "Elasticsearch for the Coldbox Framework",
+    "author": "Ortus Solutions <info@ortussolutions.com",
+    "location": "https://downloads.ortussolutions.com/ortussolutions/coldbox-modules/cbelasticsearch/@build.version@/cbelasticsearch-@build.version@.zip",
+    "version": "@build.version@+@build.number@",
+    "slug": "cbelasticsearch",
+    "type": "modules",
+    "homepage": "https://github.com/coldbox-modules/cbox-elasticsearch",
+    "bugs": "https://github.com/coldbox-modules/cbox-elasticsearch/issues",
+    "documentation": "https://github.com/coldbox-modules/cbox-elasticsearch",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/coldbox-modules/cbox-elasticsearch"
     },
-    "ignore":[
-        "**/.*",
-        "apidocs",
-        "docs",
-        "tests",
-        "*/.md"
-    ]
+    "shortDescription": "Elasticsearch Module for the Coldbox Framework",
+    "license": [
+        {
+            "type": "Apache2",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        }
+    ],
+    "contributors": [
+        "Jon Clausen <jclausen@ortussolutions.com>",
+        "Eric Peterson <eric@ortussolutions.com>",
+        "Michael Born <michael@ortussolutions.com>"
+    ],
+    "dependencies": {
+        "hyper": "^2.3.1"
+    },
+    "ignore": ["**/.*", "apidocs", "docs", "tests", "*/.md"]
 }
