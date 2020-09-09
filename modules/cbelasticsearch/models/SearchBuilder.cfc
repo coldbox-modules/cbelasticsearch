@@ -247,6 +247,50 @@ component accessors="true" {
     }
 
     /**
+    * Adds a wildcard search to the query
+    * @name 		string 		the name of the parameter to match
+    * @value 		any 		the value of the parameter to match
+    * @boost 		numeric		A numeric boost option for any exact matches
+    *
+    **/
+    SearchBuilder function wildcard(
+        required any name,
+        required any value,
+        numeric boost,
+        string operator = "must"
+    ){
+
+        param variables.query.bool = {};
+        if( !structKeyExists( variables.query.bool, operator ) ){
+            variables.query.bool[ operator ] = [];
+        }
+
+        if( isArray( arguments.name ) ){
+            var wildcard = {
+                "bool" : {
+                    "should" : arguments.name.map( 
+                        function( key ) {
+                            return { "wildcard" : { "#key#" : ( reFind("^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) ? ( "*" & value & "*" ) : value ) } };
+                        } 
+                    )
+                }
+            };
+
+         } else {
+            var wildcard = { 
+                "wildcard" : {
+                    "#name#" : ( reFind("^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) ? ("*" & value & "*") : value )
+                } 
+            };
+        }
+        
+        variables.query.bool[ operator ].append( wildcard ); 
+
+        return this;
+
+    }
+
+    /**
     * Adds an exact value restriction ( elasticsearch: term ) to the query
     * @name 		string 		the name of the parameter to match
     * @value 		any 		the value of the parameter to match

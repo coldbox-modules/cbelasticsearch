@@ -530,6 +530,75 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
             } );
 
+            it( "Tests the wildcard() method", function(){
+                var searchBuilder = variables.model.new(
+                    variables.testIndexName,
+                    "testdocs"
+                );
+
+                searchBuilder.wildcard( "title", "Fo" );
+
+                expect( searchBuilder.getQuery() ).toBeStruct();
+                expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
+                expect( searchBuilder.getQuery().bool ).toHaveKey( "must" );
+                var wildcards = searchBuilder.getQuery().bool.must.filter( function( item ){
+                    return item.keyExists( "wildcard" );
+                } );
+
+                expect( wildcards.len() ).toBe( 1 );
+                expect( wildcards[ 1 ].wildcard ).toHaveKey( "title" );
+                expect( wildcards[ 1 ].wildcard.title ).toBe( "*Fo*" );
+
+
+                var searchBuilder = variables.model.new(
+                    variables.testIndexName,
+                    "testdocs"
+                );
+
+                searchBuilder.wildcard( "title", "*Fo" );
+
+                expect( searchBuilder.getQuery() ).toBeStruct();
+                expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
+                expect( searchBuilder.getQuery().bool ).toHaveKey( "must" );
+                var wildcards = searchBuilder.getQuery().bool.must.filter( function( item ){
+                    return item.keyExists( "wildcard" );
+                } );
+
+                expect( wildcards.len() ).toBe( 1 );
+                expect( wildcards[ 1 ].wildcard ).toHaveKey( "title" );
+                expect( wildcards[ 1 ].wildcard.title ).toBe( "*Fo" );
+
+                expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
+                
+            } );
+
+            it( "Tests the wildcard() method with an array of keys", function(){
+                var searchBuilder = variables.model.new(
+                    variables.testIndexName,
+                    "testdocs"
+                );
+
+                searchBuilder.wildcard( ["title", "foo" ], "Bar" );
+
+                expect( searchBuilder.getQuery() ).toBeStruct();
+                expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
+                expect( searchBuilder.getQuery().bool ).toHaveKey( "must" );
+
+                expect( searchBuilder.getQuery().bool.must.filter( function( item ){ return item.keyExists( "bool" ); } ).len() ).toBe( 1 );
+
+                var wildcards = searchBuilder.getQuery().bool.must[ 1 ].bool.should;
+
+                expect( wildcards.len() ).toBe( 2 );
+                expect( wildcards[ 1 ].wildcard ).toHaveKey( "title" );
+                expect( wildcards[ 1 ].wildcard.title ).toBe( "*Bar*" );
+                expect( wildcards[ 2 ].wildcard ).toHaveKey( "foo" );
+                expect( wildcards[ 2 ].wildcard.foo ).toBe( "*Bar*" );
+
+
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
+
+            });
+
             it( "Tests the filterMatch() method", function() {
                 var searchBuilder = variables.model.new(
                     variables.testIndexName,
