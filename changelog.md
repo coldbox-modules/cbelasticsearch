@@ -3,6 +3,7 @@
 # 2.0.1
 
 -   Adds Logstash appender and converts Elasticsearch appender to use Logstash schema for index data
+-   Adds a `wildcard` method to Search builder for wildcard searches on keyword-mapped fields
 
 # 2.0.0
 

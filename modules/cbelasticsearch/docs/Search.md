@@ -64,8 +64,28 @@ searchBuilder
         boost = 0.5
     );
 ```
-
 In the above example, documents with a `name` field containing "Elasticsearch" would be boosted in score higher than those which only find the value in the short or long description.
+
+
+### Wildcards
+
+There are times when you want to be able to match a portion of a `keyword`-mapped field in elasticsearch.  The `wildcard` method allows you to do this.  Let's say I wanted to match any documents with a `name` key containing `Elastic`.  I could use the following method to match those documents:
+
+```
+searchBuilder.keyword( "name", "Elastic" );
+```
+
+This would match any documents with a `name` keyword field containing `Elasticsearch` or `Elasticache`.  It is important to note that wildcard queries are exceptionally slow, compared to `term`/`must`/`should` queries, as they require recursion through the entire index of document values to obtain their matches.
+
+We can also boost matches and make this a conditional to an existing query:
+
+```
+searchBuilder.shouldMatch( "shortDescription", "Elastic", 1 )
+             .wildcard( "name", "Elastic", 5, "should" );
+```
+
+In the above query we change the `operator` argument for the wildcard query to "should" to ensure that the match becomes an "or" for the short description or the wildcard.  In addition, we boost the wildcard results 5 times above the short description matched results.
+
 
 #### Advanced Query DSL
 
