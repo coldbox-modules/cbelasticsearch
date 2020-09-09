@@ -2,7 +2,7 @@
 
 # 2.0.1
 
--   [ snapshot updates ]
+-   Adds Logstash appender and converts Elasticsearch appender to use Logstash schema for index data
 
 # 2.0.0
 
