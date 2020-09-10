@@ -21,6 +21,10 @@ logBox = {
             properties = {
                 // the name of the index to store log data in - defaults to logbox
                 "index"            : "myapp-logs",
+                // Provide a unique name for the application ( optional ) - useful for filtering shared log indexes
+                "applicationName"  : "myapp",
+                // Optional release version
+                "releaseVersion"   : "1.0.0",
                 // the number of days to retain logs
 				"rotationDays"     : 30,
                 // perform the rotation purge every this number of minutes
@@ -32,6 +36,10 @@ logBox = {
             properties = {
                 // the index prefix to use - prior to the rotational timestamps - defaults to ".logstash-[applicationName]"
                 "index"            : "myapp-logs",
+                // Provide a unique name for the application ( optional ) - useful for filtering shared log indexes
+                "applicationName"  : "myapp",
+                // Optional release version
+                "releaseVersion"   : "1.0.0",
                 // the frequency of index rotation
 				"rotation"     : "daily"
             }

@@ -8,7 +8,18 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 		variables.model = getMockBox().createMock(className="cbelasticsearch.models.logging.LogstashAppender");
 
-		variables.model.init( "LogstashAppenderTest" );
+		variables.model.init( 
+			"LogstashAppenderTest", 
+			{
+				"applicationName" : "testspecs",
+				"releaseVersion" : "1.0.0",
+				"userInfoUDF" : function(){
+					return {
+						"username" : "tester"
+					};
+				}
+			} 
+			);
 
 		makePublic( variables.model, "getRotationalIndexName", "getRotationalIndexName" );
 
@@ -59,6 +70,15 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( documents.len() ).toBeGT( 0 );
 
 				var logMessage = documents[ 1 ].getMemento();
+
+				expect( logMessage )
+					.toHaveKey( "application" )
+					.toHaveKey( "release" )
+					.toHaveKey( "userinfo" );
+
+
+				expect( isJSON( logMessage.userInfo ) ).toBeTrue();
+				expect( deserializeJSON( logMessage.userinfo ) ).toHaveKey( "username" );
 
 				debug( logMessage  );
 			

@@ -38,6 +38,11 @@ component extends="LogstashAppender" output="false" hint="This a simple implemen
 
 	}
 
+    /**
+    * Search Builder Provider
+    **/
+    Client function searchBuilder() provider="SearchBuilder@cbElasticsearch"{}
+
 	/**
 	 * Write an entry into the appender.
 	 */
