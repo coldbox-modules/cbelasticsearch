@@ -1,5 +1,8 @@
 # CHANGELOG
 
+# 2.0.2
+- [ Snapshot changes ]
+
 # 2.0.1
 
 -   Adds Logstash appender and converts Elasticsearch appender to use Logstash schema for index data
