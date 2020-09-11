@@ -2,22 +2,22 @@
 * Elasticsearch appender for LogBox
 **/
 component extends="coldbox.system.logging.AbstractAppender" output="false" hint="This a logstash appender for Elasticsearch" {
-    
+
     property name="util" inject="Util@cbelasticsearch";
 
     /**
      * Constructor
      */
     public LogstashAppender function init(
-        required name, 
-        properties={}, 
-        layout="", 
-        levelMin="0", 
+        required name,
+        properties={},
+        layout="",
+        levelMin="0",
         levelMax="4"
     ) output=false {
-        
+
         if( !structKeyExists( application, "wirebox" ) ){
-            throw( 
+            throw(
                 type="cbElasticsearch.Elasticsearch.DependencyException",
                 message="Wirebox was not detected in the application scope, but is required to use this appender"
             );
@@ -25,7 +25,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 
         // Init supertype
         super.init( argumentCollection=arguments );
-        
+
         // UUID generator
         instance.uuid = createobject( "java", "java.util.UUID" );
 
@@ -54,7 +54,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
         }
 
         application.wirebox.autowire( this );
-        
+
         return this;
     }
 
@@ -84,14 +84,14 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
                 ensureIndex();
         }
     }
-    //  Log Message 
+    //  Log Message
 
     /**
      * Write an entry into the appender.
      */
     public void function logMessage(required any logEvent) output=false {
-        //  ************************************************************* 
-        //  ************************************************************* 
+        //  *************************************************************
+        //  *************************************************************
             var category 	= getProperty( "defaultCategory" );
             var cmap 		= "";
             var cols 		= "";
@@ -114,7 +114,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
             };
 
             if( logObj.severity < 2 ){
-                
+
                 logObj[ "snapshot" ] = {
                     "template"       : CGI.CF_TEMPLATE_PATH,
                     "path"           : CGI.PATH_INFO,
@@ -135,7 +135,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
                         "view"		  : event.getCurrentView(),
                         "environment" : application.cbController.getSetting( "environment" )
                     };
-    
+
                 }
 
             }
@@ -149,12 +149,12 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
                             logObj.userinfo = variables.util.toJSON( logObj.userinfo );
                         }
                     } catch( any e ){
-                       logObj[ "userinfo" ] = "An error occurred when attempting to run the userInfoUDF provided.  The message received was #e.message#";     
+                       logObj[ "userinfo" ] = "An error occurred when attempting to run the userInfoUDF provided.  The message received was #e.message#";
                     }
-                } 
+                }
             }
 
-            newDocument().new( 
+            newDocument().new(
                 index=getRotationalIndexName(),
                 properties=logObj
             ).setId( instance.uuid.randomUUID() )
@@ -162,12 +162,14 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
     }
 
     // ---------------------------------------- PRIVATE ---------------------------------------
-    
+
     /**
      * Verify or create the logging index
      */
     private void function ensureIndex() output=false {
-        indexBuilder().new( 
+        if( getClient().indexExists( getRotationalIndexName() ) ) return;
+
+        indexBuilder().new(
             name=getRotationalIndexName(),
             properties={
                 "mappings":{
@@ -184,18 +186,18 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
                                 "type"  : "date",
                                 "format": "date_time_no_millis"
                             },
-                            "message"     : { 
+                            "message"     : {
                                 "type" : "text",
                                 "fields": {
                                     "keyword": {
                                         "type": "keyword",
                                         "ignore_above": 256
                                     }
-                                } 
+                                }
                             },
                             "extrainfo"   : { "type" : "text" },
                             "stacktrace"  : { "type" : "text" },
-                            "snapshot"    : { 
+                            "snapshot"    : {
                                 "type" : "object",
                                 "properties" : {
                                     "template"       : { "type" : "keyword" },
@@ -203,11 +205,11 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
                                     "host"           : { "type" : "keyword" },
                                     "referrer"       : { "type" : "keyword" },
                                     "browser"        : { "type" : "keyword" },
-                                    "remote_address" : { "type" : "keyword" } 
-                                } 
+                                    "remote_address" : { "type" : "keyword" }
+                                }
                             },
                             "event" : {
-                                "type" : "object", 
+                                "type" : "object",
                                 "properties" : {
                                     "name"         : { "type" : "keyword" },
                                     "route"        : { "type" : "keyword" },
@@ -215,14 +217,14 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
                                     "layout"       : { "type" : "keyword" },
                                     "module"       : { "type" : "keyword" },
                                     "view"         : { "type" : "keyword" },
-                                    "environment"  : { "type" : "keyword" } 
+                                    "environment"  : { "type" : "keyword" }
                                 }
                             },
-                            "userinfo" : { "enabled" : false }
+                            "userinfo" : { "type" : "text" }
                         }
                     }
                 }
-            } 
+            }
         ).save();
 
     }
@@ -248,11 +250,11 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
                     baseName &= '.' & dateFormat( now(), 'yyyy-mm-dd-H' );
                     break;
                 }
-            }	
+            }
         }
         return baseName;
     }
 
-    
+
 
 }
