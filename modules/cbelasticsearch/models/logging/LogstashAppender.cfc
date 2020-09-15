@@ -99,7 +99,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 
         // Is this an exception or not?
         if( 
-            ( isStruct( extraInfo ) || isValid( "component", extraInfo ) )
+            ( isStruct( extraInfo ) || isObject( extraInfo ) )
             && extraInfo.keyExists( "StackTrace" ) && extraInfo.keyExists( "Message" ) && extraInfo.keyExists( "Detail" ) 
         ){
             
@@ -111,7 +111,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
             );
                 
         } else if( 
-            ( isStruct( extraInfo ) || isValid( "component", extraInfo ) )
+            ( isStruct( extraInfo ) || isObject( extraInfo ) )
             && extraInfo.keyExists( "exception" ) && isStruct( extraInfo.exception ) && extraInfo.exception.keyExists( "StackTrace" ) 
         ){    
             var trimmedExtra = structCopy( extraInfo );
