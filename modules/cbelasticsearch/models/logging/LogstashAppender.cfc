@@ -138,7 +138,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
                 "category"     : loggerCat,
                 "message"      : loge.getMessage(),
                 "extrainfo"    : loge.getExtraInfoAsString()
-            }
+            };
                 
         }
 
