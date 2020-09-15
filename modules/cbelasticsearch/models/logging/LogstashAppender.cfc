@@ -177,7 +177,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
                     "route"		  : (event.getCurrentRoute() != "") ? event.getCurrentRoute() & ( event.getCurrentRoutedModule() != "" ? " from the " & event.getCurrentRoutedModule() & "module router." : ""):"N/A",
                     "routed_url"  : (event.getCurrentRoutedURL() != "") ? event.getCurrentRoutedURL() :"N/A",
                     "layout"	  : (event.getCurrentLayout() != "") ? event.getCurrentLayout() :"N/A",
-                    "module"	  : event.getCurrentLayoutModule(),
+                    "module"	  : event.getCurrentModule(),
                     "view"		  : event.getCurrentView(),
                     "environment" : application.cbController.getSetting( "environment" )
                 };
@@ -362,11 +362,6 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 		} else {
             var showJavaStackTrace = false;
         }
-
-
-		if( arguments.message != arguments.exception.message ) {
-			logstashException.message = arguments.message & " " & logstashException.message;  
-		}
 
 		if ( showJavaStackTrace ){
 			st = reReplace(arguments.exception.StackTrace, "\r", "", "All");
