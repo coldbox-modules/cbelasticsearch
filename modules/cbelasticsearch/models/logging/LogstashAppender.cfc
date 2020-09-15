@@ -95,10 +95,13 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
         var extraInfo = loge.getExtraInfo();
 		var level = lcase( severityToString( loge.getSeverity() ) );
 		var message = loge.getMessage();
-		var loggerCat = loge.getCategory();
+        var loggerCat = loge.getCategory();
 
         // Is this an exception or not?
-        if( isStruct( extraInfo ) && extraInfo.keyExists( "StackTrace" ) && extraInfo.keyExists( "Message" ) && extraInfo.keyExists( "Detail" ) ){
+        if( 
+            ( isStruct( extraInfo ) || isValid( "component", extraInfo ) )
+            && extraInfo.keyExists( "StackTrace" ) && extraInfo.keyExists( "Message" ) && extraInfo.keyExists( "Detail" ) 
+        ){
             
             local.logObj = parseException(
                 exception = extraInfo,
@@ -107,8 +110,10 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
                 logger = loggerCat
             );
                 
-        } else if( isStruct( extraInfo ) && extraInfo.keyExists( "exception" ) && isStruct( extraInfo.exception ) && extraInfo.exception.keyExists( "StackTrace" ) ){
-            
+        } else if( 
+            ( isStruct( extraInfo ) || isValid( "component", extraInfo ) )
+            && extraInfo.keyExists( "exception" ) && isStruct( extraInfo.exception ) && extraInfo.exception.keyExists( "StackTrace" ) 
+        ){    
             var trimmedExtra = structCopy( extraInfo );
             trimmedExtra.delete( 'exception' );
             
@@ -132,7 +137,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
                 "timestamp"    : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
                 "message"      : loge.getMessage(),
                 "extrainfo"    : loge.getExtraInfoAsString()
-            };
+            }
                 
         }
 
@@ -314,7 +319,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 	* @message Optional message name to output
 	* @logger Optional logger to use
 	*/
-	public any function parseException(
+	public struct function parseException(
 		required any exception,
 		string level = "error",
 		string path = "",
@@ -367,7 +372,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 			st = reReplace(arguments.exception.StackTrace, "\r", "", "All");
 			if (arguments.removeTabsOnJavaStackTrace)
 				st = reReplace(st, "\t", "", "All");
-			logstashExceptionExtra["Java StackTrace"] = listToArray(st,chr(10));
+			logstashExceptionExtra["Java StackTrace"] = listToArray( st, "#chr(13)##chr(10)#" );
 		}
 
 		if (!isNull(arguments.additionalData))
