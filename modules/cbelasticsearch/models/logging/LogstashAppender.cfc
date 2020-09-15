@@ -142,7 +142,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
                 
         }
 
-        logObj[ "timestamp" ] = dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+        logObj[ "timestamp" ] = dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'hh:nn:ssZZ" );
         logObj[ "severity" ] = loge.getSeverity();
         logObj[ "appendername" ] = getName();
 
