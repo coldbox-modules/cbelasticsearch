@@ -134,13 +134,13 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
                 "level"        : level,
                 "severity"     : loge.getSeverity(),
                 "category"     : loggerCat,
-                "timestamp"    : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
                 "message"      : loge.getMessage(),
                 "extrainfo"    : loge.getExtraInfoAsString()
             }
                 
         }
 
+        logObj[ "timestamp" ] = dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
         logObj[ "severity" ] = loge.getSeverity();
         logObj[ "appendername" ] = getName();
 
@@ -341,8 +341,6 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
             "type"         : arguments.exception.type,
             "level"        : arguments.level,
             "category"     : logger,
-            "timestamp"    : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
-            "appendername" : getName(),
             "component"    : "test",
             "message"      : message & " " & arguments.exception.detail,
             "stacktrace"   : isSimpleValue( arguments.exception.StackTrace ) ? listToArray( arguments.exception.StackTrace, "#chr(13)##chr(10)#" ) : arguments.exception.StackTrace
