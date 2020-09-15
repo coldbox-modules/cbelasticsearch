@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# 2.0.2
+
+- Adds additional data and exception information in Logstash appender messages
+
 # 2.0.1
 
 -   Adds Logstash appender and converts Elasticsearch appender to use Logstash schema for index data
