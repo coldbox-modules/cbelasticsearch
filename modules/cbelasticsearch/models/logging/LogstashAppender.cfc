@@ -132,7 +132,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
                 "timestamp"    : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
                 "message"      : loge.getMessage(),
                 "extrainfo"    : loge.getExtraInfoAsString()
-            }
+            };
                 
         }
 
