@@ -1,5 +1,8 @@
 # CHANGELOG
 
+# 2.0.3
+- [ snapshot updates ]
+
 # 2.0.2
 
 - Adds additional data and exception information in Logstash appender messages
