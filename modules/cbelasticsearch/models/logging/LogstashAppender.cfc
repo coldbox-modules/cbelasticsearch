@@ -29,6 +29,8 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
         // UUID generator
         instance.uuid = createobject( "java", "java.util.UUID" );
 
+        instance.appRoot = normalizeSlashes( expandPath('/') );
+
         var applicationName = properties.keyExists( "applicationName" )
                                 ? properties.applicationName
                                 : ( server.coldfusion.productname eq "Lucee" ? getApplicationSettings().name : getApplicationMetadata().name );
@@ -134,13 +136,13 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
                 "level"        : level,
                 "severity"     : loge.getSeverity(),
                 "category"     : loggerCat,
-                "timestamp"    : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
                 "message"      : loge.getMessage(),
                 "extrainfo"    : loge.getExtraInfoAsString()
             }
                 
         }
 
+        logObj[ "timestamp" ] = dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
         logObj[ "severity" ] = loge.getSeverity();
         logObj[ "appendername" ] = getName();
 
@@ -319,7 +321,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 	* @message Optional message name to output
 	* @logger Optional logger to use
 	*/
-	public struct function parseException(
+	private struct function parseException(
 		required any exception,
 		string level = "error",
 		string path = "",
@@ -341,8 +343,6 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
             "type"         : arguments.exception.type,
             "level"        : arguments.level,
             "category"     : logger,
-            "timestamp"    : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
-            "appendername" : getName(),
             "component"    : "test",
             "message"      : message & " " & arguments.exception.detail,
             "stacktrace"   : isSimpleValue( arguments.exception.StackTrace ) ? listToArray( arguments.exception.StackTrace, "#chr(13)##chr(10)#" ) : arguments.exception.StackTrace
@@ -368,15 +368,12 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 			logstashException.message = arguments.message & " " & logstashException.message;  
 		}
 
-		if (arguments.showJavaStackTrace){
+		if ( showJavaStackTrace ){
 			st = reReplace(arguments.exception.StackTrace, "\r", "", "All");
 			if (arguments.removeTabsOnJavaStackTrace)
 				st = reReplace(st, "\t", "", "All");
 			logstashExceptionExtra["Java StackTrace"] = listToArray( st, "#chr(13)##chr(10)#" );
 		}
-
-		if (!isNull(arguments.additionalData))
-			logstashExceptionExtra["Additional Data"] = arguments.additionalData;
 
 		// Applies to type = "database". Native error code associated with exception. Database drivers typically provide error codes to diagnose failing database operations. Default value is -1.
 		if( structKeyExists( arguments.exception, 'NativeErrorCode' ) ) {
@@ -433,13 +430,12 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 			logstashExceptionExtra[ "application" ][ "Extended Info" ] = arguments.exception.ExtendedInfo;
 		}
 		
-		if (structCount(logstashExceptionExtra))
+		if ( structCount( logstashExceptionExtra ) )
 			logstashException[ "extrainfo" ] = variables.util.toJSON( logstashExceptionExtra );
 
 		
 		var frames = [];
 		for (i=arrayLen(tagContext); i > 0; i--) {
-			stacki++;
 			var thisTCItem = tagContext[i];
 			if (compareNoCase(thisTCItem["TEMPLATE"],currentTemplate)) {
 				fileArray = [];
@@ -455,18 +451,12 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 
 			var thisStackItem = {
 				"abs_path" 	= thisTCItem["TEMPLATE"],
-				"filename" 	= normalizeSlashes(thisTCItem["TEMPLATE"]).replace(variables.settings.appRoot, ""),
+				"filename" 	= normalizeSlashes( thisTCItem["TEMPLATE"] ).replace( instance.appRoot, ""),
 				"lineno" 	= thisTCItem["LINE"],
 				"pre_context" = [],
 				"context_line" = '',
 				"post_context" = []
 			};
-
-			// The name of the function being called
-			var functionName = functionLineNums.findTagContextFunction(thisTCItem);
-			if (len(functionName)) {
-				thisStackItem["function"] = functionName;
-			}
 
 			// for source code rendering
 			var fileLen = arrayLen( fileArray );
@@ -501,6 +491,19 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
         }
 		
 		return logstashException;
+    }
+    
+    /**
+	 * Turns all slashes in a path to forward slashes except for \\ in a Windows UNC network share
+	 * Also changes double slashes to a single slash
+	 * @path The path to normalize
+	 */
+	private function normalizeSlashes( string path ) {
+		var normalizedPath = arguments.path.replace( "\", "/", "all" );
+		if( arguments.path.left( 2 ) == "\\" ) {
+			normalizedPath = "\\" & normalizedPath.mid( 3, normalizedPath.len() - 2 );
+		} 
+		return normalizedPath.replace( "//", "/", "all" );	
 	}
 
 }
