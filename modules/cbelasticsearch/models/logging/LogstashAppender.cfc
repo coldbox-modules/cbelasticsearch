@@ -333,7 +333,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 
 		// Ensure expected keys exist
 		arguments.exception.StackTrace = arguments.exception.StackTrace ?: '';
-		arguments.exception.type = arguments.exception.type ?: '';
+		arguments.exception.type = isSimpleValue( arguments.exception.type ) ? arguments.exception.type : 'error';
 		arguments.exception.detail = arguments.exception.detail ?: '';
         arguments.exception.TagContext = arguments.exception.TagContext ?: [];
         
