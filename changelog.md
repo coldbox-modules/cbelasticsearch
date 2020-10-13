@@ -1,5 +1,8 @@
 # CHANGELOG
 
+# 2.0.4
+- [ snapshot updates ]
+
 # 2.0.3
 - Fixes an error in the Logstash appender which could be thrown by a non-string value in the exception object `type` key
 
