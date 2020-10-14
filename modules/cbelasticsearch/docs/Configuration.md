@@ -51,6 +51,33 @@ moduleSettings = {
 
 At the current time only the REST-based [Hyper] native client is available. Support is in development for a socket based-client.  For most applications, however the REST-based native client will be a good fit.
 
+## Configuration via Environment Variables
+
+Since the default settings will read from environment variables if they exist, we can easily configure cbElasticsearch from a `.env` file:
+
+```bash
+# .env
+
+# Configure elasticsearch connection
+ELASTICSEARCH_HOST=localhost
+ELASTICSEARCH_PORT=9222
+ELASTICSEARCH_PASSWORD=B0xify_3v3ryth1ng
+
+# Configure data storage and retrieval
+ELASTICSEARCH_INDEX=books
+ELASTICSEARCH_SHARDS=5
+ELASTICSEARCH_REPLICAS=0
+ELASTICSEARCH_MAX_CONNECTIONS=100
+ELASTICSEARCH_READ_TIMEOUT=3000
+ELASTICSEARCH_CONNECT_TIMEOUT=3000
+```
+
+You will need to read these settings into the coldfusion server upon server start via `commandbox-dotenv` or some other method.
+
+{% hint style="warning" %}
+For security reasons, make sure to add `.env` to your `.gitignore` file to avoid committing environment secrets to github/your git server.
+{% endhint %}
+
 ## Connection to secondary Elasticsearch Clusters
 
 As of the current version, the module conventions only allow for a default connection to one cluster.  Multi-cluster native configuration is planned for a future major release, as it will be a breaking change.  You may, however, create a separate instance of the client to connect to a different cluster.  Since this needs to be accomplished after the module is loaded, the easiest way to do this is to create an application-specific module which is dedicated to connecting to that cluster.  A major caveat, at this time, however is that native CRUD methods in the `Document`, `SearchBuilder`, `IndexBuilder`, and `ElasticsearchAppender` components will not work, as they are hard-wired to connect to the main client.  As such, execution will need to be performed through the separate client instance.  If you wish to use the secondary cluster for logging, a new Appender will also need to be created.
