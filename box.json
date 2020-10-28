@@ -19,7 +19,7 @@
         "hyper":"modules/hyper/"
     },
     "testbox":{
-        "runner":"http://localhost:49616"
+        "runner":"http://localhost:49616/tests/runner.cfm"
     },
     "scripts":{
         "postVersion":"recipe workbench/bump.boxr"
