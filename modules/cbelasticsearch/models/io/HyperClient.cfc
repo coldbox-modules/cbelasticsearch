@@ -1292,7 +1292,8 @@ component
     function onResponseFailure( required Hyper.models.HyperResponse response ){
         throw( 
             type = "cbElasticsearch.invalidRequest",
-            message = "Your request was invalid.  The response returned was #getUtil().toJSON( response.getData() )#"
+			message = "Your request was invalid.  The response returned was #getUtil().toJSON( response.getData() )#",
+			extendedInfo = isJSON( response.getData() ) ? response.getData() : getUtil().toJSON( response.getData() )
         );
 	}
 	
