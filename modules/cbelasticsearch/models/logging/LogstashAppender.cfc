@@ -38,11 +38,13 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
         instance.DEFAULTS = {
             "index"            : ".logstash-" & ( arguments.properties.keyExists( "index" ) ? lcase( properties.index ) : lcase( REReplaceNoCase(applicationName, "[^0-9A-Z_]", "_", "all") ) ),
             "rotate"           : true,
-            "rotation"         : "daily",
+            "rotation"         : "weekly",
             "ensureChecks"     : true,
             "autoCreate"       : true,
             "applicationName"  : applicationName,
-            "releaseVersion"   : ""
+            "releaseVersion"   : "",
+            "indexShards"      : 2,
+            "indexReplicas"    : 0
         };
 
         for( var configKey in structKeyArray( instance.Defaults ) ){
@@ -218,6 +220,10 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
         indexBuilder().new(
             name=getRotationalIndexName(),
             properties={
+                "settings" : {
+                    "number_of_shards" : getProperty( "indexShards" ),
+                    "number_of_replicas" : getProperty( "indexReplicas" )
+                },
                 "mappings":{
                     "#getProperty( "type" )#":{
                         "_all"       : { "enabled": false },

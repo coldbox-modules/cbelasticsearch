@@ -1,7 +1,9 @@
 # CHANGELOG
 
 # 2.0.4
-- [ snapshot updates ]
+- Lowers the default number of Logstash shards on index to 2, to prevent inheritance of application shard settings
+- Lowers the default number of Logstash replicas to 0, to prevent maximum shard errors
+- Changes the default Logstahs index rotation frequency to weekly
 
 # 2.0.3
 - Fixes an error in the Logstash appender which could be thrown by a non-string value in the exception object `type` key
