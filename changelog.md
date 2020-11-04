@@ -1,5 +1,8 @@
 # CHANGELOG
 
+# 2.0.5
+- [Snapshot updates]
+
 # 2.0.4
 - Lowers the default number of Logstash shards on index to 2, to prevent inheritance of application shard settings
 - Lowers the default number of Logstash replicas to 0, to prevent maximum shard errors
