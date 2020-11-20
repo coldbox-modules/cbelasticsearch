@@ -433,7 +433,7 @@ component accessors="true" {
 
         arguments.value.each( function( val ){
 
-            variables.query.bool.filter.bool[ arguments.operator ].append(
+            variables.query.bool.filter.bool[ operator ].append(
                 {
                     "terms": {
                         "#name#": val
