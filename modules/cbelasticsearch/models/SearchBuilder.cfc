@@ -392,12 +392,15 @@ component accessors="true" {
     * @name 		string 		the name of the key to search
     * @value 		string 		the value of the key
     **/
-    SearchBuilder function filterTerm( required string name, required any value ) {
+    SearchBuilder function filterTerm( required string name, required any value, operator="must" ) {
         param variables.query.bool = {};
         param variables.query.bool.filter = {};
         param variables.query.bool.filter.bool = {};
-        param variables.query.bool.filter.bool.must = [];
-        variables.query.bool.filter.bool.must.append(
+        if( !structKeyExists( variables.query.bool.filter.bool, arguments.operator ) ){
+            variables.query.bool.filter.bool[ arguments.operator ] = [];
+        }
+        
+        variables.query.bool.filter.bool[ arguments.operator ].append(
             {
                 "term": {
                     "#name#": value
@@ -410,26 +413,36 @@ component accessors="true" {
 
     SearchBuilder function filterTerms(
         required string name,
-        required any value
+        required any value,
+        operator="must"
     ){
         if( isSimpleValue( value ) ) arguments.value = listToArray( value );
 
         if( isArray( value ) && arrayLen( value ) == 1 ){
-            return filterTerm( name=arguments.name, value=value[ 1 ] );
+            return filterTerm( name=arguments.name, value=value[ 1 ], operator=arguments.operator );
+        } else if( isSimpleValue( value ) ){
+            arguments.value = listToArray( value );
         }
 
         param variables.query.bool = {};
         param variables.query.bool.filter = {};
         param variables.query.bool.filter.bool = {};
-        param variables.query.bool.filter.bool.must = [];
+        if( !structKeyExists( variables.query.bool.filter.bool, arguments.operator ) ){
+            variables.query.bool.filter.bool[ arguments.operator ] = [];
+        }
 
-        variables.query.bool.filter.bool.must.append(
-            {
-                "terms": {
-                    "#name#": value
+        arguments.value.each( function( val ){
+
+            variables.query.bool.filter.bool[ arguments.operator ].append(
+                {
+                    "terms": {
+                        "#name#": val
+                    }
                 }
-            }
-        );
+            );
+            
+        } );
+
 
         return this;
 
