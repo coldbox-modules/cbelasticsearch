@@ -1,19 +1,22 @@
 # CHANGELOG
 
 # 2.0.5
-- [Snapshot updates]
+
+-   Adds the ability to specify an operator to term queries via `filterTerm` and `filterTerms` and pass multiple values to filter
 
 # 2.0.4
-- Lowers the default number of Logstash shards on index to 2, to prevent inheritance of application shard settings
-- Lowers the default number of Logstash replicas to 0, to prevent maximum shard errors
-- Changes the default Logstahs index rotation frequency to weekly
+
+-   Lowers the default number of Logstash shards on index to 2, to prevent inheritance of application shard settings
+-   Lowers the default number of Logstash replicas to 0, to prevent maximum shard errors
+-   Changes the default Logstahs index rotation frequency to weekly
 
 # 2.0.3
-- Fixes an error in the Logstash appender which could be thrown by a non-string value in the exception object `type` key
+
+-   Fixes an error in the Logstash appender which could be thrown by a non-string value in the exception object `type` key
 
 # 2.0.2
 
-- Adds additional data and exception information in Logstash appender messages
+-   Adds additional data and exception information in Logstash appender messages
 
 # 2.0.1
 
