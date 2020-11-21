@@ -644,24 +644,24 @@ component extends="coldbox.system.testing.BaseTestCase"{
             } );
 
 
-			it( "Tests the filterTerms() method with a list", function(){
+			it( "Tests the filterTerms() method using should operator and a list of values", function(){
 				var searchBuilder = variables.model.new(
 					variables.testIndexName,
 					"testdocs"
 			 	);
 
-			 	searchBuilder.filterTerms( "title", "Foo,Bar" );
+			 	searchBuilder.filterTerms( "title", "Foo,Bar", "should" );
 
 			 	expect( searchBuilder.getQuery() ).toBeStruct();
 				expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
 				expect( searchBuilder.getQuery().bool ).toHaveKey( "filter" );
 				expect( searchBuilder.getQuery().bool.filter ).toHaveKey( "bool" );
-				expect( searchBuilder.getQuery().bool.filter.bool ).toHaveKey( "must" );
-				expect( searchBuilder.getQuery().bool.filter.bool.must ).toBeArray();
-				expect( searchBuilder.getQuery().bool.filter.bool.must ).toHaveLength( 1 );
-				expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ] ).toBeStruct();
-				expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ] ).toHaveKey( "terms" );
-				expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ].terms ).toBe( { "title" : [ "Foo", "Bar" ] } );
+				expect( searchBuilder.getQuery().bool.filter.bool ).toHaveKey( "should" );
+				expect( searchBuilder.getQuery().bool.filter.bool.should ).toBeArray();
+                expect( searchBuilder.getQuery().bool.filter.bool.should ).toHaveLength( 2 );
+				expect( searchBuilder.getQuery().bool.filter.bool.should[ 1 ] ).toBeStruct();
+				expect( searchBuilder.getQuery().bool.filter.bool.should[ 1 ] ).toHaveKey( "terms" );
+				expect( searchBuilder.getQuery().bool.filter.bool.should[ 1 ].terms ).toBe( { "title" : "Foo" } );
 
 				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
 			});
