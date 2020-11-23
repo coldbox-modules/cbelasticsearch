@@ -424,22 +424,9 @@ component accessors="true" {
             arguments.value = listToArray( value );
         }
 
-        param variables.query.bool = {};
-        param variables.query.bool.filter = {};
-        param variables.query.bool.filter.bool = {};
-        if( !structKeyExists( variables.query.bool.filter.bool, arguments.operator ) ){
-            variables.query.bool.filter.bool[ arguments.operator ] = [];
-        }
-
         arguments.value.each( function( val ){
 
-            variables.query.bool.filter.bool[ operator ].append(
-                {
-                    "terms": {
-                        "#name#": val
-                    }
-                }
-            );
+            filterTerm( name, value, operator );
             
         } );
 
