@@ -426,7 +426,7 @@ component accessors="true" {
 
         arguments.value.each( function( val ){
 
-            filterTerm( name, value, operator );
+            filterTerm( name, val, operator );
             
         } );
 
