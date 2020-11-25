@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# 2.0.6
+
+-   [Snapshot updates]
+
 # 2.0.5
 
 -   Adds the ability to specify an operator to term queries via `filterTerm` and `filterTerms` and pass multiple values to filter
