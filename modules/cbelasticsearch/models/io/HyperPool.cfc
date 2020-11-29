@@ -9,13 +9,13 @@ component{
 
     property name="authenticationScheme";
 
-    property name="currentIndexes";
+    property name="currentIndex";
 
     property name="instanceConfig";
 
     function init(){
         variables.authenticationScheme = "none";
-        variables.currentIndexes = {};
+        variables.currentIndex = {};
         variables.nodes = [];
         return this;
     }
@@ -152,7 +152,7 @@ component{
         }
 
         // simple round robin on node usage
-        if( !structKeyExists( variables.currentIndexes, nodeUsage ) ){ variables.currentIndex[ nodeUsage ] = 0; }
+        if( !structKeyExists( variables.currentIndex, nodeUsage ) ){ variables.currentIndex[ nodeUsage ] = 0; }
 
         if( variables.currentIndex[ nodeUsage ] <= relevantNodes.len() ){
             variables.currentIndex[ nodeUsage ]++;
