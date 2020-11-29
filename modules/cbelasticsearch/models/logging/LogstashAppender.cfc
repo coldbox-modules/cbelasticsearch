@@ -133,7 +133,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
                         
             local.logObj = {
                 "application"  : getProperty( "applicationName" ),
-                "release"      : javacast( "string", getProperty( "releaseVersion" ) ),
+                "release"      : len( getProperty( "releaseVersion" ) ) ? javacast( "string", getProperty( "releaseVersion" ) ) : javacast( "null", 0 ) ,
                 "type"         : "message",
                 "level"        : level,
                 "severity"     : loge.getSeverity(),
