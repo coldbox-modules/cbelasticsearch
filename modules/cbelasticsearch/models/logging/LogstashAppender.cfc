@@ -36,7 +36,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
                                 : ( server.coldfusion.productname eq "Lucee" ? getApplicationSettings().name : getApplicationMetadata().name );
 
         instance.DEFAULTS = {
-            "index"            : ".logstash-" & ( arguments.properties.keyExists( "index" ) ? lcase( properties.index ) : lcase( REReplaceNoCase(applicationName, "[^0-9A-Z_]", "_", "all") ) ),
+            "index"            : "logstash-" & ( arguments.properties.keyExists( "index" ) ? lcase( properties.index ) : lcase( REReplaceNoCase(applicationName, "[^0-9A-Z_]", "_", "all") ) ),
             "rotate"           : true,
             "rotation"         : "weekly",
             "ensureChecks"     : true,
@@ -136,22 +136,12 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
                 "release"      : len( getProperty( "releaseVersion" ) ) ? javacast( "string", getProperty( "releaseVersion" ) ) : javacast( "null", 0 ) ,
                 "type"         : "message",
                 "level"        : level,
-                "severity"     : loge.getSeverity(),
                 "category"     : loggerCat,
                 "message"      : loge.getMessage(),
                 "extrainfo"    : loge.getExtraInfoAsString()
             };
 
         }
-
-        var stringify = [ "frames", "extrainfo", "stacktrace" ];
-
-        stringify.each( function( key ){
-            if( logObj.keyExists( key ) && !isSimpleValue( logObj[ key ] ) ){
-                logObj[ key ] = variables.util.toJSON( logObj[ key ] );
-            }
-        } );
-
         logObj[ "timestamp" ] = dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'hh:nn:ssZZ" );
         logObj[ "severity" ] = loge.getSeverity();
         logObj[ "appendername" ] = getName();
@@ -201,29 +191,13 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
             if( isClosure( udf ) ){
                 try{
                     logObj[ "userinfo" ] = udf();
-                    if( !isSimpleValue( logObj.userinfo ) ){
-                        logObj.userinfo = variables.util.toJSON( logObj.userinfo );
-                    }
                 } catch( any e ){
                     logObj[ "userinfo" ] = "An error occurred when attempting to run the userInfoUDF provided.  The message received was #e.message#";
                 }
             }
-        }
+		}
 
-        // Attempt to create a signature for grouping
-        if( !logObj.keyExists( "signature" ) ){
-            var signable = [ "application", "type", "level", "message", "stacktrace", "frames" ];
-            var sigContent = "";
-            signable.each( function( key ){
-                if( logObj.keyExists( key ) ){
-                    sigContent &= logObj[ key ];
-                }
-            } );
-            if( len( sigContent ) ){
-                logObj[ "signature" ] = hash( sigContent );
-            }
-
-        }
+		preflightLogEntry( logObj );
 
         newDocument().new(
             index=getRotationalIndexName(),
@@ -242,77 +216,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 
         indexBuilder().new(
             name=getRotationalIndexName(),
-            properties={
-                "settings" : {
-                    "number_of_shards" : getProperty( "indexShards" ),
-                    "number_of_replicas" : getProperty( "indexReplicas" )
-                },
-                "mappings":{
-                    "#getProperty( "type" )#":{
-                        "_all"       : { "enabled": false },
-                        "properties" : {
-                            "type"        : { "type" : "keyword" },
-                            "application" : { "type" : "keyword" },
-                            "release"     : { "type" : "keyword" },
-                            "level"       : { "type" : "keyword" },
-                            "category"    : { "type" : "keyword" },
-                            "appendername": { "type" : "keyword" },
-                            "signature" : { "type" : "keyword" },
-                            "timestamp"	  : {
-                                "type"  : "date",
-                                "format": "date_time_no_millis"
-                            },
-                            "@timestamp"	  : {
-                                "type"  : "date",
-                                "format": "date_time_no_millis"
-                            },
-                            "message"     : {
-                                "type" : "text",
-                                "fields": {
-                                    "keyword": {
-                                        "type": "keyword",
-                                        "ignore_above": 256
-                                    }
-                                }
-                            },
-                            "extrainfo"   : { "type" : "text" },
-                            "stacktrace"  : { "type" : "text" },
-                            "host" : {
-                                "type" : "object",
-                                "properties" : {
-                                    "name" : { "type" : "keyword" },
-                                    "hostnamename" : { "type" : "keyword" }
-                                }
-                            },
-                            "snapshot"    : {
-                                "type" : "object",
-                                "properties" : {
-                                    "template"       : { "type" : "keyword" },
-                                    "path"           : { "type" : "keyword" },
-                                    "host"           : { "type" : "keyword" },
-                                    "referrer"       : { "type" : "keyword" },
-                                    "browser"        : { "type" : "keyword" },
-                                    "remote_address" : { "type" : "keyword" }
-                                }
-                            },
-                            "event" : {
-                                "type" : "object",
-                                "properties" : {
-                                    "name"         : { "type" : "keyword" },
-                                    "route"        : { "type" : "keyword" },
-                                    "routed_url"   : { "type" : "keyword" },
-                                    "layout"       : { "type" : "keyword" },
-                                    "module"       : { "type" : "keyword" },
-                                    "view"         : { "type" : "keyword" },
-                                    "environment"  : { "type" : "keyword" }
-                                }
-                            },
-                            "userinfo" : { "type" : "text" },
-                            "frames"  : { "type" : "text" }
-                        }
-                    }
-                }
-            }
+            properties=getIndexConfig()
         ).save();
 
     }
@@ -525,6 +429,103 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 			normalizedPath = "\\" & normalizedPath.mid( 3, normalizedPath.len() - 2 );
 		}
 		return normalizedPath.replace( "//", "/", "all" );
+	}
+
+	private function preflightLogEntry( required struct logObj ){
+		var stringify = [ "frames", "extrainfo", "stacktrace", "host", "snapshot", "event", "userinfo" ];
+
+        stringify.each( function( key ){
+            if( arguments.logObj.keyExists( key ) && !isSimpleValue( arguments.logObj[ key ] ) ){
+                arguments.logObj[ key ] = variables.util.toJSON( arguments.logObj[ key ] );
+            }
+        } );
+
+		if( !arguments.logObj.keyExists( "stachebox" ) ){
+			arguments.logObj[ "stachebox" ] = {
+				"isSuppressed" : false
+			};
+		}
+        // Attempt to create a signature for grouping
+        if( !arguments.logObj.stachebox.keyExists( "signature" ) ){
+            var signable = [ "application", "type", "level", "message", "stacktrace", "frames" ];
+            var sigContent = "";
+            signable.each( function( key ){
+                if( logObj.keyExists( key ) ){
+                    sigContent &= logObj[ key ];
+                }
+            } );
+            if( len( sigContent ) ){
+                arguments.logObj.stachebox[ "signature" ] = hash( sigContent );
+            }
+
+        }
+
+	}
+
+	public function getIndexConfig(){
+		return {
+			"settings" : {
+				"index.refresh_interval" : "5s",
+				"number_of_shards" : getProperty( "indexShards" ),
+				"number_of_replicas" : getProperty( "indexReplicas" )
+			  },
+			  "mappings" : {
+				"dynamic_templates" : [ {
+				  "message_field" : {
+					"path_match" : "message",
+					"match_mapping_type" : "string",
+					"mapping" : {
+					  "type" : "text",
+					  "norms" : false
+					}
+				  }
+				}, {
+				  "string_fields" : {
+					"match" : "*",
+					"match_mapping_type" : "string",
+					"mapping" : {
+					  "type" : "text", "norms" : false,
+					  "fields" : {
+						"keyword" : { "type": "keyword", "ignore_above": 256 }
+					  }
+					}
+				  }
+				} ],
+				"properties" : {
+				  // default logstash template properties
+				  "@timestamp": { "type": "date" },
+				  "@version": { "type": "keyword"},
+				  "geoip"  : {
+					"dynamic": true,
+					"properties" : {
+					  "ip": { "type": "ip" },
+					  "location" : { "type" : "geo_point" },
+					  "latitude" : { "type" : "half_float" },
+					  "longitude" : { "type" : "half_float" }
+					}
+				  },
+				  // Customized properties
+				  "timestamp"	  : {
+					"type"  : "date",
+					"format": "date_time_no_millis"
+				  },
+				  "type"        : { "type" : "keyword" },
+				  "application" : { "type" : "keyword" },
+				  "release"     : { "type" : "keyword" },
+				  "level"       : { "type" : "keyword" },
+				  "severity"    : { "type" : "integer" },
+				  "category"    : { "type" : "keyword" },
+				  "appendername": { "type" : "keyword" },
+				  "stachebox" : {
+					  "type" : "object",
+					  "properties" : {
+						  "signature" : { "type" : "keyword" },
+						  "isSuppressed" : { "type" : "boolean" }
+					  }
+				  }
+				}
+			  }
+		};
 	}
 
 }
