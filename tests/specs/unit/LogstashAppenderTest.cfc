@@ -63,7 +63,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 			it( "Tests logMessage()", function(){
 
 				variables.model.logMessage( variables.loge );
-				sleep( 1000 );
+				sleep( 5000 );
 
 				var documents = getWirebox().getInstance( "SearchBuilder@cbElasticsearch" ).new( variables.model.getRotationalIndexName() ).setQuery( { "match_all" : {} }).execute().getHits();
 

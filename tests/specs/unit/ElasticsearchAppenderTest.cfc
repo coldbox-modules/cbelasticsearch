@@ -44,7 +44,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 			it( "Tests logMessage()", function(){
 				variables.model.logMessage( variables.loge );
 
-				sleep( 1000 );
+				sleep( 5000 );
 
 				var documents = getWirebox().getInstance( "SearchBuilder@cbElasticsearch" ).new( variables.model.getRotationalIndexName() ).setQuery( { "match_all" : {} }).execute().getHits();
 
@@ -64,13 +64,13 @@ component extends="coldbox.system.testing.BaseTestCase"{
 					doc.save();
 				} );
 
-				sleep( 1100 );
+				sleep( 5100 );
 
 				variables.model.setLastDBRotation( dateAdd( "n", -20, now() ) );
 
 				variables.model.logMessage( variables.loge );
 
-				sleep( 1100 );
+				sleep( 5100 );
 
 				expect( getWirebox().getInstance( "SearchBuilder@cbElasticsearch" ).new( variables.model.getRotationalIndexName() ).setQuery( { "match_all" : {} }).count() ).toBe( 1 );
 
