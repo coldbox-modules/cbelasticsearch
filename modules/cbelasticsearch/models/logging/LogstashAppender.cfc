@@ -435,8 +435,8 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 		var stringify = [ "frames", "extrainfo", "stacktrace", "host", "snapshot", "event", "userinfo" ];
 
         stringify.each( function( key ){
-            if( arguments.logObj.keyExists( key ) && !isSimpleValue( arguments.logObj[ key ] ) ){
-                arguments.logObj[ key ] = variables.util.toJSON( arguments.logObj[ key ] );
+            if( logObj.keyExists( key ) && !isSimpleValue( logObj[ key ] ) ){
+                logObj[ key ] = variables.util.toJSON( logObj[ key ] );
             }
         } );
 
