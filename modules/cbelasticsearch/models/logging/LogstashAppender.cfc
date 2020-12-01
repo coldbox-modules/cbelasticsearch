@@ -102,25 +102,25 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
         var loggerCat = loge.getCategory();
 
         // Is this an exception or not?
-        if( 
+        if(
             ( isStruct( extraInfo ) || isObject( extraInfo ) )
-            && extraInfo.keyExists( "StackTrace" ) && extraInfo.keyExists( "Message" ) && extraInfo.keyExists( "Detail" ) 
+            && extraInfo.keyExists( "StackTrace" ) && extraInfo.keyExists( "Message" ) && extraInfo.keyExists( "Detail" )
         ){
-            
+
             local.logObj = parseException(
                 exception = extraInfo,
                 level 	= level,
                 message = message,
                 logger = loggerCat
             );
-                
-        } else if( 
+
+        } else if(
             ( isStruct( extraInfo ) || isObject( extraInfo ) )
-            && extraInfo.keyExists( "exception" ) && isStruct( extraInfo.exception ) && extraInfo.exception.keyExists( "StackTrace" ) 
-        ){    
+            && extraInfo.keyExists( "exception" ) && isStruct( extraInfo.exception ) && extraInfo.exception.keyExists( "StackTrace" )
+        ){
             var trimmedExtra = structCopy( extraInfo );
             trimmedExtra.delete( 'exception' );
-            
+
             local.logObj = parseException(
                 exception = extraInfo.exception,
                 level 	= level,
@@ -128,9 +128,9 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
                 logger = loggerCat,
                 additionalData = trimmedExtra
             );
-                
+
         } else {
-                        
+
             local.logObj = {
                 "application"  : getProperty( "applicationName" ),
                 "release"      : len( getProperty( "releaseVersion" ) ) ? javacast( "string", getProperty( "releaseVersion" ) ) : javacast( "null", 0 ) ,
@@ -141,21 +141,29 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
                 "message"      : loge.getMessage(),
                 "extrainfo"    : loge.getExtraInfoAsString()
             };
-                
+
         }
+
+        var stringify = [ "frames", "extrainfo", "stacktrace" ];
+
+        stringify.each( function( key ){
+            if( logObj.keyExists( key ) && !isSimpleValue( logObj[ key ] ) ){
+                logObj[ key ] = variables.util.toJSON( logObj[ key ] );
+            }
+        } );
 
         logObj[ "timestamp" ] = dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'hh:nn:ssZZ" );
         logObj[ "severity" ] = loge.getSeverity();
         logObj[ "appendername" ] = getName();
 
         // Logstash/Kibana Convention Keys
-        structAppend( 
-            logObj, 
+        structAppend(
+            logObj,
             {
                 "@timestamp"    : logObj.timestamp,
                 "host" : {
                     "name" : CGI.HTTP_HOST,
-                    "hostname" : CGI.SERVER_NAME         
+                    "hostname" : CGI.SERVER_NAME
                 }
             },
             false
@@ -202,6 +210,21 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
             }
         }
 
+        // Attempt to create a signature for grouping
+        if( !logObj.keyExists( "signature" ) ){
+            var signable = [ "application", "type", "level", "message", "stacktrace", "frames" ];
+            var sigContent = "";
+            signable.each( function( key ){
+                if( logObj.keyExists( key ) ){
+                    sigContent &= logObj[ key ];
+                }
+            } );
+            if( len( sigContent ) ){
+                logObj[ "signature" ] = hash( sigContent );
+            }
+
+        }
+
         newDocument().new(
             index=getRotationalIndexName(),
             properties=logObj
@@ -234,6 +257,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
                             "level"       : { "type" : "keyword" },
                             "category"    : { "type" : "keyword" },
                             "appendername": { "type" : "keyword" },
+                            "signature" : { "type" : "keyword" },
                             "timestamp"	  : {
                                 "type"  : "date",
                                 "format": "date_time_no_millis"
@@ -342,7 +366,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 		arguments.exception.type = isSimpleValue( arguments.exception.type ) ? arguments.exception.type : 'error';
 		arguments.exception.detail = arguments.exception.detail ?: '';
         arguments.exception.TagContext = arguments.exception.TagContext ?: [];
-        
+
         var logstashException = {
             "application"  : getProperty( "applicationName" ),
             "release"      : javacast( "string", getProperty( "releaseVersion" ) ),
@@ -353,7 +377,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
             "message"      : message & " " & arguments.exception.detail,
             "stacktrace"   : isSimpleValue( arguments.exception.StackTrace ) ? listToArray( arguments.exception.StackTrace, "#chr(13)##chr(10)#" ) : arguments.exception.StackTrace
         };
-				
+
 		var logstashexceptionExtra 	= {};
 		var file 					= "";
 		var fileArray 				= "";
@@ -373,68 +397,68 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 			st = reReplace(arguments.exception.StackTrace, "\r", "", "All");
 			if (arguments.removeTabsOnJavaStackTrace)
 				st = reReplace(st, "\t", "", "All");
-			logstashExceptionExtra["Java StackTrace"] = listToArray( st, "#chr(13)##chr(10)#" );
+			logstashExceptionExtra["javaStacktrace"] = listToArray( st, "#chr(13)##chr(10)#" );
 		}
 
 		// Applies to type = "database". Native error code associated with exception. Database drivers typically provide error codes to diagnose failing database operations. Default value is -1.
 		if( structKeyExists( arguments.exception, 'NativeErrorCode' ) ) {
-			logstashExceptionExtra[ "DataBase" ][ "NativeErrorCode" ] = arguments.exception.NativeErrorCode;
+			logstashExceptionExtra[ "database" ][ "nativeErrorCode" ] = arguments.exception.NativeErrorCode;
 		}
-		
+
 		// Applies to type = "database". SQLState associated with exception. Database drivers typically provide error codes to help diagnose failing database operations. Default value is 1.
 		if( structKeyExists( arguments.exception, 'SQLState' ) ) {
-			logstashExceptionExtra[ "DataBase" ][ "SQL State" ] = arguments.exception.SQLState;
+			logstashExceptionExtra[ "database" ][ "SQLState" ] = arguments.exception.SQLState;
 		}
-		
+
 		// Applies to type = "database". The SQL statement sent to the data source.
 		if( structKeyExists( arguments.exception, 'Sql' ) ) {
-			logstashExceptionExtra[ "DataBase" ][ "SQL" ] = arguments.exception.Sql;
+			logstashExceptionExtra[ "database" ][ "SQL" ] = arguments.exception.Sql;
 		}
-		
+
 		// Applies to type ="database". The error message as reported by the database driver.
 		if( structKeyExists( arguments.exception, 'queryError' ) ) {
-			logstashExceptionExtra[ "DataBase" ][ "Query Error" ] = arguments.exception.queryError;
+			logstashExceptionExtra[ "database" ][ "queryError" ] = arguments.exception.queryError;
 		}
-		
+
 		// Applies to type= "database". If the query uses the cfqueryparam tag, query parameter name-value pairs.
 		if( structKeyExists( arguments.exception, 'where' ) ) {
-			logstashExceptionExtra[ "DataBase" ][ "Where" ] = arguments.exception.where;
+			logstashExceptionExtra[ "database" ][ "where" ] = arguments.exception.where;
 		}
-		
+
 		// Applies to type = "expression". Internal expression error number.
 		if( structKeyExists( arguments.exception, 'ErrNumber' ) ) {
-			logstashExceptionExtra[ "expression" ][ "Error Number" ] = arguments.exception.ErrNumber;
+			logstashExceptionExtra[ "expression" ][ "errorNumber" ] = arguments.exception.ErrNumber;
 		}
-		
+
 		// Applies to type = "missingInclude". Name of file that could not be included.
 		if( structKeyExists( arguments.exception, 'MissingFileName' ) ) {
-			logstashExceptionExtra[ "missingInclude" ][ "Missing File Name" ] = arguments.exception.MissingFileName;
+			logstashExceptionExtra[ "missingInclude" ][ "missingFileName" ] = arguments.exception.MissingFileName;
 		}
-		
+
 		// Applies to type = "lock". Name of affected lock (if the lock is unnamed, the value is "anonymous").
 		if( structKeyExists( arguments.exception, 'LockName' ) ) {
-			logstashExceptionExtra[ "lock" ][ "Lock Name" ] = arguments.exception.LockName;
+			logstashExceptionExtra[ "lock" ][ "name" ] = arguments.exception.LockName;
 		}
-		
+
 		// Applies to type = "lock". Operation that failed (Timeout, Create Mutex, or Unknown).
 		if( structKeyExists( arguments.exception, 'LockOperation' ) ) {
-			logstashExceptionExtra[ "lock" ][ "Lock Operation" ] = arguments.exception.LockOperation;
+			logstashExceptionExtra[ "lock" ][ "operation" ] = arguments.exception.LockOperation;
 		}
-		
+
 		// Applies to type = "custom". String error code.
 		if( structKeyExists( arguments.exception, 'ErrorCode' ) && len( arguments.exception.ErrorCode ) && arguments.exception.ErrorCode != '0' ) {
-			logstashExceptionExtra[ "custom" ][ "Error Code" ] = arguments.exception.ErrorCode;
+			logstashExceptionExtra[ "custom" ][ "errorCode" ] = arguments.exception.ErrorCode;
 		}
-		
+
 		// Applies to type = "application" and "custom". Custom error message; information that the default exception handler does not display.
 		if( structKeyExists( arguments.exception, 'ExtendedInfo' ) && len( arguments.exception.ExtendedInfo ) ) {
-			logstashExceptionExtra[ "application" ][ "Extended Info" ] = arguments.exception.ExtendedInfo;
+			logstashExceptionExtra[ "application" ][ "extendedInfo" ] = arguments.exception.ExtendedInfo;
 		}
-		
-		if ( structCount( logstashExceptionExtra ) )
-			logstashException[ "extrainfo" ] = variables.util.toJSON( logstashExceptionExtra );
 
-		
+		if ( structCount( logstashExceptionExtra ) )
+			logstashException[ "extrainfo" ] = logstashExceptionExtra;
+
+
 		var frames = [];
 		for (i=arrayLen(tagContext); i > 0; i--) {
 			var thisTCItem = tagContext[i];
@@ -486,14 +510,10 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 
 			frames.append( thisStackItem );
         }
-        
-        if( frames.len() ){
-            logstashException[ "frames" ] = variables.util.toJSON( frames );
-        }
-		
+
 		return logstashException;
     }
-    
+
     /**
 	 * Turns all slashes in a path to forward slashes except for \\ in a Windows UNC network share
 	 * Also changes double slashes to a single slash
@@ -503,8 +523,8 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 		var normalizedPath = arguments.path.replace( "\", "/", "all" );
 		if( arguments.path.left( 2 ) == "\\" ) {
 			normalizedPath = "\\" & normalizedPath.mid( 3, normalizedPath.len() - 2 );
-		} 
-		return normalizedPath.replace( "//", "/", "all" );	
+		}
+		return normalizedPath.replace( "//", "/", "all" );
 	}
 
 }
