@@ -413,7 +413,11 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 			}
 
 			frames.append( thisStackItem );
-        }
+		}
+
+		if( frames.len() ){
+			logstashException[ "frames" ] = frames;
+		}
 
 		return logstashException;
     }
