@@ -45,6 +45,16 @@ component accessors="true" {
 	property name="maxScore";
 
 	/**
+	* If the search is collapsed, this will be the pagination total count for the result set
+	**/
+	property name="collapsedCount";
+
+	/**
+	* If the search is collapsed, this will contain a map of collapsed key value/count pairs
+	**/
+	property name="collapsedOccurrences";
+
+	/**
 	* The execution time, in MS
 	**/
 	property name="executionTime";
@@ -105,6 +115,24 @@ component accessors="true" {
 
 		if( structKeyExists( arguments.properties, "aggregations" ) ){
 			variables.aggregations = arguments.properties.aggregations;
+
+			if( variables.aggregations.keyExists( "collapsed_count" ) ){
+				variables.collapsedCount = variables.aggregations[ "collapsed_count" ].value;
+				structDelete( variables.aggregations, "collapsed_count" );
+			}
+
+			if( variables.aggregations.keyExists( "collapsed_occurrences" ) ){
+				variables.collapsedOccurrences = variables.aggregations[ "collapsed_occurrences" ].buckets.reduce(
+					function( result, item ){
+						arguments.result[ item.key ] = item.doc_count;
+						return result;
+					},
+					{}
+				);
+				structDelete( variables.aggregations, "collapsed_occurrences" );
+			}
+
+			if( variables.aggregations.isEmpty() ) variables.aggregations = javacast( "null", 0 );
         }
 
         if ( structKeyExists( arguments.properties, "suggest" ) ) {

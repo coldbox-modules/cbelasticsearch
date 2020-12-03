@@ -32,6 +32,10 @@ component accessors="true" {
     **/
     property name="aggregations";
     /**
+    * Property containing collapse directives and modifiers
+    **/
+    property name="collapse";
+    /**
     * Property containing the struct representation of any _source properties
     **/
     property name="source";
@@ -268,23 +272,23 @@ component accessors="true" {
         if( isArray( arguments.name ) ){
             var wildcard = {
                 "bool" : {
-                    "should" : arguments.name.map( 
+                    "should" : arguments.name.map(
                         function( key ) {
                             return { "wildcard" : { "#key#" : ( reFind("^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) ? ( "*" & value & "*" ) : value ) } };
-                        } 
+                        }
                     )
                 }
             };
 
          } else {
-            var wildcard = { 
+            var wildcard = {
                 "wildcard" : {
                     "#name#" : ( reFind("^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) ? ("*" & value & "*") : value )
-                } 
+                }
             };
         }
-        
-        variables.query.bool[ operator ].append( wildcard ); 
+
+        variables.query.bool[ operator ].append( wildcard );
 
         return this;
 
@@ -399,7 +403,7 @@ component accessors="true" {
         if( !structKeyExists( variables.query.bool.filter.bool, arguments.operator ) ){
             variables.query.bool.filter.bool[ arguments.operator ] = [];
         }
-        
+
         variables.query.bool.filter.bool[ arguments.operator ].append(
             {
                 "term": {
@@ -427,7 +431,7 @@ component accessors="true" {
         arguments.value.each( function( val ){
 
             filterTerm( name, val, operator );
-            
+
         } );
 
 
@@ -571,7 +575,7 @@ component accessors="true" {
                 message = ""
             );
         }
-        
+
         var properties = {};
         if ( !isNull( arguments.start ) ) {
             properties[ "gte" ] = arguments.start;
@@ -1039,7 +1043,50 @@ component accessors="true" {
         return this;
 
 
-    }
+	}
+
+	/**
+	 * Applies a collapse directive to the search results, which will only return the first matched result of the group
+	 * https://www.elastic.co/guide/en/elasticsearch/reference/current/collapse-search-results.html
+	 *
+	 * @field  string the grouping field
+	 * @options a struct of additional options ( e.g. `inner_hits` )
+     * @includeOccurrences whether to automatically aggreagate occurrences of each unique value
+	 */
+	SearchBuilder function collapseToField(
+		required string field,
+		struct options,
+		boolean includeOccurrences = false
+	){
+		variables.collapse = {
+			"field" : arguments.field
+		};
+
+		if( !isNull( arguments.options ) ){
+			variables.collapse.append( options );
+		}
+
+		// also apply an automatic aggregation to this query so that the collapsed hits can be paginated
+		param variables.aggregations = {};
+
+		variables.aggregations[ "collapsed_count" ] = {
+			"cardinality": {
+				"field": arguments.field
+			}
+		};
+
+		if( arguments.includeOccurrences ){
+			var matched = count();
+			variables.aggregations[ "collapsed_occurrences" ] =  {
+				"terms": {
+					"field": arguments.field,
+					"size" : matched ? matched : 1
+				}
+			}
+		}
+
+		return this;
+	}
 
     /**
     * Performs a preflight on the search
@@ -1146,6 +1193,10 @@ component accessors="true" {
 
         if ( !isNull( variables.aggregations ) ) {
             dsl[ "aggs" ] = variables.aggregations;
+		}
+
+        if ( !isNull( variables.collapse ) ) {
+            dsl[ "collapse" ] = variables.collapse;
         }
 
         if ( !isNull( variables.script ) ) {
