@@ -178,9 +178,12 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
                     "routed_url"  : (event.getCurrentRoutedURL() != "") ? event.getCurrentRoutedURL() :"N/A",
                     "layout"	  : (event.getCurrentLayout() != "") ? event.getCurrentLayout() :"N/A",
                     "module"	  : event.getCurrentModule(),
-                    "view"		  : event.getCurrentView(),
-                    "environment" : application.cbController.getSetting( "environment" )
+                    "view"		  : event.getCurrentView()
                 };
+
+                if( !logObj.keyExists( "environment" ) ){
+                    logObj[ "environment" ] = application.cbController.getSetting( "environment", "production" );
+                }
 
             }
 
@@ -436,6 +439,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 	}
 
 	private function preflightLogEntry( required struct logObj ){
+
 		var stringify = [ "frames", "extrainfo", "stacktrace", "host", "snapshot", "event", "userinfo" ];
 
         stringify.each( function( key ){
@@ -480,7 +484,10 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 					"match_mapping_type" : "string",
 					"mapping" : {
 					  "type" : "text",
-					  "norms" : false
+					  "norms" : false,
+					  "fields" : {
+						"keyword" : { "type": "keyword", "ignore_above": 1024 }
+					  }
 					}
 				  }
 				}, {
@@ -515,6 +522,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 				  },
 				  "type"        : { "type" : "keyword" },
 				  "application" : { "type" : "keyword" },
+				  "environment" : { "type" : "keyword" },
 				  "release"     : { "type" : "keyword" },
 				  "level"       : { "type" : "keyword" },
 				  "severity"    : { "type" : "integer" },
