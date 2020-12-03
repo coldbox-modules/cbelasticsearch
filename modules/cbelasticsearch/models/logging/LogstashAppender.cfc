@@ -97,7 +97,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
 
         var loge = arguments.logEvent;
         var extraInfo = loge.getExtraInfo();
-		var level = lcase( severityToString( loge.getSeverity() ) );
+		var level = ucase( severityToString( loge.getSeverity() ) );
 		var message = loge.getMessage();
         var loggerCat = loge.getCategory();
 
