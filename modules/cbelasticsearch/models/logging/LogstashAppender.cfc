@@ -182,7 +182,7 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
                 };
 
                 if( !logObj.keyExists( "environment" ) ){
-                    logObj[ "environment" ] = application.cbController.getSetting( "environment", "production" );
+                    logObj[ "environment" ] = application.cbController.getSetting( name="environment", defaultValue="production" );
                 }
 
             }
