@@ -1082,7 +1082,7 @@ component accessors="true" {
 					"field": arguments.field,
 					"size" : matched ? matched : 1
 				}
-			}
+			};
 		}
 
 		return this;
