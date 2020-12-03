@@ -1,5 +1,8 @@
 # CHANGELOG
 
+# 2.1.1
+- [ Snapshot updates ]
+
 # 2.1.0
 
 -  Modifies LogstashAppender schema to match default 7.x logstash template and adds additional schema keys and hooks for Stachebox
