@@ -1,8 +1,9 @@
 # CHANGELOG
 
-# 2.0.6
+# 2.1.0
 
--   [Snapshot updates]
+-  Modifies LogstashAppender schema to match default 7.x logstash template and adds additional schema keys and hooks for Stachebox
+-  Adds the `collapseToFields` method to the search builder to support documents grouped on a specific field.
 
 # 2.0.5
 

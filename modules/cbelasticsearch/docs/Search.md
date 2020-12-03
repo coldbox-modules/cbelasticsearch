@@ -122,6 +122,24 @@ var search = getInstance( "SearchBuilder@cbElasticsearch" )
 
 For more information on Elasticsearch query DSL, the [Search in Depth Documentation](https://www.elastic.co/guide/en/elasticsearch/guide/current/search-in-depth.html) is an excellent starting point.
 
+### Collapsing Results
+
+The `collapseToField` allows you to collapse the results of the search to a specific field.  The data return includes the first matched, most relevant, document found with the collapsed field.  When field collapsing is specified, an automatic aggregation will be run, which provides a pagination total for the collapsed document counts. When paginating collapsed fields, you will want to use the `SearchResult` method `getCollapsedCount()` as your total record count rather than the usual `getHitCount()` - which returns all documents matched to the query.
+
+Let's say, for example, we want to find the most recent version of a book in our index, for all books matching the phrase "Elasticsearch".  In this case, we can group on the `title` field ( or, in this case `title.keyword`, which is a dyamic keyword-typed field in our index ) to retreive the most recent version of the book.
+
+```
+var searchResults = getInstance( "SearchBuilder@cbElasticsearch" )
+                                .new( index="bookshop" )
+                                .mustMatch( "description", "Elasticsearch" )
+                                .collapseToField( "title.keyword" )
+                                .sort( "publishDate DESC" )
+                                .execute()
+```
+
+There is also an option to include the number of ocurrences of each collapsed field in the results.  When the argument `includeOccurrences=true` is passed to `collapseToField`  you can retreieve a map of all collapsed key values and their corresponding document count by calling `searchResult.getCollapsedOccurrences()`.  
+
+For more information on field collapsing, see the [Collapse Search Results Documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/collapse-search-results.html).
 
 #### Sorting Results
 
@@ -149,6 +167,7 @@ While our documents would still be scored, the results order would be changed to
 * `sort(any sort, [any sortConfig])` - Applies a custom sort to the search query.
 * `term(string name, any value, [numeric boost])` - Adds an exact value restriction ( elasticsearch: term ) to the query.
 * `aggregation(string name, struct options)`  - Adds an aggregation directive to the search parameters.
+* `collapseToField( string field, struct options, boolean includeOccurrences = false )` - Collapses the results to the single field and returns only the most relevant/ordered document matched on that field.
 
 Counting Documents
 ===================
