@@ -111,7 +111,7 @@ component {
 
 		// map a new singleton instance of the config client
         binder.map( "Config@SecondaryCluster" )
-                        .to( 'cbelasticsearch.models.Config' )
+                        .to( 'cbElasticsearch.models.Config' )
                         .threadSafe()
                         .asSingleton();
 
@@ -123,7 +123,7 @@ component {
 
 		// note that we are using the native JEST client rather than Client@cbElasticsearch
 		binder.map( "Client@SecondaryCluster" )
-								.to( "cbElasticsearch.models.JestClient" )
+								.to( "cbElasticsearchJest.models.JestClient" )
 								.initWith( configuration=secondaryConfig )
 								.threadSafe()
 								.asSingleton();

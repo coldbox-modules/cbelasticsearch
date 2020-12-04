@@ -96,11 +96,11 @@ component
 	* Verifies whether an index mapping exists
 	*
 	* @indexName 		string 		the name of the index
-	* @mapping 			string 		the name of the mapping
+	* @mapping 			string 		the name of the mapping - deprecated and not passed to the hyper client
 	**/
 	boolean function indexMappingExists(
 		required string indexName,
-		required string mapping
+		string mapping
 	){
 
 		return variables.nativeClient.indexMappingExists( argumentCollection=arguments );
@@ -228,25 +228,6 @@ component
 	}
 
 	/**
-	* Deletes a mapping
-	*
-	* @indexName 		string 		the name of the index which contains the mapping
-	* @mapping 			string 		the mapping ( e.g. type ) to delete
-	* @throwOnError 	boolean	  	Whether to throw an error if the mapping could not be deleted ( default=false )
-	*
-	* @return 			struct 		the deletion transaction response
-	**/
-	boolean function deleteMapping(
-		required string indexName,
-		required string mapping,
-		boolean throwOnError=false
-	){
-
-		return variables.nativeClient.deleteMapping( argumentCollection=arguments );
-
-	}
-
-	/**
 	* Retrieves a document by ID
 	* @id 		any 		The document key
 	* @index 	string 		The name of the index
@@ -270,6 +251,7 @@ component
 	* @keys 	array 		An array of keys to retrieve
 	* @index 	string 		The name of the index
 	* @type 	type 		The name of the type
+	* @params   struct      A struct of params to apply to the request
 	* @interfaced
 	*
 	* @return 	array 		An array of Document objects
@@ -277,7 +259,8 @@ component
 	array function getMultiple(
 		required array keys,
 		string index,
-		string type
+		string type,
+		struct params = {}
 	){
 		return variables.nativeClient.getMultiple( argumentCollection=arguments );
 	}
@@ -371,6 +354,45 @@ component
 
 		return variables.nativeClient.deleteAll( documents );
 
+	}
+
+	/**
+	 * Ingest Pipeline Management
+	 */
+
+	/**
+	 * Create or update pipeline
+	 *
+	 * @pipeline The Pipeline object
+	 */
+	boolean function applyPipeline( required cbElasticsearch.models.Pipeline pipeline ){
+		return variables.nativeClient.applyPipeline( argumentCollection = arguments );
+	}
+
+
+	/**
+	 * Retreives the definition of a pipeline
+	 *
+	 * @id  The identifier of the pipeline to retreive
+	 */
+	any function getPipeline( required string id ){
+		return variables.nativeClient.getPipeline( argumentCollection = arguments );
+	}
+
+	/**
+	 * Retreives all pipeline definitions
+	 */
+	any function getPipelines(){
+		return variables.nativeClient.getPipelines( argumentCollection = arguments );
+	}
+
+	/**
+	 * Deletes a pipeline
+	 *
+	 * @id  The identifier of the pipeline to delete
+	 */
+	boolean function deletePipeline( required string id ){
+		return variables.nativeClient.deletePipeline( argumentCollection = arguments );
 	}
 
 

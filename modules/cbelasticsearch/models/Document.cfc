@@ -37,6 +37,17 @@ component
 	**/
 	property name="memento";
 
+	/**
+	 * The pipeline used to process this document
+	 */
+	property name="pipeline";
+
+	/**
+	 * Parameters to pass through on the save request
+	 */
+	property name="params";
+
+
 	function onDIComplete(){
 		reset();
 	}
@@ -49,6 +60,7 @@ component
 		variables.type = structKeyExists( configStruct, "defaultType") ? configStruct.defaultType : javacast( "null", 0 );
 		variables.highlights = {};
 		variables.memento = {};
+		variables.params = {};
 
 		var nullDefaults = [ "id","score" ];
 
@@ -69,9 +81,11 @@ component
 
 	/**
 	* Persists the document to Elasticsearch
+	*
+	* @refresh  boolean if true, will return a newly populated instance of the document retreived from the index ( useful for pipelined saves )
 	**/
-	function save(){
-		return getClient().save( this );
+	function save( boolean refresh=false ){
+		return getClient().save( this, arguments.refresh );
 	}
 
 	/**
@@ -222,6 +236,18 @@ component
 		}
 
 		return documentObject;
+	}
+
+	/**
+	* Adds a parameter for the document save
+	*/
+	public Document function addParam( required string key, required any value ){
+		// pipelines cannot be url escaped or they will not be found
+		if( key != "pipeline" ){
+			arguments.value = urlEncodedFormat( arguments.value );
+		} 
+		variables.params[ key ] = arguments.value;
+		return this;
 	}
 
 	/**

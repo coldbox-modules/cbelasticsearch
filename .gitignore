@@ -12,7 +12,8 @@ tests/results/*
 # Dependencies
 coldbox/*
 testbox/*
-modules/cbjavaloader
+modules/*
+!modules/cbelasticsearch
 
 # Gitbook artifacts
 _book/*

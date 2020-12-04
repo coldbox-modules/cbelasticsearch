@@ -1,9 +1,12 @@
 {
-    "title" : "cbElasticsearch",
-    "description" : "Elasticsearch Integration for the Coldbox Platform",
-    "language" : "en",
-    "root" : "modules/cbelasticsearch/docs",
+    "gitbook": "3.2.3",
+    "title": "cbElasticsearch",
+    "author": "Ortus Solutions",
+    "description": "Elasticsearch Integration for the Coldbox Platform",
+    "language": "en",
+    "root": "./modules/cbelasticsearch/docs",
     "structure": {
-        "readme": "Introduction.md"
+        "readme": "Introduction.md",
+        "summary": "Summary.md"
     }
 }

@@ -24,7 +24,7 @@ component{
     // Auto-map models
     this.autoMapModels		= true;
     // Module Dependencies That Must Be Loaded First, use internal names or aliases
-    this.dependencies		= [ "cbjavaloader" ];
+    this.dependencies		= [ "hyper" ];
     // Auto-parse parent settings
     this.parseParentSettings = true;
 
@@ -36,7 +36,7 @@ component{
         // Default settings
         settings = {
             //The native client Wirebox DSL for the transport client
-            client="JestClient@cbElasticsearch",
+            client="HyperClient@cbElasticsearch",
             // The default hosts - an array of host connections
             //  - REST-based clients (e.g. JEST):  round robin connections will be used
             //  - Socket-based clients (e.g. Transport):  cluster-aware routing used
@@ -76,7 +76,10 @@ component{
 
         // Custom Declared Points
         interceptorSettings = {
-            customInterceptionPoints = ""
+            customInterceptionPoints = [
+				"cbElasticsearchPreSave",
+				"cbElasticsearchPostSave"
+			]
         };
 
         // Custom Declared Interceptors
@@ -88,24 +91,11 @@ component{
     * Fired when the module is registered and activated.
     */
     function onLoad(){
-
-        // load DB jars
-        var jLoader = wirebox.getInstance( "Loader@cbjavaloader" );
-        jLoader.appendPaths( variables.modulePath & "/lib/java" );
-
-        try{
-            //test for slf4j installation - if isn't available in the engine, add the optional directory to the paths to provide it
-            createObject( "java", "org.slf4j.helpers.Util" );
-        } catch( any e ){
-            jLoader.appendPaths( variables.modulePath & "/lib/optional" );
-        }
-
         /**
         * Main Configuration Object Singleton
         **/
-
         binder.map( "Config@cbElasticsearch" )
-                        .to( '#moduleMapping#.models.Config' )
+                        .to( '#this.cfmapping#.models.Config' )
                         .threadSafe()
                         .asSingleton();
 

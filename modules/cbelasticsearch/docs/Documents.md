@@ -183,7 +183,7 @@ The search builder also supports the addition of URL parameters, which may be us
 * [Update by Query](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-update-by-query.html#_url_parameters)
 * [Delete by Query](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html)
 
-Of note are the throttling parameters, which are usefull in dealing with large documents and/or indices.  By default elasticsearch processes batch operations in groups of 1000 documents.  Depending on the size of your documents and the collection, it may be preferable to throttle the batch to a smaller number of documents per batch:
+Of note are the throttling parameters, which are useful in dealing with large documents and/or indices.  By default elasticsearch processes batch operations in groups of 1000 documents.  Depending on the size of your documents and the collection, it may be preferable to throttle the batch to a smaller number of documents per batch:
 
 ```
 getInstance( "SearchBuilder@cbElasticsearch" )

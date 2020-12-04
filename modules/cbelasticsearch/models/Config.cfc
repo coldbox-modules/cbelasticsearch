@@ -10,9 +10,6 @@
 * 
 */
 component accessors="true"{
-	/**
-	* CBJavaloader
-	**/
 	property name="configStruct" inject="coldbox:modulesettings:cbelasticsearch";
 	
 

@@ -530,6 +530,97 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
             } );
 
+            it( "Tests the wildcard() method", function(){
+                var searchBuilder = variables.model.new(
+                    variables.testIndexName,
+                    "testdocs"
+                );
+
+                searchBuilder.wildcard( "title", "Fo" );
+
+                expect( searchBuilder.getQuery() ).toBeStruct();
+                expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
+                expect( searchBuilder.getQuery().bool ).toHaveKey( "must" );
+                var wildcards = searchBuilder.getQuery().bool.must.filter( function( item ){
+                    return item.keyExists( "wildcard" );
+                } );
+
+                expect( wildcards.len() ).toBe( 1 );
+                expect( wildcards[ 1 ].wildcard ).toHaveKey( "title" );
+                expect( wildcards[ 1 ].wildcard.title ).toBe( "*Fo*" );
+
+
+                var searchBuilder = variables.model.new(
+                    variables.testIndexName,
+                    "testdocs"
+                );
+
+                searchBuilder.wildcard( "title", "*Fo" );
+
+                expect( searchBuilder.getQuery() ).toBeStruct();
+                expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
+                expect( searchBuilder.getQuery().bool ).toHaveKey( "must" );
+                var wildcards = searchBuilder.getQuery().bool.must.filter( function( item ){
+                    return item.keyExists( "wildcard" );
+                } );
+
+                expect( wildcards.len() ).toBe( 1 );
+                expect( wildcards[ 1 ].wildcard ).toHaveKey( "title" );
+                expect( wildcards[ 1 ].wildcard.title ).toBe( "*Fo" );
+
+                expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
+                
+            } );
+
+            it( "Tests the wildcard() method with an array of keys", function(){
+                var searchBuilder = variables.model.new(
+                    variables.testIndexName,
+                    "testdocs"
+                );
+
+                searchBuilder.wildcard( ["title", "foo" ], "Bar" );
+
+                expect( searchBuilder.getQuery() ).toBeStruct();
+                expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
+                expect( searchBuilder.getQuery().bool ).toHaveKey( "must" );
+
+                expect( searchBuilder.getQuery().bool.must.filter( function( item ){ return item.keyExists( "bool" ); } ).len() ).toBe( 1 );
+
+                var wildcards = searchBuilder.getQuery().bool.must[ 1 ].bool.should;
+
+                expect( wildcards.len() ).toBe( 2 );
+                expect( wildcards[ 1 ].wildcard ).toHaveKey( "title" );
+                expect( wildcards[ 1 ].wildcard.title ).toBe( "*Bar*" );
+                expect( wildcards[ 2 ].wildcard ).toHaveKey( "foo" );
+                expect( wildcards[ 2 ].wildcard.foo ).toBe( "*Bar*" );
+
+
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
+
+            });
+
+            it( "Tests the filterMatch() method", function() {
+                var searchBuilder = variables.model.new(
+                    variables.testIndexName,
+                    "testdocs"
+                );
+
+                searchBuilder.filterMatch( "description", "Star" );
+
+                expect( searchBuilder.getQuery() ).toBeStruct();
+                expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
+                expect( searchBuilder.getQuery().bool ).toHaveKey( "filter" );
+                expect( searchBuilder.getQuery().bool.filter ).toHaveKey( "bool" );
+                expect( searchBuilder.getQuery().bool.filter.bool ).toHaveKey( "must" );
+                expect( searchBuilder.getQuery().bool.filter.bool.must ).toBeArray();
+                expect( searchBuilder.getQuery().bool.filter.bool.must ).toHaveLength( 1 );
+                expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ] ).toBeStruct();
+                expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ] ).toHaveKey( "match" );
+                expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ].match ).toBe( { "description" : "Star" } );
+
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
+            } );
+
             it( "Tests the filterTerms() method with a single argument", function() {
                 var searchBuilder = variables.model.new(
                     variables.testIndexName,
@@ -553,24 +644,24 @@ component extends="coldbox.system.testing.BaseTestCase"{
             } );
 
 
-			it( "Tests the filterTerms() method with a list", function(){
+			it( "Tests the filterTerms() method using should operator and a list of values", function(){
 				var searchBuilder = variables.model.new(
 					variables.testIndexName,
 					"testdocs"
 			 	);
 
-			 	searchBuilder.filterTerms( "title", "Foo,Bar" );
+			 	searchBuilder.filterTerms( "title", "Foo,Bar", "should" );
 
 			 	expect( searchBuilder.getQuery() ).toBeStruct();
 				expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
 				expect( searchBuilder.getQuery().bool ).toHaveKey( "filter" );
 				expect( searchBuilder.getQuery().bool.filter ).toHaveKey( "bool" );
-				expect( searchBuilder.getQuery().bool.filter.bool ).toHaveKey( "must" );
-				expect( searchBuilder.getQuery().bool.filter.bool.must ).toBeArray();
-				expect( searchBuilder.getQuery().bool.filter.bool.must ).toHaveLength( 1 );
-				expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ] ).toBeStruct();
-				expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ] ).toHaveKey( "terms" );
-				expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ].terms ).toBe( { "title" : [ "Foo", "Bar" ] } );
+				expect( searchBuilder.getQuery().bool.filter.bool ).toHaveKey( "should" );
+				expect( searchBuilder.getQuery().bool.filter.bool.should ).toBeArray();
+                expect( searchBuilder.getQuery().bool.filter.bool.should ).toHaveLength( 2 );
+				expect( searchBuilder.getQuery().bool.filter.bool.should[ 1 ] ).toBeStruct();
+				expect( searchBuilder.getQuery().bool.filter.bool.should[ 1 ] ).toHaveKey( "term" );
+				expect( searchBuilder.getQuery().bool.filter.bool.should[ 1 ].term ).toBe( { "title" : "Foo" } );
 
 				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
 			});

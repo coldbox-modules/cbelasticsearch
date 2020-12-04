@@ -32,6 +32,10 @@ component accessors="true" {
     **/
     property name="aggregations";
     /**
+    * Property containing collapse directives and modifiers
+    **/
+    property name="collapse";
+    /**
     * Property containing the struct representation of any _source properties
     **/
     property name="source";
@@ -247,6 +251,50 @@ component accessors="true" {
     }
 
     /**
+    * Adds a wildcard search to the query
+    * @name 		string 		the name of the parameter to match
+    * @value 		any 		the value of the parameter to match
+    * @boost 		numeric		A numeric boost option for any exact matches
+    *
+    **/
+    SearchBuilder function wildcard(
+        required any name,
+        required any value,
+        numeric boost,
+        string operator = "must"
+    ){
+
+        param variables.query.bool = {};
+        if( !structKeyExists( variables.query.bool, operator ) ){
+            variables.query.bool[ operator ] = [];
+        }
+
+        if( isArray( arguments.name ) ){
+            var wildcard = {
+                "bool" : {
+                    "should" : arguments.name.map(
+                        function( key ) {
+                            return { "wildcard" : { "#key#" : ( reFind("^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) ? ( "*" & value & "*" ) : value ) } };
+                        }
+                    )
+                }
+            };
+
+         } else {
+            var wildcard = {
+                "wildcard" : {
+                    "#name#" : ( reFind("^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) ? ("*" & value & "*") : value )
+                }
+            };
+        }
+
+        variables.query.bool[ operator ].append( wildcard );
+
+        return this;
+
+    }
+
+    /**
     * Adds an exact value restriction ( elasticsearch: term ) to the query
     * @name 		string 		the name of the parameter to match
     * @value 		any 		the value of the parameter to match
@@ -320,12 +368,43 @@ component accessors="true" {
 
     }
 
-    SearchBuilder function filterTerm( required string name, required any value ) {
+    /**
+    * Adds a fuzzy value restriction ( elasticsearch: match ) and ignore relevance scoring
+    *
+    * @name 		string 		the name of the key to search
+    * @value 		string 		the value of the key
+    **/
+    SearchBuilder function filterMatch( required string name, required any value ) {
         param variables.query.bool = {};
         param variables.query.bool.filter = {};
         param variables.query.bool.filter.bool = {};
         param variables.query.bool.filter.bool.must = [];
         variables.query.bool.filter.bool.must.append(
+            {
+                "match": {
+                    "#name#": value
+                }
+            }
+        );
+
+        return this;
+    }
+
+    /**
+    * Adds an exact value restriction ( elasticsearch: term ) and ignore relevance scoring
+    *
+    * @name 		string 		the name of the key to search
+    * @value 		string 		the value of the key
+    **/
+    SearchBuilder function filterTerm( required string name, required any value, operator="must" ) {
+        param variables.query.bool = {};
+        param variables.query.bool.filter = {};
+        param variables.query.bool.filter.bool = {};
+        if( !structKeyExists( variables.query.bool.filter.bool, arguments.operator ) ){
+            variables.query.bool.filter.bool[ arguments.operator ] = [];
+        }
+
+        variables.query.bool.filter.bool[ arguments.operator ].append(
             {
                 "term": {
                     "#name#": value
@@ -338,26 +417,23 @@ component accessors="true" {
 
     SearchBuilder function filterTerms(
         required string name,
-        required any value
+        required any value,
+        operator="must"
     ){
         if( isSimpleValue( value ) ) arguments.value = listToArray( value );
 
         if( isArray( value ) && arrayLen( value ) == 1 ){
-            return filterTerm( name=arguments.name, value=value[ 1 ] );
+            return filterTerm( name=arguments.name, value=value[ 1 ], operator=arguments.operator );
+        } else if( isSimpleValue( value ) ){
+            arguments.value = listToArray( value );
         }
 
-        param variables.query.bool = {};
-        param variables.query.bool.filter = {};
-        param variables.query.bool.filter.bool = {};
-        param variables.query.bool.filter.bool.must = [];
+        arguments.value.each( function( val ){
 
-        variables.query.bool.filter.bool.must.append(
-            {
-                "terms": {
-                    "#name#": value
-                }
-            }
-        );
+            filterTerm( name, val, operator );
+
+        } );
+
 
         return this;
 
@@ -499,7 +575,7 @@ component accessors="true" {
                 message = ""
             );
         }
-        
+
         var properties = {};
         if ( !isNull( arguments.start ) ) {
             properties[ "gte" ] = arguments.start;
@@ -967,7 +1043,50 @@ component accessors="true" {
         return this;
 
 
-    }
+	}
+
+	/**
+	 * Applies a collapse directive to the search results, which will only return the first matched result of the group
+	 * https://www.elastic.co/guide/en/elasticsearch/reference/current/collapse-search-results.html
+	 *
+	 * @field  string the grouping field
+	 * @options a struct of additional options ( e.g. `inner_hits` )
+     * @includeOccurrences whether to automatically aggreagate occurrences of each unique value
+	 */
+	SearchBuilder function collapseToField(
+		required string field,
+		struct options,
+		boolean includeOccurrences = false
+	){
+		variables.collapse = {
+			"field" : arguments.field
+		};
+
+		if( !isNull( arguments.options ) ){
+			variables.collapse.append( options );
+		}
+
+		// also apply an automatic aggregation to this query so that the collapsed hits can be paginated
+		param variables.aggregations = {};
+
+		variables.aggregations[ "collapsed_count" ] = {
+			"cardinality": {
+				"field": arguments.field
+			}
+		};
+
+		if( arguments.includeOccurrences ){
+			var matched = count();
+			variables.aggregations[ "collapsed_occurrences" ] =  {
+				"terms": {
+					"field": arguments.field,
+					"size" : matched ? matched : 1
+				}
+			};
+		}
+
+		return this;
+	}
 
     /**
     * Performs a preflight on the search
@@ -1074,6 +1193,10 @@ component accessors="true" {
 
         if ( !isNull( variables.aggregations ) ) {
             dsl[ "aggs" ] = variables.aggregations;
+		}
+
+        if ( !isNull( variables.collapse ) ) {
+            dsl[ "collapse" ] = variables.collapse;
         }
 
         if ( !isNull( variables.script ) ) {

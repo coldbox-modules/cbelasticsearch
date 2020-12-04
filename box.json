@@ -6,17 +6,17 @@
     "defaultPort":0,
     "dependencies":{
         "coldbox":"^5.5.0",
-        "workbench":"git+https://github.com/Ortus-Solutions/unified-workbench.git",
-        "cbjavaloader":"^2.0.0"
+        "hyper":"^2.3.1"
     },
     "devDependencies":{
+        "workbench":"git+https://github.com/Ortus-Solutions/unified-workbench.git",
         "testbox":"^3.0.0"
     },
     "installPaths":{
         "testbox":"testbox/",
         "coldbox":"coldbox/",
         "workbench":"workbench/",
-        "cbjavaloader":"modules/cbjavaloader/"
+        "hyper":"modules/hyper/"
     },
     "testbox":{
         "runner":"http://localhost:49616/tests/runner.cfm"

@@ -86,49 +86,6 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
             });
 
-            it( "tests ensureBooleanCasting", function(){
-                
-                var jLoader = variables.model.getJLoader();
-
-                var settings = {
-                    "mapping" : {
-                        "ignore_malformed" = true
-                    },
-                    "numeric" : 1,
-                    "booleanArray" : [
-                        {"foo" : true },
-                        {"foo" : false },
-                        {"foo" : "yes" },
-                        {"foo" : "no" }
-                    ]
-                };
-                var gson = jLoader.create( "com.google.gson.Gson" );
-
-                var currentClass = getMetadata( settings.mapping.ignore_malformed ).name;
-                var expectedClass = "java.lang.Boolean";
-                
-                if( currentClass == 'coldfusion.runtime.CFBoolean' ){
-                    var testConversion = deserializeJSON( gson.toJSON( settings ) );
-                    if( isStruct( testConversion.mapping.ignore_malformed ) ){
-                        debug( "ACF Bug CF-4206423 is still open: https://tracker.adobe.com/##/view/CF-4206423" );
-                    } else {
-                        settings.mapping.ignore_malformed = "yes";
-                    }
-                } else {
-                    settings.mapping.ignore_malformed = "yes";
-                }
-
-                variables.model.ensureBooleanCasting( settings );
-
-                expect( getMetadata( settings.mapping.ignore_malformed ).name ).toBe( expectedClass );
-                expect( settings.numeric ).toBeNumeric();
-                settings.booleanArray.each( function( item ){
-                    expect( getMetadata( item.foo ).name ).toBe( expectedClass );
-                } );
-
-
-            });
-
         } );
 
     }

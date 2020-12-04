@@ -1,5 +1,4 @@
 component accessors="true" singleton{
-    property name="jLoader" inject="loader@cbjavaloader";
 
     /**
      * Ensures a CF native struct is returned ( allowing for dot-notation )
@@ -17,7 +16,7 @@ component accessors="true" singleton{
      * @memento  a struct to populate the memento with
      */
     function newHashMap( struct memento ){
-        var hashMap = variables.jLoader.create( "java.util.HashMap" ).init();
+        var hashMap = createObject( "java", "java.util.HashMap" ).init();
 
         if( !isNull( arguments.memento ) ){
             // make sure we detach any references
@@ -61,5 +60,18 @@ component accessors="true" singleton{
             } );
         }
         return memento;
+    }
+
+    /**
+     * Convenience method to ensure valid JSON, when prefixing is enabled
+     *
+     * @obj   any  the object to be serialized
+     */
+    string function toJSON( any obj ){
+        return serializeJSON( 
+            obj, 
+            false, 
+            listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false 
+        );
     }
 }
