@@ -1,7 +1,9 @@
 # CHANGELOG
 
 # 2.1.1
-- [ Snapshot updates ]
+- Additional documentation updates
+- Improve error response for invalid search requests
+- Add handling for root cause exceptions on shard failure ( Issue #65 )
 
 # 2.1.0
 
