@@ -1117,6 +1117,8 @@ component
 		}
 
 		var results = [];
+		
+		param saveResult.items = [];
 
 		for( var i = 1; i <= saveResult.items.len(); i++ ){
 
