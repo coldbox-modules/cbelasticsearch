@@ -105,7 +105,9 @@ component accessors="true" {
 		// Throw if our configuration doesn't contain a valid search response
 		if( !isStruct( hits ) || !structKeyExists( hits, "total" ) ){
 
-			var errorReason = ( structKeyExists( arguments.properties, "error" ) && structKeyExists( arguments.properties.error, "root_cause" ) ) 
+			var errorReason = ( arguments.properties.keyExists( "error" ) 
+								&& arguments.properties.error.keyExists( "root_cause" ) 
+							  )
 								? " Reason: #arguments.properties.error.root_cause.reason#" 
 								: ( 
 									structKeyExists( arguments.properties, "error" ) 
@@ -116,7 +118,7 @@ component accessors="true" {
 			throw(
 
 				type            = "cbElasticsearch.SearchResult.ClientErrorException",
-				message         = "The server did not return a valid search response. This may be due to syntax errors in your query or credentials." & errorReason ),
+				message         = "The server did not return a valid search response. This may be due to syntax errors in your query or credentials." & errorReason,
 				extendedInfo 	= variables.Util.toJSON( arguments.properties )
 
 			);
