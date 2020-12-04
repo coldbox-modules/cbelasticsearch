@@ -318,6 +318,29 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			});
 
+			it( "Tests error handling on executing search", function(){
+
+				var searchBuilder = getWirebox().getInstance( "SearchBuilder@cbElasticsearch" ).new( index="noSuchIndex", type="testdocs" );
+
+				// confirm it throws at all
+				expect( function(){
+					variables.model.executeSearch( searchBuilder );
+				}).toThrow( "cbElasticsearch.InvalidRequest" );
+
+				try{
+					variables.model.executeSearch( searchBuilder );
+				} catch( cbElasticsearch.InvalidRequest exception ){
+					// expectations on exception content
+					expect( isJSON( exception.extendedInfo ) ).toBeTrue();
+					var extendedError = deSerializeJSON( exception.extendedInfo );
+					expect( extendedError ).toHaveKey( "error" );
+					expect( extendedError.error ).toHaveKey( "root_cause" );
+					expect( extendedError.error.root_cause ).toBeArray();
+					expect( arrayLen( extendedError.error.root_cause ) ).toBeGT( 0 );
+				}
+
+			} );
+
 			it( "Tests the ability to count documents in an index", function(){
 
 				expect( variables ).toHaveKey( "testDocumentId" );
