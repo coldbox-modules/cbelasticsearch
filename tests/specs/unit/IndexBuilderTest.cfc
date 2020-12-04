@@ -195,25 +195,32 @@ component extends="coldbox.system.testing.BaseTestCase"{
 			});
 
 			it( "Tests the update() method ability to update index settings", function(){
-				// updated mapping for the index
-				var indexSettings = {
-									"settings" : {
-										"refresh_interval" : "20s"
-									}
-				};
-
 				var newIndex = variables.model.update(
 											name=variables.testIndexName,
-											properties=indexSettings
+											settings={
+												"refresh_interval" : "20s"
+											}
 										);
 
 				expect( newIndex.save() ).toBeTrue();
 
 				expect( variables.model.getClient().indexExists( variables.testIndexName ) ).toBeTrue();
-				expect( newIndex.getSettings() ).toHaveKey( "number_of_shards" )
-												.toHaveKey( "refresh_interval" );
+				expect( newIndex.getSettings() ).toHaveKey( "refresh_interval" );
 
 				expect( newIndex.getSettings().refresh_interval ).toBe( "20s" );
+
+
+				var newIndex = variables.model.update(
+											name=variables.testIndexName,
+											properties={
+												"settings" : {
+													"refresh_interval" : "1s"
+												}
+											}
+										);
+
+				expect( newIndex.save() ).toBeTrue();
+				expect( newIndex.getSettings().refresh_interval ).toBe( "1s" );
 
 			});
 

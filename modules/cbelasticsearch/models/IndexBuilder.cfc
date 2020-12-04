@@ -153,13 +153,6 @@ component
 	 * @settings 	{Struct}	Key/value struct of index settings such as `number_of_shards`.
 	 */
 	IndexBuilder function update( string name, any properties, struct settings ) {
-		if ( !isNull( arguments.settings ) && !structIsEmpty( arguments.settings ) ){
-			throw(
-					type="cbElasticsearch.models.IndexBuilder.IndexUpdateException",
-					message="Updating settings on an existing index is not currently supported.",
-					extendedInfo=serializeJSON( indexResult[ "index" ], false, listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false )
-				);
-		}
 		return this.new( argumentCollection = arguments );
 	}
 
