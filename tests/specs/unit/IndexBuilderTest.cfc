@@ -190,9 +190,30 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 				expect( newIndex.save() ).toBeTrue();
 
-				// Not a very bulletproof spec... the index already exists!
-				// How can we test the `authorName` property exists after the update?
+				expect( newIndex.getMappings().testdocs.properties ).toHaveKey( "authorName" );
+
+			});
+
+			it( "Tests the update() method ability to update index settings", function(){
+				// updated mapping for the index
+				var indexSettings = {
+									"settings" : {
+										"refresh_interval" : "20s"
+									}
+				};
+
+				var newIndex = variables.model.update(
+											name=variables.testIndexName,
+											properties=indexSettings
+										);
+
+				expect( newIndex.save() ).toBeTrue();
+
 				expect( variables.model.getClient().indexExists( variables.testIndexName ) ).toBeTrue();
+				expect( newIndex.getSettings() ).toHaveKey( "number_of_shards" )
+												.toHaveKey( "refresh_interval" );
+
+				expect( newIndex.getSettings().refresh_interval ).toBe( "20s" );
 
 			});
 
