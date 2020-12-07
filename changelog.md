@@ -4,6 +4,8 @@
 - Additional documentation updates
 - Improve error response by passing all response errors through a single parsing method
 - Add handling for root cause exceptions on shard failure ( Issue #65 )
+- Issue #72 - Fixes a bug where the node pool was not using the full length of the pool
+- Issue #74 - Fixes a regression in `filterTerms` query DSL generation
 
 # 2.1.0
 
