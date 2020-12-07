@@ -420,20 +420,27 @@ component accessors="true" {
         required any value,
         operator="must"
     ){
-        if( isSimpleValue( value ) ) arguments.value = listToArray( value );
+        param variables.query.bool = {};
+        param variables.query.bool.filter = {};
+        param variables.query.bool.filter.bool = {};
 
-        if( isArray( value ) && arrayLen( value ) == 1 ){
-            return filterTerm( name=arguments.name, value=value[ 1 ], operator=arguments.operator );
-        } else if( isSimpleValue( value ) ){
-            arguments.value = listToArray( value );
+        if( !structKeyExists( variables.query.bool.filter.bool, arguments.operator ) ){
+            variables.query.bool.filter.bool[ arguments.operator ] = [];
         }
 
-        arguments.value.each( function( val ){
+        if( isSimpleValue( value ) ) { arguments.value = listToArray( value ) };
 
-            filterTerm( name, val, operator );
+        if( isArray( value ) && arrayLen( value ) == 1 ){
+             return filterTerm( name=arguments.name, value=value[ 1 ], operator=arguments.operator );
+        }
 
-        } );
-
+        variables.query.bool.filter.bool[ operator ].append(
+            {
+                "terms": {
+                    "#name#": value
+                }
+            }
+        );
 
         return this;
 
