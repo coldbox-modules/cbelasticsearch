@@ -1,5 +1,8 @@
 # CHANGELOG
 
+# 2.1.2
+- [ snapshot updates ]
+
 # 2.1.1
 - Additional documentation updates
 - Improve error response by passing all response errors through a single parsing method
