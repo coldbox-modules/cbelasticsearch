@@ -2,7 +2,7 @@
 
 # 2.1.1
 - Additional documentation updates
-- Improve error response for invalid search requests
+- Improve error response by passing all response errors through a single parsing method
 - Add handling for root cause exceptions on shard failure ( Issue #65 )
 
 # 2.1.0
