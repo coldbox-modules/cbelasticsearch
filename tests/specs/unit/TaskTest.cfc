@@ -32,11 +32,12 @@ component extends="coldbox.system.testing.BaseTestCase"{
                     }
                 };
                 variables.model.populate( testTask );
+                
                 expect( variables.model.getCompleted() ).toBe( testTask.completed );
                 
 
                 // we should throw an invalid task exception if we attempt to refresh, since we don't have a cluster
-                expect( function(){ variables.model.isComplete(); } ).toThrow( "cbElasticsearch.JestClient.InvalidTaskException" );
+                expect( function(){ variables.model.isComplete(); } ).toThrow( "cbElasticsearch.native.resource_not_found_exception" );
 
                 // it should not throw an error if we tell it not to refresh
                 expect( variables.model.isComplete( false ) ).toBeFalse();
