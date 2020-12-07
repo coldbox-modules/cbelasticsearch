@@ -154,7 +154,7 @@ component{
         // simple round robin on node usage
         if( !structKeyExists( variables.currentIndexes, nodeUsage ) ){ variables.currentIndex[ nodeUsage ] = 0; }
 
-        if( variables.currentIndex[ nodeUsage ] <= relevantNodes.len() ){
+        if( variables.currentIndex[ nodeUsage ] < relevantNodes.len() ){
             variables.currentIndex[ nodeUsage ]++;
         } else {
             variables.currentIndex[ nodeUsage ] = 1;
