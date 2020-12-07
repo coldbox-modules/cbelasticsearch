@@ -422,18 +422,24 @@ component accessors="true" {
     ){
         if( isSimpleValue( value ) ) arguments.value = listToArray( value );
 
-        if( isArray( value ) && arrayLen( value ) == 1 ){
+        if( arrayLen( value ) == 1 ){
             return filterTerm( name=arguments.name, value=value[ 1 ], operator=arguments.operator );
-        } else if( isSimpleValue( value ) ){
-            arguments.value = listToArray( value );
         }
 
-        arguments.value.each( function( val ){
+        param variables.query.bool = {};
+        param variables.query.bool.filter = {};
+        param variables.query.bool.filter.bool = {};
+        if( !variables.query.bool.filter.bool.keyExists( arguments.operator ) ){
+            variables.query.bool.filter.bool[ arguments.operator ] = [];
+        }
 
-            filterTerm( name, val, operator );
-
-        } );
-
+        variables.query.bool.filter.bool[ operator ].append(
+            {
+                "terms": {
+                    "#name#": arguments.value
+                }
+            }
+        );
 
         return this;
 
