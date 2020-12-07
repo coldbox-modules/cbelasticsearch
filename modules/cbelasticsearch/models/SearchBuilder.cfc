@@ -429,6 +429,7 @@ component accessors="true" {
         param variables.query.bool = {};
         param variables.query.bool.filter = {};
         param variables.query.bool.filter.bool = {};
+
         if( !variables.query.bool.filter.bool.keyExists( arguments.operator ) ){
             variables.query.bool.filter.bool[ arguments.operator ] = [];
         }
