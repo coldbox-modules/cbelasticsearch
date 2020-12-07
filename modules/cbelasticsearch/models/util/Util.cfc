@@ -74,4 +74,45 @@ component accessors="true" singleton{
             listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false 
         );
     }
+
+
+    void function handleResponseError( required Hyper.models.HyperResponse response ){
+        var errorPayload = isJSON( response.getData() ) ? deserializeJSON( response.getData() ) : response.getData();
+        var errorReason = "";
+        if( !isSimpleValue( errorPayload ) ){
+            errorReason = ( 
+                errorPayload.keyExists( "error" ) 
+                && errorPayload.error.keyExists( "root_cause" )
+            )
+                ? " Reason: #isArray( errorPayload.error.root_cause ) ? errorPayload.error.root_cause[ 1 ].reason : errorPayload.error.root_cause.reason#" 
+                : ( 
+                    structKeyExists( errorPayload, "error" ) 
+                    ? " Reason: #errorPayload.error.reason#" 
+                    : "" 
+                );
+
+
+        }
+		if( len( errorReason ) && errorPayload.error.keyExists( "type" ) ){
+			throw(
+                type = "cbElasticsearch.native.#errorPayload.error.type#",
+                message = "An error was returned when communicating with the Elasticsearch server.  The error received was: #errorReason#",
+                errorCode = errorPayload.status,
+                extendedInfo = isJSON( errorPayload ) ? errorPayload : toJSON( errorPayload )
+			)
+		} else if( isSimpleValue( errorPayload ) && !isJSON( errorPayload ) ) {
+			throw( 
+				type = "cbElasticsearch.invalidRequest",
+				message = "An error occurred while communicating with the Elasticsearch server. The response received was not JSON",
+                extendedInfo = errorPayload,
+                errorCode = response.getStatusCode()
+			);
+		} else {
+            throw( 
+				type = "cbElasticsearch.invalidRequest",
+				message = "Your request was invalid.  The response returned was #toJSON( errorPayload )#",
+				extendedInfo = isJSON( errorPayload ) ? errorPayload : toJSON( errorPayload )
+			);
+        }
+    }
 }

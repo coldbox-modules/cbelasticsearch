@@ -325,11 +325,7 @@ component
             if( response.getStatusCode() < 299 ){
                 indexResult[ "index" ] = response.json();
                 if( structKeyExists( indexResult[ "index" ], "error" ) ){
-                    throw(
-                        type="cbElasticsearch.HyperClient.IndexCreationException",
-                        message="Index creation returned an error status of #indexResult.index.status#.  Reason: #( isSimpleValue( indexResult.index.error ) ? indexResult.index.error : indexResult.index.error.reason )#",
-                        extendedInfo=getUtil().toJSON( indexResult[ "index" ] )
-                    );
+					onResponseFailure( response );
                 }
             } else {
                 onResponseFailure( response );
@@ -608,20 +604,17 @@ component
                             )
                             .setBody( JSONMapping )
                             .asJSON()
-                            .send()
-                            .json();
+							.send();
+							
+		var responsePayload = mappingResult.json();
 
-		if( structKeyExists( mappingResult, "error" ) ){
-
-			throw(
-				type="cbElasticsearch.HyperClient.InvalidMappingException",
-				message="The mapping for #arguments.mappingName# could not be created.  Reason: #( isSimpleValue( mappingResult.error ) ? mappingResult.error : mappingResult.error.reason )#",
-				extendedInfo=getUtil().toJSON( mappingResult )
-			);
+		if( structKeyExists( responsePayload, "error" ) ){
+			
+			onResponseFailure( mappingResult );
 
 		} else{
 
-			return mappingResult;
+			return responsePayload;
 
 		}
 	}
@@ -787,12 +780,7 @@ component
                                 .send();
 
         if(  taskResult.getStatusCode() != 200 ){
-			taskResult = taskResult.json();
-            throw(
-				type="cbElasticsearch.JestClient.InvalidTaskException",
-				message="A task with an identifier of #arguments.taskId# could not be found. The error returned was: #( isSimpleValue( taskResult.error ) ? taskResult.error : taskResult.error.reason )#",
-				extendedInfo=getUtil().toJSON( taskResult )
-			);
+			onResponseFailure( taskResult );
         }
 
         return taskObj.populate( taskResult.json() );
@@ -873,12 +861,7 @@ component
 								.json();
 
 		if( structKeyExists( saveResult, "error" ) ){
-
-			throw(
-				type="cbElasticsearch.HyperClient.SaveException",
-				message="Document could not be saved.  The error returned was: #( isSimpleValue( saveResult.error ) ? saveResult.error : saveResult.error.reason )#",
-				extendedInfo=getUtil().toJSON( saveResult )
-			);
+			onResponseFailure( saveResult );
 		}
 
 		if( arguments.refresh ){
@@ -908,15 +891,10 @@ component
                                 "#document.getIndex()#/_doc/#urlEncodedFormat( document.getId() )#",
                                 "DELETE" 
                             )
-                            .send()
-                            .json();
+                            .send();
 
-		if( arguments.throwOnError && structKeyExists( deleteResult, "error" ) ){
-			throw(
-				type="cbElasticsearch.HyperClient.DocumentDeletionException",
-				message="Document could not be deleted.  The error returned was: #( isSimpleValue( deleteResult.error ) ? deleteResult.error : deleteResult.error.reason )#",
-				extendedInfo=getUtil().toJSON( deleteResult )
-			);
+		if( arguments.throwOnError && structKeyExists( deleteResult.json(), "error" ) ){
+			onResponseFailure( deleteResult );
 		}
 
 		return true;
@@ -1104,16 +1082,13 @@ component
 									""
 								)
 							)
-							.send()
-                            .json();
+							.send();
 
 
-		if( arguments.throwOnError && structKeyExists( saveResult, "error" ) ){
-			throw(
-				type="cbElasticsearch.HyperClient.BulkSaveException",
-				message="Documents could not be saved.  The error returned was: #( isSimpleValue( saveResult.error ) ? saveResult.error : saveResult.error.reason )#",
-				extendedInfo=getUtil().toJSON( saveResult )
-			);
+		if( arguments.throwOnError && structKeyExists( saveResult.json(), "error" ) ){
+			onResponseFailure( saveResult );
+		} else {
+			saveResult = saveResult.json();
 		}
 
 		var results = [];
@@ -1126,9 +1101,19 @@ component
 			var document = arguments.documents[ i ];
 
 			if( arguments.throwOnError && item.update.keyExists( "error" ) ){
+				var errorReason = ( 
+					item.update.keyExists( "error" ) 
+					&& item.update.error.keyExists( "root_cause" )
+				)
+					? " Reason: #isArray( item.update.error.root_cause ) ? item.update.error.root_cause[ 1 ].reason : item.update.error.root_cause.reason#" 
+					: ( 
+						structKeyExists( item.update, "error" ) 
+						? " Reason: #item.update.error.reason#" 
+						: "" 
+					);
 				throw(
 					type="cbElasticsearch.HyperClient.BulkSaveException",
-					message="A document with an identifier of #item.update[ "_id" ]# could not be saved.  The error returned was: #( isSimpleValue( item.update.error ) ? item.update.error : item.update.error.reason )#",
+					message="A document with an identifier of #item.update[ "_id" ]# could not be saved.  The error returned was: #errorReason#",
 					extendedInfo=getUtil().toJSON( saveResult )
 				);
 			}
@@ -1188,17 +1173,11 @@ component
                                     ""
                                 )
                             )
-                            .send()
-                            .json();
+                            .send();
 
 
-		if( arguments.throwOnError && structKeyExists( deleteResult, "error" ) ){
-
-			throw(
-				type="cbElasticsearch.HyperClient.PersistByQuery",
-				message="Document could not be deleted.  The error returned was: #( isSimpleValue( deleteResult.error ) ? deleteResult.error : deleteResult.error.reason )#",
-				extendedInfo=getUtil().toJSON( deleteResult )
-			);
+		if( arguments.throwOnError && structKeyExists( deleteResult.json(), "error" ) ){
+			onResponseFailure( deleteResult );
 		}
 
 		return true;
@@ -1222,17 +1201,14 @@ component
 								.setBody( 
 									arguments.pipeline.getJSON()
 								)
-								.send()
-								.json();
+								.send();
+
+		var responseData = response.json();
 								
-		if( response.keyExists( "acknowledged" ) ){
-			return response.acknowledged;
-		} else if( response.keyExists( "error" ) ) {
-			throw(
-				type="cbElasticsearch.HyperClient.ApplyPipelineException",
-				message="The pipeline could not be applied.  The error returned was: #( isSimpleValue( response.error ) ? response.error : response.error.reason )#",
-				extendedInfo=getUtil().toJSON( response )
-			);
+		if( responseData.keyExists( "acknowledged" ) ){
+			return responseData.acknowledged;
+		} else if( responseData.keyExists( "error" ) ) {
+			onResponseFailure( response );
 		} else {
 			return false;
 		}
@@ -1275,28 +1251,20 @@ component
 									"_ingest/pipeline/#urlEncodedFormat( arguments.id )#",
 									"DELETE" 
 								)
-								.send()
-								.json();
+								.send();
+		var responseData = response.json();
 
-		if( response.keyExists( "acknowledged" ) ){
-			return response.acknowledged;
-		} else if( response.status != 404 && response.keyExists( "error" ) ) {
-			throw(
-				type="cbElasticsearch.HyperClient.DeletePipelineException",
-				message="The pipeline could not be deleted.  The error returned was: #( isSimpleValue( response.error ) ? response.error : response.error.reason )#",
-				extendedInfo=getUtil().toJSON( response )
-			);
+		if( responseData.keyExists( "acknowledged" ) ){
+			return responseData.acknowledged;
+		} else if( responseData.status != 404 && responseData.keyExists( "error" ) ) {
+			onResponseFailure( response );
 		} else {
 			return false;
 		}
 	}
     
     function onResponseFailure( required Hyper.models.HyperResponse response ){
-        throw( 
-            type = "cbElasticsearch.invalidRequest",
-			message = "Your request was invalid.  The response returned was #getUtil().toJSON( response.getData() )#",
-			extendedInfo = isJSON( response.getData() ) ? response.getData() : getUtil().toJSON( response.getData() )
-        );
+		return getUtil().handleResponseError( response = arguments.response );
 	}
 	
 	
