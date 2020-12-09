@@ -853,15 +853,15 @@ component
 		   { "document" : arguments.document }
 	   );
 
-       var saveResult = saveRequest
+       var saveResponse = saveRequest
                                 .setBody( 
                                     getUtil().toJSON( arguments.document.getMemento() ) 
                                 )
-								.send()
-								.json();
+								.send();
+		var saveResult = saveResponse.json();
 
 		if( structKeyExists( saveResult, "error" ) ){
-			onResponseFailure( saveResult );
+			onResponseFailure( saveResponse );
 		}
 
 		if( arguments.refresh ){
