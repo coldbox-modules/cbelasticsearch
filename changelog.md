@@ -1,5 +1,8 @@
 # CHANGELOG
 
+
+# 2.1.2
+- [ Snapshot updates ]
 # 2.1.2
 - Issue #76 - Fixes an incorrect error response typing
 
