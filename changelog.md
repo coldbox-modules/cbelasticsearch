@@ -1,7 +1,7 @@
 # CHANGELOG
 
 # 2.1.2
-- [ snapshot updates ]
+- Issue #76 - Fixes an incorrect error response typing
 
 # 2.1.1
 - Additional documentation updates
