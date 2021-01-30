@@ -864,10 +864,11 @@ component
 			onResponseFailure( saveResponse );
 		}
 
-		if( arguments.refresh ){
-			arguments.document = this.get( saveResult[ "_id" ], arguments.document.getIndex() );
-		} else {
-			arguments.document.setId( saveResult[ "_id" ] );
+
+		arguments.document.setId( saveResult[ "_id" ] );
+
+		if( arguments.refresh && !isNull( arguments.document.getPipeline() ) ){
+			arguments.document =  this.get( saveResult[ "_id" ], arguments.document.getIndex() );
 		}
 
 		getInterceptorService().processState(
