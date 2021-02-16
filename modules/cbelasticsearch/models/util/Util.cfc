@@ -82,18 +82,23 @@ component accessors="true" singleton{
         if( !isSimpleValue( errorPayload ) ){
             errorReason = ( 
                 errorPayload.keyExists( "error" ) 
+                && !isSimpleValue( errorPayload.error )
                 && errorPayload.error.keyExists( "root_cause" )
             )
                 ? " Reason: #isArray( errorPayload.error.root_cause ) ? errorPayload.error.root_cause[ 1 ].reason : errorPayload.error.root_cause.reason#" 
                 : ( 
                     structKeyExists( errorPayload, "error" ) 
-                    ? " Reason: #errorPayload.error.reason#" 
+                    ? (
+                        isSimpleValue( errorPayload.error )
+                        ? " Reason: #errorPayload.error# "
+                        : " Reason: #errorPayload.error.reason#"
+                    )
                     : "" 
                 );
 
 
         }
-		if( len( errorReason ) && errorPayload.error.keyExists( "type" ) ){
+		if( len( errorReason ) && ! isSimpleValue( errorPayload.error ) && errorPayload.error.keyExists( "type" ) ){
 			throw(
                 type = "cbElasticsearch.native.#errorPayload.error.type#",
                 message = "An error was returned when communicating with the Elasticsearch server.  The error received was: #errorReason#",
