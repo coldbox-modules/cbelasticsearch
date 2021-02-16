@@ -86,6 +86,40 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
             });
 
+            it( "tests handleResponseError with a simple error string", function() {
+
+                var mockResponse = getMockBox().createMock( className="Hyper.models.HyperResponse" );
+
+                var mockError = serializeJSON( {
+                    "error" : "Incorrect HTTP method for uri [/myIndex/_doc] and method [PUT], allowed: [POST]"
+                } );
+                mockResponse.$( "getData", mockError );
+                mockResponse.$( "getStatusCode", 400 );
+
+                expect( function(){
+                    variables.model.handleResponseError( mockResponse );
+                } ).toThrow( "cbElasticsearch.invalidRequest" );
+            });
+
+            it( "tests handleResponseError with an error.reason struct", function() {
+
+                var mockResponse = getMockBox().createMock( className="Hyper.models.HyperResponse" );
+
+                var mockError = serializeJSON( {
+                    "error" : {
+                        "reason" : "This is a test of the nested error.reason exception format.",
+                        "type" : "BadDocument"
+                    },
+                    "status" : 400
+                } );
+                mockResponse.$( "getData", mockError );
+                mockResponse.$( "getStatusCode", 400 );
+
+                expect( function(){
+                    variables.model.handleResponseError( mockResponse );
+                } ).toThrow( "cbElasticsearch.native.BadDocument" );
+            });
+
         } );
 
     }
