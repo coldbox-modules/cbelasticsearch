@@ -249,72 +249,75 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 				it( "can pass structs for the source and destination", function() {
 					variables.model.deleteIndex( variables.testIndexNameOne );
-					variables.model.deleteIndex( variables.testIndexNameTwo );
+                    variables.model.deleteIndex( variables.testIndexNameTwo );
 
-					var indexBuilder = getWireBox().getInstance( "IndexBuilder@cbElasticSearch" )
-                        .new( variables.testIndexNameTwo );
-                    
-                    variables.model.applyIndex( indexBuilder );
+                    var indexOne = getWireBox().getInstance( "IndexBuilder@cbElasticSearch" )
+						.new( variables.testIndexNameOne );
 
-					// //insert some documents to reindex
-					var documents = [];
+					variables.model.applyIndex( indexOne );
 
-					for ( var i = 1; i <= 10; i++ ) {
-						arrayAppend(
-							documents, getInstance( "Document@cbElasticsearch" ).new(
-								variables.testIndexNameOne,
-								"testdocs",
-								{
-									"_id": createUUID(),
-									"title": "Test Document Number #i#",
-									"flag": i % 2 == 0 ? "flag" : "noflag",
-									"createdTime": dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
-								}
-							)
+                    var indexTwo = getWireBox().getInstance( "IndexBuilder@cbElasticSearch" )
+						.new( variables.testIndexNameTwo );
+					
+					variables.model.applyIndex( indexTwo );
 
-						);
-					}
+                    // //insert some documents to reindex
+                    var documents = [];
+                    for ( var i = 1; i <= 10; i++ ) {
+                        arrayAppend(
+                            documents,
+                            getInstance( "Document@cbElasticsearch" ).new(
+                                variables.testIndexNameOne,
+                                "testdocs",
+                                {
+                                    "_id": createUUID(),
+                                    "title": "Test Document Number #i#",
+                                    "flag": i % 2 == 0 ? "flag" : "noflag",
+                                    "createdTime": dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+                                }
+                            )
+                        );
+                    }
 
-					var savedDocs = variables.model.saveAll( documents );
+                    var savedDocs = variables.model.saveAll( documents );
 
-					//sleep for 1.5 seconds to ensure full persistence
-					sleep( 1500 );
+                    //sleep for 1.5 seconds to ensure full persistence
+                    sleep( 1500 );
 
-					var searchOne = getWireBox().getInstance( "SearchBuilder@cbElasticSearch" )
-						.new( variables.testIndexNameOne, "testdocs", {
-							"query": {
-								"match_all": {}
-							}
-						} );
+                    var searchOne = getWireBox().getInstance( "SearchBuilder@cbElasticSearch" )
+                        .new( variables.testIndexNameOne, "testdocs", {
+                            "query": {
+                                "match_all": {}
+                            }
+                        } );
 
-					var searchTwo = getWireBox().getInstance( "SearchBuilder@cbElasticSearch" )
-						.new( variables.testIndexNameTwo, "testdocs", {
-							"query": {
-								"match_all": {}
-							}
-						} );
+                    var searchTwo = getWireBox().getInstance( "SearchBuilder@cbElasticSearch" )
+                        .new( variables.testIndexNameTwo, "testdocs", {
+                            "query": {
+                                "match_all": {}
+                            }
+                        } );
 
-					expect( variables.model.count( searchOne ) ).toBe( 10 );
-					expect( variables.model.count( searchTwo ) ).toBe( 0 );
+                    expect( variables.model.count( searchOne ) ).toBe( 10 );
+                    expect( variables.model.count( searchTwo ) ).toBe( 0 );
 
-					variables.model.reindex(
-						source = {
-							"index": variables.testIndexNameOne,
-							"type": "testdocs",
-							"query": {
-								"term": {
-									"flag.keyword": "flag"
-								}
-							}
-						},
-						destination = variables.testIndexNameTwo,
-						waitForCompletion = true
-					);
+                    variables.model.reindex(
+                        source = {
+                            "index": variables.testIndexNameOne,
+                            "query": {
+                                "term": {
+                                    "flag.keyword": "flag"
+                                }
+                            }
+                        },
+                        destination = variables.testIndexNameTwo,
+                        waitForCompletion = true
+                    );
 
-					// We still have to wait for background indexing to update
-					sleep( 1500 );
+                    // We still have to wait for background indexing to update
+                    sleep( 1500 );
 
-					expect( variables.model.count( searchTwo ) ).toBe( 5 );
+                    expect( variables.model.count( searchTwo ) ).toBe( 5 );
 				} );
 			} );
 

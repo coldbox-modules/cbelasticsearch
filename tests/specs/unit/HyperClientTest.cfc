@@ -318,18 +318,18 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			});
 
-			it( "Tests error handling on executing search", function(){
+			it( "Tests error handling on executing search with an invalid index", function(){
 
 				var searchBuilder = getWirebox().getInstance( "SearchBuilder@cbElasticsearch" ).new( index="noSuchIndex", type="testdocs" );
 
 				// confirm it throws at all
 				expect( function(){
 					variables.model.executeSearch( searchBuilder );
-				}).toThrow( "cbElasticsearch.InvalidRequest" );
+				}).toThrow( "cbElasticsearch.native.index_not_found_exception" );
 
 				try{
 					variables.model.executeSearch( searchBuilder );
-				} catch( cbElasticsearch.InvalidRequest exception ){
+				} catch( cbElasticsearch.native.index_not_found_exception exception ){
 					// expectations on exception content
 					expect( isJSON( exception.extendedInfo ) ).toBeTrue();
 					var extendedError = deSerializeJSON( exception.extendedInfo );
@@ -340,6 +340,16 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				}
 
 			} );
+
+			it( "Tests the ability to handle errors on a search request with an invalid payload", function(){
+				var searchBuilder = getWirebox().getInstance( "SearchBuilder@cbElasticsearch" ).new( index=variables.testIndexName, type="testdocs" );
+				searchBuilder.setQuery( { "invalid_syntax" : { "foo" : "bar" }});
+
+				expect( function(){
+					variables.model.executeSearch( searchBuilder );
+				} ).toThrow( "cbElasticsearch.native.parsing_exception" );
+				
+			});
 
 			it( "Tests the ability to count documents in an index", function(){
 

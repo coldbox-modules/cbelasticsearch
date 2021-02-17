@@ -655,13 +655,14 @@ component extends="coldbox.system.testing.BaseTestCase"{
 			 	expect( searchBuilder.getQuery() ).toBeStruct();
 				expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
 				expect( searchBuilder.getQuery().bool ).toHaveKey( "filter" );
-				expect( searchBuilder.getQuery().bool.filter ).toHaveKey( "bool" );
+                expect( searchBuilder.getQuery().bool.filter ).toHaveKey( "bool" );
+                debug( searchBuilder.getQuery().bool.filter );
 				expect( searchBuilder.getQuery().bool.filter.bool ).toHaveKey( "should" );
 				expect( searchBuilder.getQuery().bool.filter.bool.should ).toBeArray();
-                expect( searchBuilder.getQuery().bool.filter.bool.should ).toHaveLength( 2 );
+                expect( searchBuilder.getQuery().bool.filter.bool.should ).toHaveLength( 1 );
 				expect( searchBuilder.getQuery().bool.filter.bool.should[ 1 ] ).toBeStruct();
-				expect( searchBuilder.getQuery().bool.filter.bool.should[ 1 ] ).toHaveKey( "term" );
-				expect( searchBuilder.getQuery().bool.filter.bool.should[ 1 ].term ).toBe( { "title" : "Foo" } );
+				expect( searchBuilder.getQuery().bool.filter.bool.should[ 1 ] ).toHaveKey( "terms" );
+				expect( searchBuilder.getQuery().bool.filter.bool.should[ 1 ].terms ).toBe( { "title" : [ "Foo", "Bar" ] } );
 
 				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
 			});
