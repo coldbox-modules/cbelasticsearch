@@ -881,24 +881,90 @@ component
 	}
 
 	/**
+	 * Patches an elasticsearch document using either a script or a partial doc
+	 *
+	 * @index       string 		The index to operate on
+	 * @identifier 	string 		The identifier of the elasticsearch document
+	 * @contents    struct 		A struct of contents to update.  May contain script/doc information, along with upsert parameters  
+	 * @params      struct      A struct of params to provide to the deletion request
+	 * 
+	 * @return      void
+	 * 
+	 * @see         https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-update.html
+	 */
+	void function patch( required string index,  required string identifier, required struct contents, struct params = {} ){
+
+		if( !arguments.contents.keyExists( "doc" ) && !arguments.contents.keyExists( "script" ) ){
+			var directive = {
+				"doc" : arguments.contents
+			};
+		} else {
+			var directive = arguments.contents;
+		}
+
+		var patchRequest = variables.nodePool
+									.newRequest( 
+										"#arguments.index#/_update/#urlEncodedFormat( arguments.identifier )#",
+										"POST" 
+									).setBody(
+										getUtil().toJSON( directive )
+									).asJSON();
+
+		parseParams( arguments.params ).each( function( param ){
+			patchRequest.setQueryParam( param.name, param.value );
+		} );
+			
+		patchRequest.send();
+
+
+	}
+
+	/**
 	* Deletes a single document
 	* @document 		Document 		the Document object for the document to be deleted
 	* @throwOnError 	boolean			whether to throw an error if the document cannot be deleted ( default: false )
+	* @params           struct          a struct of params to provide to the deletion request
+	*
+	* @return           boolean         (true|false) as to whether the doucument was deleted
+	*
+	* @see              https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete.html
 	**/
-	boolean function delete( required any document, boolean throwOnError=true ){
+	boolean function delete( required cbElasticsearch.models.Document document, boolean throwOnError=true, struct params = {} ){
+		return deleteById( document.getIndex(), document.getId(), arguments.throwOnError, arguments.params );
+	}
 
-		var deleteResult = variables.nodePool
+
+	/**
+	* Deletes a single document when provided an index and identifier
+	*
+	* @index            string          the index to perform the operation on
+	* @identifier       string          the identifier of the document
+	* @throwOnError 	boolean			whether to throw an error if the document cannot be deleted ( default: false )
+	* @params           struct          a struct of params to provide to the deletion request
+	*
+	* @return           boolean         (true|false) as to whether the doucument was deleted
+	*
+	* @see              https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete.html
+	**/
+	boolean function deleteById( required string index, required string identifier, boolean throwOnError=true, params = {} ){
+		var deleteRequest = variables.nodePool
                             .newRequest( 
-                                "#document.getIndex()#/_doc/#urlEncodedFormat( document.getId() )#",
+                                "#arguments.index#/_doc/#urlEncodedFormat( arguments.identifier )#",
                                 "DELETE" 
                             )
-                            .send();
+							.asJSON();
 
-		if( arguments.throwOnError && structKeyExists( deleteResult.json(), "error" ) ){
+		parseParams( arguments.params ).each( function( param ){
+			deleteRequest.setQueryParam( param.name, param.value );
+		} );
+
+    	var deleteResult = deleteRequest.send().json();
+
+		if( arguments.throwOnError && structKeyExists( deleteResult, "error" ) ){
 			onResponseFailure( deleteResult );
 		}
 
-		return true;
+		return deleteResult.keyExists( "error" ) ? false : deleteResult.result == "deleted";
 	}
 
 	/**
