@@ -77,19 +77,19 @@ component extends="coldbox.system.logging.AbstractAppender" output="false" hint=
     **/
     Client function getClient() provider="Client@cbElasticsearch"{}
 
-
     /**
      * Runs on registration
      */
-    public void function onRegistration() output=false {
+    public LogstashAppender function onRegistration() output=false {
 
         if( getProperty( "ensureChecks" ) ){
                 // Index Checks
                 ensureIndex();
         }
-    }
-    //  Log Message
 
+        return this;
+    }
+    
     /**
      * Write an entry into the appender.
      */
