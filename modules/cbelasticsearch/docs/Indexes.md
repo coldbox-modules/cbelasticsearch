@@ -138,6 +138,33 @@ indexBuilder.new(
 );
 ```
 
+The `IndexBuilder` model also provides a convenience method for updating the mapping or settings on an index:
+
+```
+indexBuilder.patch(
+    "bookshop",
+    settings = {
+            "number_of_shards" = 10,
+            "number_of_replicas" = 2,
+            "auto_expand_replicas" = true,
+            "shard.check_on_startup" = "checksum"
+        }
+    }
+);
+```
+
+```
+indexBuilder.patch(
+    "bookshop",
+    properties = {
+            "number_of_shards" = 10,
+            "number_of_replicas" = 2,
+            "auto_expand_replicas" = true,
+            "shard.check_on_startup" = "checksum"
+        }
+    }
+);
+```
 *Additional Reading:*
 
 * [Elasticsearch Mapping Guide](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html)

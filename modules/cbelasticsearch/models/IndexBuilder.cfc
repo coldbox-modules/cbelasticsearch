@@ -74,7 +74,35 @@ component
 		return getClient().deleteIndex( this.getIndexName() );
 	}
 
+	/**
+	 * Create a new index
+	 *
+	 * @name 		{String}	Index name. Defaults to the default index set in configuration.
+	 * @properties 	{Struct}	Index mapping. Defines the fields and types used in the index.
+	 * @settings 	{Struct}	Key/value struct of index settings such as `number_of_shards`.
+	 */
 	IndexBuilder function new( string name, any properties, struct settings){
+
+        reset();
+
+		return this.populate( argumentCollection = arguments );
+	}
+
+	/**
+	 * Update an existing index
+	 *
+	 * @name 		{String}	Index name. Defaults to the default index set in configuration.
+	 * @properties 	{Struct}	Index mapping. Defines the fields and types used in the index.
+	 * @settings 	{Struct}	Key/value struct of index settings such as `number_of_shards`.
+	 */
+	boolean function patch( string name, any properties, struct settings){
+
+        reset();
+
+		return this.populate( argumentCollection = arguments ).save();
+	}
+
+	IndexBuilder function populate( string name, any properties, struct settings){
 
         reset();
 

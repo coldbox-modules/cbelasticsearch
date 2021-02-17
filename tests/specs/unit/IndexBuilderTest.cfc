@@ -163,6 +163,57 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			});
 
+			it( "Tests the patch() method ability to update an index mapping", function(){
+				// updated mapping for the index
+				var indexSettings = {
+										"mappings":{
+											"testdocs":{
+												"_all"       : { "enabled": false },
+												"properties" : {
+													"title"      : {"type" : "text"},
+													"authorName" : {"type" : "text"},
+													"createdTime": {
+														"type"  : "date",
+														"format": "date_time_no_millis"
+													}
+												}
+											}
+										},
+
+										"aliases" : { "testalias" : {} }
+									};
+
+				var newIndex = variables.model.patch(
+											name=variables.testIndexName,
+											properties=indexSettings
+										);
+
+				// expect( newIndex.getMappings().testdocs.properties ).toHaveKey( "authorName" );
+
+			});
+
+			it( "Tests the patch() method ability to update index settings", function(){
+				var newIndex = variables.model.patch(
+											name=variables.testIndexName,
+											settings={
+												"refresh_interval" : "20s"
+											}
+										);
+
+				expect( variables.model.getClient().indexExists( variables.testIndexName ) ).toBeTrue();
+
+
+				var newIndex = variables.model.patch(
+											name=variables.testIndexName,
+											properties={
+												"settings" : {
+													"refresh_interval" : "1s"
+												}
+											}
+										);
+
+			});
+
 			it( "Tests the ability to reset the index builder", function(){
 
 				variables.model.reset();

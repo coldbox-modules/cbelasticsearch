@@ -334,11 +334,6 @@ component
 
 		} else {
 
-			indexResult[ "index" ] = {
-				"error"  : true,
-				"message": "Index #indexName# already exists"
-            };
-
             if( structKeyExists( indexDSL, "mappings" ) ){
 				if( isMajorVersion( 7 ) ){
 					indexResult[ "mappings" ] = applyMapping( indexName, "_doc", indexDSL.mappings );
