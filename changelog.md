@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `patch` method to client to allow for partial document updates
 - Added `deleteById` method to client to prevent overhead of Document-based deletions when identifier and index are known
 - Added the ability to pass request parameters to deletion methods
+- Added a new `patch` method to `IndexBuilder.cfc` which provides a more intuitive API for partial updates to indices and settings
 - Additional error handling for non-JSON responses from Elasticsearch servers
 ### Fixed
 - Typos in documentation in docblocks
