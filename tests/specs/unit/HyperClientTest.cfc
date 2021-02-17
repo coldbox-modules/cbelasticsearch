@@ -393,7 +393,52 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			});
 
-			it( "Tests the ability to delete a document by id", function(){
+			it( "Tests the ability to patch a document with a single field value", function(){
+				expect( variables ).toHaveKey( "testDocumentId" );
+				expect( variables ).toHaveKey( "testIndexName" );
+
+				var document = variables.model.get( variables.testDocumentId, variables.testIndexName, "testdocs" );
+
+				expect( isNull( document ) ).toBeFalse();
+
+				expect( document.getMemento() ).toHaveKey( "title" );
+				var oldValue = document.getMemento().title;
+				var newValue = "Patched update to title field";
+
+				expect( oldValue ).notToBe( newValue );
+
+				variables.model.patch( variables.testIndexName, variables.testDocumentId, { "title" : newValue }, { "refresh" : true } );
+
+				expect( variables.model.get( variables.testDocumentId, variables.testIndexName ).getMemento().title ).toBe( newValue );
+			});
+
+			it( "Tests the ability to patch a document using a script", function(){
+				expect( variables ).toHaveKey( "testDocumentId" );
+				expect( variables ).toHaveKey( "testIndexName" );
+
+				var document = variables.model.get( variables.testDocumentId, variables.testIndexName, "testdocs" );
+
+				expect( isNull( document ) ).toBeFalse();
+
+				expect( document.getMemento() ).toHaveKey( "title" );
+				var oldValue = document.getMemento().title;
+				var newValue = "Patched update to title field via script";
+
+				expect( oldValue ).notToBe( newValue );
+
+				var directive = {
+					"script" : {
+						"source": "ctx._source.title = '#newValue#'",
+						"lang": "painless"
+					}
+				};
+
+				variables.model.patch( variables.testIndexName, variables.testDocumentId, directive, { "refresh" : true } );
+
+				expect( variables.model.get( variables.testDocumentId, variables.testIndexName ).getMemento().title ).toBe( newValue );
+			});
+
+			it( "Tests the ability to delete a document using a Document model object", function(){
 				expect( variables ).toHaveKey( "testDocumentId" );
 				expect( variables ).toHaveKey( "testIndexName" );
 
@@ -407,6 +452,26 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
 			});
 
+			it( "Tests the ability to delete a document by index and identifier", function(){
+				expect( variables ).toHaveKey( "testIndexName" );
+
+				var testDocument = {
+					"_id"        : createUUID(),
+					"title"      : "My Test Document for deletion",
+					"createdTime": dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+				};
+
+				var document = getWirebox().getInstance( "Document@cbElasticsearch" ).new( variables.testIndexName, "testdocs", testDocument );
+
+				var saveResult = variables.model.save( document, true );
+
+				expect( variables.model.get( testDocument[ "_id"], variables.testIndexName ) ).notToBeNull();
+
+				variables.model.deleteById( variables.testIndexName, testDocument[ "_id"], true, { "refresh" : true } );
+
+				expect( variables.model.get( testDocument[ "_id"] ) ).toBeNull();
+
+			});
 
 			it( "Tests the ability to delete documents by query synchronously", function(){
 
