@@ -116,15 +116,16 @@ component
 				variables.versionTarget = configSettings.versionTarget;
 			} else {
 
-				var startPage = variables.nodePool
-                                .newRequest( 
-                                    "",
-                                    "GET"
+				try{
+
+					var startPage = variables.nodePool
+								.newRequest( 
+									"",
+									"GET"
 								)
 								.send()
 								.json();
 
-				try{
 					if( isSimpleValue( startPage.version ) ){
 						variables.versionTarget = startPage.version;
 					} else {
