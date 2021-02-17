@@ -298,12 +298,49 @@ component
 	}
 
 	/**
+	 * Patches an elasticsearch document using either a script or a partial doc
+	 *
+	 * @index       string 		The index to operate on
+	 * @identifier 	string 		The identifier of the elasticsearch document
+	 * @contents    struct 		A struct of contents to update.  May contain script/doc information, along with upsert parameters  
+	 * @params      struct      A struct of params to provide to the deletion request
+	 * 
+	 * @return      void
+	 * 
+	 * @see         https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-update.html
+	 */
+	void function patch( required string index,  required string identifier, required struct contents, struct params = {} ){
+		return variables.nativeClient.patch( argumentCollection=arguments );
+	}
+
+	/**
 	* Deletes a single document
 	* @document 		Document 		the Document object for the document to be deleted
 	* @throwOnError 	boolean			whether to throw an error if the document cannot be deleted ( default: false )
+	* @params           struct          a struct of params to provide to the deletion request
+	*
+	* @return           boolean         (true|false) as to whether the doucument was deleted
+	*
+	* @see              https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete.html
 	**/
-	boolean function delete( required any document, boolean throwOnError=true ){
+	boolean function delete( required cbElasticsearch.models.Document document, boolean throwOnError=true, struct params = {} ){
 		return variables.nativeClient.delete( argumentCollection=arguments );
+	}
+
+	/**
+	* Deletes a single document when provided an index and identifier
+	*
+	* @index            string          the index to perform the operation on
+	* @identifier       string          the identifier of the document
+	* @throwOnError 	boolean			whether to throw an error if the document cannot be deleted ( default: false )
+	* @params           struct          a struct of params to provide to the deletion request
+	*
+	* @return           boolean         (true|false) as to whether the doucument was deleted
+	*
+	* @see              https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete.html
+	**/
+	boolean function deleteById( required string index, required string identifier, boolean throwOnError=true, params = {} ){
+		return variables.nativeClient.deleteById( argumentCollection=arguments );
 	}
 
 	/**
