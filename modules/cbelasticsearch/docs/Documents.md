@@ -114,7 +114,7 @@ for( var myStruct in myArray ){
         properties = myStruct
     );
 
-    arrayAppend( documents, doucument );
+    arrayAppend( documents, document );
 }
 
 getInstance( "Client@cbElasticsearch" ).saveAll( documents );
