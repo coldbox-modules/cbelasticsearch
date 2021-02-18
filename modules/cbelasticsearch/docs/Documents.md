@@ -100,7 +100,73 @@ You can also pass Document objects to the `Client`'s `save()` method:
 getInstance( "Client@cbElasticsearch" ).save( existingDocument );
 ```
 
-#### Bulk Inserts and Updates
+#### Updating individual fields in a document
+
+The `patch` method of the Client allows a user to update select fields, bypassing the need for a fully retrieved document.  This is similar to an `UPDATE foo SET bar = 'xyz' WHERE id = :id` query on a relational database.  The method requires an index name, identifier and a struct containing the keys to be updated:
+
+```
+getInstance( "Client@cbElasticsearch" ).patch( 
+    "bookshop",
+    bookId,
+    {
+        "title"  : "My Book Title - 1st Edition"
+    }
+);
+```
+
+Nested keys can also be updated using dot-notation:
+
+```
+getInstance( "Client@cbElasticsearch" ).patch(
+    "bookshop",
+    bookId,
+    {
+        "author.firstName"  : "Jonathan"
+    }
+);
+```
+
+#### Processing Bulk Operations
+
+Elasticsearch allows to you perform [bulk operations](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html), which allows a developer to queue multiple backend operations on the search indices and send them all at once.  The `processBulkOperation` method allows you to send a payload of operations in one batch. Note that create, update, and index actions require a `source` key, where as `delete` methods only require an `operation` key.  The schema of the `source` key follows the same schema's described in the [Bulk API Documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html):
+
+```
+var ops = [
+    {
+        "operation" : { "update" :  { "_index" : "bookshop", "_id" : "xyz" } },
+        "source" : {
+            "doc" : { "title" : "My Book Title - 1st Edition" }
+        }
+    },
+    {
+        "operation" : { "delete" : { "_index" : "otherindex", "_id" : "abc" } }
+    },
+    {
+        "operation" : { "update" : { "_index" : "bookshop", "_id" : "efg" } }
+        "source" : {
+            "doc" : {
+                "title" = "Elasticsearch for Coldbox - 2nd Edition",
+                "summary" = "A new version of the original great book on using Elasticsearch with the Coldbox framework",
+                "description" = "A long description with examples on why this book is great",
+                "author" = {
+                    "id" = 1,
+                    "firstName" = "Jon",
+                    "lastName" = "Clausen"
+                },
+                // date with specific format type
+                "publishDate" = dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
+                "edition" = 1,
+                "ISBN" = 123456789054321
+            },
+            "doc_as_upsert" : true
+        }
+    }
+];
+
+getInstance( "Client@cbElasticsearch" ).processBulkOperation( ops, { "refresh" : true } );
+```
+
+#### Bulk Saving of Documents
 
 Builk inserts and updates can be peformed by passing an array of `Document` objects to the Client's `saveAll()` method:
 

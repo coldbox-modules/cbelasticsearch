@@ -167,8 +167,82 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				} );
             });
 
+			it( "Tests the ability to perform bulk operations on multiple documents", function(){
+				var operations = [];
+				var docs = [];
+
+				for( var i=1; i <= 13; i++ ){
+
+					var bulkDoc  = {
+						"_id": createUUID(),
+						"title": "Test Bulk Insert Document Number #i#",
+						"createdTime": dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+					};
+
+					docs.append( bulkDoc );
+
+					operations.append(
+						{
+							"operation" : { "create" : { "_index" : variables.testIndexName, "_id" : bulkDoc[ "_id" ] } },
+							"source" : { "title" : bulkDoc.title, "createdTime" : bulkDoc.createdTime }
+						}
+					);
+					
+				}
+
+				var savedDocs = variables.model.processBulkOperation( operations, { "refresh" : true } );
+
+				expect( savedDocs )
+					.toBeStruct()
+					.toHaveKey( "errors" )
+					.toHaveKey( "items" );
+
+				expect( savedDocs.items ).toBeArray();
+
+				for( var i = 1; i  <= savedDocs.items.len(); i++ ){
+					expect( savedDocs.items[ i ] ).toHaveKey( "create" );
+					expect( savedDocs.items[ i ].create ).toHaveKey( "result" );
+					expect( savedDocs.items[ i ].create.result ).toBe( "created" );
+				}
+
+				// Update the first doc
+				operations[ 1 ].operation[ "update" ] = structCopy( operations[ 1 ].operation.create );
+				structDelete( operations[ 1 ].operation, "create" );
+				var updateTitle = "My Updated bulk insert Document Title";
+				operations[ 1 ].source = { "doc" : { "title" : updateTitle } };
+
+				// delete the remainder
+				for( var i = 2; i <= operations.len(); i++ ){
+					operations[ i ].operation[ "delete" ] = structCopy( operations[ i ].operation.create );
+					structDelete( operations[ i ].operation, "create" );
+					structDelete( operations[ i ], "source" );
+				}
+
+				debug( operations );
+
+				var bulkDocs = variables.model.processBulkOperation( operations, { "refresh" : true } );
+
+				expect( bulkDocs )
+					.toBeStruct()
+					.toHaveKey( "errors" )
+					.toHaveKey( "items" );
+
+				expect( bulkDocs.items ).toBeArray();
+
+				expect( bulkDocs.items[ 1 ] ).toHaveKey( "update" );
+				expect( bulkDocs.items[ 1 ].update ).toHaveKey( "result" );
+				expect( bulkDocs.items[ 1 ].update.result ).toBe( "updated" );
+
+				for( var i = 2; i <= bulkDocs.items.len(); i++ ){
+					expect( bulkDocs.items[ i ] ).toHaveKey( "delete" );
+					expect( bulkDocs.items[ i ].delete ).toHaveKey( "result" );
+					expect( bulkDocs.items[ i ].delete.result ).toBe( "deleted" );
+				}
+
+			});
+
             
-			it( "Tests the ability to perform bulk document updates/additions", function(){
+			it( "Tests the ability to perform bulk document saves with both updates and additions", function(){
 
 				var documents = [];
 
@@ -250,6 +324,56 @@ component extends="coldbox.system.testing.BaseTestCase"{
 				}).toThrow( "cbElasticsearch.HyperClient.BulkSaveException" );
 
 			} );
+
+			it( "tests the ability to delete multiple documents", function(){
+				var documents = [];
+
+				for( var i=1; i <= 13; i++ ){
+
+					var bulkDoc  = {
+						"_id": createUUID(),
+						"title": "Test Document Number #i#",
+						"createdTime": dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+					};
+
+					arrayAppend(
+						documents,
+						getInstance( "Document@cbElasticsearch" ).new(
+							variables.testIndexName,
+							"testdocs",
+							bulkDoc
+						)
+
+					);
+				}
+
+				var savedDocs = variables.model.saveAll( documents );
+
+				expect( savedDocs ).toBeArray();
+				expect( arrayLen( savedDocs ) ).toBe( 13 );
+
+				for( var result in savedDocs ){
+					expect( result ).toHaveKey( "result" );
+					expect( result.result ).toBe( "created" );
+					break;
+				}
+
+				var deletedDocs = variables.model.deleteAll( documents, true, { "refresh" : true } );
+
+				expect( deletedDocs )
+					.toBeStruct()
+					.toHaveKey( "errors" )
+					.toHaveKey( "items" );
+
+				expect( deletedDocs.items ).toBeArray();
+
+				for( var i = 1; i  <= deletedDocs.items.len(); i++ ){
+					expect( deletedDocs.items[ i ] ).toHaveKey( "delete" );
+					expect( deletedDocs.items[ i ].delete ).toHaveKey( "result" );
+					expect( deletedDocs.items[ i ].delete.result ).toBe( "deleted" );
+				}
+
+			});
 
 			it( "Tests the ability to retrieve a document by an _id value", function(){
 

@@ -1093,14 +1093,12 @@ component
 			);
             // ensure the _id value is normalized in to the doc for upserts
             var memento = doc.getMemento();
-            if( !isNull( doc.getId() ) ){
-                memento[ "_id" ] = doc.getId();
-			}
+			structDelete( memento, "_id" );
 
 			if( !isNull( doc.getPipeline() ) ){
-				if( !len( saveRequest.getQueryParam( "pipeline" ) ) ){
-					saveRequest.setQueryParam( "pipeline", doc.getPipeline() );
-				} else if( saveRequest.getQueryParam( "pipeline" ) != doc.getPipeline()  ){
+				if( params.keyExists( "pipeline" ) ){
+					params[ "pipeline" ] = doc.getPipeline();
+				} else if( params.pipeline != doc.getPipeline()  ){
 					throw(
 						type="cbElasticsearch.HyperClient.IllegalBulkSaveParam",
 						message="The documents provided for bulk save contained multiple pipeline configurations. All documents in the bulk save request must share the same pipeline."
@@ -1109,50 +1107,24 @@ component
 			}
 			
             requests.append(
-                {
-                    "doc" : memento,
-					"doc_as_upsert" : true,
-					"_index" : doc.getIndex()
-                }
+				[
+					{
+						"update" : { "_index" : doc.getIndex(), "_id" : doc.getId() }
+					},
+					{
+						"doc" : memento,
+						"doc_as_upsert": true
+					}
+				],
+				true
             );
 		} );
 
-        var saveResult = saveRequest
-							.setBody( 
-								requests.reduce( 
-									function( acc, action ){
-										var updateObj = {
-											"update" : {
-												"_index" : action._index
-											}
-										};
-										
-										if( action.doc.keyExists( "_id" ) ){
-											updateObj.update[ "_id" ] = action.doc._id;
-										}
-
-										structDelete( action, "_index" );
-										structDelete( action.doc, "_id" );
-
-										// action directive
-										acc &= getUtil().toJSON( updateObj ) & chr(10);
-
-										// document directive
-										acc &= getUtil().toJSON( action ) & chr(10);
-										
-										return acc;
-									},
-									""
-								)
-							)
-							.send();
-
-
-		if( arguments.throwOnError && structKeyExists( saveResult.json(), "error" ) ){
-			onResponseFailure( saveResult );
-		} else {
-			saveResult = saveResult.json();
-		}
+        var saveResult = processBulkOperation(
+			operations = requests,
+			params = arguments.params,
+			throwOnError = arguments.throwOnError
+		);
 
 		var results = [];
 		
@@ -1204,15 +1176,16 @@ component
 
 	/**
 	* Deletes documents from an array of documents or IDs
-	* @documents 	array 		Either an array of Document objects
-	* @throwOnError 	boolean			whether to throw an error if the document cannot be deleted ( default: false )
+	* @documents 		array 		Either an array of Document objects
+	* @throwOnError 	boolean		whether to throw an error if the document cannot be deleted ( default: false )
+	* @params           struct      A struct containing the parameters of the request
 	**/
 	any function deleteAll(
 		required array documents,
-		boolean throwOnError=false
+		boolean throwOnError=false,
+		struct params = {}
 	){
 
-        
         var requests = [];
 
         arguments.documents.each( function( doc ){
@@ -1223,27 +1196,57 @@ component
             );
         } );
 
-        var deleteResult = variables.nodePool.newRequest( 
+		return processBulkOperation(
+			requests,
+			arguments.params,
+			arguments.throwOnError
+		);
+
+	}
+
+
+	/**
+	 * Processes a bulk operation against one or a number of instances
+	 *
+	 * @operations  	array 		An array of operations to perform
+	 * @params          struct      Parameters to apply on the request
+	 * @throwOnError    boolean     Whether to throw an error if the result was unsuccessful
+	 * 
+	 * @see             https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html
+	 */
+	any function processBulkOperation( required array operations, struct params = {}, boolean throwOnError = true ){
+		var bulkRequest = variables.nodePool.newRequest( 
                                 "_bulk",
                                 "POST" 
                             )
                             .setBody( 
-                                requests.reduce( 
+                                arguments.operations.reduce( 
                                     function( acc, action ){
-                                        acc &= getUtil().toJSON( action ) & chr(13);
+										if( action.keyExists( "operation" ) ){
+											acc &= getUtil().toJSON( action.operation ) & chr(10);
+											if( action.keyExists( "source" ) ){
+												acc &= getUtil().toJSON( action.source ) & chr(10);
+											}
+										} else {
+											acc &= getUtil().toJSON( action ) & chr(10);
+										}
 										return acc;
                                     },
                                     ""
-                                )
-                            )
-                            .send();
+                                ) & chr( 10 )
+                            );
 
+		parseParams( arguments.params ).each( function( param ){
+			bulkRequest.setQueryParam( param.name, param.value );
+		} );
+		
+        var bulkResult = bulkRequest.send();
 
-		if( arguments.throwOnError && structKeyExists( deleteResult.json(), "error" ) ){
-			onResponseFailure( deleteResult );
+		if( arguments.throwOnError && structKeyExists( bulkResult.json(), "error" ) ){
+			onResponseFailure( bulkResult );
 		}
 
-		return true;
+		return bulkResult.json();
 
 	}
 	

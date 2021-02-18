@@ -265,6 +265,17 @@ interface{
 	);
 
 	/**
+	 * Processes a bulk operation against one or a number of instances
+	 *
+	 * @operations  	array 		An array of operations to perform
+	 * @params          struct      Parameters to apply on the request
+	 * @throwOnError    boolean     Whether to throw an error if the result was unsuccessful
+	 * 
+	 * @see             https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html
+	 */
+	any function processBulkOperation( required array operations, struct params = {}, boolean throwOnError = true );
+
+	/**
 	 * Parses a parameter argument.
 	 * upports multiple formats : `requests_per_second=50&slices=5`, `{ "requests_per_second" : 50, "slices" : 5 }`, or `[ { "name" : "requests_per_second", "value" : 50 } ]` )
 	 *

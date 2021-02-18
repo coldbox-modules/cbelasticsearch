@@ -394,6 +394,19 @@ component
 	}
 
 	/**
+	 * Processes a bulk operation against one or a number of instances
+	 *
+	 * @operations  	array 		An array of operations to perform
+	 * @params          struct      Parameters to apply on the request
+	 * @throwOnError    boolean     Whether to throw an error if the result was unsuccessful
+	 * 
+	 * @see             https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html
+	 */
+	any function processBulkOperation( required array operations, struct params = {}, boolean throwOnError = true ){
+		return variables.nativeClient.processBulkOperation( argumentCollection = arguments );
+	}
+
+	/**
 	 * Ingest Pipeline Management
 	 */
 
