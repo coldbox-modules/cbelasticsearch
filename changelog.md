@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [2.2.0] - Unreleased
+## [2.2.0] - 2021-02-18
 ### Added
 - Added `patch` method to client to allow for partial document updates
 - Added `deleteById` method to client to prevent overhead of Document-based deletions when identifier and index are known
