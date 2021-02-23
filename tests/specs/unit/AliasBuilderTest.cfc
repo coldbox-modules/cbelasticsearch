@@ -85,6 +85,46 @@ component extends="coldbox.system.testing.BaseTestCase"{
                 expect( variables.client.indexExists( aliasNameOne) ).toBeFalse();
                 expect( variables.client.indexExists( aliasNameTwo ) ).toBeTrue();
             } );
+
+            it( "tests the save() ability to create an alias", function() {
+                // create an alias
+                var aliasName = lcase( "AliasBuilderTestsAlias" );
+
+                var addAliasAction = getWireBox().getInstance( "AliasBuilder@cbElasticSearch" )
+                    .new(
+                        action = "add",
+                        indexName = variables.testIndexName,
+                        aliasName = aliasName
+                    )
+                    .save();
+                // verify the alias as an index
+                expect( variables.client.indexExists( aliasName ) ).toBeTrue();
+            } );
+
+            it( "tests the save() ability to remove an alias", function() {
+                // create an alias
+                var aliasName = lcase( "AliasBuilderTestsAlias" );
+
+                var addAliasAction = getWireBox().getInstance( "AliasBuilder@cbElasticSearch" )
+                    .new(
+                        action = "add",
+                        indexName = variables.testIndexName,
+                        aliasName = aliasName
+                    )
+                    .save();
+
+                // now remove the alias
+                var removeAliasAction = getWireBox().getInstance( "AliasBuilder@cbElasticSearch" )
+                    .new(
+                        action = "remove",
+                        indexName = variables.testIndexName,
+                        aliasName = aliasName
+                    )
+                    .save();
+
+                // verify the alias as an index
+                expect( variables.client.indexExists( aliasName ) ).toBeFalse();
+            } );
 		} );
 	}
 
