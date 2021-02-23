@@ -25,4 +25,15 @@ component accessors="true" {
         return this;
     }
 
+    /**
+    * Client provider
+    **/
+    Client function getClient() provider="Client@cbElasticsearch"{}
+
+    /**
+    * Persists the alias add/remove action to Elasticsearch
+    **/
+    function save(){
+        return getClient().applyAliases( this );
+    }
 }
