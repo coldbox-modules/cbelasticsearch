@@ -21,9 +21,9 @@ On types:
 
 In short, indexes have a higher overhead and make the aggregation of search results between types very more expensive.  If it is desired that your application search interfaces return multiple entity or domain types, then those should respresent distinctive types within a single index, allowing them to be aggregated, sorted, and ordered in search results.
 
-### Retreiving information on Indices
+### Retrieving information on Indices
 
-To retreive a list of all indices on the connected cluster, use the client `getIndices` method:
+To retrieve a list of all indices on the connected cluster, use the client `getIndices` method:
 
 ```
 var indexMap = getInstance( "Client@cbElasticsearch" ).getIndices();
@@ -170,9 +170,9 @@ indexBuilder.patch(
 * [Elasticsearch Mapping Guide](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html)
 * [Index Settings Reference](https://www.elastic.co/guide/en/elasticsearch/guide/current/_index_settings.html)
 
-### Retreiving information on Aliases
+### Retrieving information on Aliases
 
-The client's `getAliases` method allows you to retreive a map containing information on aliases in use in the connected cluster.
+The client's `getAliases` method allows you to retrieve a map containing information on aliases in use in the connected cluster.
 
 ```
 var aliasMap = getInstance( "Client@cbElasticsearch" ).getAliases();
@@ -183,8 +183,25 @@ The corresponding object will have two keys: `aliases` and `unassgined`. The for
 
 ## Alias Builder
 
-cbElasticSearch can add or remove aliases in bulk using the `applyAliases` method
-on the cbElasticSearch client.
+cbElasticSearch offers the `AliasBuilder` for assistance in adding and removing index aliases.
+
+For creating an alias:
+
+```
+getWireBox().getInstance( "AliasBuilder@cbElasticSearch" )
+    .add( indexName = "myIndex", aliasName = "newAlias" )
+    .save();
+```
+
+For removing an alias:
+
+```
+getWireBox().getInstance( "AliasBuilder@cbElasticSearch" )
+    .remove( indexName = "otherIndex", aliasName = "randomAlias" )
+    .save();
+```
+
+For bulk operations, use the cbElasticSearch client's `applyAliases` method. These operations are performed in the same transaction (i.e. atomic), so it's safe to use for switching the alias from one index to another.
 
 ```
 var removeAliasAction = getWireBox().getInstance( "AliasBuilder@cbElasticSearch" )
@@ -197,10 +214,6 @@ variables.client.applyAliases(
     aliases = [ removeAliasAction, addNewAliasAction ]
 );
 ```
-
-These operations will be done in the same transaction, so it's safe to use for
-switching the alias from one index to another.
-
 
 ## Mapping Builder
 
