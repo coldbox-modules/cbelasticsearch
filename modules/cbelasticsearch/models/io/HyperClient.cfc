@@ -243,18 +243,24 @@ component
 	**/
 	boolean function indexMappingExists( required string indexName ){
 
-        var request =  variables.nodePool
+        	var request =  variables.nodePool
                         .newRequest( 
                             arguments.indexName & '/_mapping',
                             "GET"
                         ).send();
-        return ( 
-            request.getStatusCode() == 200
-            &&
-            !structIsEmpty( request.json() ) 
-        );
+
+		if( request.getStatusCode() >= 500 ) {
+			onResponseFailure( response );
+		} else {
+			return ( 
+				request.getStatusCode() == 200
+				&&
+				!structIsEmpty( request.json() ) 
+			);
+		}
 
 	}
+
 
 	/**
 	* Applies an index item ( create/update )
