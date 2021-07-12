@@ -16,10 +16,9 @@ component{
 	this.mappings[ "/root" ]   = rootPath;
 
 	//example CF Mappings
-	this.mappings[ "/cbElasticsearch" ] 	= rootPath & "modules/elasticsearch";
-	this.mappings[ "/cbjavaloader" ] 	= rootPath & "modules/cbjavaloader";
-
-	// any orm definitions go here.
+	this.mappings[ "/cbElasticsearch" ] = rootPath & "modules/cbelasticsearch";
+	this.mappings[ "/cbjavaloader" ]    = rootPath & "modules/cbjavaloader";
+	this.mappings[ "/coldbox" ]         = rootPath & "coldbox";
 
 	function onRequestStart(){
 
