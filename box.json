@@ -9,17 +9,17 @@
         "hyper":"^2.3.1"
     },
     "devDependencies":{
-        "workbench":"git+https://github.com/Ortus-Solutions/unified-workbench.git",
-        "testbox":"^3.0.0"
+        "coldbox":"^6.0",
+        "testbox":"^3.0.0",
+        "hyper":"3.0.0"
     },
     "installPaths":{
         "testbox":"testbox/",
         "coldbox":"coldbox/",
-        "workbench":"workbench/",
         "hyper":"modules/hyper/"
     },
     "testbox":{
-        "runner":"http://localhost:49616/tests/runner.cfm"
+        "runner":"http://localhost:60299/tests/runner.cfm"
     },
     "scripts":{
         "postVersion":"recipe workbench/bump.boxr"

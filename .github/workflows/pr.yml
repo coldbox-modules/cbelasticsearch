@@ -1,0 +1,130 @@
+name: Pull Requests
+
+on:
+  push:
+    branches-ignore:
+      - "main"
+      - "master"
+      - "development"
+  pull_request:
+    branches:
+      - development
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-20.04
+    env:
+      ELASTICSEARCH_PROTOCOL: http
+      ELASTICSEARCH_HOST: 127.0.0.1
+      ELASTICSEARCH_PORT: 9200
+    strategy:
+      fail-fast: true
+      # matrix:
+      #   cfengine: ["lucee@5", "adobe@2016", "adobe@2018"]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup Database and Fixtures
+        run: |
+          sudo /etc/init.d/mysql start
+          mysql -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }} -e 'CREATE DATABASE coolblog;'
+          mysql -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }} < tests/resources/db/coolblog.sql
+
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: "adopt"
+          java-version: "8"
+
+      - name: Setup CommandBox
+        uses: elpete/setup-commandbox@v1.0.0
+
+      - name: Configure sysctl limits for Elasticsearch
+        run: |
+          sudo swapoff -a
+          sudo sysctl -w vm.swappiness=1
+          sudo sysctl -w fs.file-max=262144
+          sudo sysctl -w vm.max_map_count=262144
+
+      - name: Setup Elasticsearch
+        uses: getong/elasticsearch-action@v1.2
+        with:
+          elasticsearch version: '7.6.1'
+          host port: ${{ env.DB_PASSWORD }}
+          container port: 9200
+          host node port: 9300
+          node port: 9300
+          discovery type: 'single-node'
+      # - name: Setup .env For Runner
+      #   run: |
+      #     touch .env
+      #     printf "DB_HOST=127.0.0.1\n" >> .env
+      # - name: Add Hibernate Logging
+      #   if: "${{ matrix.cfengine != 'lucee@5' }}"
+      #   run: |
+      #     # Log4j Hibernate Debug
+      #     mkdir -p .engines/acf2016/WEB-INF/cfusion/lib/
+      #     mkdir -p .engines/acf2018/WEB-INF/cfusion/lib/
+      #     cp build/resources/log4j.properties .engines/acf2016/WEB-INF/cfusion/lib/
+      #     cp build/resources/log4j.properties .engines/acf2018/WEB-INF/cfusion/lib/
+      - name: Install Dependencies
+        run: |
+          box install
+          box install commandbox-cfconfig,commandbox-dotenv,commandbox-docbox
+
+      - name: Start ${{ matrix.cfengine }} Server
+        run: |
+          box server start serverConfigFile="server-${{ matrix.cfengine }}.json" --debug
+          curl http://127.0.0.1:60299
+
+      - name: Run Web App Tests
+        run: |
+          mkdir -p tests/results
+          box package set testbox.runner="http://127.0.0.1:60299/tests/runner.cfm"
+          box testbox run --verbose outputFile=tests/results outputFormats=json,antjunit
+
+      - name: Publish PR Test Reports
+        uses: mikepenz/action-junit-report@v2
+        with:
+          report_paths: 'tests/results/**/*.xml'
+          summary: true
+
+      - name: Upload Test Results Artifacts
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: cbelasticsearch-test-results-${{ matrix.cfengine }}
+          path: |
+            tests/results/**/*
+
+      - name: Failure debugging
+        if: ${{ failure() }}
+        run: box server log serverConfigFile="server-${{ matrix.cfengine }}.json"
+  # format:
+  #   name: Format
+  #   runs-on: ubuntu-20.04
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v2
+
+  #     - name: Setup Java
+  #       uses: actions/setup-java@v2
+  #       with:
+  #         distribution: "adopt"
+  #         java-version: "11"
+
+  #     - name: Set Up CommandBox
+  #       uses: elpete/setup-commandbox@v1.0.0
+
+  #     - name: Install CFFormat
+  #       run: box install commandbox-cfformat
+
+  #     - name: Run CFFormat
+  #       run: box run-script format
+
+  #     - name: Commit Format Changes
+  #       uses: stefanzweifel/git-auto-commit-action@v4
+  #       with:
+  #         commit_message: Apply cfformat changes
