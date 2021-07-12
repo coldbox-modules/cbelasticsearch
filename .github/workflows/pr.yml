@@ -26,12 +26,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Setup Database and Fixtures
-        run: |
-          sudo /etc/init.d/mysql start
-          mysql -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }} -e 'CREATE DATABASE coolblog;'
-          mysql -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }} < tests/resources/db/coolblog.sql
-
       - name: Setup Java
         uses: actions/setup-java@v2
         with:
