@@ -19,10 +19,11 @@
         "hyper":"modules/hyper/"
     },
     "testbox":{
-        "runner":"http://localhost:60299/tests/runner.cfm"
+        "runner":"http://127.0.0.1:60299/tests/runner.cfm"
     },
     "scripts":{
         "postVersion":"recipe workbench/bump.boxr",
+        "build:apidocs": "docbox generate mapping=cbelasticsearch source=modules/cbelasticsearch excludes=tests|docs|ModuleConfig strategy-outputDir=.tmp/apidocs strategy-projectTitle=cbElasticSearch",
         "format":"cfformat run modules/cbelasticsearch/models/**/*.cfc,tests/specs/**/*.cfc --overwrite"
     }
 }
