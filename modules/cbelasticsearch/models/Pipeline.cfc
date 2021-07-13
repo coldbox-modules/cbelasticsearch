@@ -1,73 +1,72 @@
-component accessors="true" threadSafe{
+component accessors="true" threadSafe {
 
-    property name="Util" inject="Util@cbelasticsearch";
+	property name="Util" inject="Util@cbelasticsearch";
 
-    /**
-     * The identifier of the pipeline
-     */
-    property name="id";
+	/**
+	 * The identifier of the pipeline
+	 */
+	property name="id";
 
-    /**
-     * Description
-     */
-    property name="description";
+	/**
+	 * Description
+	 */
+	property name="description";
 
-    /**
-     * Version - not used internally by elasticsearch
-     */
-    property name="version";
+	/**
+	 * Version - not used internally by elasticsearch
+	 */
+	property name="version";
 
-    /**
-     * The array of processors used in this pipeline
-     */
-    property name="processors" type="array";
+	/**
+	 * The array of processors used in this pipeline
+	 */
+	property name="processors" type="array";
 
-    /**
-     * Provider for the client
-     */
-    cbElasticsearch.models.Client function getClient() provider="Client@cbElasticsearch"{}
-
-
-    cbElasticsearch.models.Pipeline function init( struct definition ){
-        variables.description = "";
-        variables.processors = [];
-
-        return !isNull( arguments.definition ) ? this.new( definition ) : this;
-    }
+	/**
+	 * Provider for the client
+	 */
+	cbElasticsearch.models.Client function getClient() provider="Client@cbElasticsearch"{
+	}
 
 
-    cbElasticsearch.models.Pipeline function new( struct definition ){
+	cbElasticsearch.models.Pipeline function init( struct definition ){
+		variables.description = "";
+		variables.processors  = [];
 
-        structAppend( variables, definition, true );
+		return !isNull( arguments.definition ) ? this.new( definition ) : this;
+	}
 
-        return this;
-    }
 
-    cbElasticsearch.models.Pipeline function addProcessor( required struct processor ){
-        variables.processors.append( processor );
-        return this;
-    }
+	cbElasticsearch.models.Pipeline function new( struct definition ){
+		structAppend( variables, definition, true );
 
-    struct function getDSL(){
+		return this;
+	}
 
-        var dsl = {
-            "description" : variables.description,
-            "processors" : variables.processors
-        };
+	cbElasticsearch.models.Pipeline function addProcessor( required struct processor ){
+		variables.processors.append( processor );
+		return this;
+	}
 
-        if( !isNull( variables.version ) ){
-            dsl[ "version" ] = variables.version;
-        }
+	struct function getDSL(){
+		var dsl = {
+			"description" : variables.description,
+			"processors"  : variables.processors
+		};
 
-        return dsl;
-    }
+		if ( !isNull( variables.version ) ) {
+			dsl[ "version" ] = variables.version;
+		}
 
-    string function getJSON(){
-        return Util.toJSON( getDSL() );
-    }
+		return dsl;
+	}
 
-    any function save(){
-        return getClient().applyPipeline( this );
-    }
+	string function getJSON(){
+		return Util.toJSON( getDSL() );
+	}
+
+	any function save(){
+		return getClient().applyPipeline( this );
+	}
 
 }
