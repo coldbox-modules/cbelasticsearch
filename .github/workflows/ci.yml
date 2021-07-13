@@ -68,12 +68,12 @@ jobs:
         run: |
           docker run -v ${PWD}:/app -w /app repos.silowebworks.com:5443/pub/docker-base:commandbox-ant-builder /bin/sh -c "ant build -f /app/workbench/build.xml -Dbuild.branch=${{ env.GITHUB_REF }} -Dproject.buildNumber=${{ env.GITHUB_RUN_NUMBER }}"
       
-      # - name: Install and Configure CommandBox modules
-      #   run: |
-      #     box install commandbox-docbox
+      - name: Install and Configure CommandBox modules
+        run: |
+          box install commandbox-docbox
 
-      # - name: Generate API Docs
-      #   run: box run-script build:apidocs
+      - name: Generate API Docs
+        run: box run-script build:apidocs
 
       # - name: Upload API Docs to S3
       #   uses: jakejarvis/s3-sync-action@master

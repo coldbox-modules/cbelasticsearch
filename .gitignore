@@ -20,6 +20,7 @@ _book/*
 
 
 # Build artifacts
+.tmp/apidocs
 artifacts/*
 apidocs/docbox/*
 workbench/*
