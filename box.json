@@ -22,6 +22,7 @@
         "runner":"http://localhost:60299/tests/runner.cfm"
     },
     "scripts":{
-        "postVersion":"recipe workbench/bump.boxr"
+        "postVersion":"recipe workbench/bump.boxr",
+        "format":"cfformat run modules/cbelasticsearch/models/**/*.cfc,tests/specs/**/*.cfc --overwrite"
     }
 }

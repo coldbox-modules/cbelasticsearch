@@ -57,12 +57,12 @@ jobs:
         run: |
           mkdir -p tests/results
           box package set testbox.runner="http://127.0.0.1:60299/tests/runner.cfm"
-          box testbox run --verbose outputFile=tests/results outputFormats=json,antjunit
+          box testbox run --verbose outputFile=tests/results/web outputFormats=json,antjunit
 
       - name: Publish PR Test Reports
         uses: mikepenz/action-junit-report@v2
         with:
-          report_paths: 'tests/results/**/*.xml'
+          report_paths: 'tests/results/*.xml'
           summary: true
 
       - name: Upload Test Results Artifacts
@@ -76,29 +76,29 @@ jobs:
       - name: Failure debugging
         if: ${{ failure() }}
         run: box server log serverConfigFile="server-${{ env.cfengine }}.json"
-  # format:
-  #   name: Format
-  #   runs-on: ubuntu-20.04
-  #   steps:
-  #     - name: Checkout Repository
-  #       uses: actions/checkout@v2
+  format:
+    name: Format
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
-  #     - name: Setup Java
-  #       uses: actions/setup-java@v2
-  #       with:
-  #         distribution: "adopt"
-  #         java-version: "11"
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: "adopt"
+          java-version: "11"
 
-  #     - name: Set Up CommandBox
-  #       uses: elpete/setup-commandbox@v1.0.0
+      - name: Set Up CommandBox
+        uses: elpete/setup-commandbox@v1.0.0
 
-  #     - name: Install CFFormat
-  #       run: box install commandbox-cfformat
+      - name: Install CFFormat
+        run: box install commandbox-cfformat
 
-  #     - name: Run CFFormat
-  #       run: box run-script format
+      - name: Run CFFormat
+        run: box run-script format
 
-  #     - name: Commit Format Changes
-  #       uses: stefanzweifel/git-auto-commit-action@v4
-  #       with:
-  #         commit_message: Apply cfformat changes
+      - name: Commit Format Changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Apply cfformat changes
