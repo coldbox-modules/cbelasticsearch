@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       ELASTICSEARCH_PROTOCOL: http
-      ELASTICSEARCH_HOST: 127.0.0.1
+      ELASTICSEARCH_HOST: es1
       ELASTICSEARCH_PORT: 9200
       cfengine: lucee@5
     strategy:
