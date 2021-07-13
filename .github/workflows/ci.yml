@@ -58,22 +58,15 @@ jobs:
       - name: Set Up CommandBox
         uses: elpete/setup-commandbox@v1.0.0
 
-      - name: Install Apache Ant
-        run: |
-          wget --no-check-certificate https://apache.claz.org//ant/binaries/apache-ant-1.10.9-bin.tar.gz
-          tar -xzf apache-ant-1.10.9-bin.tar.gz
-          export PATH=`pwd`/apache-ant-1.10.9/bin:$PATH
-          echo $(ant -version)
-
-      - name: Setup Ortus Workbench
+      - name: Setup Release Properties
         run: |
           box install "git+https://github.com/Ortus-Solutions/unified-workbench.git" workbench
           printf "\nmodule.name=${{ env.MODULE_ID }}" >> workbench/build.properties
           printf "\ncfengine=${{ matrix.cfengine}}" >> workbench/build.properties
           
-      - name: Build Release using WorkBench
+      - name: Run Ant Release
         run: |
-          ant -DisTravis=false -Dbuild.number=${{ env.GITHUB_RUN_NUMBER }} -Dbuild.branch=${{ env.GITHUB_REF }} -f workbench/build.xml
+          docker run -v ${PWD}:/app -w /app repos.silowebworks.com:5443/pub/docker-base:commandbox-ant-builder /bin/sh -c "ant package -f build.xml -Dbuild.branch=${{ env.GITHUB_REF }} -Dproject.buildNumber=${{ env.GITHUB_RUN_NUMBER }}"
       
       # - name: Install and Configure CommandBox modules
       #   run: |
