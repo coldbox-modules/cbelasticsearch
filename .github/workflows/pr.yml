@@ -16,8 +16,9 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       ELASTICSEARCH_PROTOCOL: http
-      ELASTICSEARCH_HOST: es1
+      ELASTICSEARCH_HOST: 127.0.0.1
       ELASTICSEARCH_PORT: 9200
+      ELASTICSEARCH_VERSION: 7.8.0-amd64
       cfengine: lucee@5
     strategy:
       fail-fast: true
@@ -36,34 +37,13 @@ jobs:
       - name: Setup CommandBox
         uses: elpete/setup-commandbox@v1.0.0
 
-      - name: Configure sysctl limits for Elasticsearch
-        run: |
-          sudo swapoff -a
-          sudo sysctl -w vm.swappiness=1
-          sudo sysctl -w fs.file-max=262144
-          sudo sysctl -w vm.max_map_count=262144
-
       - name: Setup Elasticsearch
-        uses: getong/elasticsearch-action@v1.2
-        with:
-          elasticsearch version: '7.6.1'
-          host port: ${{ env.DB_PASSWORD }}
-          container port: 9200
-          host node port: 9300
-          node port: 9300
-          discovery type: 'single-node'
-      # - name: Setup .env For Runner
-      #   run: |
-      #     touch .env
-      #     printf "DB_HOST=127.0.0.1\n" >> .env
-      # - name: Add Hibernate Logging
-      #   if: "${{ matrix.cfengine != 'lucee@5' }}"
-      #   run: |
-      #     # Log4j Hibernate Debug
-      #     mkdir -p .engines/acf2016/WEB-INF/cfusion/lib/
-      #     mkdir -p .engines/acf2018/WEB-INF/cfusion/lib/
-      #     cp build/resources/log4j.properties .engines/acf2016/WEB-INF/cfusion/lib/
-      #     cp build/resources/log4j.properties .engines/acf2018/WEB-INF/cfusion/lib/
+        run: |
+          docker run -d -p "${{ env.ELASTICSEARCH_PORT }}:9200" -e 'discovery.type=single-node' elasticsearch:${{ env.ELASTICSEARCH_VERSION }}
+# Remove our secondary client tests and module since travis only has one instance of ES available
+          rm -rf modules_app
+          rm -f tests/specs/unit/SecondaryClientTest.cfc
+
       - name: Install Dependencies
         run: |
           box install
