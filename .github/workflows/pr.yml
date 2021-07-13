@@ -40,7 +40,6 @@ jobs:
       - name: Setup Elasticsearch
         run: |
           docker run -d -p "${{ env.ELASTICSEARCH_PORT }}:9200" -e 'discovery.type=single-node' elasticsearch:${{ env.ELASTICSEARCH_VERSION }}
-# Remove our secondary client tests and module since travis only has one instance of ES available
           rm -rf modules_app
           rm -f tests/specs/unit/SecondaryClientTest.cfc
 
