@@ -1,8 +1,8 @@
 on:
   push:
     branches:
-      - main
       - master
+      - development
 
 jobs:
   # TODO: Reuse pr.yml test runner setup
@@ -60,7 +60,7 @@ jobs:
 
       - name: Install Apache Ant
         run: |
-          wget --no-check-certificate http://www.gtlib.gatech.edu/pub/apache/ant/binaries/apache-ant-1.10.9-bin.tar.gz
+          wget --no-check-certificate https://apache.claz.org//ant/binaries/apache-ant-1.10.9-bin.tar.gz
           tar -xzf apache-ant-1.10.9-bin.tar.gz
           export PATH=`pwd`/apache-ant-1.10.9/bin:$PATH
           echo $(ant -version)
