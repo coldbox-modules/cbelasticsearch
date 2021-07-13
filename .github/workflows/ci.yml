@@ -60,7 +60,7 @@ jobs:
 
       - name: Setup Release Properties
         run: |
-          box install "git+https://github.com/Ortus-Solutions/unified-workbench.git" workbench
+          box install
           mv build.xml workbench/build.xml
           printf "\ncfengine=${{ matrix.cfengine}}" >> .module.properties
           

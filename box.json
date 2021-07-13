@@ -11,19 +11,21 @@
     "devDependencies":{
         "coldbox":"^6.0",
         "testbox":"^3.0.0",
-        "hyper":"3.0.0"
+        "hyper":"3.0.0",
+        "workbench":"git+https://github.com/Ortus-Solutions/unified-workbench.git"
     },
     "installPaths":{
         "testbox":"testbox/",
         "coldbox":"coldbox/",
-        "hyper":"modules/hyper/"
+        "hyper":"modules/hyper/",
+        "workbench":"workbench/"
     },
     "testbox":{
         "runner":"http://127.0.0.1:60299/tests/runner.cfm"
     },
     "scripts":{
         "postVersion":"recipe workbench/bump.boxr",
-        "build:apidocs": "docbox generate mapping=cbelasticsearch source=modules/cbelasticsearch excludes=tests|docs|ModuleConfig strategy-outputDir=.tmp/apidocs strategy-projectTitle=cbElasticSearch",
+        "build:apidocs":"docbox generate mapping=cbelasticsearch source=modules/cbelasticsearch excludes=tests|docs|ModuleConfig strategy-outputDir=.tmp/apidocs strategy-projectTitle=cbElasticSearch",
         "format":"cfformat run modules/cbelasticsearch/models/**/*.cfc,tests/specs/**/*.cfc --overwrite"
     }
 }
