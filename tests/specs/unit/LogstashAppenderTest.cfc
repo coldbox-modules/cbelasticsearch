@@ -41,10 +41,10 @@ component extends="coldbox.system.testing.BaseTestCase"{
 	}
 
 	function afterAll(){
-
-		super.afterAll();
 		
 		variables.model.getClient().deleteIndex( variables.model.getRotationalIndexName() );
+
+		super.afterAll();
 		
 	}
 
