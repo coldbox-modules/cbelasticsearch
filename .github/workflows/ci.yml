@@ -61,12 +61,11 @@ jobs:
       - name: Setup Release Properties
         run: |
           box install "git+https://github.com/Ortus-Solutions/unified-workbench.git" workbench
-          printf "\nmodule.name=${{ env.MODULE_ID }}" >> workbench/build.properties
-          printf "\ncfengine=${{ matrix.cfengine}}" >> workbench/build.properties
+          printf "\ncfengine=${{ matrix.cfengine}}" >> .module.properties
           
       - name: Run Ant Release
         run: |
-          docker run -v ${PWD}:/app -w /app repos.silowebworks.com:5443/pub/docker-base:commandbox-ant-builder /bin/sh -c "ant package -f build.xml -Dbuild.branch=${{ env.GITHUB_REF }} -Dproject.buildNumber=${{ env.GITHUB_RUN_NUMBER }}"
+          docker run -v ${PWD}:/app -w /app repos.silowebworks.com:5443/pub/docker-base:commandbox-ant-builder /bin/sh -c "ant package -f /app/build.xml -Dbuild.branch=${{ env.GITHUB_REF }} -Dproject.buildNumber=${{ env.GITHUB_RUN_NUMBER }}"
       
       # - name: Install and Configure CommandBox modules
       #   run: |
