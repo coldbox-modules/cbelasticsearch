@@ -66,7 +66,7 @@ jobs:
           
       - name: Run Ant Release
         run: |
-          docker run -v ${PWD}:/app -w /app repos.silowebworks.com:5443/pub/docker-base:commandbox-ant-builder /bin/sh -c "ant package -f /app/workbench/build.xml -Dbuild.branch=${{ env.GITHUB_REF }} -Dproject.buildNumber=${{ env.GITHUB_RUN_NUMBER }}"
+          docker run -v ${PWD}:/app -w /app repos.silowebworks.com:5443/pub/docker-base:commandbox-ant-builder /bin/sh -c "ant build -f /app/workbench/build.xml -Dbuild.branch=${{ env.GITHUB_REF }} -Dproject.buildNumber=${{ env.GITHUB_RUN_NUMBER }}"
       
       # - name: Install and Configure CommandBox modules
       #   run: |
@@ -86,6 +86,24 @@ jobs:
       #     SOURCE_DIR: ".tmp/apidocs"
       #     DEST_DIR: ""
 
+      # - name: Upload Build Artifacts
+      #   if: success()
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: contentbox-variants
+      #     path: |
+      #       artifacts/**/*
+
+      # - name: Upload Binaries to S3
+      #   uses: jakejarvis/s3-sync-action@master
+      #   with:
+      #     args: --acl public-read
+      #   env:
+      #     AWS_S3_BUCKET: "downloads.ortussolutions.com"
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_SECRET }}
+      #     SOURCE_DIR: "artifacts"
+      #     DEST_DIR: "ortussolutions"
       # - name: Get Current Version
       #   id: current_version
       #   run: echo "::set-output name=version::`cat $TRAVIS_BUILD_DIR/box.json | jq '.version' -r`"
