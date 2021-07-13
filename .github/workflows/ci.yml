@@ -5,36 +5,37 @@ on:
       - master
 
 jobs:
-  tests:
-    name: Tests
-    if: "!contains(github.event.head_commit.message, '__SEMANTIC RELEASE VERSION UPDATE__')"
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: true
-    env:
-      MODULE_ID: cbelasticsearch
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+  # TODO: Reuse pr.yml test runner setup
+  # tests:
+  #   name: Tests
+  #   if: "!contains(github.event.head_commit.message, '__SEMANTIC RELEASE VERSION UPDATE__')"
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     fail-fast: true
+  #   env:
+  #     MODULE_ID: cbelasticsearch
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v2
 
-      - name: Setup Java JDK
-        uses: actions/setup-java@v1.4.3
-        with:
-          java-version: 11 
+  #     - name: Setup Java JDK
+  #       uses: actions/setup-java@v1.4.3
+  #       with:
+  #         java-version: 11 
 
-      - name: Set Up CommandBox
-        uses: elpete/setup-commandbox@v1.0.0
+  #     - name: Set Up CommandBox
+  #       uses: elpete/setup-commandbox@v1.0.0
       
-      - name: Install dependencies
-        run: |
-          box install
-          box install ${{ matrix.coldbox }} --noSave
+  #     - name: Install dependencies
+  #       run: |
+  #         box install
+  #         box install ${{ matrix.coldbox }} --noSave
       
-      - name: Start server
-        run: box server start cfengine=${{ matrix.cfengine }} --noSaveSettings
+  #     - name: Start server
+  #       run: box server start cfengine=${{ matrix.cfengine }} --noSaveSettings
 
-      - name: Run TestBox Tests
-        run: box testbox run
+  #     - name: Run TestBox Tests
+  #       run: box testbox run
 
   release:
     name: Semantic Release
@@ -56,24 +57,6 @@ jobs:
 
       - name: Set Up CommandBox
         uses: elpete/setup-commandbox@v1.0.0
-      
-      - name: Install and Configure CommandBox modules
-        run: |
-          box install commandbox-docbox
-
-      # - name: Generate API Docs
-      #   run: box run-script build:apidocs
-
-      # - name: Upload API Docs to S3
-      #   uses: jakejarvis/s3-sync-action@master
-      #   with:
-      #     args: --acl public-read
-      #   env:
-      #     AWS_S3_BUCKET: "apidocs.ortussolutions.com"
-      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_SECRET }}
-      #     SOURCE_DIR: ".tmp/apidocs"
-      #     DEST_DIR: ""
 
       - name: Install Apache Ant
         run: |
@@ -91,6 +74,24 @@ jobs:
       - name: Build Release using WorkBench
         run: |
           ant -DisTravis=false -Dbuild.number=${{ env.GITHUB_RUN_NUMBER }} -Dbuild.branch=${{ env.GITHUB_REF }} -f workbench/build.xml
+      
+      # - name: Install and Configure CommandBox modules
+      #   run: |
+      #     box install commandbox-docbox
+
+      # - name: Generate API Docs
+      #   run: box run-script build:apidocs
+
+      # - name: Upload API Docs to S3
+      #   uses: jakejarvis/s3-sync-action@master
+      #   with:
+      #     args: --acl public-read
+      #   env:
+      #     AWS_S3_BUCKET: "apidocs.ortussolutions.com"
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_SECRET }}
+      #     SOURCE_DIR: ".tmp/apidocs"
+      #     DEST_DIR: ""
 
       # - name: Get Current Version
       #   id: current_version
