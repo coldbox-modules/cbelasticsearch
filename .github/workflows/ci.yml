@@ -122,7 +122,7 @@ jobs:
         with:
           name: cbelasticsearch
           path: |
-            artifacts/cbelasticsearch/**/*.zip
+            build
 
       - name: Upload Binaries to S3
         uses: jakejarvis/s3-sync-action@master
@@ -133,7 +133,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_SECRET }}
           SOURCE_DIR: "artifacts/cbelasticsearch"
-          DEST_DIR: "ortussolutions/cbelasticsearch"
+          DEST_DIR: "ortussolutions/coldbox-modules/cbelasticsearch"
 
       - name: Deploy to Forgebox
         run: |
