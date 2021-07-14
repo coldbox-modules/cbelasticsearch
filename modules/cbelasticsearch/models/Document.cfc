@@ -95,10 +95,9 @@ component
 	* @type 	string 		The type of the document
 	**/
 	function get( string id, string index, string type ){
-
-		if( !structIsEmpty( arguments ) ){
-			structAppend( variables, arguments, true );
-		}
+		if ( !isNull( arguments.id ) ){ variables.id = arguments.id; }
+		if ( !isNull( arguments.index ) ){ variables.index = arguments.index; }
+		if ( !isNull( arguments.type ) ){ variables.type = arguments.type; }
 
 		if( isNull( variables.id ) ){
 			throw( 
