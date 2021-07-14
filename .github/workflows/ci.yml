@@ -1,8 +1,4 @@
-
-
-
-
-
+name: PRs and Branches
 
 on:
   push:
@@ -12,42 +8,67 @@ on:
       - feat/githubActions
 
 jobs:
-  # TODO: Reuse pr.yml test runner setup
-  # tests:
-  #   name: Tests
-  #   if: "!contains(github.event.head_commit.message, '__SEMANTIC RELEASE VERSION UPDATE__')"
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     fail-fast: true
-  #   env:
-  #     MODULE_ID: cbelasticsearch
-  #   steps:
-  #     - name: Checkout Repository
-  #       uses: actions/checkout@v2
+  tests:
+    name: Tests
+    runs-on: ubuntu-20.04
+    env:
+      ELASTICSEARCH_PROTOCOL: http
+      ELASTICSEARCH_HOST: 127.0.0.1
+      ELASTICSEARCH_PORT: 9200
+      ELASTICSEARCH_VERSION: 7.8.0
+    strategy:
+      fail-fast: true
+      matrix:
+        cfengine: ["lucee@5", "adobe@2016", "adobe@2018"]
+        javaVersion: [ "8", "11" ]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
-  #     - name: Setup Java JDK
-  #       uses: actions/setup-java@v1.4.3
-  #       with:
-  #         java-version: 11 
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: "adopt"
+          java-version: ${{ matrix.javaVersion }}
 
-  #     - name: Set Up CommandBox
-  #       uses: elpete/setup-commandbox@v1.0.0
-      
-  #     - name: Install dependencies
-  #       run: |
-  #         box install
-  #         box install ${{ matrix.coldbox }} --noSave
-      
-  #     - name: Start server
-  #       run: box server start cfengine=${{ matrix.cfengine }} --noSaveSettings
+      - name: Setup CommandBox
+        uses: elpete/setup-commandbox@v1.0.0
 
-  #     - name: Run TestBox Tests
-  #       run: box testbox run
+      - name: Setup Elasticsearch
+        run: |
+          docker run -d -p "${{ env.ELASTICSEARCH_PORT }}:9200" -e 'discovery.type=single-node' elasticsearch:${{ env.ELASTICSEARCH_VERSION }}
+          rm -rf modules_app
+          rm -f tests/specs/unit/SecondaryClientTest.cfc
+
+      - name: Install Dependencies
+        run: |
+          box install
+          box install commandbox-cfconfig,commandbox-dotenv,commandbox-docbox
+
+      - name: Start ${{ matrix.cfengine }} Server
+        run: |
+          box server start serverConfigFile="server-${{ matrix.cfengine }}.json" --debug
+          curl http://127.0.0.1:60299
+
+      - name: Run Web App Tests
+        run: |
+          mkdir -p tests/results
+          box testbox run --verbose outputFile=tests/results/web outputFormats=json,antjunit
+
+      - name: Publish PR Test Reports
+        uses: mikepenz/action-junit-report@v2
+        with:
+          report_paths: 'tests/results/*.xml'
+          check_name: "${{ matrix.cfengine }}/${{ matrix.javaVersion }} Test Results"
+          summary: true
+
+      - name: Failure debugging
+        if: ${{ failure() }}
+        run: box server log serverConfigFile="server-${{ matrix.cfengine }}.json"
 
   release:
     name: Release
-    # if: "!contains(github.event.head_commit.message, '__SEMANTIC RELEASE VERSION UPDATE__')"
-    # needs: tests
+    needs: tests
     runs-on: ubuntu-latest
     env:
       GA_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
