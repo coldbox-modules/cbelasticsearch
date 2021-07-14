@@ -85,7 +85,7 @@ jobs:
       - name: Set Up CommandBox
         uses: elpete/setup-commandbox@v1.0.0
         with:
-          forgeboxAPIKey: ${{ secrets.FORGEBOX_API_TOKEN }}
+          forgeboxAPIKey: ${{ secrets.FORGEBOX_TOKEN }}
 
       - name: Setup Release Properties
         run: |
