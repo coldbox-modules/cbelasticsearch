@@ -75,10 +75,20 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Run CFFormat
-        uses: michaelborn/cfformat-action@v1
+      - name: Setup Java
+        uses: actions/setup-java@v2
         with:
-          cfformat_paths: 'modules/cbelasticsearch/models/**/*.cfc,tests/specs/**/*.cfc'
+          distribution: "adopt"
+          java-version: "11"
+
+      - name: Set Up CommandBox
+        uses: elpete/setup-commandbox@v1.0.0
+
+      - name: Install CFFormat
+        run: box install commandbox-cfformat
+
+      - name: Run CFFormat
+        run: box run-script format
 
       - name: Commit Format Changes
         uses: stefanzweifel/git-auto-commit-action@v4

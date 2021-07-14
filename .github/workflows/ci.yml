@@ -1,4 +1,4 @@
-name: PRs and Branches
+name: CI builds
 
 on:
   push:
@@ -132,3 +132,8 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_SECRET }}
           SOURCE_DIR: "artifacts"
           DEST_DIR: "ortussolutions"
+
+      - name: Deploy to Forgebox
+        run: |
+          cd build
+          box forgebox publish

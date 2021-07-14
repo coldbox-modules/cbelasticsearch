@@ -126,20 +126,17 @@
 
 		<!-- Determine snapshot vs master artifact -->
 		<if>
-			<equals arg1="${build.branch}" arg2="development" />
+			<equals arg1="${build.branch}" arg2="master" />
 			<then>
+				<replaceregexp match='@build.number@' replace="${build.number}" flags="ig" byline="true" encoding="UTF-8">
+				  <fileset dir="${dir.build}" />
+				</replaceregexp>
+			</then>
+			<else>
 				<!-- Update to version-snapshot -->
 				<replaceregexp match='\+@build.number@' replace="-snapshot" flags="ig" byline="true" encoding="UTF-8">
 				  <fileset dir="${dir.build}" />
 				</replaceregexp>
-
-			</then>
-			<else>
-				
-				<replaceregexp match='@build.number@' replace="${build.number}" flags="ig" byline="true" encoding="UTF-8">
-				  <fileset dir="${dir.build}" />
-				</replaceregexp>
-
 			</else>
 		</if>
         
@@ -167,14 +164,6 @@
 		
 		<!-- Copy over box.json to root for convenience -->
 		<copy todir="${dir.exports}" file="${dir.build}/box.json" overwrite="true" encoding="UTF-8" />
-				  
-		<!-- Cleanup -->	
-		<if>
-			<equals arg1="${isTravis}" arg2="false" />
-			<then>
-				<delete dir="${dir.build}" />
-			</then>
-		</if>
 	</target>
 
 </project>
