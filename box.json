@@ -4,20 +4,19 @@
     "slug":"module-shell",
     "private":false,
     "defaultPort":0,
-    "dependencies":{
-        "coldbox":"^5.5.0",
-        "hyper":"^2.3.1"
-    },
+    "dependencies":{},
     "devDependencies":{
         "coldbox":"^6.0",
         "testbox":"^3.0.0",
-        "hyper":"3.0.0",
+        "hyper":"^3.0.0",
+        "cfmigrations":"^3.0.3",
         "workbench":"git+https://github.com/Ortus-Solutions/unified-workbench.git"
     },
     "installPaths":{
         "testbox":"testbox/",
         "coldbox":"coldbox/",
         "hyper":"modules/hyper/",
+        "cfmigrations":"modules/cfmigrations/",
         "workbench":"workbench/"
     },
     "testbox":{
