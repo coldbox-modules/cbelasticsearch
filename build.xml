@@ -126,7 +126,7 @@
 
 		<!-- Determine snapshot vs master artifact -->
 		<if>
-			<equals arg1="${build.branch}" arg2="master" />
+			<equals arg1="${build.branch}" arg2="refs/heads/master" />
 			<then>
 				<replaceregexp match='@build.number@' replace="${build.number}" flags="ig" byline="true" encoding="UTF-8">
 				  <fileset dir="${dir.build}" />
