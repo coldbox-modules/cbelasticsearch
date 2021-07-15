@@ -10,8 +10,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added `cfmigrations` [migration manager](https://forgebox.io/view/cfmigrations) ( `models.migrations.Manager` )
 
-## Fixed
-- Snapshot updates
 ## [2.2.1] - 2021-07-14
 
 ### Fixed
