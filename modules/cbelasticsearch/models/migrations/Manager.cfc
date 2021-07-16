@@ -63,7 +63,7 @@ component {
                         .setMaxRows( searchBuilder.count() )
                         .sort( "migrationRan desc");
         return searchBuilder.execute().getHits().map( function( hit ){
-            return hit.getMemento();
+            return hit.getMemento().name;
         } );
     }
 
@@ -74,7 +74,7 @@ component {
      * @componentName The component to inspect
      */
     boolean function isMigrationRan( string componentName ){
-        return !! findProcessed().find( function( migration ){ return migration.name == componentName; } );
+        return !! findProcessed().find( function( processed ){ return processed == componentName; } );
     }
 
     /**

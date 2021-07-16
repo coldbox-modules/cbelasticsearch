@@ -44,7 +44,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                 var processed = variables.model.findProcessed();
                 expect( processed ).toBeArray();
                 processed.each( function( hit ){
-                    expect( hit ).toBeStruct().toHaveKey( "name" ).toHaveKey( "migrationRan" );
+                    expect( hit ).toBeString();
                 } );
             });
 
