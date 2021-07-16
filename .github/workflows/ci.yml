@@ -95,7 +95,7 @@ jobs:
           
       - name: Run Ant Release
         run: |
-          docker run -v ${PWD}:/app -w /app repos.silowebworks.com:5443/pub/docker-base:commandbox-ant-builder /bin/sh -c "ant build -f /app/workbench/build.xml -Dbuild.branch=${{ env.GITHUB_REF }} -Dproject.buildNumber=${{ env.GITHUB_RUN_NUMBER }}"
+          docker run -v ${PWD}:/app -w /app repos.silowebworks.com:5443/pub/docker-base:commandbox-ant-builder /bin/sh -c "ant build -f /app/workbench/build.xml -Dbuild.branch=${GITHUB_REF} -Dproject.buildNumber=${GITHUB_RUN_NUMBER}"
           rm -f build/box-repo.json
       
       - name: Install and Configure CommandBox modules
