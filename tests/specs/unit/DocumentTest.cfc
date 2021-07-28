@@ -58,26 +58,31 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 
 			it( "Tests setters with get()", function(){
-
 				var testDocument = {
-					"_id"        : createUUID(),
-					"title"      : "My Test Document",
-					"createdTime": dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+					"_id"         : createUUID(),
+					"title"       : "My Test Document",
+					"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
 				};
 
-				var created = variables.model.new( variables.testIndexName, "testdocs", testDocument ).save();
+				var created = variables.model
+					.new(
+						variables.testIndexName,
+						"testdocs",
+						testDocument
+					)
+					.save();
 
 				expect( created ).toBeComponent();
 				variables.model.reset();
 
-				var found = variables.model.setIndex( variables.testIndexName )
-										.setId( testDocument[ "_id" ] )
-										.setType( "testdocs" )
-										.get();
+				var found = variables.model
+					.setIndex( variables.testIndexName )
+					.setId( testDocument[ "_id" ] )
+					.setType( "testdocs" )
+					.get();
 
 				expect( isNull( found ) ).toBeFalse();
-
-			});
+			} );
 
 
 			it( "Tests the ability to persist a Document via save()", function(){
