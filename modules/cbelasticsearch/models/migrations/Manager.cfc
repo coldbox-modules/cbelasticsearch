@@ -87,7 +87,7 @@ component {
 	 * @direction  Whether to log it as up or down
 	 * @componentName The component name to log
 	 */
-	private void function logMigration( string direction, string componentName ){
+	public void function logMigration( string direction, string componentName ){
 		if ( arguments.direction == "down" ) {
 			variables.wirebox
 				.getInstance( "Client@cbelasticsearch" )
