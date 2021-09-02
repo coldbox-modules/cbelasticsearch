@@ -156,7 +156,7 @@
 		</checksum>
 		
 		<!-- Create Box Repo From macrodef -->
-		<box-repo location="${dir.artifacts}/${project.name}" 
+		<box-repo location="${dir.exports}" 
 				  artifactID="${project.name}" 
 				  buildID="${build.number}"
 				  groupID="${groupID}"
