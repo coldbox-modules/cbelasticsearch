@@ -268,8 +268,8 @@ component
 		string level = "error",
 		string path  = "",
 		any additionalData,
-		string message = "",
-		string logger  = getName(),
+		string message                     = "",
+		string logger                      = getName(),
 		boolean removeTabsOnJavaStackTrace = false
 	){
 		// Ensure expected keys exist
