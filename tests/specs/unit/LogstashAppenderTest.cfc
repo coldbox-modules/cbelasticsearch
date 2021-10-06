@@ -81,8 +81,19 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			} );
 
 			it( "Tests logMessage() with java stack trace", function(){
-				structDelete( variables.loge.getExtraInfo(), "tagContext" );
-				variables.model.logMessage( variables.loge );
+				// create an error message
+				try {
+					var a = b;
+				} catch ( any e ) {
+					structDelete( e, "tagContext" );
+					var otherLog = variables.loge.init(
+						message   = len( e.detail ) ? e.detail : e.message,
+						severity  = 0,
+						extraInfo = e,
+						category  = e.type
+					);
+				}
+				variables.model.logMessage( otherLog );
 				sleep( 5000 );
 
 				var documents = getWirebox()
