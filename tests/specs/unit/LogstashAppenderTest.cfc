@@ -33,7 +33,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			variables.loge.init(
 				message   = len( e.detail ) ? e.detail : e.message,
 				severity  = 0,
-				extraInfo = e.StackTrace,
+				extraInfo = e,
 				category  = e.type
 			);
 		}
@@ -54,6 +54,34 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			} );
 
 			it( "Tests logMessage()", function(){
+				variables.model.logMessage( variables.loge );
+				sleep( 5000 );
+
+				var documents = getWirebox()
+					.getInstance( "SearchBuilder@cbElasticsearch" )
+					.new( variables.model.getRotationalIndexName() )
+					.setQuery( { "match_all" : {} } )
+					.execute()
+					.getHits();
+
+				expect( documents.len() ).toBeGT( 0 );
+
+				var logMessage = documents[ 1 ].getMemento();
+
+				expect( logMessage )
+					.toHaveKey( "application" )
+					.toHaveKey( "release" )
+					.toHaveKey( "userinfo" );
+
+
+				expect( isJSON( logMessage.userInfo ) ).toBeTrue();
+				expect( deserializeJSON( logMessage.userinfo ) ).toHaveKey( "username" );
+
+				debug( logMessage );
+			} );
+
+			it( "Tests logMessage() with java stack trace", function(){
+				structDelete( variables.loge.getExtraInfo(), "tagContext" );
 				variables.model.logMessage( variables.loge );
 				sleep( 5000 );
 
