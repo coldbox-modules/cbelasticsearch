@@ -261,6 +261,7 @@ component
 	 * @additionalData Additional metadata to store with the event - passed into the extra attribute
 	 * @message Optional message name to output
 	 * @logger Optional logger to use
+	 * @removeTabsOnJavaStackTrace Enable dropping of /t tab characters when parsing the java stack trace
 	 */
 	private struct function parseException(
 		required any exception,
@@ -268,7 +269,8 @@ component
 		string path  = "",
 		any additionalData,
 		string message = "",
-		string logger  = getName()
+		string logger  = getName(),
+		boolean removeTabsOnJavaStackTrace = false
 	){
 		// Ensure expected keys exist
 		arguments.exception.StackTrace = arguments.exception.StackTrace ?: "";
