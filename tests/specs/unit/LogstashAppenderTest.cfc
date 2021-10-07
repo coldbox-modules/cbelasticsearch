@@ -85,7 +85,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				try {
 					var a = b;
 				} catch ( any e ) {
-					structDelete( e, "tagContext" );
+					e.tagContext = [];
 					var otherLog = variables.loge.init(
 						message   = len( e.detail ) ? e.detail : e.message,
 						severity  = 0,
