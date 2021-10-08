@@ -313,7 +313,7 @@ component
 				"",
 				"All"
 			);
-			if ( arguments.removeTabsOnJavaStackTrace ) st = reReplace( st, "\t", "", "All" );
+			st                                         = reReplace( st, "\t", "", "All" );
 			logstashExceptionExtra[ "javaStacktrace" ] = listToArray( st, "#chr( 13 )##chr( 10 )#" );
 		}
 
