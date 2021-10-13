@@ -49,7 +49,7 @@
 
 		<!-- Validation of required variables -->
 		<fail unless="project.name">A project name was not specified.  Build could not continue</fail>
-		<fail unless="project.version">A project version was not specified.  Build could not coutinue</fail>
+		<fail unless="project.version">A project version was not specified.  Build could not continue</fail>
 		<fail unless="module.name">A module name was not specified.  Build could not continue</fail>
 
 		<!-- Property defaults -->
@@ -82,6 +82,8 @@
 		
 		<!-- Build Label -->
 		<property name="build.label" value="${project.name}-${project.version}+${build.number}-${start.DSTAMP}${start.TSTAMP}"/>
+		<property name="dir.exports" value="${dir.artifacts}/${project.name}/${project.version}" />
+
 		<!-- Cleanup + Init -->
 		<delete dir="${dir.build}" />
 		<mkdir dir="${dir.build}"/>
