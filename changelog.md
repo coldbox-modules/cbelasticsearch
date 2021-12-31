@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Changed Build Process to Use Github Actions
 
+## [2.2.3] - Unreleased
+### Changed
+- Build update experimentation version - unreleased
+
 ## [2.2.2] - 2021-07-15
 ### Added
 - Added `cfmigrations` [migration manager](https://forgebox.io/view/cfmigrations) ( `models.migrations.Manager` )
