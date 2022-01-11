@@ -35,7 +35,7 @@ component accessors="true" {
 
 	public function populate( struct properties ){
 		if ( arguments.keyExists( "properties" ) ) {
-			if ( structKeyExists( arguments.properties, "error" ) ){
+			if ( structKeyExists( arguments.properties, "error" ) ) {
 				setError( arguments.properties.error );
 			}
 			if ( structKeyExists( arguments.properties, "task" ) ) {

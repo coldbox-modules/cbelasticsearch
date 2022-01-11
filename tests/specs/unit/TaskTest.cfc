@@ -62,30 +62,22 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						"cancellable"           : true
 					},
 					"error" : {
-						"position": {
-							"offset": 33,
-							"start": 16,
-							"end": 64
+						"position"  : { "offset" : 33, "start" : 16, "end" : 64 },
+						"script"    : " for ( test in ctx._source ){ ...",
+						"reason"    : "runtime error",
+						"type"      : "script_exception",
+						"lang"      : "painless",
+						"caused_by" : {
+							"reason" : "Cannot iterate over [java.util.HashMap]",
+							"type"   : "illegal_argument_exception"
 						},
-						"script": " for ( test in ctx._source ){ ...",
-						"reason": "runtime error",
-						"type": "script_exception",
-						"lang": "painless",
-						"caused_by": {
-							"reason": "Cannot iterate over [java.util.HashMap]",
-							"type": "illegal_argument_exception"
-						},
-						"script_stack": [
-							"for ( case in ctx._source ){ ",
-							" ^---- HERE"
-						]
+						"script_stack" : [ "for ( case in ctx._source ){ ", " ^---- HERE" ]
 					}
 				};
 				variables.model.populate( testTask );
 
 				expect( variables.model.getCompleted() ).toBe( testTask.completed );
-				expect( variables.model.getError() ).toBeTypeOf( "struct" )
-													.toHaveKey( "reason" );
+				expect( variables.model.getError() ).toBeTypeOf( "struct" ).toHaveKey( "reason" );
 			} );
 		} );
 	}
