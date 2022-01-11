@@ -23,6 +23,7 @@ component accessors="true" {
 	property name="parent_task_id";
 	property name="headers";
 	property name="response";
+	property name="error";
 	property
 		name   ="completed"
 		type   ="boolean"
@@ -34,6 +35,9 @@ component accessors="true" {
 
 	public function populate( struct properties ){
 		if ( arguments.keyExists( "properties" ) ) {
+			if ( structKeyExists( arguments.properties, "error" ) ){
+				setError( arguments.properties.error );
+			}
 			if ( structKeyExists( arguments.properties, "task" ) ) {
 				var taskProperties = arguments.properties.task;
 				if ( structKeyExists( arguments.properties, "completed" ) ) {
