@@ -47,6 +47,38 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 				expect( variables.model.isComplete() ).toBeTrue();
 			} );
+			it( "can get error details", function(){
+				expect( variables.model ).toBeInstanceOf( "cbElasticsearch.models.Task" );
+				var testTask = {
+					"completed" : false,
+					"task"      : {
+						"node"                  : "oTUltX4IQMOUUVeiohTt8A",
+						"id"                    : 464,
+						"type"                  : "transport",
+						"action"                : "indices:data/read/search",
+						"description"           : "indices[test], types[test], search_type[QUERY_THEN_FETCH], source[{""query"":...}]",
+						"start_time_in_millis"  : 1483478610008,
+						"running_time_in_nanos" : 13991383,
+						"cancellable"           : true
+					},
+					"error" : {
+						"position"  : { "offset" : 33, "start" : 16, "end" : 64 },
+						"script"    : " for ( test in ctx._source ){ ...",
+						"reason"    : "runtime error",
+						"type"      : "script_exception",
+						"lang"      : "painless",
+						"caused_by" : {
+							"reason" : "Cannot iterate over [java.util.HashMap]",
+							"type"   : "illegal_argument_exception"
+						},
+						"script_stack" : [ "for ( case in ctx._source ){ ", " ^---- HERE" ]
+					}
+				};
+				variables.model.populate( testTask );
+
+				expect( variables.model.getCompleted() ).toBe( testTask.completed );
+				expect( variables.model.getError() ).toBeTypeOf( "struct" ).toHaveKey( "reason" );
+			} );
 		} );
 	}
 
