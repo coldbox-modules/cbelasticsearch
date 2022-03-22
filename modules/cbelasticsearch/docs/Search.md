@@ -253,3 +253,29 @@ Completion suggestors usually operate without a query.  It is recommended you
 also only bring back the `_source` fields that you need.  If you do not need
 any of the `_source` fields, you can `setSource( false )` to not bring back
 `_source` at all.
+
+### Aggregations
+
+In Elasticsearch, an "aggregation" is a way to summarize your data using metrics, statistics, or simple bucket groupings. cbElasticsearch offers a simple `aggregation( name, options )` DSL to make aggregation data easy.
+
+For example, assuming we have a `meta.timestamp` date field in our index, we can use a [max aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-max-aggregation.html) to retrieve the last index update time:
+
+```js
+/**
+ * Get the last index update time.
+ * 
+ * @returns ISO8601-formatted date string
+ */
+public String function getLastUpdated() {
+    var aggregation = getSearchBuilder()
+            .new( "classes" )
+            .aggregation( "last_updated", { "max": { "field": "meta.timestamp" } })
+            .execute()
+            .getAggregations();
+    return aggregation[ "last_updated" ][ "value_as_string" ];
+}
+```
+
+{% hint style="info" %}
+See the [Elasticsearch Aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html) documentation for more info on using aggregations in your app.
+{% endhint %}
