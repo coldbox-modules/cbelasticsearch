@@ -120,7 +120,9 @@ var search = getInstance( "SearchBuilder@cbElasticsearch" )
     .execute();
 ```
 
-For more information on Elasticsearch query DSL, the [Search in Depth Documentation](https://www.elastic.co/guide/en/elasticsearch/guide/current/search-in-depth.html) is an excellent starting point.
+{% hint style="success" %}
+**Tip:** For more information on Elasticsearch query DSL, the [Search in Depth Documentation](https://www.elastic.co/guide/en/elasticsearch/guide/current/search-in-depth.html) is an excellent starting point.
+{% endhint %}
 
 ### Collapsing Results
 
