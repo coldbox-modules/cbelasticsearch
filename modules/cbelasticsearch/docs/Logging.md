@@ -1,5 +1,8 @@
-Logging
-=======
+---
+description: Learn how to transform incoming data in an Elasticsearch Ingest Pipeline.
+---
+
+# Logging
 
 cbElasticsearch comes pre-packaged with two logging appenders which can be configured in your Coldbox application to capture log messages and store them for later search and retrieval.  The appenders differ in the manner in which they store data within the elasticsearch index.
 
@@ -9,7 +12,7 @@ cbElasticsearch comes pre-packaged with two logging appenders which can be confi
 Appenders may be configured in your Coldbox configuration like so:
 
 
-```
+```js
 logBox = {
     // Define Appenders
     appenders = {
