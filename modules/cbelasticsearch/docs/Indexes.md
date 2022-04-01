@@ -332,7 +332,7 @@ If you want the work to be done asynchronusly, you can pass `false` to the
 getInstance( "Client@cbElasticsearch" )
     .reindex(
         source = "oldIndex",
-        destination = "newIndex"
+        destination = "newIndex",
         waitForCompletion = false
     );
 ```
