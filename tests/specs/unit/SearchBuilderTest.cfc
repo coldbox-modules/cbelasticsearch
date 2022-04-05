@@ -380,6 +380,20 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( searchbuilder.getSorting()[ 1 ].lastName.order ).toBe( "asc" );
 			} );
 
+			it( "Tests the sort() method by providing two strings", function(){
+				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
+
+				searchBuilder.sort( "lastname", "asc" );
+
+				expect( searchBuilder.getSorting() ).toBeArray();
+				expect( searchBuilder.getSorting()[ 1 ] ).toBeStruct();
+				expect( searchbuilder.getSorting()[ 1 ] ).toHaveKey( "lastName" );
+
+				expect( searchbuilder.getSorting()[ 1 ].lastName ).toBeStruct();
+				expect( searchbuilder.getSorting()[ 1 ].lastName ).toHaveKey( "order" );
+				expect( searchbuilder.getSorting()[ 1 ].lastName.order ).toBe( "asc" );
+			} );
+
 			it( "Tests the default sort() method case of throwing an error", function(){
 				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
 
