@@ -1,5 +1,5 @@
 ---
-description: Learn how to summarize or "aggregate" data with CBElasticsearch
+description: Learn how to summarize or "aggregate" data with cbElasticsearch
 ---
 
 # Aggregations
@@ -8,7 +8,7 @@ In some cases, you aren't interested in searching documents as you are in retrie
 
 ## Creating an Aggregation
 
-CBElasticsearch's `SearchBuilder` provides an `aggregation()` method for simple aggregation definitions:
+cbElasticsearch's `SearchBuilder` provides an `aggregation()` method for simple aggregation definitions:
 
 ```js
 searchBuilder.aggregation( string name, struct options )

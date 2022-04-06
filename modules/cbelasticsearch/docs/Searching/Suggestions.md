@@ -20,7 +20,7 @@ Term suggestions suggestors on a single word at a time, while phrase suggestors 
 Term and phrase suggestors are usually added to an existing query. The results will appear in a `suggest` property on the `SearchResult`.
 
 {% hint style="info" %}
-More information on how to optimize term and phrase suggestors can be found in the [ElasticSearch documentation.](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters.html)
+More information on how to optimize term and phrase suggestors can be found in the [ElasticSearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters.html).
 {% endhint %}
 
 ## Autocomplete
