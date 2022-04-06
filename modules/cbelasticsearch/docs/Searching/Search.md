@@ -89,10 +89,41 @@ searchBuilder.shouldMatch( "shortDescription", "Elastic", 1 )
 
 In the above query we change the `operator` argument for the wildcard query to "should" to ensure that the match becomes an "or" for the short description or the wildcard. In addition, we boost the wildcard results 5 times above the short description matched results.
 
+## Sorting Results
+
+The `sort()` method also allows you to specify custom sort options. To sort by author last name, instead of score, use:
+
+```js
+searchBuilder.sort( "author.lastName", "asc" );
+// OR 
+searchBuilder.sort( "author.lastName ASC" );
+```
+
+While our documents would still be scored, the results order would be changed to the specified alphabetical order on the author's last name.
+
+The `sort()` method also accepts a full sort config:
+
+```js
+searchBuilder.sort( "post_date", {
+    "order" : "asc",
+    "format": "strict_date_optional_time_nanos"
+} );
+```
+
+Calling `.sort()` multiple times will append the sort configurations to allow fine-tuning the sort order:
+
+```js
+searchBuilder.sort( "author.lastName", "asc" );
+searchBuilder.sort( "author.age", "DESC" );
+```
+
+{% hint style="info" %}
+For more information on sorting search results, check out [Elasticsearch: Sort search results](https://www.elastic.co/guide/en/elasticsearch/reference/8.1/sort-search-results.html#sort-search-results)
+{% endhint %}
 
 ### Advanced Query DSL
 
-The SearchBuilder also allows full use of the [Elasticsearch query language](https://www.elastic.co/guide/en/elasticsearch/reference/current/_introducing_the_query_language.html), allowing detailed configuration of queries, if the basic `match()`, `sort()` and `aggregate()` methods are not enough to meet your needs. There are several methods to provide the raw query language to the Search Builder. One is during instantiation.
+The SearchBuilder also allows full use of the [Elasticsearch query language](https://www.elastic.co/guide/en/elasticsearch/reference/current/_introducing_the_query_language.html), allowing full configuration of your search queries. There are several methods to provide the raw query language to the Search Builder. One is during instantiation.
 
 In the following we are looking for matches of active records with "Elasticsearch" in the `name`, `description`, or `shortDescription` fields. We are also looking for a phrase match of "is awesome" and are boosting the score of the applicable document, if found.
 
@@ -123,13 +154,15 @@ var search = getInstance( "SearchBuilder@cbElasticsearch" )
     .execute();
 ```
 
+{% hint style="info" %}
 For more information on Elasticsearch query DSL, the [Search in Depth Documentation](https://www.elastic.co/guide/en/elasticsearch/guide/current/search-in-depth.html) is an excellent starting point.
+{% endhint %}
 
 ## Collapsing Results
 
 The `collapseToField` allows you to collapse the results of the search to a specific field. The data return includes the first matched, most relevant, document found with the collapsed field. When field collapsing is specified, an automatic aggregation will be run, which provides a pagination total for the collapsed document counts. When paginating collapsed fields, you will want to use the `SearchResult` method `getCollapsedCount()` as your total record count rather than the usual `getHitCount()` - which returns all documents matched to the query.
 
-Let's say, for example, we want to find the most recent version of a book in our index, for all books matching the phrase "Elasticsearch". In this case, we can group on the `title` field ( or, in this case `title.keyword`, which is a dyamic keyword-typed field in our index ) to retrieve the most recent version of the book.
+Let's say, for example, we want to find the most recent version of a book in our index, for all books matching the phrase "Elasticsearch". In this case, we can group on the `title` field ( or, in this case `title.keyword`, which is a dynamic keyword-typed field in our index ) to retrieve the most recent version of the book.
 
 ```js
 var searchResults = getInstance( "SearchBuilder@cbElasticsearch" )
@@ -142,38 +175,27 @@ var searchResults = getInstance( "SearchBuilder@cbElasticsearch" )
 
 There is also an option to include the number of ocurrences of each collapsed field in the results. When the argument `includeOccurrences=true` is passed to `collapseToField`  you can retrieve a map of all collapsed key values and their corresponding document count by calling `searchResult.getCollapsedOccurrences()`. 
 
+{% hint style="info" %}
 For more information on field collapsing, see the [Collapse Search Results Documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/collapse-search-results.html).
 
-### Sorting Results
+### Get Collapsed Ocurrences
 
-The `sort()` method also allows you to specify custom sort options. To sort by author last name, instead of score, we would simply use:
+`collapseToField()` also supports an `includeOccurrences` option. By passing `includeOccurrences=true` to `collapseToField`, you can retrieve a map of all collapsed key values and their corresponding document count by calling `searchResult.getCollapsedOccurrences()`:
 
 ```js
-searchBuilder.sort( "author.lastName", "asc" );
+var elasticsearchBookTitles = getInstance( "SearchBuilder@cbElasticsearch" )
+                                .new( index="bookshop" )
+                                .mustMatch( "description", "Elasticsearch" )
+                                .collapseToField( field = "title.keyword", includeOccurrences = {} )
+                                .sort( "publishDate DESC" )
+                                .execute()
+                                .getCollapsedOccurrences();
 ```
 
-While our documents would still be scored, the results order would be changed to that specified.
+{% hint style="info" %}
+For more information on field collapsing, see the [Collapse Search Results Documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/collapse-search-results.html).
 
-### Search Builder Function Reference:
-
-* `new([string index], [string type], [struct properties])` - Populates a new SearchBuilder object.
-* `reset()` - Clears the SearchBuilder and resets the DSL
-* `deleteAll()` - Deletes all documents matching the currently built search query.
-* `execute()` - Executes the built search
-* `getDSL()` - Returns a struct containing the assembled Elasticsearch query DSL
-* `match(string name, any value, [numeric boost], [struct options], [string matchType='any'])` - Applies a match requirement to the search builder query.
-* `multiMatch( array names, any value, [numeric boost], [type="best_fields"])` - Search an array of fields with a given search value.
-* `dateMatch( string name, string start, string end, [numeric boost])` - Adds a date range match.
-* `mustMatch(string name, any value, [numeric boost])` - `must` query alias for match().
-* `mustNotMatch(string name, any value, [numeric boost])` - `must_not` query alias for match().
-* `shouldMatch(string name, any value, [numeric boost])` - `should` query alias for match().
-* `sort(any sort, [any sortConfig])` - Applies a custom sort to the search query.
-* `term(string name, any value, [numeric boost])` - Adds an exact value restriction ( elasticsearch: term ) to the query.
-* `aggregation(string name, struct options)`  - Adds an aggregation directive to the search parameters.
-* `collapseToField( string field, struct options, boolean includeOccurrences = false )` - Collapses the results to the single field and returns only the most relevant/ordered document matched on that field.
-
-Counting Documents
-===================
+## Counting Documents
 
 Sometimes you only need a count of matching documents, rather than the results of the query. When this is the case, you can call the `count()` method from the search builder ( or using the client ) to only return the number of matched documents and omit the result set and metadata:
 
@@ -204,13 +226,32 @@ var docCount = getInstance( "SearchBuilder@cbElasticsearch" )
     .count();
 ```
 
-Highlight
-=========
+## Highlights
 
-ElasticSearch has the ability to highlight the portion of a document that matched.
-This is useful for showing context on why certain search results were returned.
-You can add an ElasticSearch highlight struct to your `SearchBuilder` using the
-`highlight` method. The struct should take the shape outlined on the
-[ElasticSearch website](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-request-body.html#request-body-search-highlighting).
+ElasticSearch has the ability to highlight the portion of a document that matched. This is useful for showing context on why certain search results were returned. You can add an ElasticSearch highlight struct to your `SearchBuilder` using the `highlight` method. The struct should take the shape outlined on the [ElasticSearch website](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-request-body.html#request-body-search-highlighting).
 
-* `highlight(struct highlight)`  - Adds a highlight directive to the search parameters.
+```js
+SearchBuilder.highlight( {
+    "fields" : {
+        "body" : {}
+    }
+})
+```
+
+## `SearchBuilder` Function Reference
+
+* `new([string index], [string type], [struct properties])` - Populates a new SearchBuilder object.
+* `reset()` - Clears the SearchBuilder and resets the DSL
+* `deleteAll()` - Deletes all documents matching the currently built search query.
+* `execute()` - Executes the built search
+* `getDSL()` - Returns a struct containing the assembled Elasticsearch query DSL
+* `match(string name, any value, [numeric boost], [struct options], [string matchType='any'])` - Applies a match requirement to the search builder query.
+* `multiMatch( array names, any value, [numeric boost], [type="best_fields"])` - Search an array of fields with a given search value.
+* `dateMatch( string name, string start, string end, [numeric boost])` - Adds a date range match.
+* `mustMatch(string name, any value, [numeric boost])` - `must` query alias for match().
+* `mustNotMatch(string name, any value, [numeric boost])` - `must_not` query alias for match().
+* `shouldMatch(string name, any value, [numeric boost])` - `should` query alias for match().
+* `sort(any sort, [any sortConfig])` - Applies a custom sort to the search query.
+* `term(string name, any value, [numeric boost])` - Adds an exact value restriction ( elasticsearch: term ) to the query.
+* `aggregation(string name, struct options)`  - Adds an aggregation directive to the search parameters.
+* `collapseToField( string field, struct options, boolean includeOccurrences = false )` - Collapses the results to the single field and returns only the most relevant/ordered document matched on that field.
