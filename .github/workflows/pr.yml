@@ -15,13 +15,12 @@ jobs:
     name: Tests
     runs-on: ubuntu-20.04
     env:
-      ELASTICSEARCH_PROTOCOL: http
+      ELASTICSEARCH_PROTOCOL: https
       ELASTICSEARCH_HOST: 127.0.0.1
       ELASTICSEARCH_PORT: 9200
       ELASTICSEARCH_VERSION: 8.0.0
       ELASTICSEARCH_USERNAME: elastic
       ELASTICSEARCH_PASSWORD: password
-      ELASTICSEARCH_PROTOCOL: https
     strategy:
       fail-fast: true
       matrix:
