@@ -15,6 +15,7 @@ jobs:
       ELASTICSEARCH_HOST: 127.0.0.1
       ELASTICSEARCH_PORT: 9200
       ELASTICSEARCH_VERSION: 8.0.0
+      ELASTICSEARCH_PASSWORD: password
     strategy:
       fail-fast: true
       matrix:
@@ -35,7 +36,7 @@ jobs:
 
       - name: Setup Elasticsearch
         run: |
-          docker run -d -p "${{ env.ELASTICSEARCH_PORT }}:9200" -e 'discovery.type=single-node' elasticsearch:${{ env.ELASTICSEARCH_VERSION }}
+          docker run -d -p "${{ env.ELASTICSEARCH_PORT }}:9200" -e 'discovery.type=single-node' -e 'ELASTIC_PASSWORD=${{ env.ELASTICSEARCH_PASSWORD }}' elasticsearch:${{ env.ELASTICSEARCH_VERSION }}
           rm -rf modules_app
           rm -f tests/specs/unit/SecondaryClientTest.cfc
 
