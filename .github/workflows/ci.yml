@@ -40,6 +40,7 @@ jobs:
           docker run -d -p "${{ env.ELASTICSEARCH_PORT }}:9200" -e 'discovery.type=single-node' -e 'ELASTIC_PASSWORD=${{ env.ELASTICSEARCH_PASSWORD }}' elasticsearch:${{ env.ELASTICSEARCH_VERSION }}
           rm -rf modules_app
           rm -f tests/specs/unit/SecondaryClientTest.cfc
+          box server set env.ELASTICSEARCH_USERNAME=${{ env.ELASTICSEARCH_USERNAME }} env.ELASTICSEARCH_PASSWORD=${{ env.ELASTICSEARCH_PASSWORD }}
 
       - name: Install Dependencies
         run: |
