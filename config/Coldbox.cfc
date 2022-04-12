@@ -11,7 +11,11 @@ component{
                         "serverName" = getSystemSetting( "ELASTICSEARCH_HOST", "127.0.0.1" ),
                         "serverPort" = getSystemSetting( "ELASTICSEARCH_PORT", "9200" )
                     }
-                ]
+                ],
+				"defaultCredentials" = {
+					"username" : getSystemSetting( "ELASTICSEARCH_USERNAME", "" ),
+					"password" : getSystemSetting( "ELASTICSEARCH_PASSWORD", "" )
+				},
             }
         };
 
