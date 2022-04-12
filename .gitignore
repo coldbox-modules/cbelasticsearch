@@ -25,3 +25,6 @@ artifacts/*
 apidocs/docbox/*
 workbench/*
 build/*
+
+# Secrets
+.env
