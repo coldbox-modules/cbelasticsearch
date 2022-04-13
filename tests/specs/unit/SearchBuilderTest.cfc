@@ -255,6 +255,42 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
 			} );
 
+			it( "Tests the dateMatch() method", function(){
+				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
+				var dateStart     = dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssXXX" );
+				var dateEnd       = dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssXXX" );
+				searchBuilder.dateMatch( "createdTime", dateStart, dateEnd, 2 );
+
+				expect( searchBuilder.getQuery() ).toBeStruct().toHaveKey( "bool" );
+				expect( searchBuilder.getQuery().bool ).toHaveKey( "must" );
+				expect( searchBuilder.getQuery().bool.must ).toBeArray().toHaveLength( 1 );
+				expect( searchBuilder.getQuery().bool.must[ 1 ] ).toHaveKey( "range" );
+				expect( searchBuilder.getQuery().bool.must[ 1 ].range ).toBeStruct().toHaveKey( "createdTime" );
+				expect( searchBuilder.getQuery().bool.must[ 1 ].range.createdTime )
+					.toBeStruct()
+					.toHaveKey( "gte" )
+					.toHaveKey( "lte" );
+
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
+			} );
+			it( "Tests the filterRange() method", function(){
+				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
+				var dateStart     = dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssXXX" );
+				var dateEnd       = dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssXXX" );
+				searchBuilder.filterRange( "createdTime", dateStart, dateEnd, 2 );
+
+				expect( searchBuilder.getQuery() ).toBeStruct().toHaveKey( "bool" );
+				expect( searchBuilder.getQuery().bool ).toHaveKey( "filter" );
+				expect( searchBuilder.getQuery().bool.filter ).toBeStruct().toHaveKey( "range" );
+				expect( searchBuilder.getQuery().bool.filter.range ).toBeStruct().toHaveKey( "createdTime" );
+				expect( searchBuilder.getQuery().bool.filter.range.createdTime )
+					.toBeStruct()
+					.toHaveKey( "gte" )
+					.toHaveKey( "lte" );
+
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
+			} );
+
 			it( "Tests the mustExist() method", function(){
 				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
 

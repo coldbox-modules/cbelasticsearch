@@ -383,6 +383,31 @@ component accessors="true" {
 		return this;
 	}
 
+	/**
+	 * `range` filter for date ranges
+	 * @name 		string 		the key to match
+	 * @start 		string 		the preformatted date string to start the range
+	 * @end 			string 		the preformatted date string to end the range
+	 **/
+	SearchBuilder function filterRange( required string name, string start, string end ){
+		if ( isNull( arguments.start ) && isNull( arguments.end ) ) {
+			throw( type = "", message = "" );
+		}
+
+		var properties = {};
+		if ( !isNull( arguments.start ) ) {
+			properties[ "gte" ] = arguments.start;
+		}
+		if ( !isNull( arguments.end ) ) {
+			properties[ "lte" ] = arguments.end;
+		}
+		param variables.query.bool              = {};
+		param variables.query.bool.filter       = {};
+		param variables.query.bool.filter.range = { "#arguments.name#" : properties };
+
+		return this;
+	}
+
 	SearchBuilder function filterTerms(
 		required string name,
 		required any value,
