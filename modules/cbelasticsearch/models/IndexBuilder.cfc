@@ -69,8 +69,13 @@ component accessors="true" {
 
 	/**
 	 * Deletes the index named in the configured builder
+	 *
+	 * @indexName Specify an index name to delete, if not already populated from the indexBuilder.new() method.
 	 **/
-	function delete(){
+	function delete( string indexName ){
+		if ( !isNull( arguments.indexName ) ) {
+			setIndexName( arguments.indexName );
+		}
 		return getClient().deleteIndex( this.getIndexName() );
 	}
 
