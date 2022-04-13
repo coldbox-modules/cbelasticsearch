@@ -16,7 +16,7 @@ Instructions
 ============
 
 
-The elasticsearch module for the Coldbox Platform provides you with a fluent search interface for Elasticsearch, in addition to a CacheBox Cache provider and a Logbox Appender.  Both the cache provider and logbox appender rely on Wirebox DSL mappings to the Elasticsearch client.  As such additional Wirebox configuration is necessary to use them outside of the Coldbox context.
+The elasticsearch module for the Coldbox Platform provides you with a fluent search interface for Elasticsearch, in addition to a CacheBox Cache provider and a Logbox Appender. Both the cache provider and logbox appender rely on Wirebox DSL mappings to the Elasticsearch client. As such additional Wirebox configuration is necessary to use them outside of the Coldbox context.
 
 
 Requirements
@@ -26,7 +26,7 @@ Requirements
 * Elasticsearch  >= v5.0
 * Lucee >= v4.5 or Adobe Coldfusion >= v11
 
-_Note:  Most of the REST-based methods will work on Elasticsearch versions older than v5.0.  A notable exception is the multi-delete methods, which use the [delete by query](https://www.elastic.co/guide/en/elasticsearch/reference/5.4/docs-delete-by-query.html) functionality of ES5.  As such, Cachebox and Logbox functionality would be limited._
+_Note:  Most of the REST-based methods will work on Elasticsearch versions older than v5.0. A notable exception is the multi-delete methods, which use the [delete by query](https://www.elastic.co/guide/en/elasticsearch/reference/5.4/docs-delete-by-query.html) functionality of ES5. As such, Cachebox and Logbox functionality would be limited._
 
 Documentation
 =============
