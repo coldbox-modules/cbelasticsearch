@@ -925,7 +925,7 @@ component accessors="true" {
 		} else if ( isSimpleValue( arguments.sort ) && !isNull( arguments.sortConfig ) ) {
 			// Our sort config argument can be a complex struct or a simple value
 			variables.sorting.append( {
-				arguments.sort : isStruct( arguments.sortConfig ) ? arguments.sortConfig : {
+				"#arguments.sort#" : isStruct( arguments.sortConfig ) ? arguments.sortConfig : {
 					"order" : arguments.sortConfig
 				}
 			} );
@@ -958,7 +958,7 @@ component accessors="true" {
 	 *
 	 * @field  string the grouping field
 	 * @options a struct of additional options ( e.g. `inner_hits` )
-	 * @includeOccurrences whether to automatically aggreagate occurrences of each unique value
+	 * @includeOccurrences whether to automatically aggregate occurrences of each unique value
 	 */
 	SearchBuilder function collapseToField(
 		required string field,
