@@ -4,24 +4,27 @@
     "slug":"module-shell",
     "private":false,
     "defaultPort":0,
-    "dependencies":{
-        "coldbox":"^5.5.0",
-        "hyper":"^2.3.1"
-    },
+    "dependencies":{},
     "devDependencies":{
-        "workbench":"git+https://github.com/Ortus-Solutions/unified-workbench.git",
-        "testbox":"^3.0.0"
+        "coldbox":"^6.0",
+        "testbox":"^3.0.0",
+        "hyper":"^3.0.0",
+        "cfmigrations":"^3.0.3",
+        "workbench":"git+https://github.com/Ortus-Solutions/unified-workbench.git"
     },
     "installPaths":{
         "testbox":"testbox/",
         "coldbox":"coldbox/",
-        "workbench":"workbench/",
-        "hyper":"modules/hyper/"
+        "hyper":"modules/hyper/",
+        "cfmigrations":"modules/cfmigrations/",
+        "workbench":"workbench/"
     },
     "testbox":{
-        "runner":"http://localhost:49616/tests/runner.cfm"
+        "runner":"http://127.0.0.1:60299/tests/runner.cfm"
     },
     "scripts":{
-        "postVersion":"recipe workbench/bump.boxr"
+        "postVersion":"recipe workbench/bump.boxr",
+        "build:apidocs":"docbox generate mapping=cbelasticsearch source=modules/cbelasticsearch excludes=tests|docs|ModuleConfig strategy-outputDir=.tmp/apidocs strategy-projectTitle=cbElasticSearch",
+        "format":"cfformat run modules/cbelasticsearch/models/**/*.cfc,tests/specs/**/*.cfc --overwrite"
     }
 }

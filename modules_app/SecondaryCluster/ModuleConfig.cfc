@@ -121,9 +121,9 @@ component {
 		// note that we need a full config structure passed in as an override to the coldbox settings
 		secondaryConfig.setConfigStruct( settings );
 
-		// note that we are using the native JEST client rather than Client@cbElasticsearch
+		// note that we are using the HyperClient directly, rather than Client@cbElasticsearch
 		binder.map( "Client@SecondaryCluster" )
-								.to( "cbElasticsearchJest.models.JestClient" )
+								.to( "cbElasticsearch.models.io.HyperClient" )
 								.initWith( configuration=secondaryConfig )
 								.threadSafe()
 								.asSingleton();

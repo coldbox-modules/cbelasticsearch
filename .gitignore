@@ -20,7 +20,11 @@ _book/*
 
 
 # Build artifacts
+.tmp/apidocs
 artifacts/*
 apidocs/docbox/*
 workbench/*
 build/*
+
+# test environment secrets
+.env

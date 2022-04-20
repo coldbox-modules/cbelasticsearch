@@ -1,0 +1,141 @@
+name: CI builds
+
+on:
+  push:
+    branches:
+      - master
+      - development
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-20.04
+    env:
+      ELASTICSEARCH_PROTOCOL: http
+      ELASTICSEARCH_HOST: 127.0.0.1
+      ELASTICSEARCH_PORT: 9200
+      ELASTICSEARCH_VERSION: 7.17.2
+    strategy:
+      fail-fast: true
+      matrix:
+        cfengine: ["lucee@5", "adobe@2016", "adobe@2018"]
+        javaVersion: [ "8", "11" ]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: "adopt"
+          java-version: ${{ matrix.javaVersion }}
+
+      - name: Setup CommandBox
+        uses: elpete/setup-commandbox@v1.0.0
+
+      - name: Setup Elasticsearch
+        run: |
+          docker run -d -p "${{ env.ELASTICSEARCH_PORT }}:9200" -e 'discovery.type=single-node' elasticsearch:${{ env.ELASTICSEARCH_VERSION }}
+          rm -rf modules_app
+          rm -f tests/specs/unit/SecondaryClientTest.cfc
+
+      - name: Install Dependencies
+        run: |
+          box install
+          box install commandbox-cfconfig,commandbox-dotenv,commandbox-docbox
+
+      - name: Start ${{ matrix.cfengine }} Server
+        run: |
+          box server start serverConfigFile="server-${{ matrix.cfengine }}.json" --debug
+          curl http://127.0.0.1:60299
+
+      - name: Run Web App Tests
+        run: |
+          mkdir -p tests/results
+          box testbox run --verbose outputFile=tests/results/web outputFormats=json,antjunit
+
+      - name: Publish PR Test Reports
+        uses: mikepenz/action-junit-report@v2
+        with:
+          report_paths: 'tests/results/*.xml'
+          check_name: "${{ matrix.cfengine }}/${{ matrix.javaVersion }} Test Results"
+          summary: true
+
+      - name: Failure debugging
+        if: ${{ failure() }}
+        run: box server log serverConfigFile="server-${{ matrix.cfengine }}.json"
+
+  release:
+    name: Release
+    needs: tests
+    runs-on: ubuntu-latest
+    env:
+      GA_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v1.4.3
+        with:
+          java-version: 11 
+
+      - name: Set Up CommandBox
+        uses: elpete/setup-commandbox@v1.0.0
+        with:
+          forgeboxAPIKey: ${{ secrets.FORGEBOX_TOKEN }}
+
+      - name: Setup Release Properties
+        run: |
+          box install
+          mv build.xml workbench/build.xml
+          printf "\ncfengine=${{ matrix.cfengine}}" >> .module.properties
+          
+      - name: Run Ant Release
+        run: |
+          docker run -v ${PWD}:/app -w /app repos.silowebworks.com:5443/pub/docker-base:commandbox-ant-builder /bin/sh -c "ant build -f /app/workbench/build.xml -Dbuild.branch=${GITHUB_REF} -Dproject.buildNumber=${GITHUB_RUN_NUMBER}"
+          rm -f build/box-repo.json
+      
+      - name: Install and Configure CommandBox modules
+        run: |
+          box install commandbox-docbox
+
+      - name: Generate API Docs
+        run: box run-script build:apidocs
+
+      - name: Upload API Docs to S3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read
+        env:
+          AWS_S3_BUCKET: "apidocs.ortussolutions.com"
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_SECRET }}
+          SOURCE_DIR: ".tmp/apidocs"
+          DEST_DIR: "coldbox-modules/cbelasticsearch"
+
+      - name: Upload Build Artifacts
+        if: success()
+        uses: actions/upload-artifact@v2
+        with:
+          name: cbelasticsearch
+          path: |
+            build
+
+      - name: Upload Binaries to S3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read
+        env:
+          AWS_S3_BUCKET: "downloads.ortussolutions.com"
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_SECRET }}
+          SOURCE_DIR: "artifacts/cbelasticsearch"
+          DEST_DIR: "ortussolutions/coldbox-modules/cbelasticsearch"
+
+      - name: Deploy to Forgebox
+        run: |
+          cd build
+          box forgebox publish

@@ -22,7 +22,11 @@
     "contributors": [
         "Jon Clausen <jclausen@ortussolutions.com>",
         "Eric Peterson <eric@ortussolutions.com>",
-        "Michael Born <michael@ortussolutions.com>"
+        "Michael Born <michael@ortussolutions.com>",
+        "Grant Copley <grant@ortussolutions.com>",
+        "Andreas Eppinger <andreas.eppinger@webwaysag.ch>",
+        "Andrew Davis <adavis@ortussolutions.com>",
+        "Luis Majano <luis@ortussolutions.com>"
     ],
     "dependencies": {
         "hyper": "^2.3.1"
