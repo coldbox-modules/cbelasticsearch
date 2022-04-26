@@ -261,12 +261,10 @@ component accessors="true" {
 					"should" : arguments.name.map( function( key ){
 						return {
 							"wildcard" : {
-								"#key#" : (
-									"value" : ( reFind( "^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) ? (
-													"*" & value & "*"
-												) : value ),
+								"#key#" : {
+									"value" : ( reFind( "^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) ? ( "*" & value & "*" ) : value ),
 									"case_insensitive": #arguments.caseinsenstive#
-								)
+								}
 							}
 						};
 					} )
@@ -275,10 +273,10 @@ component accessors="true" {
 		} else {
 			var wildcard = {
 				"wildcard" : {
-					"#name#" : (
+					"#name#" : {
 						"value": ( reFind( "^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) ? ( "*" & value & "*" ) : value ),
 						"case_insensitive": #arguments.caseinsenstive#
-					)
+					}
 				}
 			};
 		}
