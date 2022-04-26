@@ -247,7 +247,7 @@ component accessors="true" {
 		required any name,
 		required any value,
 		numeric boost,
-		string operator = "must",
+		string operator        = "must",
 		boolean caseinsenstive = false
 	){
 		param variables.query.bool = {};
@@ -262,8 +262,12 @@ component accessors="true" {
 						return {
 							"wildcard" : {
 								"#key#" : {
-									"value" : ( reFind( "^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) ? ( "*" & value & "*" ) : value ),
-									"case_insensitive": #arguments.caseinsenstive#
+									"value" : (
+										reFind( "^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) ? (
+											"*" & value & "*"
+										) : value
+									),
+									"case_insensitive" : #arguments.caseinsenstive#
 								}
 							}
 						};
@@ -274,8 +278,10 @@ component accessors="true" {
 			var wildcard = {
 				"wildcard" : {
 					"#name#" : {
-						"value": ( reFind( "^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) ? ( "*" & value & "*" ) : value ),
-						"case_insensitive": #arguments.caseinsenstive#
+						"value" : (
+							reFind( "^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) ? ( "*" & value & "*" ) : value
+						),
+						"case_insensitive" : #arguments.caseinsenstive#
 					}
 				}
 			};
