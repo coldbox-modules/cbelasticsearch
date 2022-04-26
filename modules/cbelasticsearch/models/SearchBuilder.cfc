@@ -237,16 +237,18 @@ component accessors="true" {
 
 	/**
 	 * Adds a wildcard search to the query
-	 * @name 		string 		the name of the parameter to match
-	 * @value 		any 		the value of the parameter to match
-	 * @boost 		numeric		A numeric boost option for any exact matches
+	 * @name 				string 		the name of the parameter to match
+	 * @value 				any 		the value of the parameter to match
+	 * @boost 				numeric		A numeric boost option for any exact matches
+	 * @caseinsensitive		boolean		Should the search be caseinsensitive ?
 	 *
 	 **/
 	SearchBuilder function wildcard(
 		required any name,
 		required any value,
 		numeric boost,
-		string operator = "must"
+		string operator = "must",
+		boolean caseinsenstive = false
 	){
 		param variables.query.bool = {};
 		if ( !structKeyExists( variables.query.bool, operator ) ) {
@@ -260,9 +262,10 @@ component accessors="true" {
 						return {
 							"wildcard" : {
 								"#key#" : (
-									reFind( "^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) ? (
-										"*" & value & "*"
-									) : value
+									"value" : ( reFind( "^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) ? (
+													"*" & value & "*"
+												) : value ),
+									"case_insensitive": #arguments.caseinsenstive#
 								)
 							}
 						};
@@ -273,7 +276,8 @@ component accessors="true" {
 			var wildcard = {
 				"wildcard" : {
 					"#name#" : (
-						reFind( "^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) ? ( "*" & value & "*" ) : value
+						"value": ( reFind( "^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) ? ( "*" & value & "*" ) : value ),
+						"case_insensitive": #arguments.caseinsenstive#
 					)
 				}
 			};
