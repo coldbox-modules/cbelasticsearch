@@ -222,11 +222,12 @@ component
 	 * @id 		any 		The document key
 	 * @index 	string 		The name of the index
 	 * @type 	type 		The name of the type
+	 * @params  struct      A struct of query parameters to pass with the request
 	 * @interfaced
 	 *
 	 * @return 	any 		Returns a Document object if found, otherwise returns null
 	 **/
-	any function get( required any id, string index, string type ){
+	any function get( required any id, string index, string type, struct params={} ){
 		return variables.nativeClient.get( argumentCollection = arguments );
 	}
 
