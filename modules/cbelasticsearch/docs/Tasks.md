@@ -1,13 +1,14 @@
-Elasticsearch Tasking
-====================
+---
+description: Learn how to work with asynchronous Elasticsearch operations to process documents in a non-blocking manner
+---
 
+# Elasticsearch Tasking
 
-When performing bulk operations - [reindexing](Indexes.md), [query-based updating or deletions](Documents.md) - a parameter may be provided which allows the job to run in a non-blocking manner.  The method that Elasticsearch uses to monitor the completion of these jobs is called a [task](https://www.elastic.co/guide/en/elasticsearch/reference/current/tasks.html).  In the `reindex`, `updateByQuery`, and `deleteByQuery` methods of the client, the argument `waitForCompletion` may be passed.  When set to false a `Task` object can be returned which will provide the status of the task and allow you to refresh through completion.
-
+When performing bulk operations - [reindexing](Indexes.md), [query-based updating or deletions](Documents.md) - a parameter may be provided which allows the job to run in a non-blocking manner. The method that Elasticsearch uses to monitor the completion of these jobs is called a [task](https://www.elastic.co/guide/en/elasticsearch/reference/current/tasks.html). In the `reindex`, `updateByQuery`, and `deleteByQuery` methods of the client, the argument `waitForCompletion` may be passed. When set to false a `Task` object can be returned which will provide the status of the task and allow you to refresh through completion.
 
 An example, using the reindex method and flushing the status output to the browser, might look something like:
 
-```
+```js
 var oldIndex = "books_v1";
 var newIndex = "books_v2";
 var reindexTask = getInstance( "Client@cbElasticsearch" )
@@ -25,17 +26,17 @@ var reindexTask = getInstance( "Client@cbElasticsearch" )
 
 while( !reindexTask.isComplete() ){
     var status = reindexTask.getStatus();
-    writeOutput( "Waiting for task to complete.  #status.created# documents of #status.total# documents have been migrated to #newIndex#" );
+    writeOutput( "Waiting for task to complete. #status.created# documents of #status.total# documents have been migrated to #newIndex#" );
     flush();
 }
 ```
 
-The `isComplete` method also accepts an argument of `delay` to slow down the rate at which it re-checks the completion of the task.  Using the above example, we could check only every 5 seconds by passing 5000 milliseconds as the `delay` argument:
+The `isComplete` method also accepts an argument of `delay` to slow down the rate at which it re-checks the completion of the task. Using the above example, we could check only every 5 seconds by passing 5000 milliseconds as the `delay` argument:
 
-```
+```js
 while( !reindexTask.isComplete( delay=5000 ) ){
     var status = reindexTask.getStatus();
-    writeOutput( "<p>Waiting for task to complete.  #status.created# documents of #status.total# documents have been migrated to #newIndex#.</p>" );
+    writeOutput( "<p>Waiting for task to complete. #status.created# documents of #status.total# documents have been migrated to #newIndex#.</p>" );
     flush();
 }
 ```

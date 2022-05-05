@@ -99,7 +99,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					} );
 			} );
 
-			it( "can retreive a map of all aliases", function(){
+			it( "can retrieve a map of all aliases", function(){
 				// create an alias so we can test
 				var aliasName = lCase( "GetAliasesTestAlias" );
 
@@ -331,7 +331,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			} );
 
 			describe( "tasks", function(){
-				it( "can retreive all tasks on the cluster", function(){
+				it( "can retrieve all tasks on the cluster", function(){
 					var activeTasks = variables.model.getTasks();
 					expect( activeTasks ).toBeArray();
 					activeTasks.each( function( task ){
@@ -339,7 +339,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					} );
 				} );
 
-				it( "can retreive the status of a single task", function(){
+				it( "can retrieve the status of a single task", function(){
 					// create some documents so we can fire an upate by query
 					var documents = [];
 					for ( var i = 1; i <= 10000; i++ ) {
@@ -437,7 +437,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( document.getId() ).toBe( variables.testDocumentId );
 			} );
 
-			it( "Tests the ability to retreive multiple documents with an array of identifiers", function(){
+			it( "Tests the ability to retrieve multiple documents with an array of identifiers", function(){
 				expect( variables ).toHaveKey( "bulkInserts" );
 				expect( variables ).toHaveKey( "testIndexName" );
 				var identifiers = variables.bulkInserts.map( function( doc ){

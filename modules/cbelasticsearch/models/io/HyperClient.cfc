@@ -585,11 +585,12 @@ component accessors="true" threadSafe singleton {
 	 * @id 		any 		The document key
 	 * @index 	string 		The name of the index
 	 * @type 	type 		The name of the type
+	 * @params  struct      A struct of params to pass to the request
 	 * @interfaced
 	 *
 	 * @return 	any 		Returns a Document object if found, otherwise returns null
 	 **/
-	any function get( required any id, string index, string type ){
+	any function get( required any id, string index, string type, struct params={} ){
 		if ( isNull( arguments.index ) ) {
 			arguments.index = variables.instanceConfig.get( "defaultIndex" );
 		}
@@ -598,10 +599,17 @@ component accessors="true" threadSafe singleton {
 			arguments.type = "_doc";
 		}
 
-		var retrievedResult = variables.nodePool
+		var getRequest = variables.nodePool
 			.newRequest( "#arguments.index#/#arguments.type#/#urlEncodedFormat( arguments.id )#" )
-			.setThrowOnError( false )
-			.send();
+			.setThrowOnError( false );
+		
+		arguments.params
+			.keyArray()
+			.each( function( key ){
+				getRequest.setQueryParam( key, params[ key ] );
+			} );
+
+		var retrievedResult = getRequest.send();
 
 		if (
 			retrievedResult.getStatusCode() != 200
