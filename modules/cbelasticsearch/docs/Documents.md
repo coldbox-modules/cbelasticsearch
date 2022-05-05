@@ -89,6 +89,22 @@ var existingDocument = getInstance( "Client@cbElasticsearch" )
     );
 ```
 
+The `get` method also accepts a struct of [query parameters](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-get.html#docs-get-api-query-params) to pass to the document retrieval request.  For example, we only want certain items returned in the document JSON, we can pass a `_source_includes` query parameter:
+
+```js
+var minimal = getInstance( "Client@cbElasticsearch" )
+    .get(
+        id = bookId,
+        index = "bookshop",
+        type = "_doc",
+        params = {
+            "_source_includes" : "_id,title"
+        }
+    );
+```
+
+This will bring back only the identifier and title in the retrieved document. [A list of available query parameters may be found here](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-get.html#docs-get-api-query-params).
+
 #### Updating a Document
 
 Once we've retrieved an existing document, we can simply update items through the `Document` instance and re-save them.

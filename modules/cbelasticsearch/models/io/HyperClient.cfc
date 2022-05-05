@@ -609,7 +609,7 @@ component accessors="true" threadSafe singleton {
 				getRequest.setQueryParam( key, params[ key ] );
 			} );
 
-		var retrievedResult = request.send();
+		var retrievedResult = getRequest.send();
 
 		if (
 			retrievedResult.getStatusCode() != 200
