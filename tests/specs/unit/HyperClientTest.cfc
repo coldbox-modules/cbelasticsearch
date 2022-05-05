@@ -382,6 +382,27 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( document.getId() ).toBe( variables.testDocumentId );
 			} );
 
+			it( "Tests the ability to retrieve a document with params", function(){
+				expect( variables ).toHaveKey( "testDocumentId" );
+				expect( variables ).toHaveKey( "testIndexName" );
+
+				var document = variables.model.get(
+					variables.testDocumentId,
+					variables.testIndexName,
+					"testdocs",
+					{
+						"_source_includes" : "_id,title"
+					}
+				);
+
+				expect( isNull( document ) ).toBeFalse();
+				expect( document ).toBeComponent();
+				expect( document.getMemento( true ) ).toBeStruct();
+				expect( document.getId() ).toBe( variables.testDocumentId );
+				expect( document.getMemento() ).toHaveKey( "title" );
+				expect( document.getMemento().keyExists( "createdTime" ) ).toBeFalse();
+			} );
+
 			it( "Tests the ability to retrieve multiple documents with an array of identifiers", function(){
 				expect( variables ).toHaveKey( "bulkInserts" );
 				expect( variables ).toHaveKey( "testIndexName" );
