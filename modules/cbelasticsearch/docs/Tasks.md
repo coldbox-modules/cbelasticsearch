@@ -41,6 +41,31 @@ while( !reindexTask.isComplete( delay=5000 ) ){
 }
 ```
 
-At time a reindex process may be marked as complete, but the documents were not transfered. If this happens ( e.g. `getStatus().total != getStatus().created` ), or the `reindexTask.getStatus().total` count is not the correct number of documents in your index, you can inspect the content of `reindexTask.getResponse()` to determine the reindexing errors.
+At times a reindex process may be marked as complete, but the documents were not transfered. In CBElasticsearch v2.2.5+, you can use `reindexTask.getError()` to check for errors running the reindex script.
+
+```
+if ( !isNull( task.getError() ) ){
+  throw(
+    message = "Error running task",
+    extendedInfo = serializeJSON( error )
+  );
+}
+```
+
+For older CBElasticsearch versions, inspect the document counts to determine if a reindex or update script failed:
+
+```
+if ( getStatus().total != getStatus().created ){
+  throw(
+    message = "Failed to create #getStatus().total-getStatus().created# documents",
+    extendedInfo = serializeJSON( getStatus() )
+  );
+}
+```
+
+{% hint style="info" %}
+`getResponse()` will contain the error details when a script fails on specific documents. For more broad syntax or script-level errors, the error may only be contained in the newer `getError()` payload in newer versions of CBElasticsearch.
+{% endhint %}
+
 
 When managing large indexes, a task-based approach to bulk operations can allow you to optimize the resource usage of both your Elasticsearch and CFML Application servers.
