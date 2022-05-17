@@ -390,9 +390,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					variables.testDocumentId,
 					variables.testIndexName,
 					"testdocs",
-					{
-						"_source_includes" : "_id,title"
-					}
+					{ "_source_includes" : "_id,title" }
 				);
 
 				expect( isNull( document ) ).toBeFalse();

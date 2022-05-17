@@ -590,7 +590,12 @@ component accessors="true" threadSafe singleton {
 	 *
 	 * @return 	any 		Returns a Document object if found, otherwise returns null
 	 **/
-	any function get( required any id, string index, string type, struct params={} ){
+	any function get(
+		required any id,
+		string index,
+		string type,
+		struct params = {}
+	){
 		if ( isNull( arguments.index ) ) {
 			arguments.index = variables.instanceConfig.get( "defaultIndex" );
 		}
@@ -602,7 +607,7 @@ component accessors="true" threadSafe singleton {
 		var getRequest = variables.nodePool
 			.newRequest( "#arguments.index#/#arguments.type#/#urlEncodedFormat( arguments.id )#" )
 			.setThrowOnError( false );
-		
+
 		arguments.params
 			.keyArray()
 			.each( function( key ){
