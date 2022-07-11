@@ -72,13 +72,13 @@ component
 	/**
 	 * Document provider
 	 **/
-	Client function newDocument() provider="Document@cbElasticsearch"{
+	Document function newDocument() provider="Document@cbElasticsearch"{
 	}
 
 	/**
 	 * Index Builder Provider
 	 **/
-	Client function indexBuilder() provider="IndexBuilder@cbElasticsearch"{
+	IndexBuilder function indexBuilder() provider="IndexBuilder@cbElasticsearch"{
 	}
 
 	/**
