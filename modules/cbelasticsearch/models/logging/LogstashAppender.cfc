@@ -8,6 +8,7 @@ component
 {
 
 	property name="util" inject="Util@cbelasticsearch";
+	property name="cachebox" inject="cachebox";
 
 	/**
 	 * Constructor
@@ -51,7 +52,8 @@ component
 			"applicationName" : applicationName,
 			"releaseVersion"  : "",
 			"indexShards"     : 2,
-			"indexReplicas"   : 0
+			"indexReplicas"   : 0,
+			"cacheName"       : "template"
 		};
 
 		for ( var configKey in structKeyArray( instance.Defaults ) ) {
@@ -211,6 +213,8 @@ component
 
 		preflightLogEntry( logObj );
 
+		ensureIndex();
+
 		newDocument()
 			.new( index = getRotationalIndexName(), properties = logObj )
 			.setId( instance.uuid.randomUUID() )
@@ -223,9 +227,18 @@ component
 	 * Verify or create the logging index
 	 */
 	private void function ensureIndex() output=false{
-		if ( getClient().indexExists( getRotationalIndexName() ) ) return;
 
-		indexBuilder().new( name = getRotationalIndexName(), properties = getIndexConfig() ).save();
+		var currentIndexName = getRotationalIndexName();
+
+		variables.cachebox.getCache( instance.defaults.cacheName ).getOrSet(
+			"indexAssured_" & currentIndexName,
+			function(){
+				if ( getClient().indexExists( currentIndexName ) ) return;
+				indexBuilder().new( name = currentIndexName, properties = getIndexConfig() ).save();
+				return true;
+			}
+		);
+		
 	}
 
 	private function getRotationalIndexName(){
