@@ -1,7 +1,7 @@
 component extends="HyperClientTest" {
 
 	function beforeAll(){
-		setup();
+		super.beforeAll();
 
 		variables.model = getWirebox().getInstance( "Client@cbElasticsearch" );
 

@@ -3,8 +3,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 	this.loadColdbox = true;
 
 	function beforeAll(){
+		super.beforeAll();
 		if ( !structKeyExists( variables, "model" ) ) {
-			setup();
 			variables.model = getWirebox().getInstance( "HyperClient@cbElasticsearch" );
 		}
 

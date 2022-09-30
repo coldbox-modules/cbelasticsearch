@@ -3,7 +3,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 	function beforeAll(){
 		this.loadColdbox = true;
 
-		setup();
+		super.beforeAll();
 
 		var props = { "index" : "logboxappendertests", "type" : "_doc" };
 

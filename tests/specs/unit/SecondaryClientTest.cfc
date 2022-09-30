@@ -3,7 +3,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 	this.loadColdbox = true;
 
 	function beforeAll(){
-		setup();
+		super.beforeAll();
 		variables.model = getWirebox().getInstance( "Client@SecondaryCluster" );
 
 		variables.testIndexName    = lCase( "SecondaryClientTests" );

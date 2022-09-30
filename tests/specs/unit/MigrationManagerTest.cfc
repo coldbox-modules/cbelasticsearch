@@ -3,8 +3,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 	this.loadColdbox = true;
 
 	function beforeAll(){
-		super.afterAll();
-		setup();
+		super.beforeAll();
 
 		variables.searchClient    = getWirebox().getInstance( "Client@cbelasticsearch" );
 		variables.migrationsIndex = ".cfmigrations-testing";

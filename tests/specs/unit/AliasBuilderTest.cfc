@@ -3,7 +3,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 	function beforeAll(){
 		this.loadColdbox = true;
 
-		setup();
+		super.beforeAll();
 
 		variables.client        = getWireBox().getInstance( "Client@cbElasticSearch" );
 		variables.testIndexName = lCase( "AliasBuilderTests" );

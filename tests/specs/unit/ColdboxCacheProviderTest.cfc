@@ -6,7 +6,7 @@ component extends="CacheProviderTest" {
 	function beforeAll(){
 		this.loadColdbox = true;
 
-		setup();
+		super.beforeAll();
 
 		// Mocks
 		mockFactory      = getMockBox().createEmptyMock( className = "coldbox.system.cache.CacheFactory" );

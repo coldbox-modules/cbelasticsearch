@@ -3,9 +3,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 	this.loadColdbox = true;
 
 	function beforeAll(){
-		super.afterAll();
-
-		setup();
+		super.beforeAll();
 
 		variables.model = getWirebox().getInstance( "SearchBuilder@cbElasticSearch" );
 

@@ -3,7 +3,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 	function beforeAll(){
 		this.loadColdbox = true;
 
-		setup();
+		super.beforeAll();
 
 		variables.model = getMockBox().createMock( className = "cbelasticsearch.models.logging.LogstashAppender" );
 
