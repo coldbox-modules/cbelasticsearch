@@ -6,9 +6,9 @@
     "defaultPort":0,
     "dependencies":{},
     "devDependencies":{
-        "coldbox":"^6.0",
-        "testbox":"^3.0.0",
-        "hyper":"^3.0.0",
+        "coldbox":"^6.8.1",
+        "testbox":"^4.5.0",
+        "hyper":"^4.0.0",
         "cfmigrations":"^3.0.3",
         "workbench":"git+https://github.com/Ortus-Solutions/unified-workbench.git"
     },

@@ -29,47 +29,34 @@ component{
 	// COLDBOX APPLICATION KEY OVERRIDE
 	COLDBOX_APP_KEY 		 = "";
 
-	// application start
-	public boolean function onApplicationStart(){
-		application.cbBootstrap = new coldbox.system.Bootstrap( COLDBOX_CONFIG_FILE, COLDBOX_APP_ROOT_PATH, COLDBOX_APP_KEY, COLDBOX_APP_MAPPING );
-		application.cbBootstrap.loadColdbox();
-		return true;
-	}
-	public void function onSessionStart(){
-		application.cbBootStrap.onSessionStart();
-	}
-
-	public void function onSessionEnd( struct sessionScope, struct appScope ){
-		arguments.appScope.cbBootStrap.onSessionEnd( argumentCollection=arguments );
-	}
-
-	public boolean function onMissingTemplate( template ){
-		return application.cbBootstrap.onMissingTemplate( argumentCollection=arguments );
-	}
-
 	function onRequestStart( string targetPage ){
-		setting requestTimeout="180";
+		// Set a high timeout for long running tests
+		setting requestTimeout="9999";
+		// New ColdBox Virtual Application Starter
+		request.coldBoxVirtualApp = new coldbox.system.testing.VirtualApp( appMapping = "/root" );
 
-		if( ! structKeyExists( application, "cbBootstrap" ) ){
-			onApplicationStart();
+		// ORM Reload for fresh results
+		if( structKeyExists( url, "fwreinit" ) ){
+			if( structKeyExists( server, "lucee" ) ){
+				pagePoolClear();
+			}
+			ormReload();
+			request.coldBoxVirtualApp.shutdown();
 		}
-		// Process ColdBox Request
-		application.cbBootstrap.onRequestStart( arguments.targetPage );
-		
-		// Clear out the previous framework objects so that the first spec with `loadColdbox` set to `true` will reload them
-		if( structKeyExists( url, "persistColdbox" ) && !url.persistColdbox ){
 
-			structDelete( application, "cbController" );
-			structDelete( application, "wirebox" );
-
+		// If hitting the runner or specs, prep our virtual app
+		if ( getBaseTemplatePath().replace( expandPath( "/tests" ), "" ).reFindNoCase( "(runner|specs)" ) ) {
+			request.coldBoxVirtualApp.startup();
 		}
+
+		return true;
 
 	}
 
 	public function onRequestEnd(string targetPage) {
 
-		if( structKeyExists( URL, "reinitApp" ) ){
-			applicationStop();
+		if( request.keyExists( "coldBoxVirtualApp") ){
+			request.coldBoxVirtualApp.shutdown();
 		}
 
 	}

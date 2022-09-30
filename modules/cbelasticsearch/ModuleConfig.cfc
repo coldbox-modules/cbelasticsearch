@@ -10,7 +10,7 @@ component{
     this.author 			= "Jon Clausen <jclausen@ortussolutions.com>";
     this.webURL 			= "";
     this.description 		= "Coldbox Module with Fluent API for ElasticSearch";
-    this.version			= "0.2.0+38";
+    this.version			= "@build.version@+@build.number@";
     // If true, looks for views in the parent first, if not found, then in the module. Else vice-versa
     this.viewParentLookup 	= true;
     // If true, looks for layouts in the parent first, if not found, then in module. Else vice-versa
