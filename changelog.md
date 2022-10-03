@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 * Removed Java v8 testing from matrix as ES8 only runs on 11+
 
+### Changed
+* Added wait for refresh to cache provider put/delete to ensure concurrency support
+
 ## [2.3.2] - 2022-09-28
 ### Fixed
 * Fixed an issue where documents were being sent to the rotational index without it being assured and mapped
