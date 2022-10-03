@@ -261,7 +261,7 @@ component accessors="true" threadSafe singleton {
 		}
 
 		if (
-			isMajorVersion( 7 )
+			!isMajorVersion( 6 )
 			&& structKeyExists( indexDSL, "mappings" )
 			&& !structIsEmpty( indexDSL.mappings )
 			&& !structKeyExists( indexDSL.mappings, "properties" )
@@ -276,7 +276,7 @@ component accessors="true" threadSafe singleton {
 		}
 
 		if (
-			isMajorVersion( 7 )
+			!isMajorVersion( 6 )
 			&& structKeyExists( indexDSL, "mappings" )
 			&& structKeyExists( indexDSL.mappings, "_all" )
 		) {
@@ -302,7 +302,7 @@ component accessors="true" threadSafe singleton {
 			}
 		} else {
 			if ( structKeyExists( indexDSL, "mappings" ) ) {
-				if ( isMajorVersion( 7 ) ) {
+				if ( !isMajorVersion( 6 ) ) {
 					indexResult[ "mappings" ] = applyMapping( indexName, "_doc", indexDSL.mappings );
 				} else {
 					indexResult[ "mappings" ] = applyMappings( indexName, indexDSL.mappings );
@@ -531,8 +531,8 @@ component accessors="true" threadSafe singleton {
 		string mappingName,
 		required struct mappingConfig
 	){
-		if ( isMajorVersion( 7 ) ) {
-			// remove v7 unsupported keys
+		if ( !isMajorVersion( 6 ) ) {
+			// remove v7/v8 unsupported keys
 			var unsupported = [ "_all" ];
 			unsupported.each( function( remove ){
 				structDelete( mappingConfig, remove );
@@ -595,7 +595,7 @@ component accessors="true" threadSafe singleton {
 			arguments.index = variables.instanceConfig.get( "defaultIndex" );
 		}
 
-		if ( isNull( arguments.type ) || isMajorVersion( 7 ) ) {
+		if ( isNull( arguments.type ) || !isMajorVersion( 6 ) ) {
 			arguments.type = "_doc";
 		}
 
@@ -681,7 +681,7 @@ component accessors="true" threadSafe singleton {
 				 ? newDocument()
 					.new(
 						doc[ "_index" ],
-						doc[ "_type" ],
+						doc[ "_type" ] ?: javacast( "null", 0 ),
 						doc[ "_source" ]
 					)
 					.setId( doc[ "_id" ] )

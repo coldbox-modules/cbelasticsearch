@@ -1,8 +1,18 @@
 version: "3"
 
 services:
+    elasticsearch8:
+        image: elasticsearch:8.4.2
+        environment:
+            - ES_JAVA_OPTS=-Xms2g -Xmx2g
+            - discovery.type=single-node
+            - xpack.security.enabled=false
+        ports:
+            - "9200:9200"
+            - "9300:9300"
+
     elasticsearch:
-        image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+        image: elasticsearch:7.17.6
         environment:
             - ES_JAVA_OPTS=-Xms1g -Xmx1g
             - http.host=0.0.0.0
@@ -14,7 +24,7 @@ services:
             - "9300:9300"
 
     elasticsearch-cluster2:
-        image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+        image: elasticsearch:7.17.6
         environment:
             - ES_JAVA_OPTS=-Xms1g -Xmx1g
             - http.host=0.0.0.0
