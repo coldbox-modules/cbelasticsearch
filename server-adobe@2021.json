@@ -1,0 +1,14 @@
+{
+    "app":{
+        "cfengine":"adobe@2021"
+    },
+    "name":"cbox-elasticsearch-adobe2021",
+    "web":{
+        "HTTP":{
+            "port":"60299"
+        }
+    },
+    "scripts":{
+        "onServerInstall":"cfpm install zip,feed,mail,debugger"
+    }
+}

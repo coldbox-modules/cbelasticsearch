@@ -14,12 +14,12 @@ jobs:
       ELASTICSEARCH_PROTOCOL: http
       ELASTICSEARCH_HOST: 127.0.0.1
       ELASTICSEARCH_PORT: 9200
-      ELASTICSEARCH_VERSION: 7.17.2
+      javaVersion: 11
     strategy:
       fail-fast: true
       matrix:
-        cfengine: ["lucee@5", "adobe@2016", "adobe@2018"]
-        javaVersion: [ "8", "11" ]
+        cfengine: ["lucee@5", "adobe@2016", "adobe@2018", "adobe@2021"]
+        ELASTICSEARCH_VERSION: [ "7.17.2", "8.4.2" ]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -28,14 +28,14 @@ jobs:
         uses: actions/setup-java@v2
         with:
           distribution: "adopt"
-          java-version: ${{ matrix.javaVersion }}
+          java-version: ${{ env.javaVersion }}
 
       - name: Setup CommandBox
         uses: elpete/setup-commandbox@v1.0.0
 
       - name: Setup Elasticsearch
         run: |
-          docker run -d -p "${{ env.ELASTICSEARCH_PORT }}:9200" -e 'discovery.type=single-node' elasticsearch:${{ env.ELASTICSEARCH_VERSION }}
+          docker run -d -p "${{ env.ELASTICSEARCH_PORT }}:9200" -e 'discovery.type=single-node' elasticsearch:${{ matrix.ELASTICSEARCH_VERSION }}
           rm -rf modules_app
           rm -f tests/specs/unit/SecondaryClientTest.cfc
 
@@ -58,7 +58,7 @@ jobs:
         uses: mikepenz/action-junit-report@v2
         with:
           report_paths: 'tests/results/*.xml'
-          check_name: "${{ matrix.cfengine }}/${{ matrix.javaVersion }} Test Results"
+          check_name: "${{ matrix.cfengine }}/ES${{ matrix.ELASTICSEARCH_VERSION }} Test Results"
           summary: true
 
       - name: Failure debugging

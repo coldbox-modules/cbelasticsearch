@@ -2,6 +2,7 @@
     "app":{
         "cfengine":"lucee@5"
     },
+    "name":"cbox-elasticsearch-lucee5",
     "web":{
         "HTTP":{
             "port":"60299"
