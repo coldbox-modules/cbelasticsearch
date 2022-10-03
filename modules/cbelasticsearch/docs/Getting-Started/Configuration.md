@@ -54,6 +54,10 @@ moduleSettings = {
 
 At the current time only the REST-based [Hyper] native client is available. Support is in development for a socket based-client. For most applications, however the REST-based native client will be a good fit.
 
+{% hint style="warning" %}
+_Elasticsearch v8 Note:  Elasticsearch version greater than 8.0.0 have [XPack security](https://www.elastic.co/guide/en/elasticsearch/reference/current/security-settings.html) enabled by default.  In order to disable security you must pass the `xpack.security.enabled=false` environment variable to the service, or add this configuration to your `elasticsearch.yml` file. Without security disabled, you will need to provide credentials._
+{% endhint %}
+
 ## Configuration via Environment Variables
 
 Since the default settings will read from environment variables if they exist, we can easily configure cbElasticsearch from a `.env` file:
