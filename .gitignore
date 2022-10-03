@@ -13,6 +13,7 @@ tests/results/*
 coldbox/*
 testbox/*
 modules/*
+logs/*
 !modules/cbelasticsearch
 
 # Gitbook artifacts
