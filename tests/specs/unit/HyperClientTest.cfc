@@ -745,9 +745,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						testDocument
 					);
 
-				var saveResult = variables.model.save( document );
-
-				sleep( 2000 );
+				var saveResult = variables.model.save( document, true );
 
 				var searchBuilder = getWireBox()
 					.getInstance( "SearchBuilder@cbElasticSearch" )
@@ -797,9 +795,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						testDocument
 					);
 
-				var saveResult = variables.model.save( document );
-
-				sleep( 2000 );
+				var saveResult = variables.model.save( document, true );
 
 				var searchBuilder = getWireBox()
 					.getInstance( "SearchBuilder@cbElasticSearch" )
@@ -869,10 +865,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						);
 					}
 
-					var savedDocs = variables.model.saveAll( documents );
-
-					// sleep for 1.5 seconds to ensure full persistence
-					sleep( 1500 );
+					var savedDocs = variables.model.saveAll( documents=documents, params={ "refresh" : "wait_for" } );
 
 					var searchOne = getWireBox()
 						.getInstance( "SearchBuilder@cbElasticSearch" )
@@ -898,9 +891,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 					variables.model.reindex(
 						source      = variables.testIndexNameOne,
-						destination = variables.testIndexNameTwo
+						destination = variables.testIndexNameTwo,
+						waitForCompletion = true
 					);
 
+					// We still have to wait for background indexing to update
 					sleep( 1500 );
 
 					expect( variables.model.count( searchTwo ) ).toBe(
@@ -943,10 +938,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						);
 					}
 
-					var savedDocs = variables.model.saveAll( documents );
-
-					// sleep for 1.5 seconds to ensure full persistence
-					sleep( 1500 );
+					var savedDocs = variables.model.saveAll( documents=documents, params={ "refresh" : "wait_for" } );
 
 					var searchOne = getWireBox()
 						.getInstance( "SearchBuilder@cbElasticSearch" )
