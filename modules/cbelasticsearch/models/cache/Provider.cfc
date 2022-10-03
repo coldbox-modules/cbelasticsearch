@@ -610,7 +610,7 @@ component
 			arrayAppend( documents, document );
 		}
 
-		var transactionResult = getClient().saveAll( documents );
+		var transactionResult = getClient().saveAll( documents, true, { "refresh"  : "wait_for" } );
 
 		var te = getTickCount();
 
@@ -667,7 +667,7 @@ component
 		document.setId( objectKey );
 
 		try {
-			var future = document.save();
+			var future = document.save( refresh=true );
 		} catch ( any e ) {
 			if ( isTimeoutException( e ) && getConfiguration().ignoreElasticsearchTimeouts ) {
 				// log it
@@ -751,7 +751,7 @@ component
 		var document = newDocument().new( getConfiguration().index, getConfiguration().type );
 		document.setId( arguments.objectKey );
 
-		var future = ElasticsearchClient.delete( document );
+		var future = ElasticsearchClient.delete( document, true, { "refresh" : "wait_for" } );
 
 		// ColdBox events
 		var iData = {

@@ -78,8 +78,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 				cache.set( "valid", "Totally valid!" );
 
-				sleep( 1000 );
-
 				expect( cache.lookup( "valid" ) ).toBeTrue();
 
 				cache.clear( "valid" );
@@ -98,8 +96,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				var testVal = { name : "luis", age : 32 };
 
 				cache.set( "unittestkey", testVal );
-
-				sleep( 2000 );
 
 				var results = cache.get( "unittestkey" );
 
@@ -144,8 +140,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				cache.set( "unitTestKey", "Testing" );
 				cache.expireObject( "unitTestKey" );
 
-				sleep( 2 );
-
 				results = cache.get( "unitTestKey" );
 
 				assertTrue( isNull( results ) );
@@ -179,8 +173,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( variables ).toHaveKey( "multipleRecords" );
 
 				cache.expireAll();
-
-				sleep( 1000 );
 
 				expect( structIsEmpty( cache.getMulti( variables.multipleRecords ) ) ).toBeTrue();
 			} );
