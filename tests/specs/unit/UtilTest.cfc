@@ -2,7 +2,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 	function beforeAll(){
 		this.loadColdbox = true;
-		
+
 		super.beforeAll();
 
 		variables.model = getWirebox().getInstance( "Util@cbElasticSearch" );

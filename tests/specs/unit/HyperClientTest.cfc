@@ -390,9 +390,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					variables.testDocumentId,
 					variables.testIndexName,
 					"testdocs",
-					{
-						"_source_includes" : "_id,title"
-					}
+					{ "_source_includes" : "_id,title" }
 				);
 
 				expect( isNull( document ) ).toBeFalse();
@@ -865,7 +863,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						);
 					}
 
-					var savedDocs = variables.model.saveAll( documents=documents, params={ "refresh" : "wait_for" } );
+					var savedDocs = variables.model.saveAll(
+						documents = documents,
+						params    = { "refresh" : "wait_for" }
+					);
 
 					var searchOne = getWireBox()
 						.getInstance( "SearchBuilder@cbElasticSearch" )
@@ -890,8 +891,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					);
 
 					variables.model.reindex(
-						source      = variables.testIndexNameOne,
-						destination = variables.testIndexNameTwo,
+						source            = variables.testIndexNameOne,
+						destination       = variables.testIndexNameTwo,
 						waitForCompletion = true
 					);
 
@@ -938,7 +939,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						);
 					}
 
-					var savedDocs = variables.model.saveAll( documents=documents, params={ "refresh" : "wait_for" } );
+					var savedDocs = variables.model.saveAll(
+						documents = documents,
+						params    = { "refresh" : "wait_for" }
+					);
 
 					var searchOne = getWireBox()
 						.getInstance( "SearchBuilder@cbElasticSearch" )

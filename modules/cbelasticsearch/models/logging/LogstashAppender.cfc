@@ -7,7 +7,7 @@ component
 	hint   ="This a logstash appender for Elasticsearch"
 {
 
-	property name="util" inject="Util@cbelasticsearch";
+	property name="util"     inject="Util@cbelasticsearch";
 	property name="cachebox" inject="cachebox";
 
 	/**
@@ -227,18 +227,15 @@ component
 	 * Verify or create the logging index
 	 */
 	private void function ensureIndex() output=false{
-
 		var currentIndexName = getRotationalIndexName();
 
-		variables.cachebox.getCache( instance.defaults.cacheName ).getOrSet(
-			"indexAssured_" & currentIndexName,
-			function(){
+		variables.cachebox
+			.getCache( instance.defaults.cacheName )
+			.getOrSet( "indexAssured_" & currentIndexName, function(){
 				if ( getClient().indexExists( currentIndexName ) ) return false;
 				indexBuilder().new( name = currentIndexName, properties = getIndexConfig() ).save();
 				return true;
-			}
-		);
-		
+			} );
 	}
 
 	private function getRotationalIndexName(){

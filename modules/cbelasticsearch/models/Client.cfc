@@ -227,7 +227,12 @@ component
 	 *
 	 * @return 	any 		Returns a Document object if found, otherwise returns null
 	 **/
-	any function get( required any id, string index, string type, struct params={} ){
+	any function get(
+		required any id,
+		string index,
+		string type,
+		struct params = {}
+	){
 		return variables.nativeClient.get( argumentCollection = arguments );
 	}
 
