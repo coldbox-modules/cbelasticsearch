@@ -233,7 +233,7 @@ component
 		variables.cachebox.getCache( instance.defaults.cacheName ).getOrSet(
 			"indexAssured_" & currentIndexName,
 			function(){
-				if ( getClient().indexExists( currentIndexName ) ) return;
+				if ( getClient().indexExists( currentIndexName ) ) return false;
 				indexBuilder().new( name = currentIndexName, properties = getIndexConfig() ).save();
 				return true;
 			}
