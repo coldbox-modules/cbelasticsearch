@@ -6,7 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ----
-## [2.3.4] - Unreleased
+## [2.4.0] - Unreleased
+
+### Removed
+* Removed support for Adobe Coldfusion 2016 (EOL)
+
+### Fixed
+* Issue #111 - Adds the ability to apply settings to an existing index
+
+### Added
+* Added `getSettings` method to retreive settings for a server or for an index
+* Added `getMappings` method to retreive mappings for an index
 
 ## [2.3.3] - 2022-10-03
 

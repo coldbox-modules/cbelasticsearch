@@ -29,11 +29,17 @@ component accessors="true" {
 		reset();
 	}
 
-	function reset(){
-		variables.settings = {
-			"number_of_shards"   : javacast( "int", getConfig().get( "defaultIndexShards" ) ),
-			"number_of_replicas" : javacast( "int", getConfig().get( "defaultIndexReplicas" ) )
-		};
+	function reset( indexName ){
+		variables.settings = {};
+
+		if( isNull( arguments.indexName ) || !getClient().indexExists( arguments.indexName ) ){
+			variables.settings.append(
+				{
+					"number_of_shards"   : javacast( "int", getConfig().get( "defaultIndexShards" ) ),
+					"number_of_replicas" : javacast( "int", getConfig().get( "defaultIndexReplicas" ) )
+				}
+			);
+		}
 
 		variables.mappings = {};
 
@@ -87,8 +93,6 @@ component accessors="true" {
 	 * @settings 	{Struct}	Key/value struct of index settings such as `number_of_shards`.
 	 */
 	IndexBuilder function new( string name, any properties, struct settings ){
-		reset();
-
 		return this.populate( argumentCollection = arguments );
 	}
 
@@ -99,14 +103,15 @@ component accessors="true" {
 	 * @properties 	{Struct}	Index mapping. Defines the fields and types used in the index.
 	 * @settings 	{Struct}	Key/value struct of index settings such as `number_of_shards`.
 	 */
-	boolean function patch( string name, any properties, struct settings ){
-		reset();
+	boolean function patch( required string name, any properties, struct settings ){
+		reset( arguments.name );
 
 		return this.populate( argumentCollection = arguments ).save();
 	}
 
 	IndexBuilder function populate( string name, any properties, struct settings ){
-		reset();
+		
+		reset( arguments.name ?: javacast( "null", 0 ) );
 
 		if ( !isNull( arguments.name ) ) {
 			variables.indexName = arguments.name;

@@ -98,6 +98,24 @@ component
 		return variables.nativeClient.indexMappingExists( argumentCollection = arguments );
 	}
 
+	/**
+	 * Returns the settings for an index
+	 *
+	 * @indexName string the name of the index ( optional ) if null returns all settings for the server
+	 */
+	struct function getSettings( string indexName ){
+		return variables.nativeClient.getSettings( argumentCollection = arguments );
+	}
+
+		/**
+	 * Returns the mappings for an index
+	 *
+	 * @indexName string the name of the index
+	 */
+	struct function getMappings( required string indexName ){
+		return variables.nativeClient.getMappings( argumentCollection = arguments );
+	}
+
 
 
 	/**

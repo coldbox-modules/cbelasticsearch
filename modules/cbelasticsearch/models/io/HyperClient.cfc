@@ -220,16 +220,42 @@ component accessors="true" threadSafe singleton {
 	 * @interfaced
 	 **/
 	boolean function indexMappingExists( required string indexName ){
-		var response = variables.nodePool.newRequest( arguments.indexName & "/_mapping", "GET" ).send();
+		try{
+			var mappings = getMappings( arguments.indexName );
+		} catch( any e ){
+			return false;
+		}
 
-		if ( response.getStatusCode() >= 500 ) {
+		return !mappings.isEmpty();
+	}
+
+	/**
+	 * Returns the settings for an index
+	 *
+	 * @indexName string the name of the index ( optional ) if null returns all settings for the server
+	 */
+	struct function getSettings( string indexName ){
+		var response = variables.nodePool.newRequest( !isNull( arguments.indexName ) ? arguments.indexName & "/_settings" : "_settings" , "GET" ).send();
+
+		if ( response.getStatusCode() != 200 ) {
 			onResponseFailure( response );
 		} else {
-			return (
-				response.getStatusCode() == 200
-				&&
-				!structIsEmpty( response.json() )
-			);
+			return response.json()[ indexName ].settings;
+		}
+	}
+
+	/**
+	 * Returns the mappings for an index
+	 *
+	 * @indexName string the name of the index
+	 */
+	struct function getMappings( required string indexName ){
+		var response = variables.nodePool.newRequest( arguments.indexName & "/_mapping", "GET" ).send();
+
+		if ( response.getStatusCode() != 200 ) {
+			onResponseFailure( response );
+		} else {
+			return response.json()[ indexName ].mappings;
 		}
 	}
 
@@ -306,6 +332,19 @@ component accessors="true" threadSafe singleton {
 					indexResult[ "mappings" ] = applyMapping( indexName, "_doc", indexDSL.mappings );
 				} else {
 					indexResult[ "mappings" ] = applyMappings( indexName, indexDSL.mappings );
+				}
+			}
+			if( structKeyExists( indexDSL, "settings" ) && !structIsEmpty( indexDSL.settings ) ){
+				var requestBuilder = variables.nodePool
+										.newRequest( indexName & "/_settings", "PUT" )
+										.setBody( getUtil().toJSON( indexDSL.settings ) )
+										.asJSON();
+
+
+				var response = requestBuilder.send();
+
+				if ( structKeyExists( response.json(), "error" ) ) {
+					onResponseFailure( response );
 				}
 			}
 		}
@@ -567,6 +606,10 @@ component accessors="true" threadSafe singleton {
 	 **/
 	struct function applyMappings( required string indexName, required struct mappings ){
 		var mappingResults = {};
+
+		if( arguments.mappings.keyExists( "properties" ) ){
+			arguments.mappings = arguments.mappings.properties;
+		}
 
 		for ( var mapKey in arguments.mappings ) {
 			mappingResults[ mapKey ] = applyMapping(

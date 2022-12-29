@@ -136,6 +136,19 @@ indexBuilder.patch(
 );
 ```
 
+## Retrieving Settings for an Index
+To retreive a list of all settings for an index you may use the `getSettings` method on the client. 
+
+```js
+var indexSettings = getInstance( "Client@CBElasticsearch" ).getSettings( "bookshop" )
+```
+## Retrieving Mappings for an Index
+To retreive a list of the configured mappings for an index you may use the `getMappings` method on the client. 
+
+```js
+var mappings = getInstance( "Client@CBElasticsearch" ).getMappings( "reviews" );
+```
+
 ## Deleting an Index
 
 All good things must come to an end, eh? You can use `Client.deleteIndex()` to delete an existing index:

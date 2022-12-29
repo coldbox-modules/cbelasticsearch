@@ -5,7 +5,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 		super.beforeAll();
 
-		variables.model = getWirebox().getInstance( "IndexBuilder@cbElasticSearch" );
+		variables.model = new cbelasticsearch.models.IndexBuilder();
+		getWirebox().autoWire( variables.model );
+		prepareMock( variables.model );
 
 		variables.testIndexName = lCase( "IndexBuilderTests" );
 
@@ -71,12 +73,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			it( "Tests that a partial settings struct passed to new() will not override the defaults", function(){
 				var indexSettings = {
 					"mappings" : {
-						"testdocs" : {
-							"_all"       : { "enabled" : false },
-							"properties" : {
-								"title"       : { "type" : "text" },
-								"createdTime" : { "type" : "date", "format" : "date_time_no_millis" }
-							}
+						"_all"       : { "enabled" : false },
+						"properties" : {
+							"title"       : { "type" : "text" },
+							"createdTime" : { "type" : "date", "format" : "date_time_no_millis" }
 						}
 					},
 					"aliases"  : { "testalias" : {} },
@@ -93,7 +93,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( structIsEmpty( newIndex.getMappings() ) ).toBeFalse();
 				expect( newIndex.getIndexName() ).toBe( variables.testIndexName );
 
-				expect( newIndex.getSettings() ).toHaveKey( "number_of_shards" ).toHaveKey( "number_of_replicas" );
+				expect( newIndex.getSettings() ).toHaveKey( "index.mapping.total_fields.limit" ).toHaveKey( "number_of_replicas" ).toHaveKey( "number_of_shards" );
 			} );
 
 			it( "Tests new() with a callback for the builder syntax", function(){
@@ -178,7 +178,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			} );
 
 			it( "Tests the ability to reset the index builder", function(){
-				variables.model.reset();
+				
+				variables.model.reset( listFirst( createUUID(), "-" ) );
 
 				expect( variables.model.getMappings() ).toBeStruct();
 				expect( structIsEmpty( variables.model.getMappings() ) ).toBeTrue();
