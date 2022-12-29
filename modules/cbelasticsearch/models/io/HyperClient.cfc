@@ -509,16 +509,22 @@ component accessors="true" threadSafe singleton {
 			.keyArray()
 			.each( function( indexName ){
 				if (
-					structKeyExists( aliasesResult[ indexName ], "aliases" ) && !structIsEmpty(
-						aliasesResult[ indexName ].aliases
-					)
+					structKeyExists( aliasesResult[ indexName ], "aliases" ) 
+					&& 
+					!structIsEmpty( aliasesResult[ indexName ].aliases )
 				) {
 					// we need to scope this for the ACF compiler
 					var indexObj = aliasesResult[ indexName ];
 					indexObj.aliases
 						.keyArray()
 						.each( function( alias ){
-							aliasesMap.aliases[ alias ] = indexName;
+							if( !aliasesMap.aliases.keyExists( alias ) ){
+								aliasesMap.aliases[ alias ] = [];
+							}
+							aliasesMap.aliases[ alias ].append( {
+								"index" : indexName,
+								"attributes" : indexObj.aliases[ alias ]
+							} );
 						} );
 				} else {
 					aliasesMap.unassigned.append( indexName );

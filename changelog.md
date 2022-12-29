@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 * Issue #111 - Adds the ability to apply settings to an existing index
+* Issue #106 - Adds the ability to specify case-insenstivity to wildcard searches ( default = false )
+* Issue #105 - `getAliases` now supports multiple indexes with the same alias and returns the attributes to determine r/w capabilities
+* 
 
 ### Added
 * Added `getSettings` method to retreive settings for a server or for an index

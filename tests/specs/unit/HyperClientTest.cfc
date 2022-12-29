@@ -166,6 +166,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( allAliases.unassigned ).toBeArray();
 
 					expect( allAliases.aliases ).toBeStruct().toHaveKey( aliasName );
+					
+					expect( allAliases.aliases[ aliasName ] ).toBeArray();
+					debug( allAliases );
 				} );
 			} );
 
