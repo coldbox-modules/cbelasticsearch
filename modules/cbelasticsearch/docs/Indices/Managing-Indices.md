@@ -114,7 +114,7 @@ The `IndexBuilder` model also provides a `patch()` convenience method for updati
 
 ```js
 indexBuilder.patch(
-    "bookshop",
+    index = "bookshop",
     settings = {
         "number_of_shards"      : 10,
         "number_of_replicas"    : 2,
@@ -128,7 +128,7 @@ Here's a quick example of using `indexBuilder.patch()` to add two new fields to 
 
 ```js
 indexBuilder.patch(
-    "reviews",
+    index = "reviews",
     properties = {
         "authorName"   : { "type" : "text" },
         "helpfulRating": { "type" : "integer" }
