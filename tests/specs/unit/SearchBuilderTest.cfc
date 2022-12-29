@@ -507,7 +507,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 				expect( wildcards.len() ).toBe( 1 );
 				expect( wildcards[ 1 ].wildcard ).toHaveKey( "title" );
-				expect( wildcards[ 1 ].wildcard.title ).toBe( "*Fo*" );
+				expect( wildcards[ 1 ].wildcard.title ).toHaveKey( "value" );
+				expect( wildcards[ 1 ].wildcard.title.value ).toBe( "*Fo*" );
 
 
 				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
@@ -527,7 +528,32 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 				expect( wildcards.len() ).toBe( 1 );
 				expect( wildcards[ 1 ].wildcard ).toHaveKey( "title" );
-				expect( wildcards[ 1 ].wildcard.title ).toBe( "*Fo" );
+				expect( wildcards[ 1 ].wildcard.title ).toHaveKey( "value" );
+				expect( wildcards[ 1 ].wildcard.title.value ).toBe( "*Fo" );
+
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
+			} );
+
+			it( "Tests the wildcard() method with case insenstivity", function(){
+				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
+
+				searchBuilder.wildcard( name="title", value="*Fo", caseInsensitive=true );
+
+				expect( searchBuilder.getQuery() ).toBeStruct();
+				expect( searchBuilder.getQuery() ).toHaveKey( "bool" );
+				expect( searchBuilder.getQuery().bool ).toHaveKey( "must" );
+				var wildcards = searchBuilder
+					.getQuery()
+					.bool
+					.must
+					.filter( function( item ){
+						return item.keyExists( "wildcard" );
+					} );
+
+				expect( wildcards.len() ).toBe( 1 );
+				expect( wildcards[ 1 ].wildcard ).toHaveKey( "title" );
+				expect( wildcards[ 1 ].wildcard.title ).toHaveKey( "value" );
+				expect( wildcards[ 1 ].wildcard.title.value ).toBe( "*Fo" );
 
 				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
 			} );
@@ -556,9 +582,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 				expect( wildcards.len() ).toBe( 2 );
 				expect( wildcards[ 1 ].wildcard ).toHaveKey( "title" );
-				expect( wildcards[ 1 ].wildcard.title ).toBe( "*Bar*" );
+				expect( wildcards[ 1 ].wildcard.title ).toHaveKey( "value" );
+				expect( wildcards[ 1 ].wildcard.title.value ).toBe( "*Bar*" );
 				expect( wildcards[ 2 ].wildcard ).toHaveKey( "foo" );
-				expect( wildcards[ 2 ].wildcard.foo ).toBe( "*Bar*" );
+				expect( wildcards[ 2 ].wildcard.foo ).toHaveKey( "value" );
+				expect( wildcards[ 2 ].wildcard.foo.value ).toBe( "*Bar*" );
 
 
 				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );

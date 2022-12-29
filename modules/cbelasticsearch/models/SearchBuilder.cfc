@@ -240,13 +240,15 @@ component accessors="true" {
 	 * @name 		string 		the name of the parameter to match
 	 * @value 		any 		the value of the parameter to match
 	 * @boost 		numeric		A numeric boost option for any exact matches
+	 * @caseinsensitive		boolean		Should the search be caseinsensitive ?
 	 *
 	 **/
 	SearchBuilder function wildcard(
 		required any name,
 		required any value,
 		numeric boost,
-		string operator = "must"
+		string operator = "must",
+		boolean caseInsensitive = false
 	){
 		param variables.query.bool = {};
 		if ( !structKeyExists( variables.query.bool, operator ) ) {
@@ -259,11 +261,12 @@ component accessors="true" {
 					"should" : arguments.name.map( function( key ){
 						return {
 							"wildcard" : {
-								"#key#" : (
-									reFind( "^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) ? (
-										"*" & value & "*"
-									) : value
-								)
+								"#key#" : {
+									"value" : reFind( "^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) 
+												? "*" & value & "*" 
+												: value,
+									"case_insensitive" : javacast( "boolean", caseInsensitive )
+								}
 							}
 						};
 					} )
@@ -272,9 +275,12 @@ component accessors="true" {
 		} else {
 			var wildcard = {
 				"wildcard" : {
-					"#name#" : (
-						reFind( "^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) ? ( "*" & value & "*" ) : value
-					)
+					"#name#" : {
+						"value" : reFind( "^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) 
+									? "*" & value & "*" 
+									: value,
+						"case_insensitive" : javacast( "boolean", arguments.caseInsensitive )
+					}
 				}
 			};
 		}
