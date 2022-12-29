@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        cfengine: ["lucee@5", "adobe@2016", "adobe@2018", "adobe@2021"]
+        cfengine: ["lucee@5", "adobe@2018", "adobe@2021"]
         ELASTICSEARCH_VERSION: [ "7.17.2", "8.4.2" ]
     steps:
       - name: Checkout Repository
