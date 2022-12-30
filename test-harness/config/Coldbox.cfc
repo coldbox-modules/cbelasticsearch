@@ -28,41 +28,18 @@
 			eventCaching            : false
 		};
 
-		moduleSettings = {
-			"cbelasticsearch" : {
-				"disks" : {
-					"local" : {
-						"provider"   : "Local",
-						"properties" : {
-							"path"  : expandPath( "/root/tests/storage" ),
-							diskUrl : "http://localhost:60299/tests/storage/"
-						}
-					},
-					"ram" : { "provider" : "Ram" },
-					"S3"  : {
-						"provider"   : "S3",
-						"properties" : {
-							"visibility"        : "public", // can be 'public' or 'private'
-							"path"              : "",
-							"ssl"               : getSystemSetting( "AWS_S3_SSL", true ),
-							"accessKey"         : getSystemSetting( "AWS_S3_ACCESS_KEY", "" ),
-							"secretKey"         : getSystemSetting( "AWS_S3_SECRET_KEY", "" ),
-							"awsDomain"         : getSystemSetting( "AWS_S3_DOMAIN", "amazonaws.com" ),
-							"awsRegion"         : getSystemSetting( "AWS_S3_REGION", "us-east-1" ),
-							"defaultBucketName" : getSystemSetting(
-								"AWS_S3_BUCKET_NAME",
-								"ortus-cbelasticsearch-testing-disk"
-							),
-							"signatureType" : getSystemSetting( "AWS_S3_SIGNATURE_TYPE", "v4" )
-						}
-					}
-				}
-			}
-		};
 
-		if ( len( getSystemSetting( "AWS_S3_PUBLIC_DOMAIN", "" ) ) ) {
-			moduleSettings.cbelasticsearch.disks.S3.properties[ "publicDomain" ] = getSystemSetting( "AWS_S3_PUBLIC_DOMAIN" );
-		}
+        moduleSettings = {
+            "cbElasticsearch" = {
+                "hosts" = [
+                    {
+                        "serverProtocol" = getSystemSetting( "ELASTICSEARCH_PROTOCOL", "http" ),
+                        "serverName" = getSystemSetting( "ELASTICSEARCH_HOST", "127.0.0.1" ),
+                        "serverPort" = getSystemSetting( "ELASTICSEARCH_PORT", "9200" )
+                    }
+                ]
+            }
+        };
 
 		// environment settings, create a detectEnvironment() method to detect it yourself.
 		// create a function with the name of the environment so it can be executed if that environment is detected

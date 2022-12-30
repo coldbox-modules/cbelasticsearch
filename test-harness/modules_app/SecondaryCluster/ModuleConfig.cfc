@@ -62,8 +62,6 @@ component {
 	this.cfmapping			= "SecondaryCluster";
 	// Auto-map models
 	this.autoMapModels		= false;
-	// Module Dependencies
-	this.dependencies 		= [ "cbElasticsearch" ];
 
 	function configure(){
 
@@ -107,7 +105,7 @@ component {
 	/**
 	* Fired when the module is registered and activated.
 	*/
-	function onLoad(){
+	function afterAspectsLoad(){
 
 		// map a new singleton instance of the config client
         binder.map( "Config@SecondaryCluster" )

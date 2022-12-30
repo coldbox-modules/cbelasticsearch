@@ -4,6 +4,7 @@
 settings.xml
 Query Ideas.md
 .github/workflows-old/*
+.engine/*
 
 # Logs
 logs/*.log

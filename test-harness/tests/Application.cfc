@@ -1,46 +1,56 @@
-/**
-* Copyright Since 2005 Ortus Solutions, Corp
-* www.coldbox.org | www.luismajano.com | www.ortussolutions.com | www.gocontentbox.org
-**************************************************************************************
+﻿/**
+********************************************************************************
+Copyright 2005-2007 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
+www.ortussolutions.com
+********************************************************************************
 */
-component{
-	this.name = "A TestBox Runner Suite " & hash( getCurrentTemplatePath() );
-	// any other application.cfc stuff goes below:
-	this.sessionManagement = true;
-	// Turn on/off white space managemetn
-	this.whiteSpaceManagement = "smart";
+component {
 
-	// any mappings go here, we create one that points to the root called test.
+	// UPDATE THE NAME OF THE MODULE IN TESTING BELOW
+	request.MODULE_NAME = "cbelasticsearch";
+	request.MODULE_PATH = "cbelasticsearch";
+
+	// APPLICATION CFC PROPERTIES
+	this.name               = "cbelasticsearch Testing Suite";
+	this.sessionManagement  = true;
+	this.sessionTimeout     = createTimespan( 0, 0, 15, 0 );
+	this.applicationTimeout = createTimespan( 0, 0, 15, 0 );
+	this.setClientCookies   = true;
+
+	// Create testing mapping
 	this.mappings[ "/tests" ] = getDirectoryFromPath( getCurrentTemplatePath() );
-	rootPath = REReplaceNoCase( this.mappings[ "/tests" ], "tests(\\|/)", "" );
-	this.mappings[ "/root" ]   = rootPath;
 
-	this.mappings[ "/hyper" ]           = rootPath & "modules/hyper";
-	this.mappings[ "/cbelasticsearch" ] = rootPath & "modules/cbelasticsearch";
-	this.mappings[ "/cbjavaloader" ]    = rootPath & "modules/cbjavaloader";
-	this.mappings[ "/coldbox" ]         = rootPath & "coldbox";
+	// The application root
+	rootPath                 = reReplaceNoCase( this.mappings[ "/tests" ], "tests(\\|/)", "" );
+	this.mappings[ "/root" ] = rootPath;
 
-	// COLDBOX STATIC PROPERTY, DO NOT CHANGE UNLESS THIS IS NOT THE ROOT OF YOUR COLDBOX APP
-	COLDBOX_APP_ROOT_PATH = rootPath;
-	// The web server mapping to this application. Used for remote purposes or static purposes
-	COLDBOX_APP_MAPPING   = "root";
-	// COLDBOX PROPERTIES
-	COLDBOX_CONFIG_FILE 	 = "";
-	// COLDBOX APPLICATION KEY OVERRIDE
-	COLDBOX_APP_KEY 		 = "";
+	// Map back to its root
+	moduleRootPath = reReplaceNoCase(
+		this.mappings[ "/root" ],
+		"#request.MODULE_NAME#(\\|/)test-harness(\\|/)",
+		""
+	);
+	modulePath = reReplaceNoCase(
+		this.mappings[ "/root" ],
+		"test-harness(\\|/)",
+		""
+	);
 
-	function onRequestStart( string targetPage ){
+	// Module Root + Path Mappings
+	this.mappings[ "/moduleroot" ]            = moduleRootPath;
+	this.mappings[ "/#request.MODULE_NAME#" ] = modulePath;
+
+	function onRequestStart( required targetPage ){
 		// Set a high timeout for long running tests
-		setting requestTimeout="9999";
+		setting requestTimeout   ="9999";
 		// New ColdBox Virtual Application Starter
-		request.coldBoxVirtualApp = new coldbox.system.testing.VirtualApp( appMapping = "/root" );
+		request.coldBoxVirtualApp= new coldbox.system.testing.VirtualApp( appMapping = "/root" );
 
 		// ORM Reload for fresh results
-		if( structKeyExists( url, "fwreinit" ) ){
-			if( structKeyExists( server, "lucee" ) ){
+		if ( structKeyExists( url, "fwreinit" ) ) {
+			if ( structKeyExists( server, "lucee" ) ) {
 				pagePoolClear();
 			}
-			ormReload();
 			request.coldBoxVirtualApp.shutdown();
 		}
 
@@ -50,14 +60,10 @@ component{
 		}
 
 		return true;
-
 	}
 
-	public function onRequestEnd(string targetPage) {
-
-		if( request.keyExists( "coldBoxVirtualApp") ){
-			request.coldBoxVirtualApp.shutdown();
-		}
-
+	public function onRequestEnd(){
+		request.coldBoxVirtualApp.shutdown();
 	}
+
 }
