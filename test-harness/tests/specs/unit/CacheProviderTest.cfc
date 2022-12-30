@@ -44,7 +44,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 		};
 
 		// Create Provider
-		variables.cache = getMockBox().createMock( "root.modules.cbelasticsearch.models.cache.Provider" ).init();
+		variables.cache = getMockBox().createMock( "cbelasticsearch.models.cache.Provider" ).init();
 
 		getWirebox().autowire( cache );
 
