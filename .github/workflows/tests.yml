@@ -1,0 +1,119 @@
+name: Test Suites
+
+# We are a reusable Workflow only
+on:
+  workflow_call:
+    secrets:
+      SLACK_WEBHOOK_URL:
+        required: true
+      S3SDK_AWS_BUCKET_NAME:
+        required: true
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-20.04
+    services:
+      s3Mock:
+        image: adobe/s3mock
+        ports:
+          - 9090:9090
+        env:
+          initialBuckets: ${{ secrets.S3SDK_AWS_BUCKET_NAME }}
+    env:
+      ELASTICSEARCH_PROTOCOL: http
+      ELASTICSEARCH_HOST: 127.0.0.1
+      ELASTICSEARCH_PORT: 9200
+    strategy:
+      fail-fast: false
+      matrix:
+        cfengine: [ "lucee@5", "adobe@2018", "adobe@2021" ]
+        ELASTICSEARCH_VERSION: [ "7.17.2", "8.4.2" ]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: "temurin"
+          java-version: "11"
+
+      - name: Setup CommandBox CLI
+        uses: Ortus-Solutions/setup-commandbox@v2.0.1
+
+      - name: Install Dependencies
+        run: |
+          box run-script install:dependencies
+
+      - name: Setup Elasticsearch
+      run: |
+        docker run -d -p "${{ env.ELASTICSEARCH_PORT }}:9200" -e 'discovery.type=single-node' -e 'xpack.security.enabled=false' elasticsearch:${{ matrix.ELASTICSEARCH_VERSION }}
+        rm -rf test-harness/modules_app
+
+      - name: Start ${{ matrix.cfengine }} Server
+        env:
+          ENVIRONMENT: development
+          AWS_S3_DOMAIN: 127.0.0.1:9090
+          AWS_S3_SSL: "false"
+          AWS_S3_REGION:
+          AWS_S3_PUBLIC_DOMAIN: 127.0.0.1:9090/cbelasticsearch-test
+          AWS_S3_BUCKET_NAME: ${{ secrets.S3SDK_AWS_BUCKET_NAME }}
+        run: |
+          box server start serverConfigFile="server-${{ matrix.cfengine }}.json" --noSaveSettings --debug
+          curl http://127.0.0.1:60299
+
+      - name: Run Tests
+        env:
+          ENVIRONMENT: development
+          AWS_S3_DOMAIN: 127.0.0.1:9090
+          AWS_S3_SSL: "false"
+          AWS_S3_REGION:
+          AWS_S3_PUBLIC_DOMAIN: 127.0.0.1:9090/cbelasticsearch-test
+          AWS_S3_BUCKET_NAME: ${{ secrets.S3SDK_AWS_BUCKET_NAME }}
+        run: |
+          mkdir -p test-harness/tests/results
+          box testbox run --verbose outputFile=test-harness/tests/results/test-results outputFormats=json,antjunit
+          ls -lR test-harness/tests
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: always()
+        with:
+          files: test-harness/tests/results/**/*.xml
+          check_name: "${{ matrix.cfengine }} Test Results"
+
+      - name: Upload Test Results to Artifacts
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results-${{ matrix.cfengine }}
+          path: |
+            test-harness/tests/results/**/*
+
+      - name: Failure Debugging Log
+        if: ${{ failure() }}
+        run: |
+          box server log serverConfigFile="server-${{ matrix.cfengine }}.json"
+
+      - name: Upload Debugging Log To Artifacts
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: Failure Debugging Info - ${{ matrix.cfengine }}
+          path: |
+            .engine/**/logs/*
+            .engine/**/WEB-INF/cfusion/logs/*
+
+      - name: Slack Notifications
+        # Only on failures and NOT in pull requests
+        if: ${{ failure() && !startsWith( 'pull_request', github.event_name ) }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: coding
+          SLACK_COLOR: ${{ job.status }} # or a specific color like 'green' or '#ff00ff'
+          SLACK_ICON_EMOJI: ":bell:"
+          SLACK_MESSAGE: '${{ github.repository }} tests failed :cry:'
+          SLACK_TITLE: ${{ github.repository }} Tests For ${{ matrix.cfengine }} failed
+          SLACK_USERNAME: CI
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}

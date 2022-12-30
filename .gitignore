@@ -2,30 +2,32 @@
 .vscode
 .settings
 settings.xml
+Query Ideas.md
+.github/workflows-old/*
 
 # Logs
 logs/*.log
 
 # Test Results
-tests/results/*
+test-harness/tests/results/*
 
 # Dependencies
-coldbox/*
-testbox/*
+test-harness/coldbox/*
+test-harness/testbox/*
+test-harness/modules/*
+test-harness-logs/*
 modules/*
-logs/*
-!modules/cbelasticsearch
 
 # Gitbook artifacts
 _book/*
 
 
 # Build artifacts
-.tmp/apidocs
-artifacts/*
+.tmp/*
+.artifacts/*
 apidocs/docbox/*
-workbench/*
-build/*
+build/workbench/*
+changelog-latest.md
 
 # test environment secrets
-.env
+test-harness/.env

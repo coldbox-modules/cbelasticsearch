@@ -1,30 +1,63 @@
 {
-    "name":"Module Builder",
-    "version":"0.1.0",
-    "slug":"module-shell",
-    "private":false,
-    "defaultPort":0,
-    "dependencies":{},
-    "devDependencies":{
-        "coldbox":"^6.8.1",
-        "testbox":"^4.5.0",
-        "hyper":"^4.0.0",
-        "cfmigrations":"^3.0.3",
-        "workbench":"git+https://github.com/Ortus-Solutions/unified-workbench.git"
+    "name":"Elasticsearch for the Coldbox Framework",
+    "author":"Ortus Solutions <info@ortussolutions.com",
+    "location":"https://downloads.ortussolutions.com/ortussolutions/coldbox-modules/cbelasticsearch/@build.version@/cbelasticsearch-@build.version@+@build.number@.zip",
+    "version":"2.4.0",
+    "slug":"cbelasticsearch",
+    "type":"modules",
+    "homepage":"https://cbelasticsearch.ortusbooks.com",
+    "bugs":"https://github.com/coldbox-modules/cbox-elasticsearch/issues",
+    "documentation":"https://cbelasticsearch.ortusbooks.com",
+    "repository":{
+        "type":"git",
+        "url":"https://github.com/coldbox-modules/cbox-elasticsearch"
     },
-    "installPaths":{
-        "testbox":"testbox/",
-        "coldbox":"coldbox/",
-        "hyper":"modules/hyper/",
-        "cfmigrations":"modules/cfmigrations/",
-        "workbench":"workbench/"
+    "shortDescription":"Elasticsearch Module for the Coldbox Framework",
+    "license":[
+        {
+            "type":"Apache2",
+            "url":"http://www.apache.org/licenses/LICENSE-2.0.html"
+        }
+    ],
+    "contributors":[
+        "Jon Clausen <jclausen@ortussolutions.com>",
+        "Eric Peterson <eric@ortussolutions.com>",
+        "Michael Born <michael@ortussolutions.com>",
+        "Grant Copley <grant@ortussolutions.com>",
+        "Andreas Eppinger <andreas.eppinger@webwaysag.ch>",
+        "Andrew Davis <adavis@ortussolutions.com>",
+        "Luis Majano <luis@ortussolutions.com>"
+    ],
+    "dependencies":{
+        "hyper":"^5.0.1"
     },
+    "ignore":[
+        "**/.*",
+        "docs",
+        "tests",
+        "test-harness",
+        "build",
+        "*/.md",
+        "book.json",
+        "docker-compose.yml",
+        "server-*.json",
+        "server.json"
+    ],
     "testbox":{
-        "runner":"http://127.0.0.1:60299/tests/runner.cfm"
+        "runner":"http://localhost:60299/tests/runner.cfm"
     },
     "scripts":{
-        "postVersion":"recipe workbench/bump.boxr",
-        "build:apidocs":"docbox generate mapping=cbelasticsearch source=modules/cbelasticsearch excludes=tests|docs|ModuleConfig strategy-outputDir=.tmp/apidocs strategy-projectTitle=cbElasticSearch",
-        "format":"cfformat run modules/cbelasticsearch/models/**/*.cfc,tests/specs/**/*.cfc --overwrite"
+        "build:module":"task run taskFile=build/Build.cfc :projectName=`package show slug` :version=`package show version`",
+        "build:docs":"task run taskFile=build/Build.cfc target=docs :projectName=`package show slug` :version=`package show version`",
+        "release":"recipe build/release.boxr",
+        "format":"cfformat run models,ModuleConfig.cfc --overwrite",
+        "format:watch":"cfformat watch models,ModuleConfig.cfc ./.cfformat.json",
+        "format:check":"cfformat check models,ModuleConfig.cfc",
+        "install:dependencies":"install --force && cd test-harness && install --force",
+        "start:elasticsearch7":"!docker run --name cbelasticsearch-es8 -d -p '9200:9200' -e 'discovery.type=single-node' -e 'xpack.security.enabled=false' elasticsearch:7.17.2",
+        "start:elasticsearch":"!docker run --name cbelasticsearch-es8 -d -p '9200:9200' -e 'discovery.type=single-node' -e 'xpack.security.enabled=false' elasticsearch:8.4.2"
+    },
+    "installPaths":{
+        "hyper":"modules/hyper/"
     }
 }

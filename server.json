@@ -1,9 +1,21 @@
 {
-    "force":true,
-    "openbrowser":"false",
+    "name":"cbelasticsearch-lucee@5",
+    "app":{
+        "serverHomeDirectory":".engine/lucee5",
+        "cfengine":"lucee@5"
+    },
     "web":{
         "http":{
-            "port":"49616"
+            "port":"60299"
+        },
+        "rewrites":{
+            "enable":"true"
+        },
+        "webroot":"test-harness",
+        "aliases":{
+            "/moduleroot/cbelasticsearch":"./",
+            "/root":"./test-harness"
         }
-    }
+    },
+    "openBrowser":"false"
 }

@@ -1,11 +1,21 @@
 {
+    "name":"cbelasticsearch-lucee@5",
     "app":{
+        "serverHomeDirectory":".engine/lucee5",
         "cfengine":"lucee@5"
     },
-    "name":"cbox-elasticsearch-lucee5",
     "web":{
-        "HTTP":{
+        "http":{
             "port":"60299"
+        },
+        "rewrites":{
+            "enable":"true"
+        },
+        "webroot":"test-harness",
+        "aliases":{
+            "/moduleroot/cbelasticsearch":"./",
+            "/root":"./test-harness"
         }
-    }
+    },
+    "openBrowser":"false"
 }

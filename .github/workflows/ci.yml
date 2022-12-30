@@ -1,108 +1,86 @@
-name: CI builds
+name: cbelasticsearch CI
 
+# Only on Development we build snapshots
 on:
   push:
     branches:
-      - master
       - development
+      - master
+      - main
+
+env:
+  MODULE_ID: cbelasticsearch
 
 jobs:
+  #############################################
+  # Tests First baby! We fail, no build :(
+  #############################################
   tests:
-    name: Tests
-    runs-on: ubuntu-20.04
-    env:
-      ELASTICSEARCH_PROTOCOL: http
-      ELASTICSEARCH_HOST: 127.0.0.1
-      ELASTICSEARCH_PORT: 9200
-      javaVersion: 11
-    strategy:
-      fail-fast: true
-      matrix:
-        cfengine: ["lucee@5", "adobe@2018", "adobe@2021"]
-        ELASTICSEARCH_VERSION: [ "7.17.2", "8.4.2" ]
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+    uses: ./.github/workflows/tests.yml
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      S3SDK_AWS_BUCKET_NAME: ${{ secrets.S3SDK_AWS_BUCKET_NAME }}
 
-      - name: Setup Java
-        uses: actions/setup-java@v2
-        with:
-          distribution: "adopt"
-          java-version: ${{ env.javaVersion }}
-
-      - name: Setup CommandBox
-        uses: elpete/setup-commandbox@v1.0.0
-
-      - name: Setup Elasticsearch
-        run: |
-          docker run -d -p "${{ env.ELASTICSEARCH_PORT }}:9200" -e 'discovery.type=single-node' -e 'xpack.security.enabled=false' elasticsearch:${{ matrix.ELASTICSEARCH_VERSION }}
-          rm -rf modules_app
-
-      - name: Install Dependencies
-        run: |
-          box install
-          box install commandbox-cfconfig,commandbox-dotenv,commandbox-docbox
-
-      - name: Start ${{ matrix.cfengine }} Server
-        run: |
-          box server start serverConfigFile="server-${{ matrix.cfengine }}.json" --debug
-          curl http://127.0.0.1:60299
-
-      - name: Run Web App Tests
-        run: |
-          mkdir -p tests/results
-          box testbox run --verbose outputFile=tests/results/web outputFormats=json,antjunit
-
-      - name: Publish PR Test Reports
-        uses: mikepenz/action-junit-report@v2
-        with:
-          report_paths: 'tests/results/*.xml'
-          check_name: "${{ matrix.cfengine }}/ES${{ matrix.ELASTICSEARCH_VERSION }} Test Results"
-          summary: true
-
-      - name: Failure debugging
-        if: ${{ failure() }}
-        run: box server log serverConfigFile="server-${{ matrix.cfengine }}.json"
-
-  release:
-    name: Release
+  #############################################
+  # Build Module
+  #############################################
+  build:
+    name: Build & Publish
     needs: tests
-    runs-on: ubuntu-latest
-    env:
-      GA_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
 
-      - name: Setup Java JDK
-        uses: actions/setup-java@v1.4.3
+      - name: Setup Java
+        uses: actions/setup-java@v2
         with:
-          java-version: 11 
+          distribution: "temurin"
+          java-version: "11"
 
-      - name: Set Up CommandBox
-        uses: elpete/setup-commandbox@v1.0.0
+      - name: Setup CommandBox
+        uses: Ortus-Solutions/setup-commandbox@v2.0.1
         with:
           forgeboxAPIKey: ${{ secrets.FORGEBOX_TOKEN }}
 
-      - name: Setup Release Properties
+      - name: Setup Environment Variables For Build Process
+        id: current_version
         run: |
-          box install
-          mv build.xml workbench/build.xml
-          printf "\ncfengine=${{ matrix.cfengine}}" >> .module.properties
-          
-      - name: Run Ant Release
-        run: |
-          docker run -v ${PWD}:/app -w /app repos.silowebworks.com:5443/pub/docker-base:commandbox-ant-builder /bin/sh -c "ant build -f /app/workbench/build.xml -Dbuild.branch=${GITHUB_REF} -Dproject.buildNumber=${GITHUB_RUN_NUMBER}"
-          rm -f build/box-repo.json
-      
-      - name: Install and Configure CommandBox modules
+          echo "VERSION=`cat box.json | jq '.version' -r`" >> $GITHUB_ENV
+          box package set version=@build.version@+@build.number@
+          # master or snapshot
+          echo "Github Ref is $GITHUB_REF"
+          echo "BRANCH=master" >> $GITHUB_ENV
+          if [ $GITHUB_REF == 'refs/heads/development' ]
+          then
+            echo "BRANCH=development" >> $GITHUB_ENV
+          fi
+
+      - name: Build ${{ env.MODULE_ID }}
         run: |
           box install commandbox-docbox
+          box task run taskfile=build/Build target=run :version=${{ env.VERSION }} :projectName=${{ env.MODULE_ID }} :buildID=${{ github.run_number }} :branch=${{ env.BRANCH }}
 
-      - name: Generate API Docs
-        run: box run-script build:apidocs
+      - name: Upload Build Artifacts
+        if: success()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.MODULE_ID }}
+          path: |
+            .artifacts/**/*
+
+      - name: Upload Binaries to S3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read
+        env:
+          AWS_S3_BUCKET: "downloads.ortussolutions.com"
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_SECRET }}
+          SOURCE_DIR: ".artifacts/${{ env.MODULE_ID }}"
+          DEST_DIR: "ortussolutions/coldbox-modules/${{ env.MODULE_ID }}"
 
       - name: Upload API Docs to S3
         uses: jakejarvis/s3-sync-action@master
@@ -113,28 +91,22 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_SECRET }}
           SOURCE_DIR: ".tmp/apidocs"
-          DEST_DIR: "coldbox-modules/cbelasticsearch"
+          DEST_DIR: "coldbox-modules/${{ env.MODULE_ID }}/${{ env.VERSION }}"
 
-      - name: Upload Build Artifacts
-        if: success()
-        uses: actions/upload-artifact@v2
-        with:
-          name: cbelasticsearch
-          path: |
-            build
-
-      - name: Upload Binaries to S3
-        uses: jakejarvis/s3-sync-action@master
-        with:
-          args: --acl public-read
-        env:
-          AWS_S3_BUCKET: "downloads.ortussolutions.com"
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_SECRET }}
-          SOURCE_DIR: "artifacts/cbelasticsearch"
-          DEST_DIR: "ortussolutions/coldbox-modules/cbelasticsearch"
-
-      - name: Deploy to Forgebox
+      - name: Publish To ForgeBox
         run: |
-          cd build
+          cd .tmp/${{ env.MODULE_ID }}
+          cat box.json
           box forgebox publish
+
+      - name: Inform Slack
+        if: ${{ always() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: coding
+          SLACK_COLOR: ${{ job.status }} # or a specific color like 'green' or '#ff00ff'
+          SLACK_ICON_EMOJI: ":bell:"
+          SLACK_MESSAGE: '${{ env.MODULE_ID }} Built with ${{ job.status }}!'
+          SLACK_TITLE: "${{ env.MODULE_ID }} Build"
+          SLACK_USERNAME: CI
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}

@@ -1,73 +1,19 @@
 name: Pull Requests
 
 on:
-  push:
-    branches-ignore:
-      - "main"
-      - "master"
-      - "development"
   pull_request:
     branches:
       - development
+      - master
 
 jobs:
   tests:
-    name: Tests
-    runs-on: ubuntu-20.04
-    env:
-      ELASTICSEARCH_PROTOCOL: http
-      ELASTICSEARCH_HOST: 127.0.0.1
-      ELASTICSEARCH_PORT: 9200
-      javaVersion: 11
-    strategy:
-      fail-fast: true
-      matrix:
-        cfengine: ["lucee@5", "adobe@2018", "adobe@2021"]
-        ELASTICSEARCH_VERSION: ["7.17.2", "8.4.2"]
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+    uses: ./.github/workflows/tests.yml
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      S3SDK_AWS_BUCKET_NAME: ${{ secrets.S3SDK_AWS_BUCKET_NAME }}
 
-      - name: Setup Java
-        uses: actions/setup-java@v2
-        with:
-          distribution: "adopt"
-          java-version: ${{ env.javaVersion }}
-
-      - name: Setup CommandBox
-        uses: elpete/setup-commandbox@v1.0.0
-
-      - name: Setup Elasticsearch
-        run: |
-          docker run -d -p "${{ env.ELASTICSEARCH_PORT }}:9200" -e 'discovery.type=single-node' elasticsearch:${{ matrix.ELASTICSEARCH_VERSION }}
-          rm -rf modules_app
-          rm -f tests/specs/unit/SecondaryClientTest.cfc
-
-      - name: Install Dependencies
-        run: |
-          box install
-          box install commandbox-cfconfig,commandbox-dotenv,commandbox-docbox
-
-      - name: Start ${{ matrix.cfengine }} Server
-        run: |
-          box server start serverConfigFile="server-${{ matrix.cfengine }}.json" --debug
-          curl http://127.0.0.1:60299
-
-      - name: Run Web App Tests
-        run: |
-          mkdir -p tests/results
-          box testbox run --verbose outputFile=tests/results/web outputFormats=json,antjunit
-
-      - name: Publish PR Test Reports
-        uses: mikepenz/action-junit-report@v2
-        with:
-          report_paths: 'tests/results/*.xml'
-          check_name: "${{ matrix.cfengine }}/${{ matrix.ELASTICSEARCH_VERSION }} Test Results"
-          summary: true
-
-      - name: Failure debugging
-        if: ${{ failure() }}
-        run: box server log serverConfigFile="server-${{ matrix.cfengine }}.json"
+  # Format PR
   format:
     name: Format
     runs-on: ubuntu-20.04
@@ -75,20 +21,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Setup Java
-        uses: actions/setup-java@v2
+      - uses: Ortus-Solutions/commandbox-action@v1.0.2
         with:
-          distribution: "adopt"
-          java-version: "11"
-
-      - name: Set Up CommandBox
-        uses: elpete/setup-commandbox@v1.0.0
-
-      - name: Install CFFormat
-        run: box install commandbox-cfformat
-
-      - name: Run CFFormat
-        run: box run-script format
+          cmd: run-script format
 
       - name: Commit Format Changes
         uses: stefanzweifel/git-auto-commit-action@v4

@@ -37,11 +37,9 @@ services:
 
     app:
         # We always develop and test with the lowest common denominator - in this case, the oldest engine we support with the most restrictive compiler
-        image: ortussolutions/commandbox:adobe2016
-        depends_on:
-            - elasticsearch
+        image: ortussolutions/commandbox:adobe2018
         environment:
-            ELASTICSEARCH_HOST: elasticsearch
+            ELASTICSEARCH_HOST: elasticsearch8
         ports:
             - "8080:8080"
         volumes:
@@ -53,8 +51,6 @@ services:
     app-lucee5:
         # lucee5 instance for testing
         image: ortussolutions/commandbox:lucee5
-        depends_on:
-            - elasticsearch
         environment:
             ELASTICSEARCH_HOST: elasticsearch
         ports:

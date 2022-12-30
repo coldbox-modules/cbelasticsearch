@@ -1,14 +1,24 @@
 {
+    "name":"cbelasticsearch-adobe@2021",
     "app":{
+        "serverHomeDirectory":".engine/adobe2021",
         "cfengine":"adobe@2021"
     },
-    "name":"cbox-elasticsearch-adobe2021",
     "web":{
-        "HTTP":{
+        "http":{
             "port":"60299"
+        },
+        "rewrites":{
+            "enable":"true"
+        },
+        "webroot":"test-harness",
+        "aliases":{
+            "/moduleroot/cbelasticsearch":"../",
+            "/root":"./test-harness"
         }
     },
+    "openBrowser":"false",
     "scripts":{
-        "onServerInstall":"cfpm install zip,feed,mail,debugger"
+        "onServerInstall":"cfpm install zip,debugger"
     }
 }
