@@ -155,8 +155,14 @@ component {
 			)
 			.run();
 
+		var fileSuffix = "+" & arguments.buildID;
+
+		if( arguments.branch != "master" ){
+			var fileSuffix = "-snapshot"
+		}
+		
 		// zip up source
-		var destination = "#variables.exportsDir#/#projectName#-#version#.zip";
+		var destination = "#variables.exportsDir#/#projectName#-#version##fileSuffix#.zip";
 		print.greenLine( "Zipping code to #destination#" ).toConsole();
 		cfzip(
 			action    = "zip",
