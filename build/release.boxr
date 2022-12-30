@@ -1,13 +1,13 @@
 # This recipe signifies a new release of the module by doing merges and bumps accordingly
 
-# Check out master and update it locally
-!git checkout -f master
-!git pull origin master
+# Check out main and update it locally
+!git checkout -f main
+!git pull origin main
 
 # Merge development into it for release
 !git merge --no-ff development
 
-# Tag the master repo with the version from box.json
+# Tag the main repo with the version from box.json
 !git tag v`box package show version`
 
 # Push all branches back out to github
