@@ -7,7 +7,8 @@ Query Ideas.md
 .engine/*
 
 # Logs
-logs/*.log
+logs/*
+test-harness/logs/*
 
 # Test Results
 test-harness/tests/results/*
@@ -16,7 +17,6 @@ test-harness/tests/results/*
 test-harness/coldbox/*
 test-harness/testbox/*
 test-harness/modules/*
-test-harness-logs/*
 modules/*
 
 # Gitbook artifacts

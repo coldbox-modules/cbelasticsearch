@@ -8,11 +8,13 @@
         "coldbox":"^6.0.0"
     },
     "devDependencies":{
-        "testbox":"*"
+        "testbox":"*",
+        "mockdatacfc":"^3.6.0"
     },
     "installPaths":{
         "coldbox":"coldbox/",
-        "testbox":"testbox/"
+        "testbox":"testbox/",
+        "mockdatacfc":"modules/mockdatacfc/"
     },
     "testbox":{
         "runner":"http://localhost:60299/tests/runner.cfm"

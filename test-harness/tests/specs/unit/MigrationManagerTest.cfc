@@ -10,7 +10,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
 		variables.model           = new cbelasticsearch.models.migrations.Manager(
 			migrationsIndex = variables.migrationsIndex
 		);
+
 		getWirebox().autowire( variables.model );
+		
 		if ( variables.searchClient.indexExists( variables.migrationsIndex ) ) {
 			variables.searchClient.deleteIndex( variables.migrationsIndex );
 		}
