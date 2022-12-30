@@ -47,9 +47,9 @@ jobs:
           box run-script install:dependencies
 
       - name: Setup Elasticsearch
-      run: |
-        docker run -d -p "${{ env.ELASTICSEARCH_PORT }}:9200" -e 'discovery.type=single-node' -e 'xpack.security.enabled=false' elasticsearch:${{ matrix.ELASTICSEARCH_VERSION }}
-        rm -rf test-harness/modules_app
+        run: |
+          docker run -d -p "${{ env.ELASTICSEARCH_PORT }}:9200" -e 'discovery.type=single-node' -e 'xpack.security.enabled=false' elasticsearch:${{ matrix.ELASTICSEARCH_VERSION }}
+          rm -rf test-harness/modules_app
 
       - name: Start ${{ matrix.cfengine }} Server
         env:
