@@ -150,14 +150,14 @@ component {
 		command( "tokenReplace" )
 			.params(
 				path        = "/#variables.projectBuildDir#/**",
-				token       = ( arguments.branch == "master" ? "@build.number@" : "+@build.number@" ),
-				replacement = ( arguments.branch == "master" ? arguments.buildID : "-snapshot" )
+				token       = ( arguments.branch == "main" ? "@build.number@" : "+@build.number@" ),
+				replacement = ( arguments.branch == "main" ? arguments.buildID : "-snapshot" )
 			)
 			.run();
 
 		var fileSuffix = "+" & arguments.buildID;
 
-		if( arguments.branch != "master" ){
+		if( arguments.branch != "main" ){
 			var fileSuffix = "-snapshot"
 		}
 		
