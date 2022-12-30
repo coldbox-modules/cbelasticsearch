@@ -20,6 +20,6 @@
 !git checkout -f development
 
 # Bump to prepare for a new release, do minor, change if needed and don't tag
-bump --minor --!tagVersion
+bump --patch --!tagVersion
 !git commit -a -m "version bump"
 !git push origin development
