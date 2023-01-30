@@ -502,6 +502,10 @@ component
 				arguments.logObj.stachebox[ "signature" ] = hash( sigContent );
 			}
 		}
+		
+		// ensure consistent casing for search
+		logObj[ "environment" ] = lcase( logObj.environment ?: "production" );
+
 	}
 
 	public function getIndexConfig(){
