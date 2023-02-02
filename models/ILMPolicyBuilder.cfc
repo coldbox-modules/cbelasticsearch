@@ -12,7 +12,14 @@ component accessors="true"{
 	 **/
 	Client function getClient() provider="Client@cbElasticsearch"{}
 
-    function new(
+    /**
+     * Creates a new policy builder instance
+     *
+     * @policyName string
+     * @phases a struct of phases ( optional )
+     * @meta optional struct of meta
+     */
+    ILMPolicyBuilder function new(
         required string policyName,
         struct phases,
         struct meta
@@ -39,7 +46,7 @@ component accessors="true"{
      * @readOnly boolean  Whether to make the index read-only during the phase https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-readonly.html
      * @unfollow boolean Whether to convert from a follower index ot a regular index at this phase https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-unfollow.html
      */
-    function hotPhase(
+    ILMPolicyBuilder function hotPhase(
         struct config,
         numeric priority,
         any rollover,
@@ -69,7 +76,7 @@ component accessors="true"{
      * @readOnly boolean  Whether to make the index read-only during the phase https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-readonly.html
      * @unfollow boolean Whether to convert from a follower index ot a regular index at this phase https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-unfollow.html
      */
-    function warmPhase(
+    ILMPolicyBuilder function warmPhase(
         struct config,
         any age,
         numeric priority,
@@ -101,7 +108,7 @@ component accessors="true"{
      * @readOnly boolean  Whether to make the index read-only during the phase https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-readonly.html
      * @unfollow boolean Whether to convert from a follower index ot a regular index at this phase https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-unfollow.html
      */
-    function coldPhase(
+    ILMPolicyBuilder function coldPhase(
         struct config,
         any age,
         numeric priority,
@@ -126,7 +133,7 @@ component accessors="true"{
      * @searchableSnapshot string the name of a snapshot respository to create during this phase https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-searchable-snapshot.html
      * @unfollow boolean Whether to convert from a follower index ot a regular index at this phase https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-unfollow.html
      */
-    function frozenPhase(
+    ILMPolicyBuilder function frozenPhase(
         struct config,
         any age,
         string searchableSnapshot,
@@ -148,7 +155,7 @@ component accessors="true"{
      * @deleteSnapshot boolean Whether to delete the snapshot created in the previous phase
      * 
      */
-    function withDeletion(
+    ILMPolicyBuilder function withDeletion(
         struct config,
         any age,
         string waitForSnapshot,
@@ -196,7 +203,7 @@ component accessors="true"{
      * @readOnly boolean  Whether to make the index read-only during the phase https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-readonly.html
      * @unfollow boolean Whether to convert from a follower index ot a regular index at this phase https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-unfollow.html
      */
-    function setPhase(
+    ILMPolicyBuilder function setPhase(
         required string phaseName,
         struct config,
         numeric priority,
@@ -266,7 +273,7 @@ component accessors="true"{
     /**
      * Returns the configured policy DSL
      */
-    function getDSL(){
+    struct function getDSL(){
         var policy = {
             "phases" : variables.phases
         };
@@ -281,7 +288,7 @@ component accessors="true"{
     /**
      * Creates or Updates the Policy
      */
-    function save(){
+    ILMPolicyBuilder function save(){
         getClient().applyILMPolicy( variables.policyName, getDSL() );
         return this;
     }
@@ -289,7 +296,7 @@ component accessors="true"{
     /**
      * Returns the existing ILM policy
      */
-    function get(){
+    struct function get(){
         return getClient().getILMPolicy( variables.policyName );
     }
 
@@ -299,7 +306,7 @@ component accessors="true"{
      * @config struct
      * @age string
      */
-    private function verifyAgePolicy( struct config, string age ){
+    private void function verifyAgePolicy( struct config, string age ){
         if( ( isNull( arguments.age ) && isNull( arguments.config ) ) || ( !isNull( arguments.config ) && !arguments.config.keyExists( "max_age" ) )  ){
             throw(
                 type = "cbElasticsearch.ILMPolicy.InvalidPolicyException",

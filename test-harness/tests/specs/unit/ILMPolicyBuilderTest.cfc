@@ -14,7 +14,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
         describe( "ILMPolicy Object Tests", function(){
             
             beforeEach( function(){
-                variables.model = getWirebox().getInstance( "ILMPolicy@cbElasticSearch" );
+                variables.model = getWirebox().getInstance( "ILMPolicyBuilder@cbElasticSearch" );
                 variables.testPolicyName = "cbelasticsearch-ilm-object-policy";
             } );
 
