@@ -291,8 +291,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						structDelete( operations[ i ], "source" );
 					}
 
-					debug( operations );
-
 					var bulkDocs = variables.model.processBulkOperation( operations, { "refresh" : true } );
 
 					expect( bulkDocs )
@@ -1224,6 +1222,329 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 					expect( document.getMemento()[ "foo" ] ).toBe( "bar" );
 				} );
+			} );
+
+			describe( "ILM policies", function(){
+				beforeEach( function(){
+					variables.testPolicyName = "es-client-test-policy";
+					variables.testPolicy = {
+						"_meta" : {
+							"description" : "Test Policy"
+						},
+						"phases": {
+							"delete": {
+								"min_age": "1h",
+								"actions": {
+								"delete": {}
+								}
+							}
+						}
+					};
+					variables.model.applyILMPolicy( testPolicyName, testPolicy );
+				} );
+				it( "Can create a new ILM policy", function(){
+					variables.testPolicyName = "es-client-test-creation";
+					var response = variables.model.applyILMPolicy(
+						testPolicyName,
+						testPolicy
+					);
+
+					expect( response ).toBeStruct().toHaveKey( "acknowledged" );
+					expect( response.acknowledged ).toBeTrue();
+
+				} );
+
+				it( "Can retrieve an ILM policy", function(){
+					var response = variables.model.getILMPolicy( testPolicyName );
+					expect( response ).toBeStruct()
+										.toHaveKey( testPolicyName );
+					var definition = response[ testPolicyName ];
+					expect( definition )
+						.toHaveKey( "policy" )
+						.toHaveKey( "in_use_by" )
+						.toHaveKey( "version" );
+				} );
+
+				it( "Can delete an ILM policy", function(){
+					var response = variables.model.deleteILMPolicy( testPolicyName );
+					expect( response ).toBeStruct().toHaveKey( "acknowledged" );
+					expect( response.acknowledged ).toBeTrue();
+				} );
+			});
+
+			describe( "Snapshot Repositories", function(){
+				beforeEach( function(){
+					variables.testSnapshotName = "my-snapshot-repository";
+				});
+				afterEach(function(){
+					try{
+						variables.model.deleteSnapshotRepository( variables.testSnapshotName );
+					}catch( any e ){}
+				});
+
+				it( "Can create a snapshot repository with a location string as the definition", function(){
+					var response = variables.model.applySnapshotRepository(
+						variables.testSnapshotName,
+						"/tmp/my-snapshots"
+					);
+					expect( response ).toBeStruct().toHaveKey( "acknowledged" );
+					expect( response.acknowledged ).toBeTrue();
+				} );
+
+				it( "Can create a snapshot repository with a full configuration struct", function(){
+					var response = variables.model.applySnapshotRepository(
+						variables.testSnapshotName,
+						{
+							"type": "url",
+							"settings": {
+							  "url": "file:/tmp/my-url-snapshots"
+							}
+						}
+
+					);
+					expect( response ).toBeStruct().toHaveKey( "acknowledged" );
+					expect( response.acknowledged ).toBeTrue();
+				} );
+
+				it( "Can determine whether a snapshot repository exists", function(){
+					variables.model.applySnapshotRepository(
+						variables.testSnapshotName,
+						"/tmp/my-snapshots"
+					);
+
+					expect( variables.model.snapshotRepositoryExists( variables.testSnapshotName) ).toBeTrue();
+				});
+
+				it( "Can delete a snapshot repository", function(){
+					variables.model.applySnapshotRepository(
+						variables.testSnapshotName,
+						"/tmp/my-snapshots"
+					);
+					var response = variables.model.deleteSnapshotRepository( variables.testSnapshotName );
+					expect( response ).toBeStruct().toHaveKey( "acknowledged" );
+					expect( response.acknowledged ).toBeTrue();
+
+				} );
+			} );
+
+			// We declare these here so we can use them in the next two steps
+			variables.testComponentTemplate = "my-component-template";
+			variables.testComponentDefinition = {
+				"_meta" : {
+					"description" : "Test component template"
+				},
+				"template" : {
+					"mappings" : {
+						"dynamic_templates" : [
+							{
+								"message_field" : {
+									"path_match"         : "message",
+									"match_mapping_type" : "string",
+									"mapping"            : {
+										"type"   : "text",
+										"norms"  : false,
+										"fields" : { "keyword" : { "type" : "keyword", "ignore_above" : 1024 } }
+									}
+								}
+							},
+							{
+								"string_fields" : {
+									"match"              : "*",
+									"match_mapping_type" : "string",
+									"mapping"            : {
+										"type"   : "text",
+										"norms"  : false,
+										"fields" : { "keyword" : { "type" : "keyword", "ignore_above" : 256 } }
+									}
+								}
+							}
+						],
+						"properties" : {
+							// default logstash template properties
+							"@timestamp" : { "type" : "date" },
+							"@version"   : { "type" : "keyword" },
+							"geoip"      : {
+								"dynamic"    : true,
+								"properties" : {
+									"ip"        : { "type" : "ip" },
+									"location"  : { "type" : "geo_point" },
+									"latitude"  : { "type" : "half_float" },
+									"longitude" : { "type" : "half_float" }
+								}
+							},
+							// Customized properties
+							"timestamp"    : { "type" : "date", "format" : "date_time_no_millis" },
+							"type"         : { "type" : "keyword" },
+							"application"  : { "type" : "keyword" },
+							"environment"  : { "type" : "keyword" },
+							"release"      : { "type" : "keyword" },
+							"level"        : { "type" : "keyword" },
+							"severity"     : { "type" : "integer" },
+							"category"     : { "type" : "keyword" },
+							"appendername" : { "type" : "keyword" },
+							"stachebox"    : {
+								"type"       : "object",
+								"properties" : {
+									"signature"    : { "type" : "keyword" },
+									"isSuppressed" : { "type" : "boolean" }
+								}
+							}
+						}
+					}
+				}
+			};
+
+			variables.testIndexTemplate = "my-index-template";
+
+			variables.testIndexDefinition = {
+				"index_patterns": ["my-data-stream*"],
+				"data_stream": {},
+				"composed_of": [ 
+					"logs-mappings",
+					"data-streams-mappings",
+					"logs-settings", 
+					variables.testComponentTemplate 
+				],
+				"priority": 500,
+				"_meta": {
+					"description": "Testbox testing index template",
+					"foo": "Bar!"
+				}
+			};
+
+			describe( "Component Templates", function(){
+				beforeEach( function(){
+					variables.testComponentTemplate = "my-component-template";
+				});
+				
+				afterEach(function(){
+					if( variables.model.indexTemplateExists( variables.testIndexTemplate ) ){
+						variables.model.deleteIndexTemplate( variables.testIndexTemplate );
+					}
+					if( variables.model.componentTemplateExists( variables.testComponentTemplate ) ){
+						variables.model.deleteComponentTemplate( variables.testComponentTemplate );
+					}
+				});
+
+				it( "Can create a component template", function(){
+					var response = variables.model.applyComponentTemplate(
+						variables.testComponentTemplate,
+						variables.testComponentDefinition
+					);
+					expect( response ).toBeStruct().toHaveKey( "acknowledged" );
+					expect( response.acknowledged ).toBeTrue();
+				} );
+
+				it( "Can determine whether a component template exists", function(){
+					variables.model.applyComponentTemplate(
+						variables.testComponentTemplate,
+						variables.testComponentDefinition
+					);
+					expect( variables.model.componentTemplateExists( variables.testComponentTemplate) ).toBeTrue();
+				});
+
+				it( "Can delete a component template", function(){
+					variables.model.applyComponentTemplate(
+						variables.testComponentTemplate,
+						variables.testComponentDefinition
+					);
+					var response = variables.model.deleteComponentTemplate( variables.testComponentTemplate );
+					expect( response ).toBeStruct().toHaveKey( "acknowledged" );
+					expect( response.acknowledged ).toBeTrue();
+
+				} );
+
+			} );
+
+			describe( "Index Templates", function(){
+				beforeEach(function(){
+					variables.testIndexTemplate = "my-index-template";
+					variables.model.applyComponentTemplate(
+						variables.testComponentTemplate,
+						variables.testComponentDefinition
+					);
+
+				});
+
+				afterEach( function(){
+					try{
+						variables.model.deleteIndexTemplate( variables.testIndexTemplate );
+					}catch( any e ){}
+				} );
+
+				it( "Can create an index template", function(){
+					var response = variables.model.applyIndexTemplate(
+						variables.testIndexTemplate,
+						variables.testIndexDefinition
+					);
+					expect( response ).toBeStruct().toHaveKey( "acknowledged" );
+					expect( response.acknowledged ).toBeTrue();
+				} );
+
+				it( "Can determine whether an index template exists", function(){
+					variables.model.applyIndexTemplate(
+						variables.testIndexTemplate,
+						variables.testIndexDefinition
+					);
+					expect( variables.model.indexTemplateExists( variables.testIndexTemplate) ).toBeTrue();
+				});
+
+				it( "Can delete an index template", function(){
+					variables.model.applyIndexTemplate(
+						variables.testIndexTemplate,
+						variables.testIndexDefinition
+					);
+					var response = variables.model.deleteIndexTemplate( variables.testIndexTemplate );
+					expect( response ).toBeStruct().toHaveKey( "acknowledged" );
+					expect( response.acknowledged ).toBeTrue();
+
+				} );
+
+			} );
+
+			describe( "Data Streams", function(){
+				beforeEach(function(){
+					variables.testDataStream = "my-data-stream-123";
+					variables.model.applyComponentTemplate(
+						variables.testComponentTemplate,
+						variables.testComponentDefinition
+					);
+					variables.model.applyIndexTemplate(
+						variables.testIndexTemplate,
+						variables.testIndexDefinition
+					);
+				});
+
+				afterEach( function(){
+					try{
+						variables.model.deleteDataStream( variables.testDataStream );
+					}catch( any e ){}
+				} );
+
+				it( "can test whether a data stream exists", function(){
+					expect( variables.model.dataStreamExists( variables.testDataStream ) ).toBeFalse();
+				} );
+
+				it( "can create a datastream", function(){
+					var response = variables.model.ensureDataStream( variables.testDataStream );
+					expect( response ).toBeStruct().toHaveKey( "acknowledged" );
+					expect( response.acknowledged ).toBeTrue();
+				} );
+
+				it( "can get a datastream definition", function(){
+					variables.model.ensureDataStream( variables.testDataStream );
+					var response = variables.model.getDataStream( variables.testDataStream );
+					expect( response ).toBeStruct().toHaveKey( "data_streams" );
+					expect( response.data_streams ).toBeArray().toHaveLength( 1 );
+				} );
+
+				it( "can delete a data stream", function(){
+					variables.model.ensureDataStream( variables.testDataStream );
+					var response = variables.model.deleteDataStream( variables.testDataStream );
+					expect( response ).toBeStruct().toHaveKey( "acknowledged" );
+					expect( response.acknowledged ).toBeTrue();
+				} );
+
 			} );
 		} );
 	}
