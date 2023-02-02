@@ -464,6 +464,184 @@ component
 
 
 	/**
+	 * Determines whether a snapshot repository exists
+	 *
+	 * @name 
+	 */
+	function snapshotRepositoryExists( required string name ){
+		return variables.nativeClient.snapshotRepositoryExists( argumentCollection=arguments );
+	}
+
+	/**
+	 * Creates or Updates a Snapshot Repository
+	 * @name string 
+	 * @definition  Either a string with the location ( prefixed in path.repos ) of the snapshots or a struct containing the definition https://www.elastic.co/guide/en/elasticsearch/reference/current/put-snapshot-repo-api.html
+	 */
+	function applySnapshotRepository(
+		required string name,
+		required any definition
+	){
+		return variables.nativeClient.applySnapshotRepository( argumentCollection = arguments );
+	}
+
+	/**
+	 * Deletes a Snapshot Repository
+	 */
+	function deleteSnapshotRepository( required string name ){
+		return variables.nativeClient.deleteSnapshotRepository( argumentCollection = arguments );
+	}
+
+	/**
+	 * Index Templates
+	 */
+
+	/**
+	 * Determines whether an index template exists
+	 *
+	 * @name 
+	 */
+	boolean function indexTemplateExists( required string name ){
+		return variables.nativeClient.indexTemplateExists( argumentCollection = arguments );
+	}
+
+	/**
+	 * Creates a new index template
+	 *
+	 * @name string
+	 * @definition struct
+	 */
+	any function applyIndexTemplate( required string name, required struct definition  ){
+		return variables.nativeClient.applyIndexTemplate( argumentCollection=arguments );
+	}
+
+	/**
+	 * Deletes an index template
+	 * @name string
+	 */
+	any function deleteIndexTemplate( required string name ){
+		return variables.nativeClient.deleteIndexTemplate( argumentCollection = arguments );
+	}
+
+	/**
+	 * Component Templates
+	 */
+
+	/**
+	 * Determines whether an component template exists
+	 *
+	 * @name 
+	 */
+	boolean function componentTemplateExists( required string name ){
+		return variables.nativeClient.componentTemplateExists( argumentCollection = arguments );
+	}
+
+	/**
+	 * Creates a new component template
+	 *
+	 * @name string
+	 * @definition struct
+	 */
+	any function applyComponentTemplate( required string name, required struct definition  ){
+		return variables.nativeClient.applyComponentTemplate( argumentCollection=arguments );
+	}
+
+	/**
+	 * Deletes a component template
+	 * @name string
+	 */
+	any function deleteComponentTemplate( required string name ){
+		return variables.nativeClient.deleteComponentTemplate( argumentCollection = arguments );
+	}
+
+	/**
+	 * ILM Policy Management
+	 */
+
+	/**
+	 * Get an ILM policy by name
+	 *
+	 * @name string
+	 */ 
+	any function getILMPolicy( required string name ){
+		return variables.nativeClient.getILMPolicy( argumentCollection=arguments );
+	}
+
+	/**
+	 * Upsert an ILM Policy
+	 *
+	 * @name string
+	 * @policy object Either a struct defining the policy or a policy object
+	 */
+	any function applyILMPolicy( 
+		required string name,
+		required any policy
+	){
+		return variables.nativeClient.applyILMPolicy( argumentCollection = arguments );
+	}
+
+	/**
+	 * Deletes an ILM policy
+	 *
+	 * @name 
+	 */
+	any function deleteILMPolicy(
+		required string name
+	){
+		return variables.nativeClient.deleteILMPolicy( argumentCollection = arguments );
+	}
+
+	
+	/**
+	* Data Streams Support
+	*/
+
+	/**
+	 * Checks to see whether a data stream exists
+	 *
+	 * @name 
+	 */
+	boolean function dataStreamExists(
+		required string name
+	){
+		return variables.nativeClient.dataStreamExists( argumentCollection = arguments );
+	}
+
+	/**
+	 * Ensures the existence of a data stream
+	 *
+	 * @name 
+	 */
+	any function ensureDataStream(
+		required string name
+	){
+		return variables.nativeClient.ensureDataStream( argumentCollection = arguments );
+	}
+
+	/**
+	 * Gets a datastream definition
+	 *
+	 * @name 
+	 */
+	any function getDataStream(
+		required string name
+	){
+		return variables.nativeClient.getDataStream( argumentCollection = arguments );
+	}
+
+	/**
+	 * Creates a new datastream
+	 *
+	 * @name string  the name of the stream
+	 * @template string the name of the index template to use for this data stream
+	 */
+	any function deleteDataStream(
+		required string name
+	){
+		return variables.nativeClient.deleteDataStream( argumentCollection = arguments );
+	}
+
+
+	/**
 	 * Parses a parameter argument.
 	 * upports multiple formats : `requests_per_second=50&slices=5`, `{ "requests_per_second" : 50, "slices" : 5 }`, or `[ { "name" : "requests_per_second", "value" : 50 } ]` )
 	 *

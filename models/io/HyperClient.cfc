@@ -1277,6 +1277,307 @@ component accessors="true" threadSafe singleton {
 		}
 	}
 
+	/**
+	 * Snapshot Repo Functionality
+	 */
+
+	/**
+	 * Determines whether a snapshot repository exists
+	 *
+	 * @name 
+	 */
+	function snapshotRepositoryExists( required string name ){
+		return variables.nodePool
+						.newRequest( "_snapshot/#arguments.name#" )
+						.send()
+						.getStatusCode() == "200";
+	}
+
+	/**
+	 * Creates or Updates a Snapshot Repository
+	 */
+	function applySnapshotRepository(
+		required name,
+		required definition
+	){
+		if( isSimpleValue( arguments.definition ) ){
+			arguments.definition = {
+				"type" : "fs",
+				"settings" : {
+					"location" : arguments.definition
+				}
+			};
+		}
+
+		var response =  variables.nodePool
+							.newRequest( "_snapshot/#arguments.name#", "PUT" )
+							.setBody( 
+								getUtil().toJSON( arguments.definition )
+							)
+							.asJSON()
+							.send();
+		
+		return response.getStatusCode() == 200
+				? response.json()
+				: onResponseFailure( response );
+
+	}
+
+	/**
+	 * Deletes a Snapshot Repository
+	 */
+	function deleteSnapshotRepository(
+		required name
+	){
+		var response = variables.nodePool
+						.newRequest( "_snapshot/#arguments.name#", "DELETE" )
+						.send();
+
+		return response.getStatusCode() == 200
+				? response.json()
+				: onResponseFailure( response );
+	}
+
+	/**
+	 * Index Templates
+	 */
+
+	/**
+	 * Determines whether an index template exists
+	 *
+	 * @name 
+	 */
+	boolean function indexTemplateExists( required string name ){
+		return variables.nodePool
+						.newRequest( "_index_template/#arguments.name#" )
+						.send()
+						.getStatusCode() == "200";
+	}
+
+	/**
+	 * Creates a new index template
+	 *
+	 * @name string
+	 * @definition struct
+	 */
+	any function applyIndexTemplate( required string name, required struct definition  ){
+
+		var response =  variables.nodePool
+							.newRequest( "_index_template/#arguments.name#", "PUT" )
+							.setBody( 
+								getUtil().toJSON( arguments.definition )
+							)
+							.asJSON()
+							.send();
+		
+		return response.getStatusCode() == 200
+				? response.json()
+				: onResponseFailure( response );
+
+	}
+
+	/**
+	 * Deletes an index template
+	 * @name string
+	 */
+	any function deleteIndexTemplate( required string name ){
+		var response = variables.nodePool
+						.newRequest( "_index_template/#arguments.name#", "DELETE" )
+						.send();
+
+		return response.getStatusCode() == 200
+				? response.json()
+				: onResponseFailure( response );
+	}
+
+	/**
+	 * Component Templates
+	 */
+
+	/**
+	 * Determines whether an component template exists
+	 *
+	 * @name 
+	 */
+	boolean function componentTemplateExists( required string name ){
+		return variables.nodePool
+						.newRequest( "_component_template/#arguments.name#" )
+						.send()
+						.getStatusCode() == "200";
+	}
+
+	/**
+	 * Creates a new component template
+	 *
+	 * @name string
+	 * @definition struct
+	 */
+	any function applyComponentTemplate( required string name, required struct definition  ){
+		var response =  variables.nodePool
+							.newRequest( "_component_template/#arguments.name#", "PUT" )
+							.setBody( 
+								getUtil().toJSON( 
+									!definition.keyExists( "template" ) 
+										? { "template" : arguments.definition } 
+										: arguments.definition 
+								)
+							)
+							.asJSON()
+							.send();
+
+		return response.getStatusCode() == 200
+				? response.json()
+				: onResponseFailure( response );
+	}
+
+	/**
+	 * Deletes a component template
+	 * @name string
+	 */
+	any function deleteComponentTemplate( required string name ){
+		var response = variables.nodePool
+						.newRequest( "_component_template/#arguments.name#", "DELETE" )
+						.send();
+
+		return response.getStatusCode() == 200
+				? response.json()
+				: onResponseFailure( response );
+	}
+
+	/**
+	 * ILM Policy Management
+	 */
+
+	/**
+	 * Get an ILM policy by name
+	 *
+	 * @name string
+	 */ 
+	any function getILMPolicy( required string name ){
+		var response = variables.nodePool
+				.newRequest( "_ilm/policy/#arguments.name#" )
+				.send();
+
+		return response.getStatusCode() == 200
+				? response.json()
+				: onResponseFailure( response );
+	}
+
+	/**
+	 * Upsert an ILM Policy
+	 *
+	 * @name string
+	 * @policy object Either a struct defining the policy or a policy object
+	 */
+	any function applyILMPolicy( 
+		required string name,
+		required any policy
+	){
+		var response = variables.nodePool
+				.newRequest( "_ilm/policy/#arguments.name#", "PUT" )
+				.setBody( getUtil().toJSON( { "policy" : arguments.policy } ) )
+				.asJSON()
+				.send();
+		
+		return response.getStatusCode() == 200
+				? response.json()
+				: onResponseFailure( response );
+
+	}
+
+	/**
+	 * Deletes an ILM policy
+	 *
+	 * @name 
+	 */
+	any function deleteILMPolicy(
+		required string name
+	){
+		var response = variables.nodePool
+				.newRequest( "_ilm/policy/#arguments.name#", "DELETE" )
+				.send();
+		
+		return response.getStatusCode() == 200
+				? response.json()
+				: onResponseFailure( response );
+	}
+
+	
+	/**
+	* Data Streams Support
+	*/
+
+	/**
+	 * Checks to see whether a data stream exists
+	 *
+	 * @name 
+	 */
+	boolean function dataStreamExists(
+		required string name
+	){
+		return variables.nodePool
+						.newRequest( "_data_stream/#arguments.name#" )
+						.send()
+						.getStatusCode() == "200";
+	}
+
+	/**
+	 * Ensures the existence of a data stream
+	 *
+	 * @name 
+	 */
+	any function ensureDataStream(
+		required string name
+	){
+		var response = variables.nodePool
+						.newRequest( "_data_stream/#arguments.name#", "PUT" )
+						.send();
+
+		return response.getStatusCode() == 200
+				? response.json()
+				: onResponseFailure( response );
+	}
+
+	/**
+	 * Gets a datastream definition
+	 *
+	 * @name 
+	 */
+	any function getDataStream(
+		required string name
+	){
+		var response = variables.nodePool
+				.newRequest( "_data_stream/#arguments.name#" )
+				.send();
+
+		return response.getStatusCode() == 200
+				? response.json()
+				: onResponseFailure( response );
+	}
+
+	/**
+	 * Creates a new datastream
+	 *
+	 * @name string  the name of the stream
+	 * @template string the name of the index template to use for this data stream
+	 */
+	any function deleteDataStream(
+		required string name
+	){
+		var response = variables.nodePool
+				.newRequest( "_data_stream/#arguments.name#", "DELETE" )
+				.send();
+		
+		return response.getStatusCode() == 200
+				? response.json()
+				: onResponseFailure( response );
+	}
+
+	/**
+	 * Handles response errors from Elasticsearch
+	 *
+	 * @response 
+	 */
 	function onResponseFailure( required Hyper.models.HyperResponse response ){
 		return getUtil().handleResponseError( response = arguments.response );
 	}
