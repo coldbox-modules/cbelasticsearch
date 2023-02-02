@@ -2,11 +2,12 @@ version: "3"
 
 services:
     elasticsearch8:
-        image: elasticsearch:8.4.2
+        image: elasticsearch:8.6.0
         environment:
-            - ES_JAVA_OPTS=-Xms2g -Xmx2g
-            - discovery.type=single-node
-            - xpack.security.enabled=false
+            ES_JAVA_OPTS: "-Xms2g -Xmx2g"
+            discovery.type: "single-node"
+            xpack.security.enabled: "false"
+            path.repo: '["/tmp"]'
         ports:
             - "9200:9200"
             - "9300:9300"
@@ -14,26 +15,13 @@ services:
     elasticsearch:
         image: elasticsearch:7.17.6
         environment:
-            - ES_JAVA_OPTS=-Xms1g -Xmx1g
-            - http.host=0.0.0.0
-            - transport.host=127.0.0.1
-            - discovery.type=single-node
-            - bootstrap.memory_lock=true
+            ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+            discovery.type: "single-node"
+            xpack.security.enabled: "false"
+            path.repo: '["/tmp"]'
         ports:
             - "9200:9200"
             - "9300:9300"
-
-    elasticsearch-cluster2:
-        image: elasticsearch:7.17.6
-        environment:
-            - ES_JAVA_OPTS=-Xms1g -Xmx1g
-            - http.host=0.0.0.0
-            - transport.host=127.0.0.1
-            - discovery.type=single-node
-            - bootstrap.memory_lock=true
-        ports:
-            - "9201:9200"
-            - "9301:9300"
 
     app:
         # We always develop and test with the lowest common denominator - in this case, the oldest engine we support with the most restrictive compiler
