@@ -66,13 +66,20 @@ component accessors="true" threadSafe singleton {
 	/**
 	 * SearchBuilder provider
 	 **/
-	cbElasticsearch.models.SearchBuilder function newBuilder() provider="SearchBuilder@cbElasticsearch"{
+	cbElasticsearch.models.SearchBuilder function newSearchBuilder() provider="SearchBuilder@cbElasticsearch"{
 	}
 
 	/**
 	 * SearchResult provider
 	 **/
 	cbElasticsearch.models.SearchResult function newResult() provider="SearchResult@cbElasticsearch"{
+	}
+
+	/**
+	 * Search Builder public method
+	 **/
+	public function getSearchBuilder(){
+		return newSearchBuilder();
 	}
 
 	function init( cbElasticsearch.models.Config configuration ){
@@ -126,11 +133,18 @@ component accessors="true" threadSafe singleton {
 						variables.versionTarget = startPage.version.number;
 					}
 				} catch ( any e ) {
-					variables.versionTarget = "7.0.0";
+					variables.versionTarget = "8.6.0";
 					log.error(
 						"A connection to the elasticsearch server could not be established.  This may be due to an authentication issue or the server may not be available at this time.  The version target has been set to #variables.versionTarget#."
 					);
 				}
+			}
+
+			if( isMajorVersion( 6 ) ){
+				throw(
+					type    = "cbElasticsearch.UnsupportedVersionException",
+					message = "Support for Elasticsearch Version 6 was removed in cbElasticsearch v3.  Please use version 2 of this module for support for Elasticsearch versions < 7"
+				);
 			}
 		}
 	}
@@ -150,7 +164,7 @@ component accessors="true" threadSafe singleton {
 	 * Execute a client search request
 	 * @searchBuilder 	SearchBuilder 	An instance of the SearchBuilder object
 	 *
-	 * @return 			iNativeClient 	An implementation of the iNativeClient
+	 * @return 			SearchResult 	The search result object
 	 * @interfaced
 	 **/
 	cbElasticsearch.models.SearchResult function executeSearch(
@@ -796,7 +810,7 @@ component accessors="true" threadSafe singleton {
 	 * @document 		Document@cbElasticSearch 		An instance of the elasticsearch Document object
 	 * @refresh          boolean                         Whether to return a refreshed document - useful when processing via pipelines
 	 *
-	 * @return 			iNativeClient 					An implementation of the iNativeClient
+	 * @return 			Document						The saved cbElasticsearch Document object
 	 * @interfaced
 	 **/
 	cbElasticsearch.models.Document function save(
@@ -1449,6 +1463,18 @@ component accessors="true" threadSafe singleton {
 	 */
 
 	/**
+	 * Checks whether a named ILM policy exists
+	 *
+	 * @name 
+	 */
+	boolean function ILMPolicyExists( required string name ){
+		return variables.nodePool
+				.newRequest( "_ilm/policy/#arguments.name#" )
+				.send()
+				.getStatusCode() == 200;
+	}
+
+	/**
 	 * Get an ILM policy by name
 	 *
 	 * @name string
@@ -1531,6 +1557,23 @@ component accessors="true" threadSafe singleton {
 	){
 		var response = variables.nodePool
 						.newRequest( "_data_stream/#arguments.name#", "PUT" )
+						.send();
+
+		return response.getStatusCode() == 200
+				? response.json()
+				: onResponseFailure( response );
+	}
+
+	/**
+	 * Migrates an existing index in to a data stream
+	 *
+	 * @indexName
+	 */
+	any function migrateToDataStream(
+		required string indexName
+	){
+		var response = variables.nodePool
+						.newRequest( "_data_stream/_migrate/#arguments.indexName#", "POST" )
 						.send();
 
 		return response.getStatusCode() == 200

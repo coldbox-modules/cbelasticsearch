@@ -35,8 +35,6 @@ component{
 
         // Default settings
         settings = {
-            //The native client Wirebox DSL for the transport client
-            client="HyperClient@cbElasticsearch",
             // The default hosts - an array of host connections
             //  - REST-based clients (e.g. JEST):  round robin connections will be used
             //  - Socket-based clients (e.g. Transport):  cluster-aware routing used
@@ -99,19 +97,8 @@ component{
                         .threadSafe()
                         .asSingleton();
 
-    }
-
-    /**
-    * Fired when the module is unregistered and unloaded
-    */
-    function onUnload(){
-
-        // Close all active pool connections - necessary for native driver implementation
-        if( Wirebox.containsInstance( "Client@cbElasticsearch" ) ){
-
-            Wirebox.getInstance( "Client@cbElasticsearch" ).close();
-
-        }
+        binder.map( "Client@cbElasticsearch" )
+                        .to( '#this.cfmapping#.models.io.HyperClient' );
 
     }
 
