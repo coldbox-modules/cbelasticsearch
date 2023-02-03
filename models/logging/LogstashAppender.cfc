@@ -9,6 +9,7 @@ component
 
 	property name="util" inject="Util@cbelasticsearch";
 	property name="cachebox" inject="cachebox";
+	property name="asyncManager" inject="box:AsyncManager";
 
 	/**
 	 * Constructor
@@ -40,26 +41,34 @@ component
 		 : ( server.coldfusion.productname eq "Lucee" ? getApplicationSettings().name : getApplicationMetadata().name );
 
 		instance.DEFAULTS = {
-			"index" : "logstash-" & (
-				arguments.properties.keyExists( "index" ) ? lCase( properties.index ) : lCase(
-					reReplaceNoCase( applicationName, "[^0-9A-Z_]", "_", "all" )
-				)
-			),
-			"rotate"          : true,
-			"rotation"        : "weekly",
-			"ensureChecks"    : true,
-			"autoCreate"      : true,
+			"dataStreamPattern" : "logs-coldbox-*",
+			"dataStream" : "logs-coldbox-logstash-appender",
+			"ILMPolicyName"   : "cbelasticsearch-logs",
+			"componentTemplateName" : "cbelasticsearch-logs-mappings",
+			"indexTemplateName" : "cbelasticsearch-logs",
+			// Retention of logs in number of days
+			"retentionDays"   : 365,
+			// optional lifecycle full policy
+			"lifecyclePolicy" : javacast( "null", 0 ),
 			"applicationName" : applicationName,
 			"releaseVersion"  : "",
-			"indexShards"     : 2,
+			"indexShards"     : 1,
 			"indexReplicas"   : 0,
-			"cacheName"       : "template"
+			"rolloverSize"    : "10gb",
+			"cacheName"       : "template",
+			"migrateIndices"  : false
 		};
 
 		for ( var configKey in structKeyArray( instance.Defaults ) ) {
-			if ( !propertyExists( configKey ) ) {
+			if ( !propertyExists( configKey ) && !isNull( instance.DEFAULTS[ configKey ] ) ) {
 				setProperty( configKey, instance.DEFAULTS[ configKey ] );
 			}
+		}
+
+		// Backward compatibility
+		if( propertyExists( "index" ) ){
+			setProperty( "dataStream", left( getProperty( "index" ), 5 ) == "logs-" ? getProperty( "index" ) : "logs-" & getProperty( "index" ) );
+			setProperty( "dataStreamPattern", getProperty( "dataStream" ) );
 		}
 
 		if ( !propertyExists( "defaultCategory" ) ) {
@@ -80,7 +89,7 @@ component
 	/**
 	 * Index Builder Provider
 	 **/
-	IndexBuilder function indexBuilder() provider="IndexBuilder@cbElasticsearch"{
+	ILMPolicyBuilder function policyBuilder() provider="ILMPolicyBuilder@cbElasticsearch"{
 	}
 
 	/**
@@ -93,11 +102,7 @@ component
 	 * Runs on registration
 	 */
 	public LogstashAppender function onRegistration() output=false{
-		if ( getProperty( "ensureChecks" ) ) {
-			// Index Checks
-			ensureIndex();
-		}
-
+		ensureDataStream();
 		return this;
 	}
 
@@ -172,7 +177,6 @@ component
 			logObj[ "snapshot" ] = {
 				"template"       : CGI.CF_TEMPLATE_PATH,
 				"path"           : CGI.PATH_INFO,
-				"host"           : CGI.HTTP_HOST,
 				"referer"        : CGI.HTTP_REFERER,
 				"browser"        : CGI.HTTP_USER_AGENT,
 				"remote_address" : CGI.REMOTE_ADDR
@@ -213,12 +217,10 @@ component
 
 		preflightLogEntry( logObj );
 
-		ensureIndex();
-
 		newDocument()
-			.new( index = getRotationalIndexName(), properties = logObj )
-			.setId( instance.uuid.randomUUID() )
-			.save();
+			.new( index = getProperty( "dataStream" ), properties = logObj )
+			.create();
+
 	}
 
 	// ---------------------------------------- PRIVATE ---------------------------------------
@@ -226,45 +228,79 @@ component
 	/**
 	 * Verify or create the logging index
 	 */
-	private void function ensureIndex() output=false{
+	private void function ensureDataStream() output=false{
 
-		var currentIndexName = getRotationalIndexName();
+		var dataStreamName = getProperty( "dataStream" );
+		var dataStreamPattern = getProperty( "dataStreamPattern" );
+		var componentTemplateName = getProperty( "componentTemplateName" );
+		var indexTemplateName = getProperty( "indexTemplateName" );
 
-		variables.cachebox.getCache( instance.defaults.cacheName ).getOrSet(
-			"indexAssured_" & currentIndexName,
-			function(){
-				if ( getClient().indexExists( currentIndexName ) ) return true;
-				indexBuilder().new( name = currentIndexName, properties = getIndexConfig() ).save();
-				return true;
+		
+		var policyMeta = {
+			"description" : "Lifecyle Policy for cbElasticsearch logs"
+		};
+		var policyBuilder = policyBuilder().new( policyName=getProperty( "ILMPolicyName" ), meta=policyMeta );
+		// Put our ILM Policy
+		if( propertyExists( "lifecyclePolicy" ) ){
+			policyBuilder.setPolicy( getProperty( "lifecyclePolicy" ) );
+		} else {
+			policyBuilder.withDeletion(
+				age = getProperty( "retentionDays" )
+			);
+		}
+
+		policyBuilder.save();
+
+		// Upsert our component template
+		getClient().applyComponentTemplate(
+			componentTemplateName,
+			getComponentTemplate()
+		);
+
+		// Upsert the current version of our template
+		getClient().applyIndexTemplate(
+			indexTemplateName,
+			{
+				"index_patterns" : [ dataStreamPattern ],
+				"composed_of" : [ 
+					"logs-mappings",
+					"data-streams-mappings",
+					"logs-settings", 
+					componentTemplateName 
+				],
+				"data_stream" : {},
+				"priority" : 150,
+				"_meta" : {
+					"description" : "Index Template for cbElasticsearch Logs"
+				}
 			}
 		);
-		
-	}
 
-	private function getRotationalIndexName(){
-		var baseName = getProperty( "index" );
-
-		if ( getProperty( "rotate" ) ) {
-			switch ( getProperty( "rotation" ) ) {
-				case "monthly": {
-					baseName &= "." & dateFormat( now(), "yyyy-mm" );
-					break;
+		// Check for any previous indices created matching the pattern and migrate them to the datastream
+		if( propertyExists( "index" ) && left( getProperty( "index" ), 5 ) != "logs-" && getProperty( "migrateIndices" ) ){
+			var existingIndexPrefix = getProperty( "index" );
+			var existingIndices = getClient().getIndices().keyArray().filter(
+				function( index ){
+					return len( index ) >= len( existingIndexPrefix ) && left( index, len( existingIndexPrefix ) ) == existingIndexPrefix;
 				}
-				case "weekly": {
-					baseName &= "." & dateFormat( now(), "yyyy-w" );
-					break;
+			);
+			variables.asyncManager.allApply(
+				existingIndices,
+				function( index ){
+					try{
+						getClient().reindex( index, dataStream, true );
+					} catch( any e ){
+						// Print to StdError to bypass LogBox, since we are in an appender
+						createObject( "java", "java.lang.System" ).err.println( "[ERROR] Index Migration Between the Previous Index of #index# to the data stream #dataStreamName# could not be completed.  The error received was: #e.message#" );
+					}
 				}
-				case "daily": {
-					baseName &= "." & dateFormat( now(), "yyyy-mm-dd" );
-					break;
-				}
-				case "hourly": {
-					baseName &= "." & dateFormat( now(), "yyyy-mm-dd-H" );
-					break;
-				}
-			}
+			);
+		} else if( propertyExists( "index" ) && getProperty( "migrateIndices" ) ){
+			getClient().migrateToDataStream( dataStreamName );
+		} else if( !getClient().dataStreamExists( dataStreamName ) ){
+			getClient().ensureDataStream( dataStreamName );
 		}
-		return baseName;
+		
 	}
 
 	/**
@@ -467,7 +503,6 @@ component
 			"frames",
 			"extrainfo",
 			"stacktrace",
-			"host",
 			"snapshot",
 			"event",
 			"userinfo"
@@ -508,12 +543,12 @@ component
 
 	}
 
-	public function getIndexConfig(){
+	public function getComponentTemplate(){
 		return {
 			"settings" : {
 				"index.refresh_interval" : "5s",
-				"number_of_shards"       : getProperty( "indexShards" ),
-				"number_of_replicas"     : getProperty( "indexReplicas" )
+				"number_of_replicas"     : getProperty( "indexReplicas" ),
+				"index.lifecycle.name": getProperty( "ILMPolicyName" )
 			},
 			"mappings" : {
 				"dynamic_templates" : [
@@ -541,9 +576,6 @@ component
 					}
 				],
 				"properties" : {
-					// default logstash template properties
-					"@timestamp" : { "type" : "date" },
-					"@version"   : { "type" : "keyword" },
 					"geoip"      : {
 						"dynamic"    : true,
 						"properties" : {
