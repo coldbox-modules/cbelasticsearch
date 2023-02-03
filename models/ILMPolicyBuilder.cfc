@@ -247,9 +247,13 @@ component accessors="true"{
         }
         
         if( !isNull( arguments.downsample ) ){
-            var interval = arguments.downsample;
-            if( isNumeric( interval ) ) interval = javacast( "string", interval & "h" );
-            phase.actions[ "downsample" ] = { "fixed_interval" : interval };
+            if( getClient().isMajorVersion( 7 ) ){
+                getClient().getLog().warn( "Elasticsearch versions below version 8 do not support lifecycle phase downsampling. The argument with a value of #arguments.downsample# in phase #arguments.phaseName# for policy #variables.policyName# is being ignored." );
+            } else {
+                var interval = arguments.downsample;
+                if( isNumeric( interval ) ) interval = javacast( "string", interval & "h" );
+                phase.actions[ "downsample" ] = { "fixed_interval" : interval };
+            }
         }
         
         if( !isNull( arguments.forceMerge ) ){
