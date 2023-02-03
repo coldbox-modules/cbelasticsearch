@@ -36,7 +36,7 @@ component accessors="true"{
      * Sets the configuration for the ILM Hot Phase
      * https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-index-lifecycle.html
      *
-     * @config struct a raw configuration
+     * @config a raw struct containing the phase configuration
      * @priority numeric a priority to set for this index during the phase https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-set-priority.html
      * @rollover any either a raw rollover struct or a numeric (GB)/ string representing the size at which the index should rollover documents to the next phase https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-rollover.html 
      * @shards numeric the number of shards to shrink to in the phase https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-shrink.html
@@ -65,7 +65,7 @@ component accessors="true"{
      * Sets the configuration for the ILM Warm Phase
      * https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-index-lifecycle.html
      *
-     * @config struct a raw 
+     * @config a raw struct containing the phase configuration 
      * @age any Either a numeric of the number of days or a string interval to use as the threshold at which data is transitioned to this tier 
      * @priority numeric a priority to set for this index during the phase https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-set-priority.html
      * @shards numeric the number of shards to shrink to in the phase https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-shrink.html
@@ -98,7 +98,7 @@ component accessors="true"{
      * Sets the configuration for the ILM Cold Phase
      * https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-index-lifecycle.html
      *
-     * @config struct a raw configuration
+     * @config a raw struct containing the phase configuration
      * @age any Either a numeric of the number of days or a string interval to use as the threshold at which data is transitioned to this tier 
      * @priority numeric a priority to set for this index during the phase https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-set-priority.html
      * @searchableSnapshot string the name of a snapshot respository to create during this phase https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-searchable-snapshot.html
@@ -128,7 +128,7 @@ component accessors="true"{
      * Sets the configuration for the ILM Freeze Phase
      * https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-index-lifecycle.html
      *
-     * @config struct a raw configuration
+     * @config a raw struct containing the phase configuration
      * @age any Either a numeric of the number of days or a string interval to use as the threshold at which data is transitioned to this tier 
      * @searchableSnapshot string the name of a snapshot respository to create during this phase https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-searchable-snapshot.html
      * @unfollow boolean Whether to convert from a follower index ot a regular index at this phase https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-unfollow.html
@@ -149,7 +149,7 @@ component accessors="true"{
     /**
      * Sets the configuration for the deletion phase
      * 
-     * @config struct a raw configuration
+     * @config a raw struct containing the phase configuration
      * @age any Either a numeric of the number of days or a string interval to use as the threshold at which data is transitioned to this tier 
      * @waitForSnapshot string the name of the SLM policy to execute that the delete action should wait for https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-wait-for-snapshot.html
      * @deleteSnapshot boolean Whether to delete the snapshot created in the previous phase
@@ -193,7 +193,7 @@ component accessors="true"{
      * Sets the configuration for an ILM phase
      * https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-index-lifecycle.html
      *
-     * @config struct a raw configuration
+     * @config a raw struct containing the phase configuration
      * @priority numeric a priority to set for this index during the phase https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-set-priority.html
      * @rollover any either a raw rollover struct or a numeric (GB)/ string representing the size at which the index should rollover documents to the next phase https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-rollover.html 
      * @shards numeric the number of shards to shrink to in the phase https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-shrink.html
