@@ -25,8 +25,8 @@ We will create a policy to:
 ```js
 var policyBuilder = getInstance( "ILMPolicyBuilder@cbelasticsearch" )
                         .new( "my-new-policy" )
-                        .withHot( shards = 2, rollover = "1gb" )
-                        .withWarm( age=7, shards = 1, readOnly = true )
+                        .hotPhase( shards = 2, rollover = "1gb" )
+                        .warmPhase( age=7, shards = 1, readOnly = true )
                         .withDeletion( age = 60 )
                         .save();
 ```
