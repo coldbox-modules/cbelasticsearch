@@ -90,6 +90,47 @@ component accessors="true" {
 	}
 
 	/**
+	 * Create-only method to save a document using the bulk API.  Will throw an error if the document already exists.
+	 *
+	 * @id 
+	 * @index 
+	 * @type 
+	 */
+	function create( boolean refresh = false ){
+		var createOptions = {
+			"_index" : variables.index
+		};
+		if( !isNull( variables.id ) && len( variables.id ) ){
+			createOptions[ "_id" ] = variables.id;
+		}
+
+		if( !isNull( variables.pipeline ) ){
+			variables.params[ "pipeline" ] = variables.pipeline;
+		}
+
+		var response = getClient().processBulkOperation(
+			[
+				{
+                    "operation" : { "create" :  createOptions },
+                    "source" : getDocument()
+                }
+			],
+			variables.params
+        );
+
+		if( response.errors ){
+			return getClient().handleResponseError( response.items[ 1 ][ "create" ] );
+		}
+
+		if( arguments.refresh ){
+			return this.get( response.items[ 1 ][ "create" ][ "_id" ] );
+		} else {
+			return this;
+		}
+		
+	}
+
+	/**
 	 * Loads a document
 	 * @id 		string 		The `_id` of the document to retrieve
 	 * @index 	string 		The index of the document
