@@ -44,21 +44,21 @@ component extends="coldbox.system.testing.BaseTestCase" {
 	}
 
 	function afterAll(){
-		var client = variables.model.getClient();
-		if( client.dataStreamExists( variables.model.getProperty( "dataStream" ) ) ){
-			client.deleteDataStream( variables.model.getProperty( "dataStream" ) );
+		var esClient = variables.model.getClient();
+		if( esClient.dataStreamExists( variables.model.getProperty( "dataStream" ) ) ){
+			esClient.deleteDataStream( variables.model.getProperty( "dataStream" ) );
 		}
 
-		if( client.indexTemplateExists( variables.model.getProperty( "indexTemplateName" ) ) ){
-			client.deleteIndexTemplate( variables.model.getProperty( "indexTemplateName" ) );
+		if( esClient.indexTemplateExists( variables.model.getProperty( "indexTemplateName" ) ) ){
+			esClient.deleteIndexTemplate( variables.model.getProperty( "indexTemplateName" ) );
 		}
 
-		if( client.componentTemplateExists( variables.model.getProperty( "componentTemplateName" ) ) ){
-			client.deleteComponentTemplate( variables.model.getProperty( "componentTemplateName" ) );
+		if( esClient.componentTemplateExists( variables.model.getProperty( "componentTemplateName" ) ) ){
+			esClient.deleteComponentTemplate( variables.model.getProperty( "componentTemplateName" ) );
 		}
 
-		if( client.ILMPolicyExists( variables.model.getProperty( "ILMPolicyName" ) ) ){
-			client.deleteILMPolicy( variables.model.getProperty( "ILMPolicyName" ) );
+		if( esClient.ILMPolicyExists( variables.model.getProperty( "ILMPolicyName" ) ) ){
+			esClient.deleteILMPolicy( variables.model.getProperty( "ILMPolicyName" ) );
 		}
 
 		super.afterAll();
