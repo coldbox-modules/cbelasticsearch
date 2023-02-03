@@ -1661,7 +1661,7 @@ component accessors="true" threadSafe singleton {
 	 *
 	 * @versionNumber
 	 */
-	private boolean function isMajorVersion( required numeric versionNumber ){
+	public boolean function isMajorVersion( required numeric versionNumber ){
 		return listGetAt( variables.versionTarget, 1, "." ) == versionNumber;
 	}
 
