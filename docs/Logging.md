@@ -19,38 +19,43 @@ logBox = {
         console = {
             class="coldbox.system.logging.appenders.ConsoleAppender"
         },
-        elasticsearch = {
-            class="cbelasticsearch.models.logging.ElasticsearchAppender",
-            properties = {
-                // the name of the index to store log data in - defaults to logbox
-                "index"            : "myapp-logs",
-                // Provide a unique name for the application ( optional ) - useful for filtering shared log indexes
-                "applicationName"  : "myapp",
-                // Optional release version
-                "releaseVersion"   : "1.0.0",
-                // the number of days to retain logs
-				"rotationDays"     : 30,
-                // perform the rotation purge every this number of minutes
-				"rotationFrequency": 5
-            }
-        },
         logstash = {
             class="cbelasticsearch.models.logging.LogstashAppender",
-            properties = {
-                // the index prefix to use - prior to the rotational timestamps - defaults to ".logstash-[applicationName]"
-                "index"            : "myapp-logs",
-                // Provide a unique name for the application ( optional ) - useful for filtering shared log indexes
-                "applicationName"  : "myapp",
-                // Optional release version
-                "releaseVersion"   : "1.0.0",
-                // the frequency of index rotation
-				"rotation"     : "daily"
+            // The log level to use for this appender - in this case only errors and above are logged to Elasticsearch
+            levelMax = "ERROR",
+            properties = {      
+                // The pattern used for the data stream configuration.  All new indices with this pattern will be created as data streams        
+                "dataStreamPattern" : "logs-coldbox-*",
+                // The data stream name to use for this appenders logs
+                "dataStream" : "logs-coldbox-logstash-appender",
+                // The ILM policy name to create for transitioning/deleting data
+                "ILMPolicyName"   : "cbelasticsearch-logs",
+                // The name of the component template to use for the index mappings
+                "componentTemplateName" : "cbelasticsearch-logs-mappings",
+                // The name of the index template whic the data stream will use
+                "indexTemplateName" : "cbelasticsearch-logs",
+                // Retention of logs in number of days
+                "retentionDays"   : 365,
+                // an optional lifecycle full policy https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-put-lifecycle.html
+                "lifecyclePolicy" : javacast( "null", 0 ),
+                // The name of the application which will be transmitted with the log data and used for grouping
+                "applicationName" : "My Application name",
+                // A release version to use for your logs
+                "releaseVersion"  : "1.0.0",
+                // The number of shards for the backing data stream indices
+                "indexShards"     : 1,
+                // The number of replicas for the backing indices
+                "indexReplicas"   : 0,
+                // The max shard size at which the hot phase will rollover data
+                "rolloverSize"    : "10gb",
+                // Whether to migrate any indices used in v2 of this module over to data streams - only used if an `index` key ( v2 config ) is provided to the properties
+                "migrateIndices"  : false
             }
         }
 
     },
-    // Root Logger - appends error messages to all appenders
-    root = { levelmax="ERROR", appenders="*" }
+    // Root Logger - appends invo messages to all appenders - except those with a specified `levelMax` like above
+    root = { levelmax="INFO", appenders="*" }
 };
 ```
 
