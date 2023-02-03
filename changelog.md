@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ----
 # [3.0.0] - Unreleased
+
+### Added
+* Added Data Streams Support
+* Added ILM ( Index Lifecycle Management ) Policy Suport
+* Added Component and Index Template Support
+* Added Snapshot Repository support
+* Added create() method to Document object to support non-upsert operations
+
+### Changed
+* Changed Logstash Appender to use time series Data Streams instead of static indices
+* Changed Logstash Appender Configuruation for data stream support and index lifecycles
+
+### Removed
+* Removed Support for Elasticsearch versions < 7.x
+* Removed Suppport for Alternate ES Clients
+* Removed ElasticsearchAppender object as it was redundant
+
 ## [2.4.0] - 2022-12-30
 
 ### Removed
