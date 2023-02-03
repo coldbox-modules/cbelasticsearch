@@ -10,18 +10,22 @@ component extends="coldbox.system.testing.BaseTestCase" {
 		variables.model.init(
 			"LogstashAppenderTest",
 			{
-				"applicationName" : "testspecs",
-				"releaseVersion"  : "1.0.0",
-				"userInfoUDF"     : function(){
-					return { "username" : "tester" };
-				}
+				 "applicationName"       : "testspecs",
+				 "dataStream"            : "testing-data-stream",
+				 "dataStreamPattern"     : "testing-data-stream",
+				 "componentTemplateName" : "testing-data-mappings",
+				 "indexTemplateName"     : "logstash-appender-testing",
+				 "ILMPolicyName"         : "logstash-appender-test-policy",
+				 "releaseVersion"        : "1.0.0",
+				 "userInfoUDF"           : function(){
+												return { "username" : "tester" };
+										   }
 			}
 		);
 
 		makePublic(
 			variables.model,
-			"getRotationalIndexName",
-			"getRotationalIndexName"
+			"getProperty"
 		);
 
 		variables.loge = getMockBox().createMock( className = "coldbox.system.logging.LogEvent" );
@@ -40,17 +44,31 @@ component extends="coldbox.system.testing.BaseTestCase" {
 	}
 
 	function afterAll(){
-		variables.model.getClient().deleteIndex( variables.model.getRotationalIndexName() );
+		var client = variables.model.getClient();
+		if( client.dataStreamExists( variables.model.getProperty( "dataStream" ) ) ){
+			client.deleteDataStream( variables.model.getProperty( "dataStream" ) );
+		}
+
+		if( client.indexTemplateExists( variables.model.getProperty( "indexTemplateName" ) ) ){
+			client.deleteIndexTemplate( variables.model.getProperty( "indexTemplateName" ) );
+		}
+
+		if( client.componentTemplateExists( variables.model.getProperty( "componentTemplateName" ) ) ){
+			client.deleteComponentTemplate( variables.model.getProperty( "componentTemplateName" ) );
+		}
+
+		if( client.ILMPolicyExists( variables.model.getProperty( "ILMPolicyName" ) ) ){
+			client.deleteILMPolicy( variables.model.getProperty( "ILMPolicyName" ) );
+		}
 
 		super.afterAll();
 	}
 
 	function run(){
 		describe( "Test Elasticsearch logging appender functionality", function(){
-			it( "Test that the logging appender index exists", function(){
+			it( "Test that the logging appender data stream exists", function(){
 				variables.model.onRegistration();
-
-				expect( variables.model.getClient().indexExists( variables.model.getRotationalIndexName() ) ).toBeTrue();
+				expect( variables.model.getClient().dataStreamExists( variables.model.getProperty( "dataStream" ) ) ).toBeTrue();
 			} );
 
 			it( "Tests logMessage()", function(){
@@ -59,7 +77,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 				var documents = getWirebox()
 					.getInstance( "SearchBuilder@cbElasticsearch" )
-					.new( variables.model.getRotationalIndexName() )
+					.new( variables.model.getProperty( "dataStream" ) )
 					.setQuery( { "match_all" : {} } )
 					.execute()
 					.getHits();
@@ -98,7 +116,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 				var documents = getWirebox()
 					.getInstance( "SearchBuilder@cbElasticsearch" )
-					.new( variables.model.getRotationalIndexName() )
+					.new( variables.model.getProperty( "dataStream" ) )
 					.setQuery( { "match_all" : {} } )
 					.execute()
 					.getHits();
