@@ -4,12 +4,11 @@ description: Learn how to transform incoming data in an Elasticsearch Ingest Pip
 
 # Logging
 
-cbElasticsearch comes pre-packaged with two logging appenders which can be configured in your Coldbox application to capture log messages and store them for later search and retrieval.  The appenders differ in the manner in which they store data within the elasticsearch index.
+cbElasticsearch comes pre-packaged with a logging appenders which can be configured in your Coldbox application to capture log messages and store them for later search and retrieval.
 
-- `LogstashAppender` - This appender stores its log data in indexes named by the rotation frequency.  Log data is never deleted. Instead, new indexes are created at intervals specified by the `rotation` property, which defaults to "daily" but can be set to "monthly", "weekly" or "hourly".  
-- `ElasticsearchAppender` - This appender stores its log data in a single index, with a specified rotation frequency and period of retention.  During rotation, any documents which are older than the specified `rotationDays` value are purged from the elasticsearch index.
+The  `LogstashAppender` uses a time-series data stream to cycle log data through a configured lifecycle policy.  By default data is retained for 365 days.  If you wish provide a different configuration or retention period, you can do so by specifying a custom `lifeCyclePolicy` setting to the appender.  [More on Index LifeCycles here](Indices/Index-Lifecycles.md).
 
-Appenders may be configured in your Coldbox configuration like so:
+Appenders may be configured in your Coldbox configuration.  Alternately, you can [install the `logstash` module ](https://logstash.ortusbooks.com/getting-started/introduction), which will auto-register appenders for you.  Note that the Logstash module already installs with `cbElasticsearch` and will register it so you only need one module or the other.
 
 
 ```js
@@ -23,6 +22,7 @@ logBox = {
             class="cbelasticsearch.models.logging.LogstashAppender",
             // The log level to use for this appender - in this case only errors and above are logged to Elasticsearch
             levelMax = "ERROR",
+            // Appender configuration
             properties = {      
                 // The pattern used for the data stream configuration.  All new indices with this pattern will be created as data streams        
                 "dataStreamPattern" : "logs-coldbox-*",
