@@ -4,7 +4,7 @@ description: Learn How to use Data Streams for time series data
 
 # Data Streams
 
-Since v7 Elasticsearch offers the ability to use Data streams for time series or rotational data.  A data stream uses an [Index Template](Templates.md) to automatically create backing indices for the data.  Depending on the [lifecycle configuration](Index-Lifecycles.md), data may be rotated out to separate indices, snapshots or deleted altogether.  Because the creation of a data stream requires a number of dependencies to be created, the process of implementing is a bit more complex.  The steps, in order would be:
+Since v7 Elasticsearch offers the ability to use [Data streams](https://www.elastic.co/guide/en/elasticsearch/reference/8.6/data-streams.html) for time series or rotational data.  A data stream uses an [Index Template](Templates.md) to automatically create backing indices for the data.  Depending on the [lifecycle configuration](Index-Lifecycles.md), data may be rotated out to separate indices, snapshots or deleted altogether.  Because the creation of a data stream requires a number of dependencies to be created, the process of implementing is a bit more complex.  The steps, in order would be:
 
 1.  Create a lifecycle policy for your data stream
 2.  Create one or more [component templates](Templates.md) for your data stream index mappings/settings. You may also use pre-configured system templates, like log settings, when applicable.
@@ -12,7 +12,7 @@ Since v7 Elasticsearch offers the ability to use Data streams for time series or
 3.  Create your data stream - either manually, or by pushing data
 
 
-Let's take a look at what this might look like for a new logging data stream.  The [built in Log appender](../Logging.md) for this module, if you want to see a more in-depth example.
+Let's take a look at what this might look like for a new logging data stream.  For a more detailed example, you can take a look at the [built in Log appender](../Logging.md) for this module.
 
 ## Create a lifecycle policy
 
@@ -33,7 +33,10 @@ var policyBuilder = getInstance( "ILMPolicyBuilder@cbelasticsearch" )
 
 ## Create a component template
 
-Next we'll create a component template to  handle some custom fields and settings in our logs, as well as to assign index templates which use it to the lifecycle policy created above.
+Next we'll create a component template to 
+
+1. handle custom fields and settings in our logs
+2. assign future index templates which use it to the lifecycle policy we created
 
 ```js
 var mappings = getInstance( "MappingBuilder@cbelasticsearch" )
@@ -45,6 +48,7 @@ var mappings = getInstance( "MappingBuilder@cbelasticsearch" )
                             mapping.keyword( "version" );
                         } );
                     } );
+
 getInstance( "Client@cbelasticsearch" ).applyComponentTemplate(
     "my-component-template",
     { 
@@ -60,7 +64,7 @@ getInstance( "Client@cbelasticsearch" ).applyComponentTemplate(
 
 ## Create an index template
 
-Now we'll create an index template to use our component template, as well as the built-in logging templates in Elasticsearch
+Now we'll create an index template to use our component template in addition to Elasticsearch's built-in logging templates:
 
 ```js
 getInstance( "Client@cbelasticsearch" ).applyIndexTemplate(
@@ -94,12 +98,15 @@ getInstance( "Client@cbelasticsearch" ).applyIndexTemplate(
 Now we can create our data stream in one of two ways. We can either send data to an index matching the pattern or we can create it manually.  Let's do both:
 
 Create a data stream manually without data:
+
 ```js
 getInstance( "Client@cbElasticsearch" ).ensureDataStream( "my-index-foo" );
 ```
+
 This will create the data stream and backing indices for the data stream named `my-index-foo`.  
 
-Create a data stream by adding data
+Create a data stream by adding data:
+
 ```js
 getInstance( "Document@cblasticsearch" )
         .new( "my-index-bar" )
@@ -114,6 +121,7 @@ getInstance( "Document@cblasticsearch" )
             }
         ).create();
 ```
+
 This will create the data stream and backing indices for the data stream named `my-index-bar`.
 
 
