@@ -205,12 +205,15 @@ component
 		}
 		if ( propertyExists( "userInfoUDF" ) ) {
 			var udf = getProperty( "userInfoUDF" );
-
+			logObj[ "user" ] = {};
 			if ( isClosure( udf ) ) {
 				try {
-					logObj[ "userinfo" ] = udf();
+					logObj.user[ "info" ] = udf();
+					if( !isSimpleValue( logObj.user.info ) ){
+						variables.util.toJSON( logObj.user.info  );
+					}
 				} catch ( any e ) {
-					logObj[ "userinfo" ] = "An error occurred when attempting to run the userInfoUDF provided.  The message received was #e.message#";
+					logObj[ "user" ] = { "error" : "An error occurred when attempting to run the userInfoUDF provided.  The message received was #e.message#" };
 				}
 			}
 		}
@@ -504,8 +507,7 @@ component
 			"extrainfo",
 			"stacktrace",
 			"snapshot",
-			"event",
-			"userinfo"
+			"event"
 		];
 
 		stringify.each( function( key ){

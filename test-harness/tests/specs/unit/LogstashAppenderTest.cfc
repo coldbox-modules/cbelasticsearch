@@ -89,13 +89,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( logMessage )
 					.toHaveKey( "application" )
 					.toHaveKey( "release" )
-					.toHaveKey( "userinfo" );
+					.toHaveKey( "user" );
+
+				expect( logMessage.user ).toHaveKey( "info" );
 
 
-				expect( isJSON( logMessage.userInfo ) ).toBeTrue();
-				expect( deserializeJSON( logMessage.userinfo ) ).toHaveKey( "username" );
+				expect( isJSON( logMessage.user.info ) ).toBeTrue();
+				expect( deserializeJSON( logMessage.user.info ) ).toHaveKey( "username" );
 
-				debug( logMessage );
 			} );
 
 			it( "Tests logMessage() with java stack trace", function(){
@@ -133,8 +134,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 				expect( isJSON( logMessage.userInfo ) ).toBeTrue();
 				expect( deserializeJSON( logMessage.userinfo ) ).toHaveKey( "username" );
-
-				debug( logMessage );
+				
 			} );
 		} );
 	}
