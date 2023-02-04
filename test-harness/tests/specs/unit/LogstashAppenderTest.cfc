@@ -129,12 +129,14 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( logMessage )
 					.toHaveKey( "application" )
 					.toHaveKey( "release" )
-					.toHaveKey( "userinfo" );
+					.toHaveKey( "user" );
+
+				expect( logMessage.user ).toHaveKey( "info" );
 
 
-				expect( isJSON( logMessage.userInfo ) ).toBeTrue();
-				expect( deserializeJSON( logMessage.userinfo ) ).toHaveKey( "username" );
-				
+				expect( isJSON( logMessage.user.info ) ).toBeTrue();
+				expect( deserializeJSON( logMessage.user.info ) ).toHaveKey( "username" );
+
 			} );
 		} );
 	}
