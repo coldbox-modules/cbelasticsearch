@@ -4,12 +4,13 @@ description: Learn How to Create Index and Component templates to Ensure Data Ma
 
 # Index Templating
 
-Index templates provide a way to ensure your indices, upon creation are mapped correctly.  You may control both settings and individual field mappings within your documents. 
+Index templates provide a way to ensure your indices are mapped correctly upon creation.  You may control both settings and individual field mappings within your documents. 
 
+{% hint style="info" %}Check out the [Elasticsearch "Index Templates" documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-templates.html) for further reading on this subject.{% endhint %}
 
 ## Component Templates
 
-In order to map your indices, you must first create a component template which includes your mappings and, optionally, settings for the index. You may use the [Mapping Builder](Mapping-Builder.md) create your mappings DSL or provide it in the form of a DSL struct. 
+In order to map your indices, you must first create a [component template](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-component-template.html) which includes your mappings and (optionally) settings for the index. You may use the [Mapping Builder](Mapping-Builder.md) to create your mapping DSL or provide it in the form of a DSL struct. 
 
 ```js
 var mappings = getInstance( "MappingBuilder@cbelasticsearch" )
@@ -25,6 +26,7 @@ var mappings = getInstance( "MappingBuilder@cbelasticsearch" )
                             mapping.keyword( "modifiedBy" );
                         } );
                     } );
+
 getInstance( "Client@cbelasticsearch" ).applyComponentTemplate(
     "my-component-template",
     { 
@@ -41,7 +43,7 @@ getInstance( "Client@cbelasticsearch" ).applyComponentTemplate(
 );
 ```
 
-Additional methods are available for retreiving, verifying existence and deleting component templates:
+Additional methods are available for managing component templates:
 
 * `getInstance( "Client@cbelasticsearch" ).componentTemplateExists( [ template name] )`
 * `getInstance( "Client@cbelasticsearch" ).getComponentTemplate( [ template name] )`
@@ -49,10 +51,9 @@ Additional methods are available for retreiving, verifying existence and deletin
 
 Note that a component template may not be deleted if it is in use by an Index template.  In order to delete it, you must first delete the index template.
 
-
 ## Index Templates
 
-Now that we have created a component template, we can use it in an Index template.  Index templates define a matching index ( or Data Stream ) name pattern to which any new indexes created with this naming pattern will have the template applied.  Multiple component templates may be used in an array.
+Now that we have created a component template, we can use it in an [Index template](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-templates.html).  Index templates define a matching index ( or Data Stream ) name pattern to which any new indexes created with this naming pattern will have the template applied.  Multiple component templates may be used in an array.
 
 Note, that if a `data_stream` key is provided in the definition, any writes to a matching index pattern will be created as a data stream.
 
@@ -65,7 +66,7 @@ getInstance( "Client@cbelasticsearch" ).applyIndexTemplate(
         "index_patterns" : [ "my-index-*" ],
         "composed_of" : [
             // some other component template
-            "other-component-template" 
+            "other-component-template",
             "my-component-template" 
         ],
         // The presence of this key creates a data stream for any matching index pattern. If it is absent an index will be created when data is received
@@ -79,9 +80,9 @@ getInstance( "Client@cbelasticsearch" ).applyIndexTemplate(
     }
 );
 ```
-All Component and Index template updates are applied as upsert operations - meaning that the `@version` key will be incremented if a new version of a template is applied.
+All Component and Index template updates are applied as _upsert_ operations - meaning that the `@version` key will be incremented if a new version of a template is applied.
 
-Additional methods are available for retreiving, verifying existence and deleting component templates:
+Additional methods are available for managing idnex templates:
 
 * `getInstance( "Client@cbelasticsearch" ).indexTemplateExists( [ template name] )`
 * `getInstance( "Client@cbelasticsearch" ).getIndexTemplate( [ template name] )`
