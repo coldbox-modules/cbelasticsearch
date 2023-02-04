@@ -6,7 +6,7 @@ description: Learn How to Create Index and Component templates to Ensure Data Ma
 
 Index templates provide a way to ensure your indices are mapped correctly upon creation.  You may control both settings and individual field mappings within your documents. 
 
-{% hint style="info" %}Check out the [Elasticsearch "Index Templates" documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-templates.html) for further reading on this subject.{% endhint %}
+{% hint style="info" %} Check out Elasticsearch's [Index Templates documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-templates.html) for further reading. {% endhint %}
 
 ## Component Templates
 
