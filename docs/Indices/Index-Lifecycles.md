@@ -4,7 +4,11 @@ description: Learn How to to use Index Lifecycle Policies to transition time ser
 
 # ILM Policies
 
-For time-series data, such as logs or metrics, you may wish to transition or even delete older data after a period of time.  Since Elasticsearch v7, ILM policies allow you to configure the transition an retention of your data.  The `ILMPolicyBuilder` object helps facilitate the configuration of of ILM for your data streams or time-series indices.  For an ILM policy to work, your documents must have a field of `@timestamp`. If your existing indices do not have this field, you can add it [via an `updateByQuery` script](/documents#update-by-query) using an existing timestamp field.
+For time-series data, such as logs or metrics, you may wish to transition or even delete older data after a period of time.  Since Elasticsearch v7, ILM policies allow you to configure the transition and retention of your data.  The `ILMPolicyBuilder` object helps facilitate the configuration of of ILM for your data streams or time-series indices.  For an ILM policy to work, your documents must have a field of `@timestamp`. If your existing indices do not have this field, you can add it [via an `updateByQuery` script](/documents#update-by-query) using an existing timestamp field.
+
+{% hint style="info" %}
+For more information, head to the [ILM Overview in the Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/overview-index-lifecycle-management.html).
+{% endhint %}
 
 
 ## Policy Creation
