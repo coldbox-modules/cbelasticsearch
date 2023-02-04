@@ -6,7 +6,7 @@ description: Learn how to transform incoming data in an Elasticsearch Ingest Pip
 
 cbElasticsearch comes pre-packaged with a logging appenders which can be configured in your Coldbox application to capture log messages and store them for later search and retrieval.
 
-The  `LogstashAppender` uses a time-series data stream to cycle log data through a configured lifecycle policy.  By default data is retained for 365 days.  If you wish provide a different configuration or retention period, you can do so by specifying a custom `lifeCyclePolicy` setting to the appender.  [More on Index LifeCycles here](Indices/Index-Lifecycles.md).
+The  `LogstashAppender` uses a time-series data stream to cycle log data through a configured lifecycle policy.  By default data is retained for 365 days.  If you wish to provide a different configuration or retention period, you can do so by specifying a custom `lifeCyclePolicy` setting to the appender.  [More on Index LifeCycles here](Indices/Index-Lifecycles.md).
 
 Appenders may be configured in your Coldbox configuration.  Alternately, you can [install the `logstash` module ](https://logstash.ortusbooks.com/getting-started/introduction), which will auto-register appenders for you.  Note that the Logstash module already installs with `cbElasticsearch` and will register it so you only need one module or the other.
 
@@ -54,7 +54,7 @@ logBox = {
         }
 
     },
-    // Root Logger - appends invo messages to all appenders - except those with a specified `levelMax` like above
+    // Root Logger - appends into messages to all appenders - except those with a specified `levelMax` like above
     root = { levelmax="INFO", appenders="*" }
 };
 ```
