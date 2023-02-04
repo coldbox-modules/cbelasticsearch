@@ -31,7 +31,7 @@ _Note:  Most of the REST-based methods will work on Elasticsearch versions older
 Documentation
 =============
 
-Read the full documentation for the module and its capabilites at (cbelasticsearch.ortusbooks.com)[https://cbelasticsearch.ortusbooks.com]
+Read the full documentation for the module and its capabilites at [cbelasticsearch.ortusbooks.com](https://cbelasticsearch.ortusbooks.com)
 
 
 
