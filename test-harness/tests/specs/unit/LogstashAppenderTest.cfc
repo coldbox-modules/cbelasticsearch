@@ -18,7 +18,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				 "ILMPolicyName"         : "logstash-appender-test-policy",
 				 "releaseVersion"        : "1.0.0",
 				 "userInfoUDF"           : function(){
-												return { "username" : "tester" };
+												return { 
+													"name" : "tester", 
+													"full_name" : "Test Testerson", 
+													"username" : "tester" 
+												};
 										   }
 			}
 		);
@@ -87,11 +91,23 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				var logMessage = documents[ 1 ].getMemento();
 
 				expect( logMessage )
-					.toHaveKey( "application" )
-					.toHaveKey( "release" )
-					.toHaveKey( "user" );
+					.toHaveKey( "@timestamp" )
+					.toHaveKey( "log" )
+					.toHaveKey( "event" )
+					.toHaveKey( "file" )
+					.toHaveKey( "url" )
+					.toHaveKey( "http" )
+					.toHaveKey( "labels" )
+					.toHaveKey( "package" )
+					.toHaveKey( "host" )
+					.toHaveKey( "client" )
+					.toHaveKey( "user" )
+					.toHaveKey( "user_agent" );
 
-				expect( logMessage.user ).toHaveKey( "info" );
+				debug( logMessage.user );
+				expect( logMessage.user )
+					.toHaveKey( "info" )
+					.toHaveKey( "full_name" );
 
 
 				expect( isJSON( logMessage.user.info ) ).toBeTrue();
@@ -127,11 +143,29 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				var logMessage = documents[ 1 ].getMemento();
 
 				expect( logMessage )
-					.toHaveKey( "application" )
-					.toHaveKey( "release" )
-					.toHaveKey( "user" );
+					.toHaveKey( "@timestamp" )
+					.toHaveKey( "log" )
+					.toHaveKey( "event" )
+					.toHaveKey( "file" )
+					.toHaveKey( "url" )
+					.toHaveKey( "http" )
+					.toHaveKey( "labels" )
+					.toHaveKey( "package" )
+					.toHaveKey( "host" )
+					.toHaveKey( "client" )
+					.toHaveKey( "user" )
+					.toHaveKey( "user_agent" )
+					.toHaveKey( "error" );
 
-				expect( logMessage.user ).toHaveKey( "info" );
+				expect( logMessage.user )
+					.toHaveKey( "info" )
+					.toHaveKey( "full_name" );
+
+				expect( logMessage.error )
+					.toHaveKey( "stack_trace" )
+					.toHaveKey( "level" )
+					.toHaveKey( "message" )
+					.toHaveKey( "type" );
 
 
 				expect( isJSON( logMessage.user.info ) ).toBeTrue();
