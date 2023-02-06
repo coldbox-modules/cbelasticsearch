@@ -41,6 +41,7 @@ component
 		 : ( server.coldfusion.productname eq "Lucee" ? getApplicationSettings().name : getApplicationMetadata().name );
 
 		instance.DEFAULTS = {
+			// Data stream components
 			"dataStreamPattern" : "logs-coldbox-*",
 			"dataStream" : "logs-coldbox-logstash-appender",
 			"ILMPolicyName"   : "cbelasticsearch-logs",
@@ -51,13 +52,21 @@ component
 			"retentionDays"   : 365,
 			// optional lifecycle full policy
 			"lifecyclePolicy" : javacast( "null", 0 ),
+			// the application name to use for this instance
 			"applicationName" : applicationName,
+			// The release version 
 			"releaseVersion"  : "",
+			// The number of shards for the backing indices
 			"indexShards"     : 1,
+			// The number of replicas for the backing indices
 			"indexReplicas"   : 0,
+			// The maximum shard size at which a rollover of the oldest data will occur
 			"rolloverSize"    : "10gb",
+			// v2 migration fields
 			"index"           : javacast( "null", 0 ),
-			"migrateIndices"  : false
+			"migrateIndices"  : false,
+			// Whether to throw an error if an attempt to save a log entry fails
+			"throwOnError"    : true
 		};
 
 		for ( var configKey in structKeyArray( instance.Defaults ) ) {
@@ -194,7 +203,8 @@ component
 		}
 
 		if ( structKeyExists( application, "cbController" ) ) {
-			var event         = application.cbController.getRequestService().getContext();
+			var event = application.cbController.getRequestService().getContext();
+			var rc = event.getCollection();
 			structAppend( 
 				local.logObj.event,
 				{
@@ -202,7 +212,7 @@ component
 					"route" : ( event.getCurrentRoute() != "" ) ? event.getCurrentRoute() & (
 						event.getCurrentRoutedModule() != "" ? " from the " & event.getCurrentRoutedModule() & "module router." : ""
 					) : javacast( "null", 0 ),
-					"extension" : event.getCollection().format ?: javacast( "null", 0 ),
+					"extension" : rc.keyExists( "format" ) ? rc.format : javacast( "null", 0 ),
 					"url" : ( event.getCurrentRoutedURL() != "" ) ? event.getCurrentRoutedURL() : javacast( "null", 0 ),
 					"layout"     : ( event.getCurrentLayout() != "" ) ? event.getCurrentLayout() : javacast( "null", 0 ),
 					"module"     : event.getCurrentModule(),
@@ -268,9 +278,28 @@ component
 
 		preflightLogEntry( logObj );
 
-		newDocument()
-			.new( index = getProperty( "dataStream" ), properties = logObj )
-			.create();
+		try{
+			newDocument()
+				.new( index = getProperty( "dataStream" ), properties = logObj )
+				.create();
+		} catch( any e ){
+			if( getProperty( "throwOnError" ) ){
+				rethrow;
+			} else {
+				var logEvent = new coldbox.system.logging.LogEvent( 
+					message   = "An error occurred while attempting to save a log to Elasticsearch via the LogstashAppender.  The exception received was #e.message# - #e.detail#",
+					severity  = 1,
+					extraInfo = e,
+					category  = e.type
+				);
+				var appendersMap = application.wirebox.getLogbox().getAppendersMap();
+				// Log errors out to other appenders besides this one
+				var safeAppenders = appendersMap.keyArray().filter( function( key ){ return key != getName(); } );
+				saveAppenders.each( function( appenderName ){
+					appendersMap[ appenderName ].logMessage( logEvent );
+				} );
+			}
+		}
 
 	}
 
