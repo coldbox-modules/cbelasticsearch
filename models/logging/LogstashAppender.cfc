@@ -122,6 +122,35 @@ component
 	 * Write an entry into the appender.
 	 */
 	public void function logMessage( required any logEvent ) output=false{
+		
+		var logObj = marshallLogObject( argumentCollection = arguments );
+
+		try{
+			newDocument()
+				.new( index = getProperty( "dataStream" ), properties = logObj )
+				.create();
+		} catch( any e ){
+			if( getProperty( "throwOnError" ) ){
+				rethrow;
+			} else {
+				var eLogEvent = new coldbox.system.logging.LogEvent( 
+					message   = "An error occurred while attempting to save a log to Elasticsearch via the LogstashAppender.  The exception received was #e.message# - #e.detail#",
+					severity  = 1,
+					extraInfo = { "logData" : logObj, "exception" : e },
+					category  = e.type
+				);
+				var appendersMap = application.wirebox.getLogbox().getAppendersMap();
+				// Log errors out to other appenders besides this one
+				var safeAppenders = appendersMap.keyArray().filter( function( key ){ return key != getName(); } );
+				saveAppenders.each( function( appenderName ){
+					appendersMap[ appenderName ].logMessage( eLogEvent );
+				} );
+			}
+		}
+
+	}
+
+	public struct function marshallLogObject( required any logEvent ) output=false {
 		var loge      = arguments.logEvent;
 		var extraInfo = loge.getExtraInfo();
 		var level     = lCase( severityToString( loge.getSeverity() ) );
@@ -278,29 +307,7 @@ component
 
 		preflightLogEntry( logObj );
 
-		try{
-			newDocument()
-				.new( index = getProperty( "dataStream" ), properties = logObj )
-				.create();
-		} catch( any e ){
-			if( getProperty( "throwOnError" ) ){
-				rethrow;
-			} else {
-				var eLogEvent = new coldbox.system.logging.LogEvent( 
-					message   = "An error occurred while attempting to save a log to Elasticsearch via the LogstashAppender.  The exception received was #e.message# - #e.detail#",
-					severity  = 1,
-					extraInfo = e,
-					category  = e.type
-				);
-				var appendersMap = application.wirebox.getLogbox().getAppendersMap();
-				// Log errors out to other appenders besides this one
-				var safeAppenders = appendersMap.keyArray().filter( function( key ){ return key != getName(); } );
-				saveAppenders.each( function( appenderName ){
-					appendersMap[ appenderName ].logMessage( eLogEvent );
-				} );
-			}
-		}
-
+		return logObj;
 	}
 
 	// ---------------------------------------- PRIVATE ---------------------------------------
@@ -322,7 +329,7 @@ component
 		var policyBuilder = policyBuilder().new( policyName=getProperty( "ILMPolicyName" ), meta=policyMeta );
 		// Put our ILM Policy
 		if( propertyExists( "lifecyclePolicy" ) ){
-			policyBuilder.setPolicy( getProperty( "lifecyclePolicy" ) );
+			policyBuilder.setPhases( getProperty( "lifecyclePolicy" ) );
 		} else {
 			policyBuilder.withDeletion(
 				age = getProperty( "retentionDays" )
