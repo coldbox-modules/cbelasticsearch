@@ -46,6 +46,7 @@ component
 			"ILMPolicyName"   : "cbelasticsearch-logs",
 			"componentTemplateName" : "cbelasticsearch-logs-mappings",
 			"indexTemplateName" : "cbelasticsearch-logs",
+			"pipelineName" : "cbelasticsearch-logs",
 			// Retention of logs in number of days
 			"retentionDays"   : 365,
 			// optional lifecycle full policy
@@ -55,7 +56,7 @@ component
 			"indexShards"     : 1,
 			"indexReplicas"   : 0,
 			"rolloverSize"    : "10gb",
-			"cacheName"       : "template",
+			"index"           : javacast( "null", 0 ),
 			"migrateIndices"  : false
 		};
 
@@ -65,14 +66,16 @@ component
 			}
 		}
 
-		// Backward compatibility
-		if( propertyExists( "index" ) ){
-			setProperty( "dataStream", left( getProperty( "index" ), 5 ) == "logs-" ? getProperty( "index" ) : "logs-" & getProperty( "index" ) );
-			setProperty( "dataStreamPattern", getProperty( "dataStream" ) );
-		}
-
 		if ( !propertyExists( "defaultCategory" ) ) {
 			setProperty( "defaultCategory", arguments.name );
+		}
+
+		// Attempt to retreive the package version from the `box.json`
+		if( !len( getProperty( "releaseVersion" ) ) && fileExists( expandPath( "/box.json" )  ) ){
+			try{
+				var packageInfo = deSerializeJSON( fileRead( expandPath( "/box.json" ) ) );
+				setProperty( "releaseVersion", packageInfo.version ?: "" );
+			} catch( any e ){}
 		}
 
 		application.wirebox.autowire( this );
@@ -112,22 +115,128 @@ component
 	public void function logMessage( required any logEvent ) output=false{
 		var loge      = arguments.logEvent;
 		var extraInfo = loge.getExtraInfo();
-		var level     = uCase( severityToString( loge.getSeverity() ) );
+		var level     = lCase( severityToString( loge.getSeverity() ) );
 		var message   = loge.getMessage();
 		var loggerCat = loge.getCategory();
+		var tzInfo = getTimezoneInfo();
 
-		// Is this an exception or not?
+		var logObj = {
+			"@timestamp" : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
+			"log" : {
+				"level" : level,
+				"logger" : getName(),
+				"category" : loggerCat
+			},
+			"event" : {
+				"created" : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
+				"severity" : loge.getSeverity(),
+				"category"   : loggerCat,
+				"dataset"    : "cfml",
+				"timezone"   : tzInfo.timezone ?: createObject( "java", "java.util.TimeZone" ).getDefault().getId()  
+			},
+			"file" : {
+				"path" : CGI.CF_TEMPLATE_PATH
+			},
+			"url" : {
+				"domain" : CGI.SERVER_NAME,
+				"path" : CGI.PATH_INFO,
+				"port" : CGI.SERVER_PORT,
+				"query" : CGI.QUERY_STRING,
+				"scheme" : lcase( listFirst( CGI.SERVER_PROTOCOL, "/" ) )
+			},
+			"http" : {
+				"request" : {
+					"referer" : CGI.HTTP_REFERER
+				}
+			},
+			"labels" : {
+				"application" : getProperty( "applicationName" )
+			},
+			"package": {
+				"name" : getProperty( "applicationName" ),
+				"version" : javacast( "string", getProperty( "releaseVersion" ) ),
+				"type" : "cfml",
+				"path" : expandPath( "/" )
+			},
+			"host"       : { "name" : CGI.HTTP_HOST, "hostname" : CGI.SERVER_NAME },
+			"client" : {
+				"ip" : CGI.REMOTE_ADDR
+			},
+			"user" : {},
+			"user_agent" : {
+				"original" : CGI.HTTP_USER_AGENT
+			}
+		};
+
+		if ( propertyExists( "userInfoUDF" ) ) {
+			var udf = getProperty( "userInfoUDF" );
+			if ( isClosure( udf ) ) {
+				try {
+					logObj.user[ "info" ] = udf();
+					if( !isSimpleValue( logObj.user.info ) ){
+						if( isStruct( logObj.user.info ) ){
+							var userKeys = [ "email", "domain", "full_name", "hash", "id", "name", "roles", "username" ];
+							userKeys.each( 
+								function( key ){
+									if( key == "username" ) key = "name";
+									if( logObj.user.info.keyExists( key ) ){
+										logObj.user[ key ] = logObj.user.info[ key ];
+									}
+								}
+							);
+						}
+						logObj.user.info = variables.util.toJSON( logObj.user.info  );
+					}
+				} catch ( any e ) {
+					logObj[ "user" ] = { "error" : "An error occurred when attempting to run the userInfoUDF provided.  The message received was #e.message#" };
+				}
+			}
+		}
+
+		if ( structKeyExists( application, "cbController" ) ) {
+			var event         = application.cbController.getRequestService().getContext();
+			structAppend( 
+				local.logObj.event,
+				{
+					"name"  : ( event.getCurrentEvent() != "" ) ? event.getCurrentEvent() : javacast( "null", 0 ),
+					"route" : ( event.getCurrentRoute() != "" ) ? event.getCurrentRoute() & (
+						event.getCurrentRoutedModule() != "" ? " from the " & event.getCurrentRoutedModule() & "module router." : ""
+					) : javacast( "null", 0 ),
+					"extension" : event.getContext().format ?: javacast( "null", 0 ),
+					"url" : ( event.getCurrentRoutedURL() != "" ) ? event.getCurrentRoutedURL() : javacast( "null", 0 ),
+					"layout"     : ( event.getCurrentLayout() != "" ) ? event.getCurrentLayout() : javacast( "null", 0 ),
+					"module"     : event.getCurrentModule(),
+					"view"       : event.getCurrentView()
+				},
+				true
+			);
+
+			logObj.url.full = ( event.getCurrentRoutedURL() != "" ) ? event.getCurrentRoutedURL() : javacast( "null", 0 );
+
+			logObj.package[ "reference" ] = event.getHTMLBaseURL();
+
+			if ( !logObj.labels.keyExists( "environment" ) ) {
+				logObj.labels[ "environment" ] = application.cbController.getSetting(
+					name         = "environment",
+					defaultValue = "production"
+				);
+			}
+		}
+
+		// Exception information
 		if (
 			( isStruct( extraInfo ) || isObject( extraInfo ) )
 			&& extraInfo.keyExists( "StackTrace" ) && extraInfo.keyExists( "Message" ) && extraInfo.keyExists(
 				"Detail"
 			)
 		) {
-			local.logObj = parseException(
-				exception = extraInfo,
-				level     = level,
-				message   = message,
-				logger    = loggerCat
+			structAppend( local.logObj,
+				parseException(
+					exception = extraInfo,
+					level     = level,
+					message   = message
+				),
+				true
 			);
 		} else if (
 			( isStruct( extraInfo ) || isObject( extraInfo ) )
@@ -138,84 +247,23 @@ component
 			var trimmedExtra = structCopy( extraInfo );
 			trimmedExtra.delete( "exception" );
 
-			local.logObj = parseException(
-				exception      = extraInfo.exception,
-				level          = level,
-				message        = message,
-				logger         = loggerCat,
-				additionalData = trimmedExtra
+			structAppend( 
+				local.logObj,
+				parseException(
+					exception      = extraInfo.exception,
+					level          = level,
+					message        = message,
+					additionalData = trimmedExtra
+				),
+				true
 			);
 		} else {
-			local.logObj = {
-				"application" : getProperty( "applicationName" ),
-				"release"     : len( getProperty( "releaseVersion" ) ) ? javacast(
-					"string",
-					getProperty( "releaseVersion" )
-				) : javacast( "null", 0 ),
+			local.logObj[ "error" ] = {
 				"type"      : "message",
 				"level"     : level,
-				"category"  : loggerCat,
 				"message"   : loge.getMessage(),
 				"extrainfo" : loge.getExtraInfoAsString()
 			};
-		}
-		logObj[ "timestamp" ]    = dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'hh:nn:ssZZ" );
-		logObj[ "severity" ]     = loge.getSeverity();
-		logObj[ "appendername" ] = getName();
-
-		// Logstash/Kibana Convention Keys
-		structAppend(
-			logObj,
-			{
-				"@timestamp" : logObj.timestamp,
-				"host"       : { "name" : CGI.HTTP_HOST, "hostname" : CGI.SERVER_NAME }
-			},
-			false
-		);
-
-		if ( logObj.severity < 2 ) {
-			logObj[ "snapshot" ] = {
-				"template"       : CGI.CF_TEMPLATE_PATH,
-				"path"           : CGI.PATH_INFO,
-				"referer"        : CGI.HTTP_REFERER,
-				"browser"        : CGI.HTTP_USER_AGENT,
-				"remote_address" : CGI.REMOTE_ADDR
-			};
-
-			if ( structKeyExists( application, "cbController" ) ) {
-				var event         = application.cbController.getRequestService().getContext();
-				logObj[ "event" ] = {
-					"name"  : ( event.getCurrentEvent() != "" ) ? event.getCurrentEvent() : "N/A",
-					"route" : ( event.getCurrentRoute() != "" ) ? event.getCurrentRoute() & (
-						event.getCurrentRoutedModule() != "" ? " from the " & event.getCurrentRoutedModule() & "module router." : ""
-					) : "N/A",
-					"routed_url" : ( event.getCurrentRoutedURL() != "" ) ? event.getCurrentRoutedURL() : "N/A",
-					"layout"     : ( event.getCurrentLayout() != "" ) ? event.getCurrentLayout() : "N/A",
-					"module"     : event.getCurrentModule(),
-					"view"       : event.getCurrentView()
-				};
-
-				if ( !logObj.keyExists( "environment" ) ) {
-					logObj[ "environment" ] = application.cbController.getSetting(
-						name         = "environment",
-						defaultValue = "production"
-					);
-				}
-			}
-		}
-		if ( propertyExists( "userInfoUDF" ) ) {
-			var udf = getProperty( "userInfoUDF" );
-			logObj[ "user" ] = {};
-			if ( isClosure( udf ) ) {
-				try {
-					logObj.user[ "info" ] = udf();
-					if( !isSimpleValue( logObj.user.info ) ){
-						variables.util.toJSON( logObj.user.info  );
-					}
-				} catch ( any e ) {
-					logObj[ "user" ] = { "error" : "An error occurred when attempting to run the userInfoUDF provided.  The message received was #e.message#" };
-				}
-			}
 		}
 
 		preflightLogEntry( logObj );
@@ -253,6 +301,23 @@ component
 		}
 
 		policyBuilder.save();
+		
+		// Create our pipeline to handle data from older versions of the appender
+		getClient().newPipeline()
+					.setId( getProperty( "pipelineName" )  )
+					.setDescription( "Ingest pipeline for cbElasticsearch logstash appender" )
+					.addProcessor(
+						{
+							"script": {
+								"lang": "painless",
+								"source": reReplace( fileRead( expandPath( "/cbelasticsearch/models/logging/scripts/v2MigrationProcessor.painless" ) ), 
+								"\n|\r|\t", 
+								"", 
+								"ALL" 
+								)
+							}
+						}
+					).save()
 
 		// Upsert our component template
 		getClient().applyComponentTemplate(
@@ -280,7 +345,7 @@ component
 		);
 
 		// Check for any previous indices created matching the pattern and migrate them to the datastream
-		if( propertyExists( "index" ) && left( getProperty( "index" ), 5 ) != "logs-" && getProperty( "migrateIndices" ) ){
+		if( propertyExists( "index" ) && getProperty( "migrateIndices" ) ){
 			var existingIndexPrefix = getProperty( "index" );
 			var existingIndices = getClient().getIndices().keyArray().filter(
 				function( index ){
@@ -292,14 +357,13 @@ component
 				function( index ){
 					try{
 						getClient().reindex( index, dataStream, true );
+						getClient().deleteIndex( index );
 					} catch( any e ){
 						// Print to StdError to bypass LogBox, since we are in an appender
 						createObject( "java", "java.lang.System" ).err.println( "[ERROR] Index Migration Between the Previous Index of #index# to the data stream #dataStreamName# could not be completed.  The error received was: #e.message#" );
 					}
 				}
 			);
-		} else if( propertyExists( "index" ) && getProperty( "migrateIndices" ) ){
-			getClient().migrateToDataStream( dataStreamName );
 		} else if( !getClient().dataStreamExists( dataStreamName ) ){
 			getClient().ensureDataStream( dataStreamName );
 		}
@@ -312,15 +376,13 @@ component
 	 * @path The path to the script currently executing
 	 * @additionalData Additional metadata to store with the event - passed into the extra attribute
 	 * @message Optional message name to output
-	 * @logger Optional logger to use
 	 */
 	private struct function parseException(
 		required any exception,
 		string level = "error",
 		string path  = "",
 		any additionalData,
-		string message = "",
-		string logger  = getName()
+		string message = ""
 	){
 		// Ensure expected keys exist
 		arguments.exception.StackTrace = arguments.exception.StackTrace ?: "";
@@ -330,17 +392,16 @@ component
 		arguments.exception.TagContext = arguments.exception.TagContext ?: [];
 
 		var logstashException = {
-			"application" : getProperty( "applicationName" ),
-			"release"     : javacast( "string", getProperty( "releaseVersion" ) ),
-			"type"        : arguments.exception.type.toString(),
-			"level"       : arguments.level,
-			"category"    : logger,
-			"component"   : "test",
-			"message"     : message & " " & arguments.exception.detail,
-			"stacktrace"  : isSimpleValue( arguments.exception.StackTrace ) ? listToArray(
-				arguments.exception.StackTrace,
-				"#chr( 13 )##chr( 10 )#"
-			) : arguments.exception.StackTrace
+			"error" : {
+				"level"   : arguments.level,
+				"type" 	  : arguments.exception.type.toString(),
+				"message" : message & " " & arguments.exception.detail,
+				"stack_trace" : isSimpleValue( arguments.exception.StackTrace ) ? listToArray(
+									arguments.exception.StackTrace,
+									"#chr( 13 )##chr( 10 )#"
+								) : arguments.exception.StackTrace
+				
+			}
 		};
 
 		var logstashexceptionExtra = {};
@@ -426,7 +487,7 @@ component
 			logstashExceptionExtra[ "application" ][ "extendedInfo" ] = arguments.exception.ExtendedInfo;
 		}
 
-		if ( structCount( logstashExceptionExtra ) ) logstashException[ "extrainfo" ] = logstashExceptionExtra;
+		if ( structCount( logstashExceptionExtra ) ) logstashException.error[ "extrainfo" ] = logstashExceptionExtra;
 
 
 		var frames = [];
@@ -482,7 +543,7 @@ component
 		}
 
 		if ( frames.len() ) {
-			logstashException[ "frames" ] = frames;
+			logstashException.error[ "frames" ] = frames;
 		}
 
 		return logstashException;
@@ -502,55 +563,59 @@ component
 	}
 
 	private function preflightLogEntry( required struct logObj ){
-		var stringify = [
-			"frames",
-			"extrainfo",
-			"stacktrace",
-			"snapshot",
-			"event"
-		];
+		if( LogObj.keyExists( "error" ) ){
+			var errorStringify = [
+				"frames",
+				"extrainfo",
+				"stack_trace"
+			];
 
-		stringify.each( function( key ){
-			if ( logObj.keyExists( key ) && !isSimpleValue( logObj[ key ] ) ) {
-				logObj[ key ] = variables.util.toJSON( logObj[ key ] );
-			}
-		} );
-
+			errorStringify.each( function( key ){
+				if ( logObj.error.keyExists( key ) && !isSimpleValue( logObj.error[ key ] ) ) {
+					logObj.error[ key ] = variables.util.toJSON( logObj.error[ key ] );
+				}
+			} );
+		}
+		
 		if ( !arguments.logObj.keyExists( "stachebox" ) ) {
 			arguments.logObj[ "stachebox" ] = { "isSuppressed" : false };
 		}
 		// Attempt to create a signature for grouping
 		if ( !arguments.logObj.stachebox.keyExists( "signature" ) ) {
 			var signable = [
-				"application",
-				"type",
-				"level",
 				"message",
-				"stacktrace",
-				"frames"
+				"labels.application",
+				"error.type",
+				"error.level",
+				"error.message",
+				"error.stack_trace",
+				"error.frames"
 			];
 			var sigContent = "";
 			signable.each( function( key ){
-				if ( logObj.keyExists( key ) ) {
-					sigContent &= logObj[ key ];
+				var sigVal = javacast( "null", 0 );
+				try{
+					var sigVal = evaluate( "logObj.#key#" );
+				} catch( any e ){}
+				if( !isNull( sigVal ) ){
+					sigContent &= sigVal;
 				}
 			} );
 			if ( len( sigContent ) ) {
 				arguments.logObj.stachebox[ "signature" ] = hash( sigContent );
 			}
 		}
-		
 		// ensure consistent casing for search
-		logObj[ "environment" ] = lcase( logObj.environment ?: "production" );
-
+		logObj[ "labels" ][ "environment" ] = lcase( logObj.labels.environment ?: "production" );
 	}
 
 	public function getComponentTemplate(){
 		return {
 			"settings" : {
-				"index.refresh_interval" : "5s",
-				"number_of_replicas"     : getProperty( "indexReplicas" ),
-				"index.lifecycle.name": getProperty( "ILMPolicyName" )
+				"number_of_shards" : getProperty( "indexShards" ),
+				"number_of_replicas" : getProperty( "indexReplicas" ),
+				"index.lifecycle.name": getProperty( "ILMPolicyName" ),
+				"index.default_pipeline": getProperty( "pipelineName" )
 			},
 			"mappings" : {
 				"dynamic_templates" : [
@@ -587,16 +652,22 @@ component
 							"longitude" : { "type" : "half_float" }
 						}
 					},
+					"log" : {
+						"type" : "object",
+						"properties" : {
+							"category" : { "type" : "keyword" }
+						}
+					},
+					"event" : {
+						"type" : "object",
+						"properties" : {
+							"created"  : { "type" : "date", "format" : "date_time_no_millis" },
+							"layout"   : { "type" : "keyword" },
+							"module"   : { "type" : "keyword" },
+							"view"     : { "type" : "keyword" }
+						}
+					},
 					// Customized properties
-					"timestamp"    : { "type" : "date", "format" : "date_time_no_millis" },
-					"type"         : { "type" : "keyword" },
-					"application"  : { "type" : "keyword" },
-					"environment"  : { "type" : "keyword" },
-					"release"      : { "type" : "keyword" },
-					"level"        : { "type" : "keyword" },
-					"severity"     : { "type" : "integer" },
-					"category"     : { "type" : "keyword" },
-					"appendername" : { "type" : "keyword" },
 					"stachebox"    : {
 						"type"       : "object",
 						"properties" : {

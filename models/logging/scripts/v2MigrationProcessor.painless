@@ -1,0 +1,121 @@
+if( ctx.labels == null ){
+    ctx.labels = new HashMap();
+}
+if( ctx.application != null ){
+    ctx.labels.application = ctx.application;
+    ctx.remove( 'application' );
+}
+if( ctx.log == null ){
+    ctx.log = new HashMap();
+}
+if( ctx.appendername != null ){
+    ctx.log.logger = ctx.appendername;
+    ctx.remove( 'appendername' );
+}
+if( ctx.level != null ){
+    ctx.log.level = ctx.level.toLowerCase();
+    ctx.remove( 'level' );
+}
+if( ctx.category != null ){
+    ctx.log.category = ctx.category;
+    ctx.remove( 'category' );
+}
+if( ctx.environment != null ){
+    ctx.labels.environment = ctx.environment;
+    ctx.remove( 'environment' );
+}
+if( ctx.package == null ){
+    ctx.package = new HashMap();
+}
+if( ctx.release != null ){
+    ctx.package.version = ctx.release;
+    ctx.remove( 'release' );
+}
+if( ctx.error == null ){
+    ctx.error = new HashMap();
+}
+if( ctx.stacktrace != null ){
+    ctx.error.stack_trace = ctx.stacktrace;
+    ctx.remove( 'stacktrace' );
+    if( ctx.message != 'null' ){
+        ctx.error.message = ctx.message;
+    }
+}
+if( ctx.type != null ){
+    ctx.error.type = ctx.type;
+    ctx.remove( 'type' );
+}
+if( ctx.type != null ){
+    ctx.error.type = ctx.type;
+    ctx.remove( 'type' );
+}
+if( ctx.level != null ){
+    ctx.error.level = ctx.level;
+    ctx.remove( 'level' );
+}
+if( ctx.extrainfo != null ){
+    ctx.error.extrainfo = ctx.extrainfo;
+    ctx.remove( 'extrainfo' );
+}
+if( ctx.frames != null ){
+    ctx.error.frames = ctx.frames;
+    ctx.remove( 'frames' );
+}
+if( ctx.event == null || ctx.event instanceof String ){
+    String eventRaw = null;
+    if( ctx.event instanceof String ){
+       eventRaw = ctx.event; 
+    }
+    ctx.event = new HashMap();
+    if( eventRaw != null ){
+        ctx.event.raw = eventRaw;
+    }
+}
+if( ctx.severity != null ){
+    ctx.event.severity = ctx.severity;
+    ctx.remove( 'severity' );
+}
+if( ctx.component != null ){
+    ctx.remove( 'component' );
+}
+if( ctx.timestamp != null ){
+    ctx.event.created = ctx.timestamp;
+    ctx.remove( "timestamp" );
+}
+if( ctx.url == null ){
+    ctx.url = new HashMap();
+}
+if( ctx.file == null ){
+    ctx.file = new HashMap();
+}
+if( ctx.http == null ){
+    ctx.http = new HashMap();
+    ctx.http.request = new HashMap();
+}
+if( ctx.client == null ){
+    ctx.client = new HashMap();
+}
+if( ctx.user_agent == null ){
+    ctx.user_agent = new HashMap();
+}
+if( ctx.snapshot != null ){
+    if( ctx.snapshot instanceof String ){
+        ctx.snapshot = Json.load( ctx.snapshot );
+    }
+    ctx.file.path = ctx.snapshot.template;
+    ctx.url.path = ctx.snapshot.path;
+    ctx.http.request.referer = ctx.snapshot.referer;
+    ctx.client.ip = ctx.snapshot.remote_address;
+    ctx.user_agent.original = ctx.snapshot.browser;
+    ctx.remove( 'snapshot' );
+}
+if( ctx.host != null && ctx.host instanceof String ){
+    ctx.host = Json.load( ctx.host );
+}
+if( ctx.userinfo != null ){
+    if( ctx.user == null ){
+        ctx.user = new HashMap();
+        ctx.user.info = ctx.userinfo;
+        ctx.remove( 'userinfo' );
+    }
+}

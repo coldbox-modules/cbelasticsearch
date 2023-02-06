@@ -14,10 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added Component and Index Template Support
 * Added Snapshot Repository support
 * Added create() method to Document object to support non-upsert operations
+* Added support for migrating cbElasticSearch LogstashAppender indices from v2 to v3( [ECS](https://www.elastic.co/guide/en/ecs/8.6/ecs-reference.html) )
 
 ### Changed
 * Changed Logstash Appender to use time series Data Streams instead of static indices
 * Changed Logstash Appender Configuruation for data stream support and index lifecycles
+* Converts Logstash Appender to use [Elastic Common Schema](https://www.elastic.co/guide/en/ecs/8.6/ecs-reference.html).
 
 ### Removed
 * Removed Support for Elasticsearch versions < 7.x

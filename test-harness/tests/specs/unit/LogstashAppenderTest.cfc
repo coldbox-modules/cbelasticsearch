@@ -18,10 +18,16 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				 "ILMPolicyName"         : "logstash-appender-test-policy",
 				 "releaseVersion"        : "1.0.0",
 				 "userInfoUDF"           : function(){
-												return { "username" : "tester" };
+												return { 
+													"name" : "tester", 
+													"full_name" : "Test Testerson", 
+													"username" : "tester" 
+												};
 										   }
 			}
 		);
+
+		variables.model.onRegistration();
 
 		makePublic(
 			variables.model,
@@ -65,6 +71,16 @@ component extends="coldbox.system.testing.BaseTestCase" {
 	}
 
 	function run(){
+		describe( "Tests the data stream configuration", function(){
+			it( "Tests that all data stream objects are in place", function(){
+				var esClient = variables.model.getClient();
+				expect( esClient.dataStreamExists( variables.model.getProperty( "dataStream" ) ) ).toBeTrue();
+				expect( esClient.indexTemplateExists( variables.model.getProperty( "indexTemplateName" ) ) ).toBeTrue();
+				expect( esClient.componentTemplateExists( variables.model.getProperty( "componentTemplateName" ) ) ).toBeTrue();
+				expect( esClient.ILMPolicyExists( variables.model.getProperty( "ILMPolicyName" ) ) ).toBeTrue();
+				expect( isNull( variables.model.getClient().getPipeline( variables.model.getProperty( "pipelineName" ) ) ) ).toBeFalse();
+			} );
+		} );
 		describe( "Test Elasticsearch logging appender functionality", function(){
 			it( "Test that the logging appender data stream exists", function(){
 				variables.model.onRegistration();
@@ -87,11 +103,22 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				var logMessage = documents[ 1 ].getMemento();
 
 				expect( logMessage )
-					.toHaveKey( "application" )
-					.toHaveKey( "release" )
-					.toHaveKey( "user" );
+					.toHaveKey( "@timestamp" )
+					.toHaveKey( "log" )
+					.toHaveKey( "event" )
+					.toHaveKey( "file" )
+					.toHaveKey( "url" )
+					.toHaveKey( "http" )
+					.toHaveKey( "labels" )
+					.toHaveKey( "package" )
+					.toHaveKey( "host" )
+					.toHaveKey( "client" )
+					.toHaveKey( "user" )
+					.toHaveKey( "user_agent" );
 
-				expect( logMessage.user ).toHaveKey( "info" );
+				expect( logMessage.user )
+					.toHaveKey( "info" )
+					.toHaveKey( "full_name" );
 
 
 				expect( isJSON( logMessage.user.info ) ).toBeTrue();
@@ -127,15 +154,58 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				var logMessage = documents[ 1 ].getMemento();
 
 				expect( logMessage )
-					.toHaveKey( "application" )
-					.toHaveKey( "release" )
-					.toHaveKey( "user" );
+					.toHaveKey( "@timestamp" )
+					.toHaveKey( "log" )
+					.toHaveKey( "event" )
+					.toHaveKey( "file" )
+					.toHaveKey( "url" )
+					.toHaveKey( "http" )
+					.toHaveKey( "labels" )
+					.toHaveKey( "package" )
+					.toHaveKey( "host" )
+					.toHaveKey( "client" )
+					.toHaveKey( "user" )
+					.toHaveKey( "user_agent" )
+					.toHaveKey( "error" );
 
-				expect( logMessage.user ).toHaveKey( "info" );
+				expect( logMessage.user )
+					.toHaveKey( "info" )
+					.toHaveKey( "full_name" );
+
+				expect( logMessage.error )
+					.toHaveKey( "stack_trace" )
+					.toHaveKey( "level" )
+					.toHaveKey( "message" )
+					.toHaveKey( "type" );
 
 
 				expect( isJSON( logMessage.user.info ) ).toBeTrue();
 				expect( deserializeJSON( logMessage.user.info ) ).toHaveKey( "username" );
+
+			} );
+
+			it( "Can convert a v2 document to a v3 document via the ingest pipeline", function(){
+				var v2Error = deserializeJSON( fileRead( expandPath( "/tests/resources/data/v2error.json" ) ) );
+				expect( isNull( variables.model.getClient().getPipeline( variables.model.getProperty( "pipelineName" ) ) ) ).toBeFalse();
+				var doc = variables.model.newDocument().new(
+					index = variables.model.getProperty( "dataStream" ),
+					properties = v2Error
+				).create( true );
+
+				expect( doc.getMemento() )
+					.toHaveKey( "@timestamp" )
+					.toHaveKey( "log" )
+					.toHaveKey( "event" )
+					.toHaveKey( "file" )
+					.toHaveKey( "url" )
+					.toHaveKey( "http" )
+					.toHaveKey( "labels" )
+					.toHaveKey( "package" )
+					.toHaveKey( "host" )
+					.toHaveKey( "client" )
+					.toHaveKey( "user" )
+					.toHaveKey( "user_agent" )
+					.toHaveKey( "error" );
 
 			} );
 		} );

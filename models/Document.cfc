@@ -104,6 +104,8 @@ component accessors="true" {
 			createOptions[ "_id" ] = variables.id;
 		}
 
+		variables.params[ "refresh" ] = "wait_for";
+
 		if( !isNull( variables.pipeline ) ){
 			variables.params[ "pipeline" ] = variables.pipeline;
 		}
@@ -119,11 +121,19 @@ component accessors="true" {
         );
 
 		if( response.errors ){
-			return getClient().handleResponseError( response.items[ 1 ][ "create" ] );
+			var result = response.items[ 1 ][ "create" ];
+			throw(
+				type         = "cbElasticsearch.invalidRequest",
+				message      = "An error occurred while performing document creation.  The response received was: #getClient().getUtil().toJSON( result.error )#",
+				extendedInfo = getClient().getUtil().toJSON( result ),
+				errorCode    = "200"
+			);
 		}
 
 		if( arguments.refresh ){
-			return this.get( response.items[ 1 ][ "create" ][ "_id" ] );
+			var idx = response.items[ 1 ][ "create" ][ "_index" ];
+			var docId = response.items[ 1 ][ "create" ][ "_id" ];
+			return getClient().get( id = docId, index = idx );
 		} else {
 			return this;
 		}

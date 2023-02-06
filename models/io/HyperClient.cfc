@@ -57,6 +57,12 @@ component accessors="true" threadSafe singleton {
 	}
 
 	/**
+	 * Pipeline provider
+	 **/
+	 cbElasticsearch.models.Document function newPipeline() provider="Pipeline@cbElasticsearch"{
+	}
+
+	/**
 	 * Task provider
 	 **/
 	cbElasticsearch.models.Task function newTask() provider="Task@cbElasticsearch"{
