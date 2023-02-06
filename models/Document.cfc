@@ -104,6 +104,8 @@ component accessors="true" {
 			createOptions[ "_id" ] = variables.id;
 		}
 
+		variables.params[ "refresh" ] = "wait_for";
+
 		if( !isNull( variables.pipeline ) ){
 			variables.params[ "pipeline" ] = variables.pipeline;
 		}
@@ -129,7 +131,9 @@ component accessors="true" {
 		}
 
 		if( arguments.refresh ){
-			return this.get( response.items[ 1 ][ "create" ][ "_id" ] );
+			var idx = response.items[ 1 ][ "create" ][ "_index" ];
+			var docId = response.items[ 1 ][ "create" ][ "_id" ];
+			return getClient().get( id = docId, index = idx );
 		} else {
 			return this;
 		}
