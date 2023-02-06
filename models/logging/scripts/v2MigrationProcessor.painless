@@ -5,7 +5,7 @@ if( ctx.application != null ){
     ctx.labels.application = ctx.application;
     ctx.remove( 'application' );
 }
-if( ctx.log != null ){
+if( ctx.log == null ){
     ctx.log = new HashMap();
 }
 if( ctx.appendername != null ){
@@ -71,6 +71,13 @@ if( ctx.event == null || ctx.event instanceof String ){
         ctx.event.raw = eventRaw;
     }
 }
+if( ctx.severity != null ){
+    ctx.event.severity = ctx.severity;
+    ctx.remove( 'severity' );
+}
+if( ctx.component != null ){
+    ctx.remove( 'component' );
+}
 if( ctx.timestamp != null ){
     ctx.event.created = ctx.timestamp;
     ctx.remove( "timestamp" );
@@ -92,10 +99,23 @@ if( ctx.user_agent == null ){
     ctx.user_agent = new HashMap();
 }
 if( ctx.snapshot != null ){
+    if( ctx.snapshot instanceof String ){
+        ctx.snapshot = Json.load( ctx.snapshot );
+    }
     ctx.file.path = ctx.snapshot.template;
     ctx.url.path = ctx.snapshot.path;
     ctx.http.request.referer = ctx.snapshot.referer;
     ctx.client.ip = ctx.snapshot.remote_address;
     ctx.user_agent.original = ctx.snapshot.browser;
     ctx.remove( 'snapshot' );
+}
+if( ctx.host != null && ctx.host instanceof String ){
+    ctx.host = Json.load( ctx.host );
+}
+if( ctx.userinfo != null ){
+    if( ctx.user == null ){
+        ctx.user = new HashMap();
+        ctx.user.info = ctx.userinfo;
+        ctx.remove( 'userinfo' );
+    }
 }
