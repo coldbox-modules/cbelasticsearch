@@ -286,7 +286,7 @@ component
 			if( getProperty( "throwOnError" ) ){
 				rethrow;
 			} else {
-				var logEvent = new coldbox.system.logging.LogEvent( 
+				var eLogEvent = new coldbox.system.logging.LogEvent( 
 					message   = "An error occurred while attempting to save a log to Elasticsearch via the LogstashAppender.  The exception received was #e.message# - #e.detail#",
 					severity  = 1,
 					extraInfo = e,
@@ -296,7 +296,7 @@ component
 				// Log errors out to other appenders besides this one
 				var safeAppenders = appendersMap.keyArray().filter( function( key ){ return key != getName(); } );
 				saveAppenders.each( function( appenderName ){
-					appendersMap[ appenderName ].logMessage( logEvent );
+					appendersMap[ appenderName ].logMessage( eLogEvent );
 				} );
 			}
 		}
