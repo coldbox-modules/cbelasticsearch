@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added Snapshot Repository support
 * Added create() method to Document object to support non-upsert operations
 * Added support for migrating cbElasticSearch LogstashAppender indices from v2 to v3( [ECS](https://www.elastic.co/guide/en/ecs/8.6/ecs-reference.html) )
+* Added `throwOnError` property to logstash appender to allow transmission errors to ES to fail quietly
 
 ### Changed
 * Changed Logstash Appender to use time series Data Streams instead of static indices

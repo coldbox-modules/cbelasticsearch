@@ -49,7 +49,9 @@ logBox = {
                 // The max shard size at which the hot phase will rollover data
                 "rolloverSize"    : "10gb",
                 // Whether to migrate any indices used in v2 of this module over to data streams - only used if an `index` key ( v2 config ) is provided to the properties
-                "migrateIndices"  : false
+                "migrateIndices"  : false,
+                // Whether to allow log events to fail quietly.  When turned on, any errors received when saving log entries will not throw but will be logged out to other appenders
+                "throwOnError"    : true
             }
         }
 
