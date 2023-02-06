@@ -119,7 +119,13 @@ component accessors="true" {
         );
 
 		if( response.errors ){
-			return getClient().handleResponseError( response.items[ 1 ][ "create" ] );
+			var result = response.items[ 1 ][ "create" ];
+			throw(
+				type         = "cbElasticsearch.invalidRequest",
+				message      = "An error occurred while performing document creation.  The response received was: #getClient().getUtil().toJSON( result.error )#",
+				extendedInfo = getClient().getUtil().toJSON( result ),
+				errorCode    = "200"
+			);
 		}
 
 		if( arguments.refresh ){
