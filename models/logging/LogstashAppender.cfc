@@ -202,7 +202,7 @@ component
 					"route" : ( event.getCurrentRoute() != "" ) ? event.getCurrentRoute() & (
 						event.getCurrentRoutedModule() != "" ? " from the " & event.getCurrentRoutedModule() & "module router." : ""
 					) : javacast( "null", 0 ),
-					"extension" : event.getContext().format ?: javacast( "null", 0 ),
+					"extension" : event.getCollection().format ?: javacast( "null", 0 ),
 					"url" : ( event.getCurrentRoutedURL() != "" ) ? event.getCurrentRoutedURL() : javacast( "null", 0 ),
 					"layout"     : ( event.getCurrentLayout() != "" ) ? event.getCurrentLayout() : javacast( "null", 0 ),
 					"module"     : event.getCurrentModule(),
