@@ -251,7 +251,7 @@ component
 				true
 			);
 
-			logObj.url.full = ( event.getCurrentRoutedURL() != "" ) ? event.getCurrentRoutedURL() : javacast( "null", 0 );
+			logObj.url[ "full" ] = ( event.getCurrentRoutedURL() != "" ) ? event.getCurrentRoutedURL() : javacast( "null", 0 );
 
 			logObj.package[ "reference" ] = event.getHTMLBaseURL();
 
