@@ -131,8 +131,8 @@ component accessors="true" singleton {
 
 	void function preflightLogEntry( required struct logObj ){
 
-		if( !arguments.logEvent.keyExists( "@timestamp" ) ){
-			arguments.logEvent[ "@timestamp" ] = dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+		if( !arguments.logObj.keyExists( "@timestamp" ) ){
+			arguments.logObj[ "@timestamp" ] = dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
 		}
 
 		// ensure consistent casing for search
@@ -143,7 +143,7 @@ component accessors="true" singleton {
 				"environment" : variables.appEnvironment
 			}
 		}
-		
+
 		if( LogObj.keyExists( "error" ) ){
 			var errorStringify = [
 				"frames",
