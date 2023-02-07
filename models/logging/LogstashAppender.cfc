@@ -54,7 +54,7 @@ component
 			"lifecyclePolicy" : javacast( "null", 0 ),
 			// the application name to use for this instance
 			"applicationName" : applicationName,
-			// The release version 
+			// The release version
 			"releaseVersion"  : "",
 			// The number of shards for the backing indices
 			"indexShards"     : 1,
@@ -122,7 +122,7 @@ component
 	 * Write an entry into the appender.
 	 */
 	public void function logMessage( required any logEvent ) output=false{
-		
+
 		var logObj = marshallLogObject( argumentCollection = arguments );
 
 		try{
@@ -133,7 +133,7 @@ component
 			if( getProperty( "throwOnError" ) ){
 				rethrow;
 			} else {
-				var eLogEvent = new coldbox.system.logging.LogEvent( 
+				var eLogEvent = new coldbox.system.logging.LogEvent(
 					message   = "An error occurred while attempting to save a log to Elasticsearch via the LogstashAppender.  The exception received was #e.message# - #e.detail#",
 					severity  = 1,
 					extraInfo = { "logData" : logObj, "exception" : e },
@@ -165,12 +165,13 @@ component
 				"logger" : getName(),
 				"category" : loggerCat
 			},
+			"message" : message,
 			"event" : {
 				"created" : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
 				"severity" : loge.getSeverity(),
 				"category"   : loggerCat,
 				"dataset"    : "cfml",
-				"timezone"   : tzInfo.timezone ?: createObject( "java", "java.util.TimeZone" ).getDefault().getId()  
+				"timezone"   : tzInfo.timezone ?: createObject( "java", "java.util.TimeZone" ).getDefault().getId()
 			},
 			"file" : {
 				"path" : CGI.CF_TEMPLATE_PATH
@@ -214,7 +215,7 @@ component
 					if( !isSimpleValue( logObj.user.info ) ){
 						if( isStruct( logObj.user.info ) ){
 							var userKeys = [ "email", "domain", "full_name", "hash", "id", "name", "roles", "username" ];
-							userKeys.each( 
+							userKeys.each(
 								function( key ){
 									if( key == "username" ) key = "name";
 									if( logObj.user.info.keyExists( key ) ){
@@ -234,7 +235,7 @@ component
 		if ( structKeyExists( application, "cbController" ) ) {
 			var event = application.cbController.getRequestService().getContext();
 			var rc = event.getCollection();
-			structAppend( 
+			structAppend(
 				local.logObj.event,
 				{
 					"name"  : ( event.getCurrentEvent() != "" ) ? event.getCurrentEvent() : javacast( "null", 0 ),
@@ -286,7 +287,7 @@ component
 			var trimmedExtra = structCopy( extraInfo );
 			trimmedExtra.delete( "exception" );
 
-			structAppend( 
+			structAppend(
 				local.logObj,
 				parseException(
 					exception      = extraInfo.exception,
@@ -322,7 +323,7 @@ component
 		var componentTemplateName = getProperty( "componentTemplateName" );
 		var indexTemplateName = getProperty( "indexTemplateName" );
 
-		
+
 		var policyMeta = {
 			"description" : "Lifecyle Policy for cbElasticsearch logs"
 		};
@@ -337,7 +338,7 @@ component
 		}
 
 		policyBuilder.save();
-		
+
 		// Create our pipeline to handle data from older versions of the appender
 		getClient().newPipeline()
 					.setId( getProperty( "pipelineName" )  )
@@ -346,10 +347,10 @@ component
 						{
 							"script": {
 								"lang": "painless",
-								"source": reReplace( fileRead( expandPath( "/cbelasticsearch/models/logging/scripts/v2MigrationProcessor.painless" ) ), 
-								"\n|\r|\t", 
-								"", 
-								"ALL" 
+								"source": reReplace( fileRead( expandPath( "/cbelasticsearch/models/logging/scripts/v2MigrationProcessor.painless" ) ),
+								"\n|\r|\t",
+								"",
+								"ALL"
 								)
 							}
 						}
@@ -366,11 +367,11 @@ component
 			indexTemplateName,
 			{
 				"index_patterns" : [ dataStreamPattern ],
-				"composed_of" : [ 
+				"composed_of" : [
 					"logs-mappings",
 					"data-streams-mappings",
-					"logs-settings", 
-					componentTemplateName 
+					"logs-settings",
+					componentTemplateName
 				],
 				"data_stream" : {},
 				"priority" : 150,
@@ -403,7 +404,7 @@ component
 		} else if( !getClient().dataStreamExists( dataStreamName ) ){
 			getClient().ensureDataStream( dataStreamName );
 		}
-		
+
 	}
 
 	/**
@@ -436,7 +437,7 @@ component
 									arguments.exception.StackTrace,
 									"#chr( 13 )##chr( 10 )#"
 								) : arguments.exception.StackTrace
-				
+
 			}
 		};
 
@@ -612,7 +613,7 @@ component
 				}
 			} );
 		}
-		
+
 		if ( !arguments.logObj.keyExists( "stachebox" ) ) {
 			arguments.logObj[ "stachebox" ] = { "isSuppressed" : false };
 		}
