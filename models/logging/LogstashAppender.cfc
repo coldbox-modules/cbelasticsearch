@@ -306,7 +306,7 @@ component
 			};
 		}
 
-		preflightLogEntry( logObj );
+		variables.util.preflightLogEntry( logObj );
 
 		return logObj;
 	}
@@ -597,53 +597,6 @@ component
 			normalizedPath = "\\" & normalizedPath.mid( 3, normalizedPath.len() - 2 );
 		}
 		return normalizedPath.replace( "//", "/", "all" );
-	}
-
-	private function preflightLogEntry( required struct logObj ){
-		if( LogObj.keyExists( "error" ) ){
-			var errorStringify = [
-				"frames",
-				"extrainfo",
-				"stack_trace"
-			];
-
-			errorStringify.each( function( key ){
-				if ( logObj.error.keyExists( key ) && !isSimpleValue( logObj.error[ key ] ) ) {
-					logObj.error[ key ] = variables.util.toJSON( logObj.error[ key ] );
-				}
-			} );
-		}
-
-		if ( !arguments.logObj.keyExists( "stachebox" ) ) {
-			arguments.logObj[ "stachebox" ] = { "isSuppressed" : false };
-		}
-		// Attempt to create a signature for grouping
-		if ( !arguments.logObj.stachebox.keyExists( "signature" ) ) {
-			var signable = [
-				"message",
-				"labels.application",
-				"error.type",
-				"error.level",
-				"error.message",
-				"error.stack_trace",
-				"error.frames"
-			];
-			var sigContent = "";
-			signable.each( function( key ){
-				var sigVal = javacast( "null", 0 );
-				try{
-					var sigVal = evaluate( "logObj.#key#" );
-				} catch( any e ){}
-				if( !isNull( sigVal ) ){
-					sigContent &= sigVal;
-				}
-			} );
-			if ( len( sigContent ) ) {
-				arguments.logObj.stachebox[ "signature" ] = hash( sigContent );
-			}
-		}
-		// ensure consistent casing for search
-		logObj[ "labels" ][ "environment" ] = lcase( logObj.labels.environment ?: "production" );
 	}
 
 	public function getComponentTemplate(){

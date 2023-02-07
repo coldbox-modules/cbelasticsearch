@@ -1,5 +1,7 @@
 component accessors="true" singleton {
 
+	property name="appEnvironment" inject="coldbox:setting:environment";
+
 	/**
 	 * Ensures a CF native struct is returned ( allowing for dot-notation )
 	 *
@@ -124,6 +126,69 @@ component accessors="true" singleton {
 				message      = "Your request was invalid.  The response returned was #toJSON( errorPayload )#",
 				extendedInfo = isJSON( errorPayload ) ? errorPayload : toJSON( errorPayload )
 			);
+		}
+	}
+
+	void function preflightLogEntry( required struct logObj ){
+
+		// ensure consistent casing for search
+		if( logObj.keyExists( "labels" ) ){
+			logObj[ "labels" ][ "environment" ] = lcase( logObj.labels.environment ?: variables.appEnvironment );
+		} else {
+			logObj[ "labels" ] = {
+				"environment" : variables.appEnvironment
+			}
+		}
+		
+		if( LogObj.keyExists( "error" ) ){
+			var errorStringify = [
+				"frames",
+				"extrainfo",
+				"stack_trace"
+			];
+
+			errorStringify.each( function( key ){
+				if ( logObj.error.keyExists( key ) && !isSimpleValue( logObj.error[ key ] ) ) {
+					logObj.error[ key ] = toJSON( logObj.error[ key ] );
+				}
+			} );
+		}
+
+		generateLogEntrySignature( logObj );
+
+	}
+
+	/**
+	 * Generates a stachebox appender signature for occurence groupings
+	 */
+	void function generateLogEntrySignature( required struct logObj ){
+		if ( !arguments.logObj.keyExists( "stachebox" ) ) {
+			arguments.logObj[ "stachebox" ] = { "isSuppressed" : false };
+		}
+		// Attempt to create a signature for grouping
+		if ( !arguments.logObj.stachebox.keyExists( "signature" ) ) {
+			var signable = [
+				".message",
+				".labels.application",
+				".error.type",
+				".error.level",
+				".error.message",
+				".error.stack_trace",
+				".error.frames"
+			];
+			var sigContent = "";
+			signable.each( function( key ){
+				logObj.findKey( listLast( key, "." ), "all" )
+							.filter( function( found ){ return found.path == key } )
+							.each( function( found ){
+								if( !isNull( found.value ) && len( found.value ) ){
+									sigContent &= found.value;
+								}
+							} );
+			} );
+			if ( len( sigContent ) ) {
+				arguments.logObj.stachebox[ "signature" ] = hash( sigContent );
+			}
 		}
 	}
 

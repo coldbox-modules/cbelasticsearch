@@ -114,7 +114,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					.toHaveKey( "host" )
 					.toHaveKey( "client" )
 					.toHaveKey( "user" )
-					.toHaveKey( "user_agent" );
+					.toHaveKey( "user_agent" )
+					.toHaveKey( "stachebox" );
+				
+				expect( logMessage.stachebox ).toHaveKey( "signature" );
 
 				expect( logMessage.user )
 					.toHaveKey( "info" )
@@ -166,7 +169,10 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					.toHaveKey( "client" )
 					.toHaveKey( "user" )
 					.toHaveKey( "user_agent" )
-					.toHaveKey( "error" );
+					.toHaveKey( "error" )
+					.toHaveKey( "stachebox" );
+				
+				expect( logMessage.stachebox ).toHaveKey( "signature" );
 
 				expect( logMessage.user )
 					.toHaveKey( "info" )
