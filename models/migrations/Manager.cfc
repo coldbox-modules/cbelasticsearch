@@ -2,6 +2,8 @@ component {
 
 	property name="wirebox" inject="wirebox";
 	property name="migrationsIndex" default=".cfmigrations";
+	property name="indexShards" type="numeric" default=1;
+	property name="indexReplicas" type="numeric" default=0;
 
 	public Manager function init(){
 		for ( var key in arguments ) {
@@ -25,6 +27,10 @@ component {
 				.getInstance( "IndexBuilder@cbelasticsearch" )
 				.new(
 					name       = variables.migrationsIndex,
+					settings = {
+						"number_of_shards" : variables.indexShards,
+						"number_of_replicas" : variables.indexReplicas
+					},
 					properties = {
 						"_doc" : {
 							"properties" : {
