@@ -46,6 +46,15 @@ jobs:
         run: |
           box run-script install:dependencies
 
+      - name: Scan project file system
+        id: scan
+        uses: anchore/scan-action@v2
+        with:
+          path: "./"
+          fail-build: true
+          severity-cutoff: high
+          acs-report-enable: true
+
       - name: Setup Elasticsearch
         run: |
           docker run -d -p "${{ env.ELASTICSEARCH_PORT }}:9200" -v $PWD/build/resources/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml elasticsearch:${{ matrix.ELASTICSEARCH_VERSION }}
