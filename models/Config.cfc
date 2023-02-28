@@ -11,7 +11,7 @@
  */
 component accessors="true" {
 
-	property name="configStruct" inject="coldbox:modulesettings:cbelasticsearch";
+	property name="configStruct" inject="box:modulesettings:cbelasticsearch";
 
 
 	/**

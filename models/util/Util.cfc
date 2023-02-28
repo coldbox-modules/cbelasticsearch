@@ -1,6 +1,6 @@
 component accessors="true" singleton {
 
-	property name="appEnvironment" inject="coldbox:setting:environment";
+	property name="appEnvironment" inject="box:setting:environment";
 
 	/**
 	 * Ensures a CF native struct is returned ( allowing for dot-notation )
