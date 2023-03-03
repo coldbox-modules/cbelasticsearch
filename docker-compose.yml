@@ -1,32 +1,31 @@
 version: "3"
 
 services:
-    elasticsearch8:
-        image: elasticsearch:8.6.0
+    elasticsearch:
+        image: elasticsearch:8.6.2
         environment:
             ES_JAVA_OPTS: "-Xms2g -Xmx2g"
-            discovery.type: "single-node"
-            xpack.security.enabled: "false"
-            path.repo: '["/tmp"]'
-        ports:
-            - "9200:9200"
-            - "9300:9300"
-
-    elasticsearch:
-        image: elasticsearch:7.17.6
-        environment:
-            ES_JAVA_OPTS: "-Xms1g -Xmx1g"
         volumes:
             - build/resources/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
         ports:
             - "9200:9200"
             - "9300:9300"
 
+    elasticsearch7:
+        image: elasticsearch:7.17.6
+        environment:
+            ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+        volumes:
+            - build/resources/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+        ports:
+            - "9201:9200"
+            - "9301:9300"
+
     app:
         # We always develop and test with the lowest common denominator - in this case, the oldest engine we support with the most restrictive compiler
         image: ortussolutions/commandbox:adobe2018
         environment:
-            ELASTICSEARCH_HOST: elasticsearch8
+            ELASTICSEARCH_HOST: elasticsearch
         ports:
             - "8080:8080"
         volumes:
