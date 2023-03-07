@@ -6,7 +6,7 @@ services:
         environment:
             ES_JAVA_OPTS: "-Xms2g -Xmx2g"
         volumes:
-            - build/resources/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+            - ./build/resources/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
         ports:
             - "9200:9200"
             - "9300:9300"
@@ -16,7 +16,7 @@ services:
         environment:
             ES_JAVA_OPTS: "-Xms1g -Xmx1g"
         volumes:
-            - build/resources/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+            - ./build/resources/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
         ports:
             - "9201:9200"
             - "9301:9300"
