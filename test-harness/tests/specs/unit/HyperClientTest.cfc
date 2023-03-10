@@ -202,6 +202,33 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 					variables.testDocumentId = saveResult.getId();
 				} );
+				it( "Tests document save with refresh=wait_for", function(){
+					expect( variables ).toHaveKey( "testIndexName" );
+
+					var testDocument = {
+						"_id"         : createUUID(),
+						"title"       : "My Test Document",
+						"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+					};
+
+					var document = getWirebox()
+						.getInstance( "Document@cbElasticsearch" )
+						.new(
+							variables.testIndexName,
+							"_doc",
+							testDocument
+						);
+
+					var saveResult = variables.model.save( document, "wait_for" );
+
+					expect( saveResult ).toBeComponent();
+					expect( saveResult.getId() ).toBe( testDocument[ "_id" ] );
+
+					var existingDocument = getWirebox()
+						.getInstance( "Document@cbElasticsearch" )
+						.get( saveResult.getId(), variables.testIndexName );
+					expect( existingDocument ).notToBeNull();
+				} );
 
 				describe( "parseParams method tests", function(){
 					it( "can accept an query string", function(){
