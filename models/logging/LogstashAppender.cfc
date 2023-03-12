@@ -381,6 +381,10 @@ component
 			}
 		);
 
+		if( !getClient().dataStreamExists( dataStreamName ) ){
+			getClient().ensureDataStream( dataStreamName );
+		}
+
 		// Check for any previous indices created matching the pattern and migrate them to the datastream
 		if( propertyExists( "index" ) && getProperty( "migrateIndices" ) ){
 			var existingIndexPrefix = getProperty( "index" );
@@ -393,7 +397,7 @@ component
 				existingIndices,
 				function( index ){
 					try{
-						getClient().reindex( index, dataStream, true );
+						getClient().reindex( index, dataStreamName, true );
 						getClient().deleteIndex( index );
 					} catch( any e ){
 						// Print to StdError to bypass LogBox, since we are in an appender
@@ -401,8 +405,6 @@ component
 					}
 				}
 			);
-		} else if( !getClient().dataStreamExists( dataStreamName ) ){
-			getClient().ensureDataStream( dataStreamName );
 		}
 
 	}
