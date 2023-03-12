@@ -397,7 +397,7 @@ component
 				existingIndices,
 				function( index ){
 					try{
-						getClient().reindex( index, dataStreamName, true );
+						getClient().reindex( index, { "index" : dataStreamName, "op_type" : "create" }, true );
 						getClient().deleteIndex( index );
 					} catch( any e ){
 						// Print to StdError to bypass LogBox, since we are in an appender
