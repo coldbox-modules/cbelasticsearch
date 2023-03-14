@@ -104,6 +104,31 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					variables.model.handleResponseError( mockResponse );
 				} ).toThrow( "cbElasticsearch.native.BadDocument" );
 			} );
+
+			it( "can strip newlines and tabs from Painless scripts", function() {
+				var uglyScript = "ArrayList a = new ArrayList();";
+				var uglyScriptWithTabs = "ArrayList a = 		new ArrayList();";
+				var uglyScriptWithNewlines = "
+ArrayList a = new ArrayList();
+";
+
+				expect( variables.model.formatToPainless( uglyScript ) )
+					.toBe( uglyScript, "should leave ugly scripts alone." );
+				expect( variables.model.formatToPainless( uglyScriptWithTabs ) )
+					.toBe( "ArrayList a = new ArrayList();", "should strip tab characters." );
+				expect( variables.model.formatToPainless( uglyScriptWithNewlines ) )
+					.toBe( "ArrayList a = new ArrayList();", "should strip newline characters." );
+
+				var niceScript = "
+				ArrayList a = new ArrayList();
+				if (params._source.containsKey('isFree') && params._source.isFree != null) {
+					return 00.00;
+				}
+				";
+				var uglyScript = "ArrayList a = new ArrayList();if (params._source.containsKey('isFree') && params._source.isFree != null) {return 00.00;}";
+
+				expect( variables.model.formatToPainless( niceScript ) ).toBe( uglyScript, "should strip newlines and tabs" );
+			})
 		} );
 	}
 
