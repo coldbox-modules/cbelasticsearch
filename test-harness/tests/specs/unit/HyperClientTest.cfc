@@ -956,6 +956,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( refreshResult ).toHaveKey( "_shards" );
 					expect( refreshResult._shards ).toHaveKey( "total" );
 					expect( refreshResult._shards.total ).toBe( 0 );
+				} );
 
 				it( "Tests getIndexStats method ", function(){
 					expect( variables ).toHaveKey( "testIndexName" );
