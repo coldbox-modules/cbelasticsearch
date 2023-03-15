@@ -481,6 +481,22 @@ component accessors="true" threadSafe singleton {
 	}
 
 	/**
+	 * Trigger an index refresh on the given index/indices.
+	 * 
+	 * @indexName 	string|array	Index name or alias. Can accept an array of index/alias names.
+	 * @params		struct			Struct of query parameters to influence the request. For example: `{ "ignore_unavailable" : true }`
+	 */
+	struct function refreshIndex( required any indexName, struct params ){
+		if ( isArray( arguments.indexName ) ){ arguments.indexName = arrayToList( arguments.indexName ); }
+		var refreshRequest = variables.nodePool.newRequest( "/#arguments.indexName#/_refresh", "post" );
+
+		return refreshRequest
+				.withQueryParams( arguments.params )
+				.send()
+				.json();
+	}
+
+	/**
 	 * Returns a struct containing all indices in the system, with statistics
 	 *
 	 * @verbose 	boolean 	whether to return the full stats output for the index

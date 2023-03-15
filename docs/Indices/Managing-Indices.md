@@ -149,6 +149,31 @@ To retreive a list of the configured mappings for an index you may use the `getM
 var mappings = getInstance( "Client@CBElasticsearch" ).getMappings( "reviews" );
 ```
 
+## Triggering an index refresh
+
+On occasion, you may need to ensure the index is updated in real time (immediately and synchronously). This can be done via the `refreshIndex()` client method:
+
+```js
+var mappings = getInstance( "Client@CBElasticsearch" ).refreshIndex( "reviews" );
+```
+
+You can refresh multiple indices at once:
+
+```js
+var mappings = getInstance( "Client@CBElasticsearch" ).refreshIndex( [ "reviews", "books" ] );
+// OR
+var mappings = getInstance( "Client@CBElasticsearch" ).refreshIndex( "reviews,books" );
+```
+
+as well as pass [supported query parameters](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-refresh.html#refresh-api-query-params) to the refresh endpoint. This can be useful when using wildcards in the index/alias names:
+
+```js
+var mappings = getInstance( "Client@CBElasticsearch" ).refreshIndex(
+    [ "reviews", "book*" ],
+    { "ignore_unavailable" : true }
+);
+```
+
 ## Deleting an Index
 
 All good things must come to an end, eh? You can use `Client.deleteIndex()` to delete an existing index:

@@ -934,6 +934,30 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					sleep( 500 );
 				} );
 
+				it( "Tests refreshIndex method ", function(){
+					expect( variables ).toHaveKey( "testIndexName" );
+
+					// test against existing index
+					var refreshResult = variables.model.refreshIndex( variables.testIndexName );
+
+					expect( refreshResult.keyExists( "_shards" ) ).toBeTrue();
+					expect( refreshResult.keyExists( "error" ) ).toBeFalse();
+
+					// test against nonexistent index
+					refreshResult = variables.model.refreshIndex( "doesnotexist" );
+
+					expect( refreshResult.keyExists( "error" ) ).toBeTrue();
+					expect( refreshResult.status ).toBe( "404" );
+
+					// test against nonexistent index, with ignore nonexistent
+					refreshResult = variables.model.refreshIndex( [ "doesnotexist", "alsonotexist" ], { "ignore_unavailable" : true } );
+
+					expect( refreshResult.keyExists( "error" ) ).toBeFalse();
+					expect( refreshResult ).toHaveKey( "_shards" );
+					expect( refreshResult._shards ).toHaveKey( "total" );
+					expect( refreshResult._shards.total ).toBe( 0 );
+				} );
+
 				it( "Tests the ability to delete an index", function(){
 					expect( variables ).toHaveKey( "testIndexName" );
 					var deletion = variables.model.deleteIndex( variables.testIndexName );
