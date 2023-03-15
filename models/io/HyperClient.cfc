@@ -486,7 +486,7 @@ component accessors="true" threadSafe singleton {
 	 * @indexName 	string|array	Index name or alias. Can accept an array of index/alias names.
 	 * @params		struct			Struct of query parameters to influence the request. For example: `{ "ignore_unavailable" : true }`
 	 */
-	struct function refreshIndex( required any indexName, struct params ){
+	struct function refreshIndex( required any indexName, struct params = {} ){
 		if ( isArray( arguments.indexName ) ){ arguments.indexName = arrayToList( arguments.indexName ); }
 		var refreshRequest = variables.nodePool.newRequest( "/#arguments.indexName#/_refresh", "post" );
 
