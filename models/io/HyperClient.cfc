@@ -497,6 +497,31 @@ component accessors="true" threadSafe singleton {
 	}
 
 	/**
+	 * Get statistics for the given index/indices.
+	 * 
+	 * @indexName 	string|array	Index name or alias. Can accept an array of index/alias names.
+	 * @metrics 	array			Array of index metrics to retrieve. I.e. `[ "completion","refresh", "request_cache" ]`.
+	 * @params		struct			Struct of query parameters to influence the request. For example: `{ "expand_wildcards" : "none", "level" : "shards" }
+	 */
+	struct function getIndexStats( any indexName, array metrics = [], struct params = {} ){
+		if ( isArray( arguments.indexName ) ){ arguments.indexName = arrayToList( arguments.indexName ); }
+	
+		var endpoint = [
+			"_stats"
+		];
+		if ( !isNull( arguments.indexName ) && arguments.indexName != "" ){
+			endpoint.prepend( arguments.indexName );
+		}
+		endpoint.append( arrayToList( metrics ) );
+		var statsRequest = variables.nodePool.newRequest( arrayToList( endpoint, "/" ), "get" );
+	
+		return statsRequest
+			.withQueryParams( arguments.params )
+			.send()
+			.json();
+	}
+
+	/**
 	 * Returns a struct containing all indices in the system, with statistics
 	 *
 	 * @verbose 	boolean 	whether to return the full stats output for the index

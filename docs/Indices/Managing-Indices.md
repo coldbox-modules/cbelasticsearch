@@ -172,6 +172,44 @@ var mappings = getInstance( "Client@CBElasticsearch" ).refreshIndex(
     [ "reviews", "book*" ],
     { "ignore_unavailable" : true }
 );
+
+## Getting Index Statistics
+
+To retrieve statistics on an index, use the `getIndexStats()` method:
+
+```js
+var mappings = getInstance( "Client@CBElasticsearch" ).getIndexStats( "reviews" );
+```
+
+You can retrieve particular statistics metrics:
+
+```js
+var mappings = getInstance( "Client@CBElasticsearch" )
+                    .getIndexStats( "reviews", [ "indexing", "search" ] );
+```
+
+Or all metrics:
+
+```js
+var mappings = getInstance( "Client@CBElasticsearch" )
+                    .getIndexStats( "reviews", [ "_all" ] );
+```
+
+You can even retrieve all metrics on all indices by skipping the `indexName` parameter entirely:
+
+```js
+var mappings = getInstance( "Client@CBElasticsearch" ).getIndexStats();
+```
+
+Finally, you can pass a struct of parameters to fine-tune the statistics result:
+
+```js
+var mappings = getInstance( "Client@CBElasticsearch" )
+                    .getIndexStats(
+                        "reviews",
+                        [ "_all" ],
+                        { "level" : "shards", "fields" : "title,createdTime" }
+                    );
 ```
 
 ## Deleting an Index

@@ -956,6 +956,27 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( refreshResult ).toHaveKey( "_shards" );
 					expect( refreshResult._shards ).toHaveKey( "total" );
 					expect( refreshResult._shards.total ).toBe( 0 );
+
+				it( "Tests getIndexStats method ", function(){
+					expect( variables ).toHaveKey( "testIndexName" );
+
+					var stats = variables.model.getIndexStats( variables.testIndexName, [ "_all" ] );
+
+					expect( stats.keyExists( "_all" ) ).toBeTrue();
+
+					// test with query params
+					stats = variables.model.getIndexStats(
+						variables.testIndexName,
+						[ "indexing", "search" ],
+						{ "level" : "shards" }
+					);
+
+					expect( stats.keyExists( "_all" ) ).toBeTrue();
+
+					// test with no index name == all indices
+					stats = variables.model.getIndexStats( indexName = "", metrics = [ "indexing" ] );
+
+					expect( stats.keyExists( "_all" ) ).toBeTrue();
 				} );
 
 				it( "Tests the ability to delete an index", function(){

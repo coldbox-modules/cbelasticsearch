@@ -239,8 +239,8 @@ getInstance( "Client@cbElasticsearch" )
             .updateByQuery(
                 searchBuilder,
                 {
-                    "script" : "ctx._source.isInPrint = true",
                     "lang" : "painless"
+                    "script" : "ctx._source.isInPrint = true"
                 }
             );
 ```
@@ -248,6 +248,20 @@ getInstance( "Client@cbElasticsearch" )
 In the above case, we queried for a lack of existence on the `isInPrint` key and created all documents which matched to use a default value of `false`.
 
 Note the variable `ctx._source` used in the script, which is a reference to the document being iterated in the update loop.  More information on crafting complex, scripted, query-based updates can be found in [the official elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-update-by-query.html).
+
+Note that a Painless script containing newlines, tabs, or space indentation will throw a parsing error. To work around this limitation, use CBElasticsearch's `Util.formatToPainless( string script )` method to remove newlines and indentation:
+
+```js
+getInstance( "Client@cbElasticsearch" )
+            .updateByQuery(
+                searchBuilder,
+                {
+                    "lang" : "painless",
+                    "script" : getInstance( "Util@cbElasticsearch" )
+                                .formatToPainless( getReindexScript() )
+                }
+            );
+```
 
 
 #### Deleting a Document

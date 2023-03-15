@@ -196,4 +196,14 @@ component accessors="true" singleton {
 		}
 	}
 
+	/**
+	 * Trim whitespace (newlines and tabs) from a script for safe parsing as a Painless script
+	 *
+	 * @script Prettified Elasticsearch script which is unfit for Painless
+	 * @returns uglified Painless-safe (newlines and tabs removed) single-line script.
+	 */
+	public string function formatToPainless( required string script ){
+		return reReplace( arguments.script, "\n|\r|\t", "", "ALL" );
+	}
+
 }

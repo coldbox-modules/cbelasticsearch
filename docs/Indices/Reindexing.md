@@ -69,6 +69,20 @@ getInstance( "Client@cbElasticsearch" )
     );
 ```
 
+Note that a Painless script containing newlines, tabs, or space indentation will throw a parsing error. To work around this limitation, use CBElasticsearch's `Util.formatToPainless( string script )` method to remove newlines and indentation:
+
+```js
+getInstance( "Client@cbElasticsearch" )
+    .reindex(
+        // ...
+        script = {
+            "lang" : "painless",
+            "source" : getInstance( "Util@cbElasticsearch" )
+                        .formatToPainless( getReindexScript() )
+        }
+    );
+```
+
 ## Handling Reindex Errors
 
 If you `waitForCompletion` and the reindex action fails, a `cbElasticsearch.HyperClient.ReindexFailedException` will be thrown. You can disable the exception by passing `false` to the `throwOnError` parameter:
