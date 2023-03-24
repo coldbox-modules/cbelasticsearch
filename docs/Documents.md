@@ -119,6 +119,26 @@ You can also pass Document objects to the `Client`'s `save()` method:
 getInstance( "Client@cbElasticsearch" ).save( existingDocument );
 ```
 
+#### Save Documents with an Index Refresh
+
+If you need your document available immediately (such as during a test or pipeline), you can pass `refresh = true` to [instruct Elasticsearch to refresh the relevant index shard immediately and synchronously](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-refresh.html):
+
+```js
+getInstance( "Client@cbElasticsearch" ).save(
+    document = existingDocument,
+    refresh = true
+);
+```
+
+The refresh parameter also accepts a `wait_for` option, which tells Elasticsearch to wait until the next index refresh:
+
+```js
+getInstance( "Client@cbElasticsearch" ).save(
+    document = existingDocument,
+    refresh = "wait_for"
+);
+```
+
 #### Updating individual document fields
 
 The `patch` method of the Client allows a user to update select fields, bypassing the need for a fully retrieved document.  This is similar to an `UPDATE foo SET bar = 'xyz' WHERE id = :id` query on a relational database.  The method requires an index name, identifier and a struct containing the keys to be updated:
