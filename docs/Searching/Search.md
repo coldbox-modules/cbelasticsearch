@@ -126,21 +126,13 @@ For more information on sorting search results, check out [Elasticsearch: Sort s
 SearchBuilder also supports [Elasticsearch script fields](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-fields.html#script-fields), which allow you to evaluate field values at search time for each document hit:
 
 ```js
-searchBuilder.setScriptFields( {
-    "interestCost": {
-        "script": {
-            "lang": "painless",
-            "source": getInstance( "Util@cbElasticsearch" )
-                .formatToPainless( "
-                return doc['price'].size() != 0
-                    ? doc['price'].value * (params.interestRate/100)
-                    : null
-                " ),
-            "params": { "interestRate": 5.5 }
-        }
+searchBuilder.addScriptField( "interestCost",{
+    "script": {
+        "lang": "painless",
+        "source": "return doc['price'].size() != 0 ? doc['price'].value * (params.interestRate/100): null",
+        "params": { "interestRate": 5.5 }
     }
 } );
-searchBuilder.setSource( true );
 ```
 
 This will result in an `"interestCost"` field in the `scriptFields` struct on the `Document` object:
@@ -149,9 +141,6 @@ This will result in an `"interestCost"` field in the `scriptFields` struct on th
 var interest = searchBuilder.getHits().map( (document) => document.getScriptFields()["interestCost"] ); // 5.50
 ```
 
-How *interesting*. 😜
-
-***Note**: Currently, using script fields seems to require enabling the `_source` field: `setSource( true )`. Don't forget this step!*
 
 ### Advanced Query DSL
 

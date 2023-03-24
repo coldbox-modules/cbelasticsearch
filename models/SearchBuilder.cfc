@@ -1176,4 +1176,20 @@ component accessors="true" {
 		return this;
 	}
 
+	/**
+	 * Append a dynamic script field to the search.
+	 *
+	 * @name Name of the script field
+	 * @script Script to use. `{ "script" : { "lang": "painless", "source" : } }`
+	 * @source Which _source values to include in the response. `true` for all, `false` for none, or a wildcard-capable string: `source = "author.*"`
+	 */
+	public SearchBuilder function addScriptField( required string name, struct script, any source = true ){
+		if ( isNull( variables.scriptFields ) ){
+			variables.scriptFields = {};
+		}
+		variables.scriptFields[ arguments.name ] = arguments.script;
+		setSource( arguments.source );
+		return this;
+	}
+
 }

@@ -634,16 +634,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						{ "match_all" : {} }
 					);
 	
-					searchBuilder.setScriptFields( {
-						"interestCost": {
-							"script": {
-								"lang": "painless",
-								"source": "return doc['price'].size() != 0 ? doc['price'].value * (params.interestRate/100) : null;",
-								"params": { "interestRate": 5.5 }
-							}
+					searchBuilder.addScriptField( "interestCost", {
+						"script": {
+							"lang": "painless",
+							"source": "return doc['price'].size() != 0 ? doc['price'].value * (params.interestRate/100) : null;",
+							"params": { "interestRate": 5.5 }
 						}
 					} );
-					searchBuilder.setSource( true );
 	
 					var hits = variables.model.executeSearch( searchBuilder ).getHits();
 					expect( hits.len() ).toBeGT( 0 );
