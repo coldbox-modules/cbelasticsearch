@@ -51,6 +51,13 @@ component accessors="true" {
 	property name="script";
 
 	/**
+	 * Property containing elasticsearch "script_fields" definition for runtime scripted fields
+	 * 
+	 * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-fields.html#script-fields
+	 */
+    property name="scriptFields" type="struct";
+
+	/**
 	 * When performing matching searches, the type of match to specify
 	 **/
 	property name="matchType";
@@ -1099,6 +1106,10 @@ component accessors="true" {
 
 		if ( !isNull( variables.script ) ) {
 			dsl[ "script" ] = variables.script;
+		}
+
+		if ( !isNull( variables.scriptFields ) ) {
+			dsl[ "script_fields" ] = variables.scriptFields;
 		}
 
 		if ( !isNull( variables.sorting ) ) {

@@ -34,7 +34,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 								"type"   : "text",
 								"fields" : { "kw" : { "type" : "keyword" } }
 							},
-							"createdTime" : { "type" : "date", "format" : "date_time_no_millis" }
+							"createdTime" : { "type" : "date", "format" : "date_time_no_millis" },
+							"price" : { "type" : "float" }
 						}
 					}
 				};
@@ -615,6 +616,40 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var secondResult = searchResults.getHits()[ arrayLen( searchResults.getHits() ) ];
 
 					expect( firstResult.getScore() ).toBeGT( secondResult.getScore() );
+				} );
+
+				it( "Tests custom script fields", function(){
+					getWirebox().getInstance( "Document@cbElasticsearch" ).new(
+						variables.testIndexName,
+						"testdocs", {
+							"_id"         : createUUID(),
+							"title"       : "My Test Document",
+							"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
+							"price"       : 9.99
+						} )
+						.save( refresh = true );sleep(1500);
+					var searchBuilder = getWirebox().getInstance( "SearchBuilder@cbElasticsearch" ).new(
+						variables.testIndexName,
+						"testdocs",
+						{ "match_all" : {} }
+					);
+	
+					searchBuilder.setScriptFields( {
+						"interestCost": {
+							"script": {
+								"lang": "painless",
+								"source": "return doc['price'].size() != 0 ? doc['price'].value * (params.interestRate/100) : null;",
+								"params": { "interestRate": 5.5 }
+							}
+						}
+					} );
+					searchBuilder.setSource( true );
+	
+					var hits = variables.model.executeSearch( searchBuilder ).getHits();
+					expect( hits.len() ).toBeGT( 0 );
+					for( hit in hits ){
+						expect( hit.getScriptFields() ).toHaveKey( "interestCost" );
+					}
 				} );
 			} );
 

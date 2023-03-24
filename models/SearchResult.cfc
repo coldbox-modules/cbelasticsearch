@@ -161,6 +161,10 @@ component accessors="true" {
 				doc.setHighlights( hit[ "highlight" ] );
 			}
 
+			if ( structKeyExists( hit, "fields" ) ) {
+				doc.setScriptFields( hit[ "fields" ] );
+			}
+
 			arrayAppend( variables.hits, doc );
 		}
 

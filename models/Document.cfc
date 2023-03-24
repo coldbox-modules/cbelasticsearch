@@ -46,6 +46,10 @@ component accessors="true" {
 	 */
 	property name="params";
 
+	/**
+	 * Any evaluated script field results
+	 */
+	property name="scriptFields" type="struct";
 
 	function onDIComplete(){
 		reset();

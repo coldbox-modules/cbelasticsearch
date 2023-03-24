@@ -21,7 +21,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 							"_all"       : { "enabled" : false },
 							"properties" : {
 								"title"       : { "type" : "text" },
-								"createdTime" : { "type" : "date", "format" : "date_time_no_millis" }
+								"createdTime" : { "type" : "date", "format" : "date_time_no_millis" },
+								"price"       : { "type" : "float" }
 							}
 						}
 					}
@@ -752,6 +753,27 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( searchBuilder.getDSL()[ "_source" ][ "includes" ] ).toBe( [] );
 				expect( searchBuilder.getDSL()[ "_source" ] ).toHaveKey( "excludes" );
 				expect( searchBuilder.getDSL()[ "_source" ][ "excludes" ] ).toBe( [ "*.description" ] );
+			} );
+
+			it( "Tests the setScriptFields() method", function(){
+				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
+
+				var theScript = getWirebox().getInstance( "Util@cbElasticsearch" )
+					.formatToPainless( "
+						params._source['price'].value * .95
+					");
+				searchBuilder.setScriptFields( {
+					"with5PercentDiscount": {
+						"script": {
+							"lang": "painless",
+							"source": theScript
+						}
+					}
+				} );
+	
+				expect( searchBuilder.getDSL() ).toBeStruct();
+				expect( searchBuilder.getDSL() ).toHaveKey( "script_fields" );
+				expect( searchBuilder.getDSL()[ "script_fields" ] ).toHaveKey( "with5PercentDiscount" );
 			} );
 
 			it( "Tests the both the setSourceIncludes() and setSourceExcludes() methods", function(){
