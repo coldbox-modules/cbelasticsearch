@@ -203,6 +203,33 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 					variables.testDocumentId = saveResult.getId();
 				} );
+				it( "Tests document save with refresh=wait_for", function(){
+					expect( variables ).toHaveKey( "testIndexName" );
+
+					var testDocument = {
+						"_id"         : createUUID(),
+						"title"       : "My Test Document",
+						"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+					};
+
+					var document = getWirebox()
+						.getInstance( "Document@cbElasticsearch" )
+						.new(
+							variables.testIndexName,
+							"_doc",
+							testDocument
+						);
+
+					var saveResult = variables.model.save( document, "wait_for" );
+
+					expect( saveResult ).toBeComponent();
+					expect( saveResult.getId() ).toBe( testDocument[ "_id" ] );
+
+					var existingDocument = getWirebox()
+						.getInstance( "Document@cbElasticsearch" )
+						.get( saveResult.getId(), variables.testIndexName );
+					expect( existingDocument ).notToBeNull();
+				} );
 
 				describe( "parseParams method tests", function(){
 					it( "can accept an query string", function(){
@@ -937,6 +964,30 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				afterEach( function(){
 					// we give ourselves a few seconds before each next test for updates to persist
 					sleep( 500 );
+				} );
+
+				it( "Tests refreshIndex method ", function(){
+					expect( variables ).toHaveKey( "testIndexName" );
+
+					// test against existing index
+					var refreshResult = variables.model.refreshIndex( variables.testIndexName );
+
+					expect( refreshResult.keyExists( "_shards" ) ).toBeTrue();
+					expect( refreshResult.keyExists( "error" ) ).toBeFalse();
+
+					// test against nonexistent index
+					refreshResult = variables.model.refreshIndex( "doesnotexist" );
+
+					expect( refreshResult.keyExists( "error" ) ).toBeTrue();
+					expect( refreshResult.status ).toBe( "404" );
+
+					// test against nonexistent index, with ignore nonexistent
+					refreshResult = variables.model.refreshIndex( [ "doesnotexist", "alsonotexist" ], { "ignore_unavailable" : true } );
+
+					expect( refreshResult.keyExists( "error" ) ).toBeFalse();
+					expect( refreshResult ).toHaveKey( "_shards" );
+					expect( refreshResult._shards ).toHaveKey( "total" );
+					expect( refreshResult._shards.total ).toBe( 0 );
 				} );
 
 				it( "Tests getIndexStats method ", function(){

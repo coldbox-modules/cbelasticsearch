@@ -87,20 +87,18 @@ component accessors="true" {
 	/**
 	 * Persists the document to Elasticsearch
 	 *
-	 * @refresh  boolean if true, will return a newly populated instance of the document retreived from the index ( useful for pipelined saves )
+	 * @refresh  any if `true`, will return a newly populated instance of the document retreived from the index ( useful for pipelined saves ). if `"wait_for"`, will block until the next index refresh ingests the document update.
 	 **/
-	function save( boolean refresh = false ){
+	function save( any refresh = false ){
 		return getClient().save( this, arguments.refresh );
 	}
 
 	/**
 	 * Create-only method to save a document using the bulk API.  Will throw an error if the document already exists.
 	 *
-	 * @id 
-	 * @index 
-	 * @type 
+	 * @refresh
 	 */
-	function create( boolean refresh = false ){
+	function create( any refresh = false ){
 		var createOptions = {
 			"_index" : variables.index
 		};
