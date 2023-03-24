@@ -135,12 +135,34 @@ searchBuilder.addScriptField( "interestCost",{
 } );
 ```
 
-This will result in an `"interestCost"` field in the `scriptFields` struct on the `Document` object:
+This will result in an `"interestCost"` field in the `fields` property on the `Document` object:
 
 ```js
-var interest = searchBuilder.getHits().map( (document) => document.getScriptFields()["interestCost"] ); // 5.50
+var interest = searchBuilder.execute().getHits().map( (document) => document.getFields()["interestCost"] ); // 5.50
 ```
 
+In a similar fashion, runtime fields can also be fetched and will appear in the document's `fields` struct. This example retrieves the `"fuel_usage_in_mpg"` runtime field as well as the indexed `"make"` and `"model"` fields:
+
+```js
+var hits = searchBuilder.new( "itinerary" )
+             .setFields( [ "fuel_usage_in_mpg", "make", "model" ] )
+             .execute()
+             .getHits();
+for( hit in hits ){
+    var result = hit.getFields();
+    writeOutput( "This #result.make# #result.model# gets #fuel_mpg#/gallon" );
+}
+```
+
+To access document `fields` as well as the `_source` properties, use`hit.getDocument( includeFields = true)`:
+
+```js
+var result = searchBuilder.execute();
+for( hit in result.getHits() ){
+    var document = document.getDocuments( includeFields = true );
+    writeOutput( "This #document.make# #document.model# gets #fuel_mpg#/gallon" );
+}
+```
 
 ### Advanced Query DSL
 

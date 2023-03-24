@@ -34,7 +34,7 @@ component accessors="true" {
 	/**
 	 * The structural representation of the document object
 	 **/
-	property name="memento";
+	property name="_source";
 
 	/**
 	 * The pipeline used to process this document
@@ -47,9 +47,9 @@ component accessors="true" {
 	property name="params";
 
 	/**
-	 * Any evaluated script field results
+	 * Specifically selected or generated fields. Script fields, runtime fields, and selected fields will end up here.
 	 */
-	property name="scriptFields" type="struct";
+	property name="fields" type="struct";
 
 	function onDIComplete(){
 		reset();
@@ -64,8 +64,9 @@ component accessors="true" {
 			0
 		);
 		variables.highlights = {};
-		variables.memento    = {};
+		variables._source    = {};
 		variables.params     = {};
+		variables.fields     = {};
 
 		var nullDefaults = [ "id", "score" ];
 
@@ -214,11 +215,11 @@ component accessors="true" {
 		}
 
 		// we need to duplicate so that we can remove any passed `_id` key
-		variables.memento = duplicate( arguments.properties );
+		variables._source = duplicate( arguments.properties );
 
-		if ( structKeyExists( variables.memento, "_id" ) ) {
-			variables.id = variables.memento[ "_id" ];
-			structDelete( variables.memento, "_id" );
+		if ( structKeyExists( variables._source, "_id" ) ) {
+			variables.id = variables._source[ "_id" ];
+			structDelete( variables._source, "_id" );
 		}
 
 		return this;
@@ -229,19 +230,19 @@ component accessors="true" {
 	 * @properties 	struct 		the structural representation of the document
 	 **/
 	public Document function populate( required struct properties ){
-		if ( isNull( variables.memento ) ) {
-			variables.memento = {};
+		if ( isNull( variables._source ) ) {
+			variables._source = {};
 		}
 
 		structAppend(
-			variables.memento,
+			variables._source,
 			duplicate( arguments.properties ),
 			true
 		);
 
-		if ( structKeyExists( variables.memento, "_id" ) ) {
-			setId( variables.memento[ "_id" ] );
-			structDelete( variables.memento, "_id" );
+		if ( structKeyExists( variables._source, "_id" ) ) {
+			setId( variables._source[ "_id" ] );
+			structDelete( variables._source, "_id" );
 		}
 
 		return this;
@@ -254,7 +255,7 @@ component accessors="true" {
 	 * @value 	string 		the key value
 	 **/
 	public Document function setValue( required string name, required any value ){
-		variables.memento[ arguments.name ] = arguments.value;
+		variables._source[ arguments.name ] = arguments.value;
 		return this;
 	}
 
@@ -265,12 +266,12 @@ component accessors="true" {
 	 **/
 	public any function getValue( required string key, any default ){
 		// null return if the key does not exist
-		if ( !structKeyExists( variables.memento, arguments.key ) && isNull( arguments.default ) ) {
+		if ( !structKeyExists( variables._source, arguments.key ) && isNull( arguments.default ) ) {
 			return;
-		} else if ( !structKeyExists( variables.memento, arguments.key ) && !isNull( arguments.default ) ) {
+		} else if ( !structKeyExists( variables._source, arguments.key ) && !isNull( arguments.default ) ) {
 			return arguments.default;
 		} else {
-			return variables.memento[ arguments.key ];
+			return variables._source[ arguments.key ];
 		}
 	}
 
@@ -278,12 +279,16 @@ component accessors="true" {
 	/**
 	 * Convenience method for a flattened struct of the memento
 	 * @includeKey 	boolean 	Whether to include the document key in the returned packet
+	 * @includeFields	boolean		Include values from `"fields"` array, such as runtime or script fields
 	 **/
-	public struct function getDocument( boolean includeKey = false ){
-		var documentObject = duplicate( variables.memento );
+	public struct function getDocument( boolean includeKey = false, boolean includeFields = false ){
+		var documentObject = duplicate( variables._source );
 
 		if ( arguments.includeKey && !isNull( variables.id ) ) {
 			documentObject[ "_id" ] = variables.id;
+		}
+		if ( arguments.includeFields ){
+			structAppend(documentObject, getFields(), true );
 		}
 
 		return documentObject;
@@ -311,6 +316,13 @@ component accessors="true" {
 			false,
 			listFindNoCase( "Lucee", server.coldfusion.productname ) ? "utf-8" : false
 		);
+	}
+
+	/**
+	 * Get the document _source properties as a struct.
+	 */
+	public struct function getMemento(){
+		return variables._source;
 	}
 
 }

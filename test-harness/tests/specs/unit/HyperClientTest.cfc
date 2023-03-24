@@ -654,7 +654,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 							"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
 							"price"       : 9.99
 						} )
-						.save( refresh = true );sleep(1500);
+						.save( refresh = true );
 					var searchBuilder = getWirebox().getInstance( "SearchBuilder@cbElasticsearch" ).new(
 						variables.testIndexName,
 						"testdocs",
@@ -672,7 +672,50 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var hits = variables.model.executeSearch( searchBuilder ).getHits();
 					expect( hits.len() ).toBeGT( 0 );
 					for( hit in hits ){
-						expect( hit.getScriptFields() ).toHaveKey( "interestCost" );
+						expect( hit.getFields() ).toHaveKey( "interestCost" );
+						expect( hit.getDocument( includeFields = true ) ).toHaveKey( "interestCost" );
+						expect( hit.getDocument() ).notToHaveKey( "interestCost" );
+					}
+				} );
+
+				it( "Tests runtime fields", function(){
+					getWirebox().getInstance( "IndexBuilder@cbElasticsearch" )
+						.patch( name = variables.testIndexName, properties = {
+							"mappings" : {
+								"runtime" : {
+									"price_in_cents" : {
+										"type" : "long",
+										"script" : {
+											"source" : "if( doc['price'].size() != 0) { emit(Math.round(doc['price'].value * 100 )); }"
+										}
+									}
+								}
+							}
+						} );
+					getWirebox().getInstance( "Document@cbElasticsearch" ).new(
+						variables.testIndexName,
+						"testdocs",
+						{
+							"_id"         : createUUID(),
+							"title"       : "My Test Document",
+							"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
+							"price"       : 9.99
+						} )
+						.save( refresh = true );
+					var searchBuilder = getWirebox().getInstance( "SearchBuilder@cbElasticsearch" ).new(
+						variables.testIndexName,
+						"testdocs"
+					)
+					.filterTerm( "price_in_cents", "999" )
+					.setFields( [ "price_in_cents" ] );
+
+					var hits = variables.model.executeSearch( searchBuilder ).getHits();
+					expect( hits.len() ).toBeGT( 0 );
+					for( hit in hits ){
+						expect( hit.getFields() ).toHaveKey( "price_in_cents" );
+						expect( hit.getDocument( includeFields = true ) ).toHaveKey( "price_in_cents" );
+						expect( hit.getDocument() ).notToHaveKey( "price_in_cents" );
+						expect( hit.getMemento() ).notToHaveKey( "price_in_cents" );
 					}
 				} );
 			} );

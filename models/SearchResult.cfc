@@ -143,7 +143,8 @@ component accessors="true" {
 		variables.hits = [];
 
 		for ( var hit in arguments.hits ) {
-			var doc = newDocument().populate( hit[ "_source" ] );
+			var documentSource = hit.keyExists( "_source" ) ? hit[ "_source" ] : {};
+			var doc = newDocument().populate( documentSource );
 
 			doc.setIndex( hit[ "_index" ] );
 
@@ -162,7 +163,7 @@ component accessors="true" {
 			}
 
 			if ( structKeyExists( hit, "fields" ) ) {
-				doc.setScriptFields( hit[ "fields" ] );
+				doc.setFields( hit[ "fields" ] );
 			}
 
 			arrayAppend( variables.hits, doc );

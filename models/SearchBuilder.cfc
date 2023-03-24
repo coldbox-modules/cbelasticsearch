@@ -55,7 +55,14 @@ component accessors="true" {
 	 * 
 	 * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-fields.html#script-fields
 	 */
-    property name="scriptFields" type="struct";
+	property name="scriptFields" type="struct";
+
+	/**
+	 * Property containing "fields" array of fields to return for each hit
+	 * 
+	 * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-fields.html
+	 */
+	property name="fields" type="array";
 
 	/**
 	 * When performing matching searches, the type of match to specify
@@ -1112,6 +1119,10 @@ component accessors="true" {
 			dsl[ "script_fields" ] = variables.scriptFields;
 		}
 
+		if ( !isNull( variables.fields ) ) {
+			dsl[ "fields" ] = variables.fields;
+		}
+
 		if ( !isNull( variables.sorting ) ) {
 			// we used a linked hashmap for sorting to maintain order
 			dsl[ "sort" ] = createObject( "java", "java.util.LinkedHashMap" ).init();
@@ -1173,6 +1184,11 @@ component accessors="true" {
 	function setSourceExcludes( array excludes = [] ){
 		param variables.source    = { "includes" : [], "excludes" : [] };
 		variables.source.excludes = arguments.excludes;
+		return this;
+	}
+
+	public SearchBuilder function setFields( array fields = [] ){
+		variables.fields = arguments.fields;
 		return this;
 	}
 
