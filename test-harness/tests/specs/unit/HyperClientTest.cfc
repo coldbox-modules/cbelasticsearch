@@ -21,10 +21,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 	function run(){
 		describe( "Performs cbElasticsearch HyperClient tests", function(){
-			afterEach( function(){
-				// we give ourselves a few seconds before each next test for updates to persist
-				sleep( 500 );
-			} );
 
 			it( "Tests the ability to create an index", function(){
 				var builderProperties = {
@@ -53,10 +49,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			} );
 
 			describe( "Index mappings and settings and utility methods", function(){
-				afterEach( function(){
-					// we give ourselves a few seconds before each next test for updates to persist
-					sleep( 500 );
-				} );
 
 				it( "Tests the ability to update mappings in an index", function(){
 
@@ -173,10 +165,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			} );
 
 			describe( "Document tests", function(){
-				afterEach( function(){
-					// we give ourselves a few seconds before each next test for updates to persist
-					sleep( 500 );
-				} );
 
 
 				it( "Tests the ability to insert a document in to an index", function(){
@@ -545,11 +533,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "Search tests", function(){
 
-				afterEach( function(){
-					// we give ourselves a few seconds before each next test for updates to persist
-					sleep( 500 );
-				} );
-
 				it( "Tests the ability to process a search on an index", function(){
 					expect( variables ).toHaveKey( "testDocumentId" );
 
@@ -721,11 +704,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			} );
 
 			describe( "More fun with documents", function(){
-
-				afterEach( function(){
-					// we give ourselves a few seconds before each next test for updates to persist
-					sleep( 500 );
-				} );
 
 				it( "Tests the ability to patch a document with a single field value", function(){
 					expect( variables ).toHaveKey( "testDocumentId" );
@@ -1004,10 +982,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			} );
 
 			describe( "Post index creation tests", function(){
-				afterEach( function(){
-					// we give ourselves a few seconds before each next test for updates to persist
-					sleep( 500 );
-				} );
 
 				it( "Tests refreshIndex method ", function(){
 					expect( variables ).toHaveKey( "testIndexName" );
