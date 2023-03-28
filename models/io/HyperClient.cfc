@@ -481,6 +481,47 @@ component accessors="true" threadSafe singleton {
 	}
 
 	/**
+	 * Trigger an index refresh on the given index/indices.
+	 * 
+	 * @indexName 	string|array	Index name or alias. Can accept an array of index/alias names.
+	 * @params		struct			Struct of query parameters to influence the request. For example: `{ "ignore_unavailable" : true }`
+	 */
+	struct function refreshIndex( required any indexName, struct params = {} ){
+		if ( isArray( arguments.indexName ) ){ arguments.indexName = arrayToList( arguments.indexName ); }
+		var refreshRequest = variables.nodePool.newRequest( "/#arguments.indexName#/_refresh", "post" );
+
+		return refreshRequest
+				.withQueryParams( arguments.params )
+				.send()
+				.json();
+	}
+
+	/**
+	 * Get statistics for the given index/indices.
+	 * 
+	 * @indexName 	string|array	Index name or alias. Can accept an array of index/alias names.
+	 * @metrics 	array			Array of index metrics to retrieve. I.e. `[ "completion","refresh", "request_cache" ]`.
+	 * @params		struct			Struct of query parameters to influence the request. For example: `{ "expand_wildcards" : "none", "level" : "shards" }
+	 */
+	struct function getIndexStats( any indexName, array metrics = [], struct params = {} ){
+		if ( isArray( arguments.indexName ) ){ arguments.indexName = arrayToList( arguments.indexName ); }
+	
+		var endpoint = [
+			"_stats"
+		];
+		if ( !isNull( arguments.indexName ) && arguments.indexName != "" ){
+			endpoint.prepend( arguments.indexName );
+		}
+		endpoint.append( arrayToList( metrics ) );
+		var statsRequest = variables.nodePool.newRequest( arrayToList( endpoint, "/" ), "get" );
+	
+		return statsRequest
+			.withQueryParams( arguments.params )
+			.send()
+			.json();
+	}
+
+	/**
 	 * Returns a struct containing all indices in the system, with statistics
 	 *
 	 * @verbose 	boolean 	whether to return the full stats output for the index
@@ -814,14 +855,14 @@ component accessors="true" threadSafe singleton {
 
 	/**
 	 * @document 		Document@cbElasticSearch 		An instance of the elasticsearch Document object
-	 * @refresh          boolean                         Whether to return a refreshed document - useful when processing via pipelines
+	 * @refresh  		any 							if `true`, will return a newly populated instance of the document retreived from the index ( useful for pipelined saves ). if `"wait_for"`, will block until the next index refresh ingests the document update.
 	 *
 	 * @return 			Document						The saved cbElasticsearch Document object
 	 * @interfaced
 	 **/
 	cbElasticsearch.models.Document function save(
 		required cbElasticsearch.models.Document document,
-		boolean refresh = false
+		any refresh
 	){
 		if ( isNull( arguments.document.getId() ) ) {
 			var saveRequest = variables.nodePool.newRequest( "#arguments.document.getIndex()#/_doc", "POST" );
@@ -832,8 +873,8 @@ component accessors="true" threadSafe singleton {
 			);
 		}
 
-		if ( arguments.refresh ) {
-			saveRequest.setQueryParam( "refresh", true );
+		if ( arguments.keyExists( "refresh" ) ) {
+			saveRequest.setQueryParam( "refresh", arguments.refresh );
 		}
 
 		if ( !isNull( arguments.document.getPipeline() ) ) {
@@ -859,7 +900,7 @@ component accessors="true" threadSafe singleton {
 
 		arguments.document.setId( saveResult[ "_id" ] );
 
-		if ( arguments.refresh && !isNull( arguments.document.getPipeline() ) ) {
+		if ( arguments.keyExists( "refresh" ) && arguments.refresh == true && !isNull( arguments.document.getPipeline() ) ) {
 			arguments.document = this.get( saveResult[ "_id" ], arguments.document.getIndex() );
 		}
 

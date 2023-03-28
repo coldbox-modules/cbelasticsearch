@@ -164,6 +164,7 @@ component accessors="true" singleton {
 
 	/**
 	 * Generates a stachebox appender signature for occurence groupings
+	 * @logObj The log object to be parsed
 	 */
 	void function generateLogEntrySignature( required struct logObj ){
 		if ( !arguments.logObj.keyExists( "stachebox" ) ) {
@@ -174,6 +175,7 @@ component accessors="true" singleton {
 			var signable = [
 				".message",
 				".labels.application",
+				".log.level",
 				".error.type",
 				".error.level",
 				".error.message",
@@ -194,6 +196,32 @@ component accessors="true" singleton {
 				arguments.logObj.stachebox[ "signature" ] = hash( sigContent );
 			}
 		}
+	}
+
+	/**
+	 * Parses HTML error messages ( usually caused by someone passing in an exception as the first argument to throw() )
+	 * @entry  The entry struct
+	 * @key  The key to extract the message from
+	 */
+	function processHTMLFormattedMessages( required struct entry, string key="message" ){
+		// Lucee will sometimes transmit the error template as the exception message
+		var htmlMessageRegex = '<td class="label">Message<\/td>\s*<td>(.*?)<\/td>';
+		if( reFind( htmlMessageRegex, arguments.entry[ arguments.key ], 1, false ) ){
+			var matches = reMatch( htmlMessageRegex, arguments.entry[ arguments.key ] );
+			if( matches.len() >= 2 ){
+				arguments.entry[ arguments.key ] = matches[2];
+			}
+		}
+	}
+
+	/**
+	 * Trim whitespace (newlines and tabs) from a script for safe parsing as a Painless script
+	 *
+	 * @script Prettified Elasticsearch script which is unfit for Painless
+	 * @returns uglified Painless-safe (newlines and tabs removed) single-line script.
+	 */
+	public string function formatToPainless( required string script ){
+		return reReplace( arguments.script, "\n|\r|\t", "", "ALL" );
 	}
 
 }
