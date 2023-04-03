@@ -247,7 +247,7 @@ component accessors="true" {
 		required any name,
 		required any value,
 		numeric boost,
-		string operator = "must",
+		string operator         = "must",
 		boolean caseInsensitive = false
 	){
 		param variables.query.bool = {};
@@ -262,9 +262,9 @@ component accessors="true" {
 						return {
 							"wildcard" : {
 								"#key#" : {
-									"value" : reFind( "^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) 
-												? "*" & value & "*" 
-												: value,
+									"value" : reFind( "^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value )
+									 ? "*" & value & "*"
+									 : value,
 									"case_insensitive" : javacast( "boolean", caseInsensitive )
 								}
 							}
@@ -276,9 +276,9 @@ component accessors="true" {
 			var wildcard = {
 				"wildcard" : {
 					"#name#" : {
-						"value" : reFind( "^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) 
-									? "*" & value & "*" 
-									: value,
+						"value" : reFind( "^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value )
+						 ? "*" & value & "*"
+						 : value,
 						"case_insensitive" : javacast( "boolean", arguments.caseInsensitive )
 					}
 				}
@@ -417,9 +417,9 @@ component accessors="true" {
 			properties[ "lte" ] = arguments.end;
 		}
 
-		param variables.query.bool                  = {};
-		param variables.query.bool.filter           = {};
-		param variables.query.bool.filter.bool      = {};
+		param variables.query.bool             = {};
+		param variables.query.bool.filter      = {};
+		param variables.query.bool.filter.bool = {};
 
 		if ( !variables.query.bool.filter.bool.keyExists( arguments.operator ) ) {
 			variables.query.bool.filter.bool[ arguments.operator ] = [];

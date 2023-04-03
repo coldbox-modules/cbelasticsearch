@@ -95,30 +95,28 @@ component accessors="true" {
 	 * @refresh
 	 */
 	function create( any refresh = false ){
-		var createOptions = {
-			"_index" : variables.index
-		};
-		if( !isNull( variables.id ) && len( variables.id ) ){
+		var createOptions = { "_index" : variables.index };
+		if ( !isNull( variables.id ) && len( variables.id ) ) {
 			createOptions[ "_id" ] = variables.id;
 		}
 
 		variables.params[ "refresh" ] = "wait_for";
 
-		if( !isNull( variables.pipeline ) ){
+		if ( !isNull( variables.pipeline ) ) {
 			variables.params[ "pipeline" ] = variables.pipeline;
 		}
 
 		var response = getClient().processBulkOperation(
 			[
 				{
-                    "operation" : { "create" :  createOptions },
-                    "source" : getDocument()
-                }
+					"operation" : { "create" : createOptions },
+					"source"    : getDocument()
+				}
 			],
 			variables.params
-        );
+		);
 
-		if( response.errors ){
+		if ( response.errors ) {
 			var result = response.items[ 1 ][ "create" ];
 			throw(
 				type         = "cbElasticsearch.invalidRequest",
@@ -128,14 +126,13 @@ component accessors="true" {
 			);
 		}
 
-		if( arguments.refresh ){
-			var idx = response.items[ 1 ][ "create" ][ "_index" ];
+		if ( arguments.refresh ) {
+			var idx   = response.items[ 1 ][ "create" ][ "_index" ];
 			var docId = response.items[ 1 ][ "create" ][ "_id" ];
 			return getClient().get( id = docId, index = idx );
 		} else {
 			return this;
 		}
-		
 	}
 
 	/**

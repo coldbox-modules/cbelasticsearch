@@ -610,7 +610,7 @@ component
 			arrayAppend( documents, document );
 		}
 
-		var transactionResult = getClient().saveAll( documents, true, { "refresh"  : "wait_for" } );
+		var transactionResult = getClient().saveAll( documents, true, { "refresh" : "wait_for" } );
 
 		var te = getTickCount();
 
@@ -667,7 +667,7 @@ component
 		document.setId( objectKey );
 
 		try {
-			var future = document.save( refresh=true );
+			var future = document.save( refresh = true );
 		} catch ( any e ) {
 			if ( isTimeoutException( e ) && getConfiguration().ignoreElasticsearchTimeouts ) {
 				// log it
