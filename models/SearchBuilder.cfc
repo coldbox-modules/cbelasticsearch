@@ -409,6 +409,13 @@ component accessors="true" {
 			);
 		}
 
+		if ( arguments.operator != "must" && arguments.operator != "should" ) {
+			throw(
+				type    = "cbElasticsearch.SearchBuilder.InvalidParamTypeException",
+				message = "The operator should be either `must` or `should`."
+			);
+		}
+
 		var properties = {};
 		if ( !isNull( arguments.start ) ) {
 			properties[ "gte" ] = arguments.start;

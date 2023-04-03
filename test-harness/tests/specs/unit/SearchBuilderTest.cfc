@@ -275,13 +275,17 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
 				var dateStart     = dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssXXX" );
 				var dateEnd       = dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssXXX" );
-				searchBuilder.filterRange( "createdTime", dateStart, dateEnd, 2 );
+				searchBuilder.filterRange( "createdTime", dateStart, dateEnd );
 
 				expect( searchBuilder.getQuery() ).toBeStruct().toHaveKey( "bool" );
 				expect( searchBuilder.getQuery().bool ).toHaveKey( "filter" );
-				expect( searchBuilder.getQuery().bool.filter ).toBeStruct().toHaveKey( "range" );
-				expect( searchBuilder.getQuery().bool.filter.range ).toBeStruct().toHaveKey( "createdTime" );
-				expect( searchBuilder.getQuery().bool.filter.range.createdTime )
+				expect( searchBuilder.getQuery().bool.filter ).toHaveKey( "bool" );
+				expect( searchBuilder.getQuery().bool.filter.bool ).toHaveKey( "must" );
+				expect( searchBuilder.getQuery().bool.filter.bool.must ).toBeArray();
+				expect( searchBuilder.getQuery().bool.filter.bool.must ).toHaveLength( 1 );
+				expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ] ).toBeStruct().toHaveKey( "range" );
+				expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ].range ).toBeStruct().toHaveKey( "createdTime" );
+				expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ].range.createdTime )
 					.toBeStruct()
 					.toHaveKey( "gte" )
 					.toHaveKey( "lte" );
