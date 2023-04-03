@@ -393,11 +393,20 @@ component accessors="true" {
 	 * `range` filter for date ranges
 	 * @name 		string 		the key to match
 	 * @start 		string 		the preformatted date string to start the range
-	 * @end 			string 		the preformatted date string to end the range
+	 * @end 		string 		the preformatted date string to end the range
+	 * @operator    string      opeartor for the filter operation: `must` or `should`
 	 **/
-	SearchBuilder function filterRange( required string name, string start, string end ){
+	SearchBuilder function filterRange(
+		required string name,
+		string start,
+		string end,
+		operator = "must"
+	){
 		if ( isNull( arguments.start ) && isNull( arguments.end ) ) {
-			throw( type = "", message = "" );
+			throw(
+				type    = "cbElasticsearch.SearchBuilder.InvalidParamTypeException",
+				message = "A start or end is required to use filterRange"
+			);
 		}
 
 		var properties = {};
@@ -407,9 +416,16 @@ component accessors="true" {
 		if ( !isNull( arguments.end ) ) {
 			properties[ "lte" ] = arguments.end;
 		}
-		param variables.query.bool              = {};
-		param variables.query.bool.filter       = {};
-		param variables.query.bool.filter.range = { "#arguments.name#" : properties };
+
+		param variables.query.bool                  = {};
+		param variables.query.bool.filter           = {};
+		param variables.query.bool.filter.bool      = {};
+
+		if ( !variables.query.bool.filter.bool.keyExists( arguments.operator ) ) {
+			variables.query.bool.filter.bool[ arguments.operator ] = [];
+		}
+
+		variables.query.bool.filter.bool[ arguments.operator ].append( { "range" : { "#arguments.name#" : properties } } );
 
 		return this;
 	}
@@ -560,7 +576,10 @@ component accessors="true" {
 		numeric boost
 	){
 		if ( isNull( arguments.start ) && isNull( arguments.end ) ) {
-			throw( type = "", message = "" );
+			throw(
+				type    = "cbElasticsearch.SearchBuilder.InvalidParamTypeException",
+				message = "A start or end is required to use dateMatch"
+			);
 		}
 
 		var properties = {};
