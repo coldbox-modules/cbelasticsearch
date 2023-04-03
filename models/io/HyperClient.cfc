@@ -59,7 +59,7 @@ component accessors="true" threadSafe singleton {
 	/**
 	 * Pipeline provider
 	 **/
-	 cbElasticsearch.models.Document function newPipeline() provider="Pipeline@cbElasticsearch"{
+	cbElasticsearch.models.Document function newPipeline() provider="Pipeline@cbElasticsearch"{
 	}
 
 	/**
@@ -146,7 +146,7 @@ component accessors="true" threadSafe singleton {
 				}
 			}
 
-			if( isMajorVersion( 6 ) ){
+			if ( isMajorVersion( 6 ) ) {
 				throw(
 					type    = "cbElasticsearch.UnsupportedVersionException",
 					message = "Support for Elasticsearch Version 6 was removed in cbElasticsearch v3.  Please use version 2 of this module for support for Elasticsearch versions < 7"
@@ -240,9 +240,9 @@ component accessors="true" threadSafe singleton {
 	 * @interfaced
 	 **/
 	boolean function indexMappingExists( required string indexName ){
-		try{
+		try {
 			var mappings = getMappings( arguments.indexName );
-		} catch( any e ){
+		} catch ( any e ) {
 			return false;
 		}
 
@@ -255,7 +255,9 @@ component accessors="true" threadSafe singleton {
 	 * @indexName string the name of the index ( optional ) if null returns all settings for the server
 	 */
 	struct function getSettings( string indexName ){
-		var response = variables.nodePool.newRequest( !isNull( arguments.indexName ) ? arguments.indexName & "/_settings" : "_settings" , "GET" ).send();
+		var response = variables.nodePool
+			.newRequest( !isNull( arguments.indexName ) ? arguments.indexName & "/_settings" : "_settings", "GET" )
+			.send();
 
 		if ( response.getStatusCode() != 200 ) {
 			onResponseFailure( response );
@@ -354,11 +356,11 @@ component accessors="true" threadSafe singleton {
 					indexResult[ "mappings" ] = applyMappings( indexName, indexDSL.mappings );
 				}
 			}
-			if( structKeyExists( indexDSL, "settings" ) && !structIsEmpty( indexDSL.settings ) ){
+			if ( structKeyExists( indexDSL, "settings" ) && !structIsEmpty( indexDSL.settings ) ) {
 				var requestBuilder = variables.nodePool
-										.newRequest( indexName & "/_settings", "PUT" )
-										.setBody( getUtil().toJSON( indexDSL.settings ) )
-										.asJSON();
+					.newRequest( indexName & "/_settings", "PUT" )
+					.setBody( getUtil().toJSON( indexDSL.settings ) )
+					.asJSON();
 
 
 				var response = requestBuilder.send();
@@ -482,39 +484,45 @@ component accessors="true" threadSafe singleton {
 
 	/**
 	 * Trigger an index refresh on the given index/indices.
-	 * 
+	 *
 	 * @indexName 	string|array	Index name or alias. Can accept an array of index/alias names.
 	 * @params		struct			Struct of query parameters to influence the request. For example: `{ "ignore_unavailable" : true }`
 	 */
 	struct function refreshIndex( required any indexName, struct params = {} ){
-		if ( isArray( arguments.indexName ) ){ arguments.indexName = arrayToList( arguments.indexName ); }
+		if ( isArray( arguments.indexName ) ) {
+			arguments.indexName = arrayToList( arguments.indexName );
+		}
 		var refreshRequest = variables.nodePool.newRequest( "/#arguments.indexName#/_refresh", "post" );
 
 		return refreshRequest
-				.withQueryParams( arguments.params )
-				.send()
-				.json();
+			.withQueryParams( arguments.params )
+			.send()
+			.json();
 	}
 
 	/**
 	 * Get statistics for the given index/indices.
-	 * 
+	 *
 	 * @indexName 	string|array	Index name or alias. Can accept an array of index/alias names.
 	 * @metrics 	array			Array of index metrics to retrieve. I.e. `[ "completion","refresh", "request_cache" ]`.
 	 * @params		struct			Struct of query parameters to influence the request. For example: `{ "expand_wildcards" : "none", "level" : "shards" }
 	 */
-	struct function getIndexStats( any indexName, array metrics = [], struct params = {} ){
-		if ( isArray( arguments.indexName ) ){ arguments.indexName = arrayToList( arguments.indexName ); }
-	
-		var endpoint = [
-			"_stats"
-		];
-		if ( !isNull( arguments.indexName ) && arguments.indexName != "" ){
+	struct function getIndexStats(
+		any indexName,
+		array metrics = [],
+		struct params = {}
+	){
+		if ( isArray( arguments.indexName ) ) {
+			arguments.indexName = arrayToList( arguments.indexName );
+		}
+
+		var endpoint = [ "_stats" ];
+		if ( !isNull( arguments.indexName ) && arguments.indexName != "" ) {
 			endpoint.prepend( arguments.indexName );
 		}
 		endpoint.append( arrayToList( metrics ) );
 		var statsRequest = variables.nodePool.newRequest( arrayToList( endpoint, "/" ), "get" );
-	
+
 		return statsRequest
 			.withQueryParams( arguments.params )
 			.send()
@@ -570,8 +578,8 @@ component accessors="true" threadSafe singleton {
 			.keyArray()
 			.each( function( indexName ){
 				if (
-					structKeyExists( aliasesResult[ indexName ], "aliases" ) 
-					&& 
+					structKeyExists( aliasesResult[ indexName ], "aliases" )
+					&&
 					!structIsEmpty( aliasesResult[ indexName ].aliases )
 				) {
 					// we need to scope this for the ACF compiler
@@ -579,11 +587,11 @@ component accessors="true" threadSafe singleton {
 					indexObj.aliases
 						.keyArray()
 						.each( function( alias ){
-							if( !aliasesMap.aliases.keyExists( alias ) ){
+							if ( !aliasesMap.aliases.keyExists( alias ) ) {
 								aliasesMap.aliases[ alias ] = [];
 							}
 							aliasesMap.aliases[ alias ].append( {
-								"index" : indexName,
+								"index"      : indexName,
 								"attributes" : indexObj.aliases[ alias ]
 							} );
 						} );
@@ -674,7 +682,7 @@ component accessors="true" threadSafe singleton {
 	struct function applyMappings( required string indexName, required struct mappings ){
 		var mappingResults = {};
 
-		if( arguments.mappings.keyExists( "properties" ) ){
+		if ( arguments.mappings.keyExists( "properties" ) ) {
 			arguments.mappings = arguments.mappings.properties;
 		}
 
@@ -860,10 +868,7 @@ component accessors="true" threadSafe singleton {
 	 * @return 			Document						The saved cbElasticsearch Document object
 	 * @interfaced
 	 **/
-	cbElasticsearch.models.Document function save(
-		required cbElasticsearch.models.Document document,
-		any refresh
-	){
+	cbElasticsearch.models.Document function save( required cbElasticsearch.models.Document document, any refresh ){
 		if ( isNull( arguments.document.getId() ) ) {
 			var saveRequest = variables.nodePool.newRequest( "#arguments.document.getIndex()#/_doc", "POST" );
 		} else {
@@ -900,7 +905,11 @@ component accessors="true" threadSafe singleton {
 
 		arguments.document.setId( saveResult[ "_id" ] );
 
-		if ( arguments.keyExists( "refresh" ) && arguments.refresh == true && !isNull( arguments.document.getPipeline() ) ) {
+		if (
+			arguments.keyExists( "refresh" ) && arguments.refresh == true && !isNull(
+				arguments.document.getPipeline()
+			)
+		) {
 			arguments.document = this.get( saveResult[ "_id" ], arguments.document.getIndex() );
 		}
 
@@ -1345,58 +1354,46 @@ component accessors="true" threadSafe singleton {
 	/**
 	 * Determines whether a snapshot repository exists
 	 *
-	 * @name 
+	 * @name
 	 */
 	function snapshotRepositoryExists( required string name ){
 		return variables.nodePool
-						.newRequest( "_snapshot/#arguments.name#" )
-						.send()
-						.getStatusCode() == "200";
+			.newRequest( "_snapshot/#arguments.name#" )
+			.send()
+			.getStatusCode() == "200";
 	}
 
 	/**
 	 * Creates or Updates a Snapshot Repository
 	 */
-	function applySnapshotRepository(
-		required name,
-		required definition
-	){
-		if( isSimpleValue( arguments.definition ) ){
+	function applySnapshotRepository( required name, required definition ){
+		if ( isSimpleValue( arguments.definition ) ) {
 			arguments.definition = {
-				"type" : "fs",
-				"settings" : {
-					"location" : arguments.definition
-				}
+				"type"     : "fs",
+				"settings" : { "location" : arguments.definition }
 			};
 		}
 
-		var response =  variables.nodePool
-							.newRequest( "_snapshot/#arguments.name#", "PUT" )
-							.setBody( 
-								getUtil().toJSON( arguments.definition )
-							)
-							.asJSON()
-							.send();
-		
-		return response.getStatusCode() == 200
-				? response.json()
-				: onResponseFailure( response );
+		var response = variables.nodePool
+			.newRequest( "_snapshot/#arguments.name#", "PUT" )
+			.setBody( getUtil().toJSON( arguments.definition ) )
+			.asJSON()
+			.send();
 
+		return response.getStatusCode() == 200
+		 ? response.json()
+		 : onResponseFailure( response );
 	}
 
 	/**
 	 * Deletes a Snapshot Repository
 	 */
-	function deleteSnapshotRepository(
-		required name
-	){
-		var response = variables.nodePool
-						.newRequest( "_snapshot/#arguments.name#", "DELETE" )
-						.send();
+	function deleteSnapshotRepository( required name ){
+		var response = variables.nodePool.newRequest( "_snapshot/#arguments.name#", "DELETE" ).send();
 
 		return response.getStatusCode() == 200
-				? response.json()
-				: onResponseFailure( response );
+		 ? response.json()
+		 : onResponseFailure( response );
 	}
 
 	/**
@@ -1406,13 +1403,13 @@ component accessors="true" threadSafe singleton {
 	/**
 	 * Determines whether an index template exists
 	 *
-	 * @name 
+	 * @name
 	 */
 	boolean function indexTemplateExists( required string name ){
 		return variables.nodePool
-						.newRequest( "_index_template/#arguments.name#" )
-						.send()
-						.getStatusCode() == "200";
+			.newRequest( "_index_template/#arguments.name#" )
+			.send()
+			.getStatusCode() == "200";
 	}
 
 	/**
@@ -1421,20 +1418,16 @@ component accessors="true" threadSafe singleton {
 	 * @name string
 	 * @definition struct
 	 */
-	any function applyIndexTemplate( required string name, required struct definition  ){
+	any function applyIndexTemplate( required string name, required struct definition ){
+		var response = variables.nodePool
+			.newRequest( "_index_template/#arguments.name#", "PUT" )
+			.setBody( getUtil().toJSON( arguments.definition ) )
+			.asJSON()
+			.send();
 
-		var response =  variables.nodePool
-							.newRequest( "_index_template/#arguments.name#", "PUT" )
-							.setBody( 
-								getUtil().toJSON( arguments.definition )
-							)
-							.asJSON()
-							.send();
-		
 		return response.getStatusCode() == 200
-				? response.json()
-				: onResponseFailure( response );
-
+		 ? response.json()
+		 : onResponseFailure( response );
 	}
 
 	/**
@@ -1442,13 +1435,11 @@ component accessors="true" threadSafe singleton {
 	 * @name string
 	 */
 	any function deleteIndexTemplate( required string name ){
-		var response = variables.nodePool
-						.newRequest( "_index_template/#arguments.name#", "DELETE" )
-						.send();
+		var response = variables.nodePool.newRequest( "_index_template/#arguments.name#", "DELETE" ).send();
 
 		return response.getStatusCode() == 200
-				? response.json()
-				: onResponseFailure( response );
+		 ? response.json()
+		 : onResponseFailure( response );
 	}
 
 	/**
@@ -1458,13 +1449,13 @@ component accessors="true" threadSafe singleton {
 	/**
 	 * Determines whether an component template exists
 	 *
-	 * @name 
+	 * @name
 	 */
 	boolean function componentTemplateExists( required string name ){
 		return variables.nodePool
-						.newRequest( "_component_template/#arguments.name#" )
-						.send()
-						.getStatusCode() == "200";
+			.newRequest( "_component_template/#arguments.name#" )
+			.send()
+			.getStatusCode() == "200";
 	}
 
 	/**
@@ -1473,22 +1464,22 @@ component accessors="true" threadSafe singleton {
 	 * @name string
 	 * @definition struct
 	 */
-	any function applyComponentTemplate( required string name, required struct definition  ){
-		var response =  variables.nodePool
-							.newRequest( "_component_template/#arguments.name#", "PUT" )
-							.setBody( 
-								getUtil().toJSON( 
-									!definition.keyExists( "template" ) 
-										? { "template" : arguments.definition } 
-										: arguments.definition 
-								)
-							)
-							.asJSON()
-							.send();
+	any function applyComponentTemplate( required string name, required struct definition ){
+		var response = variables.nodePool
+			.newRequest( "_component_template/#arguments.name#", "PUT" )
+			.setBody(
+				getUtil().toJSON(
+					!definition.keyExists( "template" )
+					 ? { "template" : arguments.definition }
+					 : arguments.definition
+				)
+			)
+			.asJSON()
+			.send();
 
 		return response.getStatusCode() == 200
-				? response.json()
-				: onResponseFailure( response );
+		 ? response.json()
+		 : onResponseFailure( response );
 	}
 
 	/**
@@ -1496,13 +1487,11 @@ component accessors="true" threadSafe singleton {
 	 * @name string
 	 */
 	any function deleteComponentTemplate( required string name ){
-		var response = variables.nodePool
-						.newRequest( "_component_template/#arguments.name#", "DELETE" )
-						.send();
+		var response = variables.nodePool.newRequest( "_component_template/#arguments.name#", "DELETE" ).send();
 
 		return response.getStatusCode() == 200
-				? response.json()
-				: onResponseFailure( response );
+		 ? response.json()
+		 : onResponseFailure( response );
 	}
 
 	/**
@@ -1512,28 +1501,26 @@ component accessors="true" threadSafe singleton {
 	/**
 	 * Checks whether a named ILM policy exists
 	 *
-	 * @name 
+	 * @name
 	 */
 	boolean function ILMPolicyExists( required string name ){
 		return variables.nodePool
-				.newRequest( "_ilm/policy/#arguments.name#" )
-				.send()
-				.getStatusCode() == 200;
+			.newRequest( "_ilm/policy/#arguments.name#" )
+			.send()
+			.getStatusCode() == 200;
 	}
 
 	/**
 	 * Get an ILM policy by name
 	 *
 	 * @name string
-	 */ 
+	 */
 	any function getILMPolicy( required string name ){
-		var response = variables.nodePool
-				.newRequest( "_ilm/policy/#arguments.name#" )
-				.send();
+		var response = variables.nodePool.newRequest( "_ilm/policy/#arguments.name#" ).send();
 
 		return response.getStatusCode() == 200
-				? response.json()
-				: onResponseFailure( response );
+		 ? response.json()
+		 : onResponseFailure( response );
 	}
 
 	/**
@@ -1542,73 +1529,59 @@ component accessors="true" threadSafe singleton {
 	 * @name string
 	 * @policy object Either a struct defining the policy or a policy object
 	 */
-	any function applyILMPolicy( 
-		required string name,
-		required any policy
-	){
+	any function applyILMPolicy( required string name, required any policy ){
 		var response = variables.nodePool
-				.newRequest( "_ilm/policy/#arguments.name#", "PUT" )
-				.setBody( getUtil().toJSON( { "policy" : arguments.policy } ) )
-				.asJSON()
-				.send();
-		
-		return response.getStatusCode() == 200
-				? response.json()
-				: onResponseFailure( response );
+			.newRequest( "_ilm/policy/#arguments.name#", "PUT" )
+			.setBody( getUtil().toJSON( { "policy" : arguments.policy } ) )
+			.asJSON()
+			.send();
 
+		return response.getStatusCode() == 200
+		 ? response.json()
+		 : onResponseFailure( response );
 	}
 
 	/**
 	 * Deletes an ILM policy
 	 *
-	 * @name 
+	 * @name
 	 */
-	any function deleteILMPolicy(
-		required string name
-	){
-		var response = variables.nodePool
-				.newRequest( "_ilm/policy/#arguments.name#", "DELETE" )
-				.send();
-		
+	any function deleteILMPolicy( required string name ){
+		var response = variables.nodePool.newRequest( "_ilm/policy/#arguments.name#", "DELETE" ).send();
+
 		return response.getStatusCode() == 200
-				? response.json()
-				: onResponseFailure( response );
+		 ? response.json()
+		 : onResponseFailure( response );
 	}
 
-	
+
 	/**
-	* Data Streams Support
-	*/
+	 * Data Streams Support
+	 */
 
 	/**
 	 * Checks to see whether a data stream exists
 	 *
-	 * @name 
+	 * @name
 	 */
-	boolean function dataStreamExists(
-		required string name
-	){
+	boolean function dataStreamExists( required string name ){
 		return variables.nodePool
-						.newRequest( "_data_stream/#arguments.name#" )
-						.send()
-						.getStatusCode() == "200";
+			.newRequest( "_data_stream/#arguments.name#" )
+			.send()
+			.getStatusCode() == "200";
 	}
 
 	/**
 	 * Ensures the existence of a data stream
 	 *
-	 * @name 
+	 * @name
 	 */
-	any function ensureDataStream(
-		required string name
-	){
-		var response = variables.nodePool
-						.newRequest( "_data_stream/#arguments.name#", "PUT" )
-						.send();
+	any function ensureDataStream( required string name ){
+		var response = variables.nodePool.newRequest( "_data_stream/#arguments.name#", "PUT" ).send();
 
 		return response.getStatusCode() == 200
-				? response.json()
-				: onResponseFailure( response );
+		 ? response.json()
+		 : onResponseFailure( response );
 	}
 
 	/**
@@ -1616,33 +1589,27 @@ component accessors="true" threadSafe singleton {
 	 *
 	 * @indexName
 	 */
-	any function migrateToDataStream(
-		required string indexName
-	){
+	any function migrateToDataStream( required string indexName ){
 		var response = variables.nodePool
-						.newRequest( "_data_stream/_migrate/#arguments.indexName#", "POST" )
-						.send();
+			.newRequest( "_data_stream/_migrate/#arguments.indexName#", "POST" )
+			.send();
 
 		return response.getStatusCode() == 200
-				? response.json()
-				: onResponseFailure( response );
+		 ? response.json()
+		 : onResponseFailure( response );
 	}
 
 	/**
 	 * Gets a datastream definition
 	 *
-	 * @name 
+	 * @name
 	 */
-	any function getDataStream(
-		required string name
-	){
-		var response = variables.nodePool
-				.newRequest( "_data_stream/#arguments.name#" )
-				.send();
+	any function getDataStream( required string name ){
+		var response = variables.nodePool.newRequest( "_data_stream/#arguments.name#" ).send();
 
 		return response.getStatusCode() == 200
-				? response.json()
-				: onResponseFailure( response );
+		 ? response.json()
+		 : onResponseFailure( response );
 	}
 
 	/**
@@ -1651,22 +1618,18 @@ component accessors="true" threadSafe singleton {
 	 * @name string  the name of the stream
 	 * @template string the name of the index template to use for this data stream
 	 */
-	any function deleteDataStream(
-		required string name
-	){
-		var response = variables.nodePool
-				.newRequest( "_data_stream/#arguments.name#", "DELETE" )
-				.send();
-		
+	any function deleteDataStream( required string name ){
+		var response = variables.nodePool.newRequest( "_data_stream/#arguments.name#", "DELETE" ).send();
+
 		return response.getStatusCode() == 200
-				? response.json()
-				: onResponseFailure( response );
+		 ? response.json()
+		 : onResponseFailure( response );
 	}
 
 	/**
 	 * Handles response errors from Elasticsearch
 	 *
-	 * @response 
+	 * @response
 	 */
 	function onResponseFailure( required Hyper.models.HyperResponse response ){
 		return getUtil().handleResponseError( response = arguments.response );
