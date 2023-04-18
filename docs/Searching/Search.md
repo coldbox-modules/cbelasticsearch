@@ -246,20 +246,24 @@ To retrieve this data, you can use the client's `getTermsEnum()` method:
 
 ```js
 var terms = getInstance( "HyperClient@cbElasticsearch" )
-            .getTermsEnum( "hotels", {
-                "field" : "city",
-                "string" : "alb"
-            } );
+            .getTermsEnum(
+                indexName  = "hotels",
+                field = "city",
+                match = "alb",
+                size = 50,
+                caseInsensitive = true
+            );
 ```
 
-You can ask for a larger rowset via `"size" : x` or even retrieve terms from multiple indices at once:
+For advanced lookups, you can use the second argument to pass a struct of custom options:
 
 ```js
 var terms = getInstance( "HyperClient@cbElasticsearch" )
             .getTermsEnum( ["cities","towns"], {
                 "field" : "name",
                 "string" : "west",
-                "size" : 50
+                "size" : 50,
+                "timeout" : "10s"
             } );
 ```
 
