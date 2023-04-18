@@ -1619,6 +1619,19 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 
 			} );
+
+			describe( "General requests", function() {
+				it( "can query terms enum", function() {
+					var result = getInstance( "HyperClient@cbElasticsearch" )
+						.getTermsEnum( [ variables.testIndexName ], {
+							"field" : "title",
+							"size" : 50
+						} );
+						expect( result ).toBeStruct()
+										.toHaveKey( "terms" )
+										.toHaveKey( "_shards" );
+				});
+			});
 		} );
 	}
 
