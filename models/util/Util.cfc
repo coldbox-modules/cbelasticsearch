@@ -194,24 +194,21 @@ component accessors="true" singleton {
 	}
 
 	/**
-	 * Parses HTML error messages ( usually caused by someone passing in an exception as the first argument to throw() )
+	 * Parses Lucee HTML error messages ( usually emitted through the App.cfc onError method )
 	 * @entry  The entry struct
 	 * @key  The key to extract the message from
 	 */
-	function processHTMLFormattedMessages( required struct entry, string key = "message" ){
+	function processHTMLFormattedMessages( required struct entry, string key="message" ){
 		// Lucee will sometimes transmit the error template as the exception message
-		var htmlMessageRegex = "<td class=""label"">Message<\/td>\s*<td>(.*?)<\/td>";
-		if (
-			reFind(
-				htmlMessageRegex,
-				arguments.entry[ arguments.key ],
-				1,
-				false
-			)
-		) {
-			var matches = reMatch( htmlMessageRegex, arguments.entry[ arguments.key ] );
-			if ( matches.len() >= 2 ) {
-				arguments.entry[ arguments.key ] = matches[ 2 ];
+		var htmlMessageRegex = '<td class="label">Message<\/td>\s*<td>(.*?)<\/td>';
+		if( reFindNoCase( htmlMessageRegex, arguments.entry[ arguments.key ], 1, false ) ){
+			var match = refindNoCase( htmlMessageRegex, arguments.entry[ arguments.key ], 1, true ).match;
+			if( match.len() >= 2 ){
+				if( arguments.entry.keyExists( "error" ) ){
+					arguments.entry.error[ "extrainfo" ] = arguments.entry[ arguments.key ];
+				}
+				arguments.entry[ arguments.key ] = match[2];
+
 			}
 		}
 	}
