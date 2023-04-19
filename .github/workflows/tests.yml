@@ -24,11 +24,16 @@ jobs:
       ELASTICSEARCH_PROTOCOL: http
       ELASTICSEARCH_HOST: 127.0.0.1
       ELASTICSEARCH_PORT: 9200
+    continue-on-error: ${{ matrix.experimental }}
     strategy:
-      fail-fast: false
       matrix:
         cfengine: [ "lucee@5", "adobe@2018", "adobe@2021" ]
-        ELASTICSEARCH_VERSION: [ "7.17.8", "8.5.3" ]
+        ELASTICSEARCH_VERSION: [ "7.17.8", "8.7.0" ]
+        experimental: [ false ]
+        include:
+          - cfengine: "adobe@2023"
+            ELASTICSEARCH_VERSION: "8.7.0"
+            experimental: true
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3.2.0

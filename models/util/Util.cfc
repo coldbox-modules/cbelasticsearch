@@ -130,26 +130,19 @@ component accessors="true" singleton {
 	}
 
 	void function preflightLogEntry( required struct logObj ){
-
-		if( !arguments.logObj.keyExists( "@timestamp" ) ){
+		if ( !arguments.logObj.keyExists( "@timestamp" ) ) {
 			arguments.logObj[ "@timestamp" ] = dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
 		}
 
 		// ensure consistent casing for search
-		if( logObj.keyExists( "labels" ) ){
-			logObj[ "labels" ][ "environment" ] = lcase( logObj.labels.environment ?: variables.appEnvironment );
+		if ( logObj.keyExists( "labels" ) ) {
+			logObj[ "labels" ][ "environment" ] = lCase( logObj.labels.environment ?: variables.appEnvironment );
 		} else {
-			logObj[ "labels" ] = {
-				"environment" : variables.appEnvironment
-			}
+			logObj[ "labels" ] = { "environment" : variables.appEnvironment }
 		}
 
-		if( LogObj.keyExists( "error" ) ){
-			var errorStringify = [
-				"frames",
-				"extrainfo",
-				"stack_trace"
-			];
+		if ( LogObj.keyExists( "error" ) ) {
+			var errorStringify = [ "frames", "extrainfo", "stack_trace" ];
 
 			errorStringify.each( function( key ){
 				if ( logObj.error.keyExists( key ) && !isSimpleValue( logObj.error[ key ] ) ) {
@@ -159,11 +152,11 @@ component accessors="true" singleton {
 		}
 
 		generateLogEntrySignature( logObj );
-
 	}
 
 	/**
 	 * Generates a stachebox appender signature for occurence groupings
+	 * @logObj The log object to be parsed
 	 */
 	void function generateLogEntrySignature( required struct logObj ){
 		if ( !arguments.logObj.keyExists( "stachebox" ) ) {
@@ -174,6 +167,7 @@ component accessors="true" singleton {
 			var signable = [
 				".message",
 				".labels.application",
+				".log.level",
 				".error.type",
 				".error.level",
 				".error.message",
@@ -182,16 +176,50 @@ component accessors="true" singleton {
 			];
 			var sigContent = "";
 			signable.each( function( key ){
-				logObj.findKey( listLast( key, "." ), "all" )
-							.filter( function( found ){ return found.path == key } )
-							.each( function( found ){
-								if( !isNull( found.value ) && len( found.value ) ){
-									sigContent &= found.value;
-								}
-							} );
+				logObj
+					.findKey( listLast( key, "." ), "all" )
+					.filter( function( found ){
+						return found.path == key
+					} )
+					.each( function( found ){
+						if ( !isNull( found.value ) && len( found.value ) ) {
+							sigContent &= found.value;
+						}
+					} );
 			} );
 			if ( len( sigContent ) ) {
 				arguments.logObj.stachebox[ "signature" ] = hash( sigContent );
+			}
+		}
+	}
+
+	/**
+	 * Parses Lucee HTML error messages ( usually emitted through the App.cfc onError method )
+	 * @entry  The entry struct
+	 * @key  The key to extract the message from
+	 */
+	function processHTMLFormattedMessages( required struct entry, string key = "message" ){
+		// Lucee will sometimes transmit the error template as the exception message
+		var htmlMessageRegex = "<td class=""label"">Message<\/td>\s*<td>(.*?)<\/td>";
+		if (
+			reFindNoCase(
+				htmlMessageRegex,
+				arguments.entry[ arguments.key ],
+				1,
+				false
+			)
+		) {
+			var match = reFindNoCase(
+				htmlMessageRegex,
+				arguments.entry[ arguments.key ],
+				1,
+				true
+			).match;
+			if ( match.len() >= 2 ) {
+				if ( arguments.entry.keyExists( "error" ) ) {
+					arguments.entry.error[ "extrainfo" ] = arguments.entry[ arguments.key ];
+				}
+				arguments.entry[ arguments.key ] = match[ 2 ];
 			}
 		}
 	}

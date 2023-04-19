@@ -1,0 +1,24 @@
+{
+    "name":"cbelasticsearch-adobe@2023",
+    "app":{
+        "serverHomeDirectory":".engine/adobe2023",
+        "cfengine":"adobe@2023.0.0-beta.1"
+    },
+    "web":{
+        "http":{
+            "port":"60299"
+        },
+        "rewrites":{
+            "enable":"true"
+        },
+        "webroot":"test-harness",
+        "aliases":{
+            "/moduleroot/cbelasticsearch":"../",
+            "/root":"./test-harness"
+        }
+    },
+    "openBrowser":"false",
+    "scripts":{
+        "onServerInstall":"cfpm install zip,debugger"
+    }
+}

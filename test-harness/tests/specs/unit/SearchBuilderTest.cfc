@@ -276,13 +276,17 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
 				var dateStart     = dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssXXX" );
 				var dateEnd       = dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssXXX" );
-				searchBuilder.filterRange( "createdTime", dateStart, dateEnd, 2 );
+				searchBuilder.filterRange( "createdTime", dateStart, dateEnd );
 
 				expect( searchBuilder.getQuery() ).toBeStruct().toHaveKey( "bool" );
 				expect( searchBuilder.getQuery().bool ).toHaveKey( "filter" );
-				expect( searchBuilder.getQuery().bool.filter ).toBeStruct().toHaveKey( "range" );
-				expect( searchBuilder.getQuery().bool.filter.range ).toBeStruct().toHaveKey( "createdTime" );
-				expect( searchBuilder.getQuery().bool.filter.range.createdTime )
+				expect( searchBuilder.getQuery().bool.filter ).toHaveKey( "bool" );
+				expect( searchBuilder.getQuery().bool.filter.bool ).toHaveKey( "must" );
+				expect( searchBuilder.getQuery().bool.filter.bool.must ).toBeArray();
+				expect( searchBuilder.getQuery().bool.filter.bool.must ).toHaveLength( 1 );
+				expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ] ).toBeStruct().toHaveKey( "range" );
+				expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ].range ).toBeStruct().toHaveKey( "createdTime" );
+				expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ].range.createdTime )
 					.toBeStruct()
 					.toHaveKey( "gte" )
 					.toHaveKey( "lte" );
@@ -789,6 +793,37 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( searchBuilder.getDSL()[ "_source" ] ).toHaveKey( "excludes" );
 				expect( searchBuilder.getDSL()[ "_source" ][ "excludes" ] ).toBe( [ "*.description" ] );
 			} );
+
+			it( "Tests the pagination maxrows/startrow via .new() properties", function(){
+				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs", {
+					maxRows : 15,
+					startRow : 16
+				} );
+				searchBuilder.setQuery( { "match_all": {} } );
+				debug( searchBuilder.getDSL() );
+				expect( searchBuilder.getDSL() ).toBeStruct();
+				expect( searchBuilder.getDSL() ).toHaveKey( "from" );
+				expect( searchBuilder.getDSL() ).toHaveKey( "size" );
+				expect( searchBuilder.getDSL().from ).toBe( 16 );
+				expect( searchBuilder.getDSL().size ).toBe( 15 );
+
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
+			} );
+
+			it( "Tests pagination via setStartRow()/setMaxRows()", function(){
+				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
+				searchBuilder.setQuery( { "match_all": {} } );
+				searchBuilder.setStartRow( 51 );
+				searchBuilder.setMaxRows( 50 );
+
+				expect( searchBuilder.getDSL() ).toBeStruct();
+				expect( searchBuilder.getDSL() ).toHaveKey( "from" );
+				expect( searchBuilder.getDSL() ).toHaveKey( "size" );
+				expect( searchBuilder.getDSL().from ).toBe( 51 );
+				expect( searchBuilder.getDSL().size ).toBe( 50 );
+
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
+			});
 
 			describe( "suggestions", function(){
 				describe( "suggestTerm", function(){
