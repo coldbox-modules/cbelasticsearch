@@ -226,6 +226,26 @@ var docCount = getInstance( "SearchBuilder@cbElasticsearch" )
     .count();
 ```
 
+## Advanced Search Syntax
+
+Elasticsearch offers many, many features and functionalities. While the SearchBuilder *may* not provide a setter method for every search option, you can still use the `.param()` and `.set()` methods to set [query parameters](https://www.elastic.co/guide/en/elasticsearch/reference/8.7/search-search.html#search-search-api-query-params) and [body parameters](https://www.elastic.co/guide/en/elasticsearch/reference/8.7/search-search.html#search-search-api-request-body), respectively.
+
+```js
+var response = getInstance( "SearchBuilder@cbElasticsearch" )
+    .new( "bookshop" )
+    .sort( "publishDate DESC" )
+    // match everything
+    .setQuery( { "match_all": {} } )
+    // Query parameter: return the document version with each hit
+    .param( "version", true )
+    // Body parameter: return a relevance score for each document, despite our custom sort
+    .set( "track_scores", true );
+    // Body parameter: filter by minimum relevance score
+	.set( "min_score", 3 )
+    // run the search
+    .execute();
+```
+
 ## Highlights
 
 ElasticSearch has the ability to highlight the portion of a document that matched. This is useful for showing context on why certain search results were returned. You can add an ElasticSearch highlight struct to your `SearchBuilder` using the `highlight` method. The struct should take the shape outlined on the [ElasticSearch website](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-request-body.html#request-body-search-highlighting).
