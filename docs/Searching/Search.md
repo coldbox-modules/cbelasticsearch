@@ -277,6 +277,36 @@ SearchBuilder.highlight( {
 })
 ```
 
+## Terms Enum
+
+On occasion, you may wish to show a set of terms matching a partial string. This is similar to aggregations, only filtered by the provided string and intended for autocompletion.
+
+To retrieve this data, you can use the client's `getTermsEnum()` method:
+
+```js
+var terms = getInstance( "HyperClient@cbElasticsearch" )
+            .getTermsEnum(
+                indexName  = "hotels",
+                field = "city",
+                match = "alb",
+                size = 50,
+                caseInsensitive = true
+            );
+```
+
+For advanced lookups, you can use the second argument to pass a struct of custom options:
+
+```js
+var terms = getInstance( "HyperClient@cbElasticsearch" )
+            .getTermsEnum( ["cities","towns"], {
+                "field" : "name",
+                "string" : "west",
+                "size" : 50,
+                "timeout" : "10s"
+            } );
+```
+
+
 ## `SearchBuilder` Function Reference
 
 * `new([string index], [string type], [struct properties])` - Populates a new SearchBuilder object.
