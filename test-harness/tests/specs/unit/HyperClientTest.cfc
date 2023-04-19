@@ -928,7 +928,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			} );
 
-			xdescribe( "Post index creation tests", function(){
+			describe( "Post index creation tests", function(){
 				afterEach( function(){
 					// we give ourselves a few seconds before each next test for updates to persist
 					sleep( 500 );
@@ -1149,7 +1149,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			});
 
-			xdescribe( "tasks", function(){
+			describe( "tasks", function(){
 				it( "can retrieve all tasks on the cluster", function(){
 					var activeTasks = variables.model.getTasks();
 					expect( activeTasks ).toBeArray();
@@ -1210,7 +1210,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
-			xdescribe( "pipelines", function(){
+			describe( "pipelines", function(){
 				beforeEach( function(){
 					variables.testPipeline = getWirebox()
 						.getInstance( "Pipeline@cbelasticsearch" )
@@ -1297,7 +1297,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			} );
 
-			xdescribe( "ILM policies", function(){
+			describe( "ILM policies", function(){
 				beforeEach( function(){
 					variables.testPolicyName = "es-client-test-policy";
 					variables.testPolicy = {
@@ -1345,7 +1345,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 			});
 
-			xdescribe( "Snapshot Repositories", function(){
+			describe( "Snapshot Repositories", function(){
 				beforeEach( function(){
 					variables.testSnapshotName = "my-snapshot-repository";
 				});
