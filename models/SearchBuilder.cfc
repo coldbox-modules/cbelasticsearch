@@ -837,11 +837,13 @@ component accessors="true" {
 	}
 
 	/**
-	 * Adds a body parameter to the request (such as filtering by min_score, forcing a relevance score return, etc.)
+	 * Generic setter for any/all request properties.
+	 * 
+	 * For example, `set( "size", 100 )` or `set( "min_score" : 1 )`.
 	 * 
 	 * Example https://www.elastic.co/guide/en/elasticsearch/reference/8.7/search-search.html#search-search-api-request-body
 	 *
-	 * @name  the name of the body parameter to set
+	 * @name  the name of the parameter to set.
 	 * @value  the value of the parameter
 	 */
 	SearchBuilder function set( required string name, required any value ){
@@ -851,6 +853,19 @@ component accessors="true" {
 			variables.body[ arguments.name ] = arguments.value;
 		}
 
+		return this;
+	}
+
+	/**
+	 * Adds a body parameter to the request (such as filtering by min_score, forcing a relevance score return, etc.)
+	 * 
+	 * Example https://www.elastic.co/guide/en/elasticsearch/reference/8.7/search-search.html#search-search-api-request-body
+	 *
+	 * @name  the name of the body parameter to set
+	 * @value  the value of the parameter
+	 */
+	SearchBuilder function bodyParam( required string name, required any value ){
+		set( arguments.name, arguments.value );
 		return this;
 	}
 
@@ -1151,9 +1166,7 @@ component accessors="true" {
 			dsl[ "script" ] = variables.script;
 		}
 
-		if ( !isNull( variables.body ) && !structIsEmpty( variables.body ) ){
-			structAppend( dsl, variables.body, true );
-		}
+		structAppend( dsl, variables.body, true );
 
 		if ( !isNull( variables.sorting ) ) {
 			// we used a linked hashmap for sorting to maintain order

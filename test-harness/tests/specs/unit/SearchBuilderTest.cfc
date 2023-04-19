@@ -758,9 +758,25 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( searchBuilder.getDSL()[ "_source" ][ "excludes" ] ).toBe( [ "*.description" ] );
 			} );
 
-			it( "Tests the generic set() method with root dsl", function(){
+			it( "Tests bodyParam() method for root dsl", function(){
 				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
 
+				searchBuilder.bodyParam( "explain", true );
+				searchBuilder.bodyParam( "post_filter", { 
+					"term": { "color": "red" }
+				} );
+
+				expect( searchBuilder.getDSL() ).toBeStruct();
+				expect( searchBuilder.getDSL() ).toHaveKey( "explain" );
+				expect( searchBuilder.getDSL().explain ).toBeTrue( "supports booleans in root DSL" );
+				expect( searchBuilder.getDSL() ).toHaveKey( "post_filter" );
+				expect( searchBuilder.getDSL().post_filter ).toBeStruct( "supports structs in root DSL" );
+			} );
+
+			it( "Tests bodyParam() and set() methods for root dsl", function(){
+				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
+
+				searchBuilder.set( "min_score", 3 );
 				searchBuilder.set( "track_scores", true );
 				searchBuilder.set( "min_score", 3 );
 				searchBuilder.set( "docvalue_fields", [
