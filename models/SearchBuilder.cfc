@@ -61,6 +61,11 @@ component accessors="true" {
 	property name="params";
 
 	/**
+	 * Body parameters which will be passed to transform the execution output
+	 */
+	property name="body" type="struct";
+
+	/**
 	 * Whether to preflight the query prior to execution( recommended ) - ensures consistent formatting to prevent errors
 	 **/
 	property name="preflight" type="boolean";
@@ -102,6 +107,7 @@ component accessors="true" {
 		variables.highlight = {};
 		variables.suggest   = {};
 		variables.params    = [];
+		variables.body      = {};
 
 		variables.size  = 25;
 		variables.from = 0;
@@ -851,6 +857,24 @@ component accessors="true" {
 	}
 
 	/**
+	 * Adds a body parameter to the request (such as filtering by min_score, forcing a relevance score return, etc.)
+	 * 
+	 * Example https://www.elastic.co/guide/en/elasticsearch/reference/8.7/search-search.html#search-search-api-request-body
+	 *
+	 * @name  the name of the body parameter to set
+	 * @value  the value of the parameter
+	 */
+	SearchBuilder function set( required string name, required any value ){
+		if( variables.keyExists( arguments.name ) ){ 
+			variables[ arguments.name ] = arguments.value;
+		} else {
+			variables.body[ arguments.name ] = arguments.value;
+		}
+
+		return this;
+	}
+
+	/**
 	 * Adds highlighting to search
 	 *
 	 * https://www.elastic.co/guide/en/elasticsearch/reference/6.7/search-request-highlighting.html
@@ -1145,6 +1169,10 @@ component accessors="true" {
 
 		if ( !isNull( variables.script ) ) {
 			dsl[ "script" ] = variables.script;
+		}
+
+		if ( !isNull( variables.body ) && !structIsEmpty( variables.body ) ){
+			structAppend( dsl, variables.body, true );
 		}
 
 		if ( !isNull( variables.sorting ) ) {

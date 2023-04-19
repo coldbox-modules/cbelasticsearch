@@ -758,6 +758,30 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( searchBuilder.getDSL()[ "_source" ][ "excludes" ] ).toBe( [ "*.description" ] );
 			} );
 
+			it( "Tests the generic set() method with root dsl", function(){
+				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
+
+				searchBuilder.set( "track_scores", true );
+				searchBuilder.set( "min_score", 3 );
+				searchBuilder.set( "docvalue_fields", [
+					"user.id",
+					"http.response.*", 
+					{
+						"field": "date",
+						"format": "epoch_millis" 
+					}
+				] );
+
+				expect( searchBuilder.getDSL() ).toBeStruct();
+				expect( searchBuilder.getDSL() ).toHaveKey( "track_scores" );
+				expect( searchBuilder.getDSL().track_scores ).toBeTrue( "supports booleans in root DSL" );
+				expect( searchBuilder.getDSL() ).toHaveKey( "min_score" );
+				expect( searchBuilder.getDSL().min_score ).toBe( 3, "supports numeric value in root DSL" );
+				expect( searchBuilder.getDSL() ).toHaveKey( "docvalue_fields" );
+				expect( searchBuilder.getDSL().docvalue_fields ).toBeArray( "supports array value in root DSL");
+
+			});
+
 			it( "Tests the both the setSourceIncludes() and setSourceExcludes() methods", function(){
 				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
 
