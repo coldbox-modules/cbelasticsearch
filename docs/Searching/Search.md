@@ -121,6 +121,25 @@ searchBuilder.sort( "author.age", "DESC" );
 For more information on sorting search results, check out [Elasticsearch: Sort search results](https://www.elastic.co/guide/en/elasticsearch/reference/8.1/sort-search-results.html#sort-search-results)
 {% endhint %}
 
+### Paging Through Query Results
+
+The `size` and `from` search options allow adjusting the page size and start row, respectively, of the configured search:
+
+```js
+searchBuilder.setFrom( 11 );
+searchBuilder.setSize( 10 );
+```
+
+The number of matched documents will be in the `SearchResult`'s `getHitCount()` value:
+
+```js
+var totalRows = result.getHitCount();
+```
+
+{% hint style="info" %}
+Be sure to read the [Elasticsearch "Paginate Search Results" documentation](https://www.elastic.co/guide/en/elasticsearch/reference/8.7/paginate-search-results.html), as paging too deeply can adversely affect CPU and memory usage.
+{% endhint %}
+
 ### Advanced Query DSL
 
 The SearchBuilder also allows full use of the [Elasticsearch query language](https://www.elastic.co/guide/en/elasticsearch/reference/current/_introducing_the_query_language.html), allowing full configuration of your search queries. There are several methods to provide the raw query language to the Search Builder. One is during instantiation.

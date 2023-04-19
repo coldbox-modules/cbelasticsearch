@@ -788,11 +788,41 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
 			} );
 
+			it( "Tests the pagination size/from via .new() properties", function(){
+				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs", {
+					size : 15,
+					from : 16
+				} );
+				searchBuilder.setQuery( { "match_all": {} } );
+				debug( searchBuilder.getDSL() );
+				expect( searchBuilder.getDSL() ).toBeStruct();
+				expect( searchBuilder.getDSL() ).toHaveKey( "from" );
+				expect( searchBuilder.getDSL() ).toHaveKey( "size" );
+				expect( searchBuilder.getDSL().from ).toBe( 16 );
+				expect( searchBuilder.getDSL().size ).toBe( 15 );
+
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
+			} );
+
 			it( "Tests pagination via setStartRow()/setMaxRows()", function(){
 				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
 				searchBuilder.setQuery( { "match_all": {} } );
 				searchBuilder.setStartRow( 51 );
 				searchBuilder.setMaxRows( 50 );
+
+				expect( searchBuilder.getDSL() ).toBeStruct();
+				expect( searchBuilder.getDSL() ).toHaveKey( "from" );
+				expect( searchBuilder.getDSL() ).toHaveKey( "size" );
+				expect( searchBuilder.getDSL().from ).toBe( 51 );
+				expect( searchBuilder.getDSL().size ).toBe( 50 );
+
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
+			});
+			it( "Tests pagination via setFrom()/setSize()", function(){
+				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
+				searchBuilder.setQuery( { "match_all": {} } );
+				searchBuilder.setFrom( 51 );
+				searchBuilder.setSize( 50 );
 
 				expect( searchBuilder.getDSL() ).toBeStruct();
 				expect( searchBuilder.getDSL() ).toHaveKey( "from" );
