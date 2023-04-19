@@ -151,7 +151,9 @@ component accessors="true" {
 	}
 
 	/**
-	 * !DEPRECATED - Backwards compatible setter for max result size
+	 * Backwards compatible setter for max result size
+	 * 
+	 * @deprecated
 	 * 
 	 * @value Max number of records to retrieve.
 	 */
@@ -160,7 +162,9 @@ component accessors="true" {
 		return this;
 	}
 	/**
-	 * !DEPRECATED - Backwards compatible setter for result start offset
+	 * Backwards compatible setter for result start offset
+	 * 
+	 * @deprecated
 	 * 
 	 * @value Starting document offset.
 	 */
