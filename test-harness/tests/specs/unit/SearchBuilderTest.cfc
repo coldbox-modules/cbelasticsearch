@@ -762,15 +762,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			it( "Tests the setScriptFields() method", function(){
 				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
 
-				var theScript = getWirebox().getInstance( "Util@cbElasticsearch" )
-					.formatToPainless( "
-						params._source['price'].value * .95
-					");
 				searchBuilder.setScriptFields( {
 					"with5PercentDiscount": {
 						"script": {
 							"lang": "painless",
-							"source": theScript
+							"source": "doc['price'].value * 2"
 						}
 					}
 				} );
@@ -778,6 +774,36 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( searchBuilder.getDSL() ).toBeStruct();
 				expect( searchBuilder.getDSL() ).toHaveKey( "script_fields" );
 				expect( searchBuilder.getDSL()[ "script_fields" ] ).toHaveKey( "with5PercentDiscount" );
+			} );
+
+			it( "Tests the addScriptField() method", function(){
+				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
+
+				searchBuilder.addScriptField( "with5PercentDiscount", {
+					"script": {
+						"lang": "painless",
+						"source": "doc['price'].value * 2"
+					}
+				} );
+	
+				expect( searchBuilder.getDSL() ).toBeStruct().toHaveKey( "script_fields" );
+				expect( searchBuilder.getDSL()[ "script_fields" ] ).toHaveKey( "with5PercentDiscount" );
+			} );
+
+			it( "Tests the addField() method for retrieving runtime or other fields", function(){
+				var search = variables.model.new( variables.testIndexName, "testdocs" );
+
+				search.addField( "day_of_week" )
+						.addField( "name_full" )
+						.addField( {
+							"field": "@timestamp",
+							"format": "epoch_millis" 
+						} );
+	
+				expect( search.getDSL() ).toBeStruct().toHaveKey( "fields" );
+				expect( search.getDSL()[ "fields" ] ).toBeArray()
+					.toInclude( "day_of_week" )
+					.toInclude( "name_full" );
 			} );
 
 			it( "Tests the both the setSourceIncludes() and setSourceExcludes() methods", function(){

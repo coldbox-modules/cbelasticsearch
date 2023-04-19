@@ -690,7 +690,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						"testdocs"
 					)
 					.filterTerm( "price_in_cents", "999" )
-					.setFields( [ "price_in_cents" ] );
+					.addField( "price_in_cents" );
 
 					var hits = variables.model.executeSearch( searchBuilder ).getHits();
 					expect( hits.len() ).toBeGT( 0 );

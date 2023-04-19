@@ -141,13 +141,33 @@ This will result in an `"interestCost"` field in the `fields` property on the `D
 var interest = searchBuilder.execute().getHits().map( (document) => document.getFields()["interestCost"] ); // 5.50
 ```
 
-In a similar fashion, runtime fields can also be fetched and will appear in the document's `fields` struct. This example retrieves the `"fuel_usage_in_mpg"` runtime field as well as the indexed `"make"` and `"model"` fields:
+### Runtime Fields
+
+Elasticsearch also allows the creation of runtime fields, which are fields defined in the index mapping but populated at search time via a script.
+
+{% hint style="info" %}
+See [Managing-Indices](../Indices/Managing-Indices.md#creating-runtime-fields) for more information on creating runtime fields.
+{% endhint %}
+
+Runtime fields can be fetched via the `setFields()` or `addField()` methods, and will appear in the `Document` object's `fields` struct. This example retrieves the `"fuel_usage_in_mpg"` runtime field as well as the indexed `"make"` and `"model"` fields:
 
 ```js
 var hits = searchBuilder.new( "itinerary" )
-             .setFields( [ "fuel_usage_in_mpg", "make", "model" ] )
+             .setFields( [ "fuel_mpg", "make", "model" ] )
              .execute()
              .getHits();
+// OR
+var hits = searchBuilder.new( "itinerary" )
+             .addField( "fuel_mpg" )
+             .addField( "make" )
+             .addField( "model" )
+             .execute()
+             .getHits();
+```
+
+Once you have a search response, you can use the `.getFields()` method to retrieve the specified fields from the search document:
+
+```js
 for( hit in hits ){
     var result = hit.getFields();
     writeOutput( "This #result.make# #result.model# gets #fuel_mpg#/gallon" );
@@ -159,7 +179,7 @@ To access document `fields` as well as the `_source` properties, use`hit.getDocu
 ```js
 var result = searchBuilder.execute();
 for( hit in result.getHits() ){
-    var document = document.getDocuments( includeFields = true );
+    var document = document.getDocument( includeFields = true );
     writeOutput( "This #document.make# #document.model# gets #fuel_mpg#/gallon" );
 }
 ```

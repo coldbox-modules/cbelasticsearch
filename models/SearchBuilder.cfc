@@ -1234,4 +1234,25 @@ component accessors="true" {
 		return this;
 	}
 
+	/**
+	 * Append a field name or object in the list of fields to return.
+	 * 
+	 * Especially useful for runtime fields.
+	 * 
+	 * Example:
+	 * ```
+	 * addField( { "field": "@timestamp", "format": "epoch_millis"  } )
+	 * ```
+	 * 
+	 * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/runtime-retrieving-fields.html#runtime-search-dayofweek
+	 *
+	 * @value string|struct Field name to retrieve OR struct config
+	 */
+	public SearchBuilder function addField( required any value ){
+		if ( isNull( variables.fields ) ){
+			variables.fields = [];
+		}
+		variables.fields.append( arguments.value );
+		return this;
+	}
 }

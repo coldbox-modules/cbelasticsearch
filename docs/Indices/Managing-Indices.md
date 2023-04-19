@@ -240,7 +240,7 @@ getInstance( "Client@CBElasticsearch" )
         } );
 ```
 
-This `summarized_emotions` field [can then be retrieve during a search](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-fields.html) to display an array of emotions matching the review summary.
+This `summarized_emotions` field [can then be retrieved during a search](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-fields.html) to display an array of emotions matching the review summary.
 
 ## Deleting an Index
 
