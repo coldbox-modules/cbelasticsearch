@@ -313,6 +313,7 @@ component accessors="true" threadSafe singleton {
 			&& structKeyExists( indexDSL, "mappings" )
 			&& !structIsEmpty( indexDSL.mappings )
 			&& !structKeyExists( indexDSL.mappings, "properties" )
+			&& !structKeyExists( indexDSL.mappings, "runtime" )
 		) {
 			if ( indexDSL.mappings.keyArray().len() > 1 ) {
 				throw(

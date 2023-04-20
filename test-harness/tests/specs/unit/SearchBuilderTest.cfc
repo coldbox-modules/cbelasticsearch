@@ -21,7 +21,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 							"_all"       : { "enabled" : false },
 							"properties" : {
 								"title"       : { "type" : "text" },
-								"createdTime" : { "type" : "date", "format" : "date_time_no_millis" }
+								"createdTime" : { "type" : "date", "format" : "date_time_no_millis" },
+								"price"       : { "type" : "float" }
 							}
 						}
 					}
@@ -756,6 +757,53 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( searchBuilder.getDSL()[ "_source" ][ "includes" ] ).toBe( [] );
 				expect( searchBuilder.getDSL()[ "_source" ] ).toHaveKey( "excludes" );
 				expect( searchBuilder.getDSL()[ "_source" ][ "excludes" ] ).toBe( [ "*.description" ] );
+			} );
+
+			it( "Tests the setScriptFields() method", function(){
+				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
+
+				searchBuilder.setScriptFields( {
+					"with5PercentDiscount": {
+						"script": {
+							"lang": "painless",
+							"source": "doc['price'].value * 2"
+						}
+					}
+				} );
+	
+				expect( searchBuilder.getDSL() ).toBeStruct();
+				expect( searchBuilder.getDSL() ).toHaveKey( "script_fields" );
+				expect( searchBuilder.getDSL()[ "script_fields" ] ).toHaveKey( "with5PercentDiscount" );
+			} );
+
+			it( "Tests the addScriptField() method", function(){
+				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
+
+				searchBuilder.addScriptField( "with5PercentDiscount", {
+					"script": {
+						"lang": "painless",
+						"source": "doc['price'].value * 2"
+					}
+				} );
+	
+				expect( searchBuilder.getDSL() ).toBeStruct().toHaveKey( "script_fields" );
+				expect( searchBuilder.getDSL()[ "script_fields" ] ).toHaveKey( "with5PercentDiscount" );
+			} );
+
+			it( "Tests the addField() method for retrieving runtime or other fields", function(){
+				var search = variables.model.new( variables.testIndexName, "testdocs" );
+
+				search.addField( "day_of_week" )
+						.addField( "name_full" )
+						.addField( {
+							"field": "@timestamp",
+							"format": "epoch_millis" 
+						} );
+	
+				expect( search.getDSL() ).toBeStruct().toHaveKey( "fields" );
+				expect( search.getDSL()[ "fields" ] ).toBeArray()
+					.toInclude( "day_of_week" )
+					.toInclude( "name_full" );
 			} );
 
 			it( "Tests the both the setSourceIncludes() and setSourceExcludes() methods", function(){

@@ -21,10 +21,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 	function run(){
 		describe( "Performs cbElasticsearch HyperClient tests", function(){
-			afterEach( function(){
-				// we give ourselves a few seconds before each next test for updates to persist
-				sleep( 500 );
-			} );
 
 			it( "Tests the ability to create an index", function(){
 				var builderProperties = {
@@ -34,7 +30,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 								"type"   : "text",
 								"fields" : { "kw" : { "type" : "keyword" } }
 							},
-							"createdTime" : { "type" : "date", "format" : "date_time_no_millis" }
+							"createdTime" : { "type" : "date", "format" : "date_time_no_millis" },
+							"price" : { "type" : "float" }
 						}
 					}
 				};
@@ -52,10 +49,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			} );
 
 			describe( "Index mappings and settings and utility methods", function(){
-				afterEach( function(){
-					// we give ourselves a few seconds before each next test for updates to persist
-					sleep( 500 );
-				} );
 
 				it( "Tests the ability to update mappings in an index", function(){
 
@@ -172,10 +165,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			} );
 
 			describe( "Document tests", function(){
-				afterEach( function(){
-					// we give ourselves a few seconds before each next test for updates to persist
-					sleep( 500 );
-				} );
 
 
 				it( "Tests the ability to insert a document in to an index", function(){
@@ -544,11 +533,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			describe( "Search tests", function(){
 
-				afterEach( function(){
-					// we give ourselves a few seconds before each next test for updates to persist
-					sleep( 500 );
-				} );
-
 				it( "Tests the ability to process a search on an index", function(){
 					expect( variables ).toHaveKey( "testDocumentId" );
 
@@ -643,14 +627,83 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 					expect( firstResult.getScore() ).toBeGT( secondResult.getScore() );
 				} );
+
+				it( "Tests custom script fields", function(){
+					getWirebox().getInstance( "Document@cbElasticsearch" ).new(
+						variables.testIndexName,
+						"testdocs", {
+							"_id"         : createUUID(),
+							"title"       : "My Test Document",
+							"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
+							"price"       : 9.99
+						} )
+						.save( refresh = true );
+					var searchBuilder = getWirebox().getInstance( "SearchBuilder@cbElasticsearch" ).new(
+						variables.testIndexName,
+						"testdocs",
+						{ "match_all" : {} }
+					);
+	
+					searchBuilder.addScriptField( "interestCost", {
+						"script": {
+							"lang": "painless",
+							"source": "return doc['price'].size() != 0 ? doc['price'].value * (params.interestRate/100) : null;",
+							"params": { "interestRate": 5.5 }
+						}
+					} );
+	
+					var hits = variables.model.executeSearch( searchBuilder ).getHits();
+					expect( hits.len() ).toBeGT( 0 );
+					for( hit in hits ){
+						expect( hit.getFields() ).toHaveKey( "interestCost" );
+						expect( hit.getDocument( includeFields = true ) ).toHaveKey( "interestCost" );
+						expect( hit.getDocument() ).notToHaveKey( "interestCost" );
+					}
+				} );
+
+				it( "Tests runtime fields", function(){
+					getWirebox().getInstance( "IndexBuilder@cbElasticsearch" )
+						.patch( name = variables.testIndexName, properties = {
+							"mappings" : {
+								"runtime" : {
+									"price_in_cents" : {
+										"type" : "long",
+										"script" : {
+											"source" : "if( doc['price'].size() != 0) { emit(Math.round(doc['price'].value * 100 )); }"
+										}
+									}
+								}
+							}
+						} );
+					getWirebox().getInstance( "Document@cbElasticsearch" ).new(
+						variables.testIndexName,
+						"testdocs",
+						{
+							"_id"         : createUUID(),
+							"title"       : "My Test Document",
+							"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
+							"price"       : 9.99
+						} )
+						.save( refresh = true );
+					var searchBuilder = getWirebox().getInstance( "SearchBuilder@cbElasticsearch" ).new(
+						variables.testIndexName,
+						"testdocs"
+					)
+					.filterTerm( "price_in_cents", "999" )
+					.addField( "price_in_cents" );
+
+					var hits = variables.model.executeSearch( searchBuilder ).getHits();
+					expect( hits.len() ).toBeGT( 0 );
+					for( hit in hits ){
+						expect( hit.getFields() ).toHaveKey( "price_in_cents" );
+						expect( hit.getDocument( includeFields = true ) ).toHaveKey( "price_in_cents" );
+						expect( hit.getDocument() ).notToHaveKey( "price_in_cents" );
+						expect( hit.getMemento() ).notToHaveKey( "price_in_cents" );
+					}
+				} );
 			} );
 
 			describe( "More fun with documents", function(){
-
-				afterEach( function(){
-					// we give ourselves a few seconds before each next test for updates to persist
-					sleep( 500 );
-				} );
 
 				it( "Tests the ability to patch a document with a single field value", function(){
 					expect( variables ).toHaveKey( "testDocumentId" );
@@ -929,10 +982,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			} );
 
 			describe( "Post index creation tests", function(){
-				afterEach( function(){
-					// we give ourselves a few seconds before each next test for updates to persist
-					sleep( 500 );
-				} );
 
 				it( "Tests refreshIndex method ", function(){
 					expect( variables ).toHaveKey( "testIndexName" );

@@ -51,6 +51,20 @@ component accessors="true" {
 	property name="script";
 
 	/**
+	 * Property containing elasticsearch "script_fields" definition for runtime scripted fields
+	 * 
+	 * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-fields.html#script-fields
+	 */
+	property name="scriptFields" type="struct";
+
+	/**
+	 * Property containing "fields" array of fields to return for each hit
+	 * 
+	 * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-fields.html
+	 */
+	property name="fields" type="array";
+
+	/**
 	 * When performing matching searches, the type of match to specify
 	 **/
 	property name="matchType";
@@ -1127,6 +1141,14 @@ component accessors="true" {
 			dsl[ "script" ] = variables.script;
 		}
 
+		if ( !isNull( variables.scriptFields ) ) {
+			dsl[ "script_fields" ] = variables.scriptFields;
+		}
+
+		if ( !isNull( variables.fields ) ) {
+			dsl[ "fields" ] = variables.fields;
+		}
+
 		if ( !isNull( variables.sorting ) ) {
 			// we used a linked hashmap for sorting to maintain order
 			dsl[ "sort" ] = createObject( "java", "java.util.LinkedHashMap" ).init();
@@ -1191,4 +1213,46 @@ component accessors="true" {
 		return this;
 	}
 
+	public SearchBuilder function setFields( array fields = [] ){
+		variables.fields = arguments.fields;
+		return this;
+	}
+
+	/**
+	 * Append a dynamic script field to the search.
+	 *
+	 * @name Name of the script field
+	 * @script Script to use. `{ "script" : { "lang": "painless", "source" : } }`
+	 * @source Which _source values to include in the response. `true` for all, `false` for none, or a wildcard-capable string: `source = "author.*"`
+	 */
+	public SearchBuilder function addScriptField( required string name, struct script, any source = true ){
+		if ( isNull( variables.scriptFields ) ){
+			variables.scriptFields = {};
+		}
+		variables.scriptFields[ arguments.name ] = arguments.script;
+		setSource( arguments.source );
+		return this;
+	}
+
+	/**
+	 * Append a field name or object in the list of fields to return.
+	 * 
+	 * Especially useful for runtime fields.
+	 * 
+	 * Example:
+	 * ```
+	 * addField( { "field": "@timestamp", "format": "epoch_millis"  } )
+	 * ```
+	 * 
+	 * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/runtime-retrieving-fields.html#runtime-search-dayofweek
+	 *
+	 * @value string|struct Field name to retrieve OR struct config
+	 */
+	public SearchBuilder function addField( required any value ){
+		if ( isNull( variables.fields ) ){
+			variables.fields = [];
+		}
+		variables.fields.append( arguments.value );
+		return this;
+	}
 }
