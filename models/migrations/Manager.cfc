@@ -71,7 +71,7 @@ component {
 		searchBuilder
 			.setQuery( { "match_all" : {} } )
 			.setSourceIncludes( [ "name", "migrationRan" ] )
-			.setMaxRows( searchBuilder.count() )
+			.setSize( searchBuilder.count() )
 			.sort( "migrationRan desc" );
 		return searchBuilder
 			.execute()

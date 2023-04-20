@@ -94,8 +94,8 @@ component accessors="true" {
 	property name="suggest";
 
 	// Optional search defaults
-	property name="maxRows";
-	property name="startRow";
+	property name="size";
+	property name="from";
 
 
 	function onDIComplete(){
@@ -123,8 +123,8 @@ component accessors="true" {
 		variables.params    = [];
 		variables.body      = {};
 
-		variables.maxRows  = 25;
-		variables.startRow = 0;
+		variables.size  = 25;
+		variables.from = 0;
 
 		variables.preflight = true;
 
@@ -170,6 +170,28 @@ component accessors="true" {
 		return getClient().deleteByQuery( this );
 	}
 
+	/**
+	 * Backwards compatible setter for max result size
+	 * 
+	 * @deprecated
+	 * 
+	 * @value Max number of records to retrieve.
+	 */
+	SearchBuilder function setMaxRows( required numeric value ){
+		variables.size = arguments.value;
+		return this;
+	}
+	/**
+	 * Backwards compatible setter for result start offset
+	 * 
+	 * @deprecated
+	 * 
+	 * @value Starting document offset.
+	 */
+	SearchBuilder function setStartRow( required numeric value ){
+		variables.from = arguments.value;
+		return this;
+	}
 
 	/**
 	 * Populates a new SearchBuilder object
@@ -191,13 +213,15 @@ component accessors="true" {
 		if ( !isNull( arguments.properties ) ) {
 			for ( var propName in arguments.properties ) {
 				switch ( propName ) {
+					case "from":
 					case "offset":
 					case "startRow": {
-						variables.startRow = arguments.properties[ propName ];
+						variables.from = arguments.properties[ propName ];
 						break;
 					}
+					case "size":
 					case "maxRows": {
-						variables.maxRows = arguments.properties[ propName ];
+						variables.size = arguments.properties[ propName ];
 						break;
 					}
 					case "query": {
@@ -1152,8 +1176,8 @@ component accessors="true" {
 
 		if ( !isNull( variables.query ) && !structIsEmpty( variables.query ) ) {
 			dsl[ "query" ] = variables.query;
-			dsl[ "from" ]  = variables.startRow;
-			dsl[ "size" ]  = variables.maxRows;
+			dsl[ "from" ]  = variables.from;
+			dsl[ "size" ]  = variables.size;
 		}
 
 		if ( !isNull( variables.highlight ) && !structIsEmpty( variables.highlight ) ) {
