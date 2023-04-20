@@ -1676,4 +1676,29 @@ component accessors="true" threadSafe singleton {
 		return listGetAt( variables.versionTarget, 1, "." ) == versionNumber;
 	}
 
+	/**
+	 * Retrieve an enum of field terms from the index matching the provided string.
+	 *
+	 * @indexName string|array Index name or array of index names to query on
+	 * @field string|struct If string, field name to query. Otherwise, a struct of query options where only "field" is required.
+	 * 
+	 * @see https://www.elastic.co/guide/en/elasticsearch/reference/8.7/search-terms-enum.html
+	 */
+	function getTermsEnum( required indexName, required any field, any match, numeric size = 10, boolean caseInsensitive = true ){
+		if ( isArray( arguments.indexName ) ){ arguments.indexName = arrayToList( arguments.indexName ); }
+		var termsRequest = variables.nodePool.newRequest( "/#arguments.indexName#/_terms_enum", "post" );
+
+		var opts = {
+			"size"            : arguments.size,
+			"case_insensitive": arguments.caseInsensitive,
+			"field"           : !isNull( arguments.match ) ? arguments.match : javaCast( "null", 0 )
+		};
+		if ( !isSimpleValue( arguments.field ) ){ opts = arguments.field; }
+
+		return termsRequest
+				.setBody( opts )
+				.send()
+				.json();
+	}
+
 }

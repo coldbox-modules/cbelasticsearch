@@ -1668,6 +1668,32 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 
 			} );
+
+			describe( "General requests", function() {
+				it( "can query terms enum with options struct", function() {
+					var result = getInstance( "HyperClient@cbElasticsearch" )
+						.getTermsEnum( [ variables.testIndexName ], {
+							"field" : "title",
+							"size" : 50
+						} );
+						expect( result ).toBeStruct()
+										.toHaveKey( "terms" )
+										.toHaveKey( "_shards" );
+				});
+				it( "can query terms enum with simple arguments", function() {
+					var result = getInstance( "HyperClient@cbElasticsearch" )
+						.getTermsEnum(
+							indexName  = variables.testIndexName,
+							field = "title",
+							match = "doc",
+							size = 50,
+							caseInsensitive = false
+						);
+						expect( result ).toBeStruct()
+										.toHaveKey( "terms" )
+										.toHaveKey( "_shards" );
+				});
+			});
 		} );
 	}
 
