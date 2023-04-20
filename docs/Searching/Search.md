@@ -217,6 +217,24 @@ var search = getInstance( "SearchBuilder@cbElasticsearch" )
     .execute();
 ```
 
+After instantion, you can use the `.param()` and `.bodyParam()` methods to set [query parameters](https://www.elastic.co/guide/en/elasticsearch/reference/8.7/search-search.html#search-search-api-query-params) and [body parameters](https://www.elastic.co/guide/en/elasticsearch/reference/8.7/search-search.html#search-search-api-request-body), respectively.
+
+```js
+var response = getInstance( "SearchBuilder@cbElasticsearch" )
+    .new( "bookshop" )
+    .sort( "publishDate DESC" )
+    // match everything
+    .setQuery( { "match_all": {} } )
+    // Query parameter: return the document version with each hit
+    .param( "version", true )
+    // Body parameter: return a relevance score for each document, despite our custom sort
+    .bodyParam( "track_scores", true );
+    // Body parameter: filter by minimum relevance score
+	.bodyParam( "min_score", 3 )
+    // run the search
+    .execute();
+```
+
 {% hint style="info" %}
 For more information on Elasticsearch query DSL, the [Search in Depth Documentation](https://www.elastic.co/guide/en/elasticsearch/guide/current/search-in-depth.html) is an excellent starting point.
 {% endhint %}
