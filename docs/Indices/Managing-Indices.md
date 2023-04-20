@@ -172,6 +172,7 @@ var mappings = getInstance( "Client@CBElasticsearch" ).refreshIndex(
     [ "reviews", "book*" ],
     { "ignore_unavailable" : true }
 );
+```
 
 ## Getting Index Statistics
 
@@ -211,6 +212,35 @@ var mappings = getInstance( "Client@CBElasticsearch" )
                         { "level" : "shards", "fields" : "title,createdTime" }
                     );
 ```
+
+## Creating Runtime Fields
+
+Elasticsearch allows [mapping runtime fields](https://www.elastic.co/guide/en/elasticsearch/reference/current/runtime-mapping-fields.html), which are fields calculated at search time and returned in the `"fields"` array.
+
+```js
+var script = getInstance( "Util@CBElasticsearch" )
+.formatToPainless("
+  if( doc['summary'].value.contains('love') ){ emit('😍');}
+  if( doc['summary'].value.contains('great') ){ emit('🚀');}
+  if( doc['summary'].value.contains('hate') ){ emit('😡');}
+  if( doc['summary'].value.contains('broke') ){ emit('💔');}
+");
+getInstance( "Client@CBElasticsearch" )
+        .patch( "reviews", {
+            "mappings" : {
+                "runtime" : {
+                    "summarized_emotions" : {
+                        "type" : "text",
+                        "script" : {
+                            "source" : script
+                        }
+                    }
+                }
+            }
+        } );
+```
+
+This `summarized_emotions` field [can then be retrieved during a search](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-fields.html) to display an array of emotions matching the review summary.
 
 ## Deleting an Index
 
