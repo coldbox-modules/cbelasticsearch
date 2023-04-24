@@ -2,8 +2,14 @@ component {
 
 	property name="wirebox" inject="wirebox";
 	property name="migrationsIndex" default=".cfmigrations";
-	property name="indexShards" type="numeric" default=1;
-	property name="indexReplicas" type="numeric" default=0;
+	property
+		name   ="indexShards"  
+		type   ="numeric"
+		default=1;
+	property
+		name   ="indexReplicas"
+		type   ="numeric"
+		default=0;
 
 	public Manager function init(){
 		for ( var key in arguments ) {
@@ -26,9 +32,9 @@ component {
 			wirebox
 				.getInstance( "IndexBuilder@cbelasticsearch" )
 				.new(
-					name       = variables.migrationsIndex,
+					name     = variables.migrationsIndex,
 					settings = {
-						"number_of_shards" : variables.indexShards,
+						"number_of_shards"   : variables.indexShards,
 						"number_of_replicas" : variables.indexReplicas
 					},
 					properties = {
@@ -65,7 +71,7 @@ component {
 		searchBuilder
 			.setQuery( { "match_all" : {} } )
 			.setSourceIncludes( [ "name", "migrationRan" ] )
-			.setMaxRows( searchBuilder.count() )
+			.setSize( searchBuilder.count() )
 			.sort( "migrationRan desc" );
 		return searchBuilder
 			.execute()

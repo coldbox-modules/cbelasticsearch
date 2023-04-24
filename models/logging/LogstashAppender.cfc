@@ -7,8 +7,8 @@ component
 	hint   ="This a logstash appender for Elasticsearch"
 {
 
-	property name="util" inject="Util@cbelasticsearch";
-	property name="cachebox" inject="cachebox";
+	property name="util"         inject="Util@cbelasticsearch";
+	property name="cachebox"     inject="cachebox";
 	property name="asyncManager" inject="box:AsyncManager";
 
 	/**
@@ -42,31 +42,31 @@ component
 
 		instance.DEFAULTS = {
 			// Data stream components
-			"dataStreamPattern" : "logs-coldbox-*",
-			"dataStream" : "logs-coldbox-logstash-appender",
-			"ILMPolicyName"   : "cbelasticsearch-logs",
+			"dataStreamPattern"     : "logs-coldbox-*",
+			"dataStream"            : "logs-coldbox-logstash-appender",
+			"ILMPolicyName"         : "cbelasticsearch-logs",
 			"componentTemplateName" : "cbelasticsearch-logs-mappings",
-			"indexTemplateName" : "cbelasticsearch-logs",
-			"pipelineName" : "cbelasticsearch-logs",
+			"indexTemplateName"     : "cbelasticsearch-logs",
+			"pipelineName"          : "cbelasticsearch-logs",
 			// Retention of logs in number of days
-			"retentionDays"   : 365,
+			"retentionDays"         : 365,
 			// optional lifecycle full policy
-			"lifecyclePolicy" : javacast( "null", 0 ),
+			"lifecyclePolicy"       : javacast( "null", 0 ),
 			// the application name to use for this instance
-			"applicationName" : applicationName,
+			"applicationName"       : applicationName,
 			// The release version
-			"releaseVersion"  : "",
+			"releaseVersion"        : "",
 			// The number of shards for the backing indices
-			"indexShards"     : 1,
+			"indexShards"           : 1,
 			// The number of replicas for the backing indices
-			"indexReplicas"   : 0,
+			"indexReplicas"         : 0,
 			// The maximum shard size at which a rollover of the oldest data will occur
-			"rolloverSize"    : "10gb",
+			"rolloverSize"          : "10gb",
 			// v2 migration fields
-			"index"           : javacast( "null", 0 ),
-			"migrateIndices"  : false,
+			"index"                 : javacast( "null", 0 ),
+			"migrateIndices"        : false,
 			// Whether to throw an error if an attempt to save a log entry fails
-			"throwOnError"    : true
+			"throwOnError"          : true
 		};
 
 		for ( var configKey in structKeyArray( instance.Defaults ) ) {
@@ -80,11 +80,12 @@ component
 		}
 
 		// Attempt to retreive the package version from the `box.json`
-		if( !len( getProperty( "releaseVersion" ) ) && fileExists( expandPath( "/box.json" )  ) ){
-			try{
-				var packageInfo = deSerializeJSON( fileRead( expandPath( "/box.json" ) ) );
+		if ( !len( getProperty( "releaseVersion" ) ) && fileExists( expandPath( "/box.json" ) ) ) {
+			try {
+				var packageInfo = deserializeJSON( fileRead( expandPath( "/box.json" ) ) );
 				setProperty( "releaseVersion", packageInfo.version ?: "" );
-			} catch( any e ){}
+			} catch ( any e ) {
+			}
 		}
 
 		application.wirebox.autowire( this );
@@ -122,15 +123,12 @@ component
 	 * Write an entry into the appender.
 	 */
 	public void function logMessage( required any logEvent ) output=false{
-
 		var logObj = marshallLogObject( argumentCollection = arguments );
 
-		try{
-			newDocument()
-				.new( index = getProperty( "dataStream" ), properties = logObj )
-				.create();
-		} catch( any e ){
-			if( getProperty( "throwOnError" ) ){
+		try {
+			newDocument().new( index = getProperty( "dataStream" ), properties = logObj ).create();
+		} catch ( any e ) {
+			if ( getProperty( "throwOnError" ) ) {
 				rethrow;
 			} else {
 				var eLogEvent = new coldbox.system.logging.LogEvent(
@@ -139,72 +137,63 @@ component
 					extraInfo = { "logData" : logObj, "exception" : e },
 					category  = e.type
 				);
-				var appendersMap = application.wirebox.getLogbox().getAppendersMap();
+				var appendersMap  = application.wirebox.getLogbox().getAppendersMap();
 				// Log errors out to other appenders besides this one
-				var safeAppenders = appendersMap.keyArray().filter( function( key ){ return key != getName(); } );
+				var safeAppenders = appendersMap
+					.keyArray()
+					.filter( function( key ){
+						return key != getName();
+					} );
 				saveAppenders.each( function( appenderName ){
 					appendersMap[ appenderName ].logMessage( eLogEvent );
 				} );
 			}
 		}
-
 	}
 
-	public struct function marshallLogObject( required any logEvent ) output=false {
+	public struct function marshallLogObject( required any logEvent ) output=false{
 		var loge      = arguments.logEvent;
 		var extraInfo = loge.getExtraInfo();
 		var level     = lCase( severityToString( loge.getSeverity() ) );
 		var message   = loge.getMessage();
 		var loggerCat = loge.getCategory();
-		var tzInfo = getTimezoneInfo();
+		var tzInfo    = getTimezoneInfo();
 
 		var logObj = {
 			"@timestamp" : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
-			"log" : {
-				"level" : level,
-				"logger" : getName(),
+			"log"        : {
+				"level"    : level,
+				"logger"   : getName(),
 				"category" : loggerCat
 			},
 			"message" : message,
-			"event" : {
-				"created" : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
+			"event"   : {
+				"created"  : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
 				"severity" : loge.getSeverity(),
-				"category"   : loggerCat,
-				"dataset"    : "cfml",
-				"timezone"   : tzInfo.timezone ?: createObject( "java", "java.util.TimeZone" ).getDefault().getId()
+				"category" : loggerCat,
+				"dataset"  : "cfml",
+				"timezone" : tzInfo.timezone ?: createObject( "java", "java.util.TimeZone" ).getDefault().getId()
 			},
-			"file" : {
-				"path" : CGI.CF_TEMPLATE_PATH
-			},
-			"url" : {
+			"file" : { "path" : CGI.CF_TEMPLATE_PATH },
+			"url"  : {
 				"domain" : CGI.SERVER_NAME,
-				"path" : CGI.PATH_INFO,
-				"port" : CGI.SERVER_PORT,
-				"query" : CGI.QUERY_STRING,
-				"scheme" : lcase( listFirst( CGI.SERVER_PROTOCOL, "/" ) )
+				"path"   : CGI.PATH_INFO,
+				"port"   : CGI.SERVER_PORT,
+				"query"  : CGI.QUERY_STRING,
+				"scheme" : lCase( listFirst( CGI.SERVER_PROTOCOL, "/" ) )
 			},
-			"http" : {
-				"request" : {
-					"referer" : CGI.HTTP_REFERER
-				}
-			},
-			"labels" : {
-				"application" : getProperty( "applicationName" )
-			},
-			"package": {
-				"name" : getProperty( "applicationName" ),
+			"http"    : { "request" : { "referer" : CGI.HTTP_REFERER } },
+			"labels"  : { "application" : getProperty( "applicationName" ) },
+			"package" : {
+				"name"    : getProperty( "applicationName" ),
 				"version" : javacast( "string", getProperty( "releaseVersion" ) ),
-				"type" : "cfml",
-				"path" : expandPath( "/" )
+				"type"    : "cfml",
+				"path"    : expandPath( "/" )
 			},
 			"host"       : { "name" : CGI.HTTP_HOST, "hostname" : CGI.SERVER_NAME },
-			"client" : {
-				"ip" : CGI.REMOTE_ADDR
-			},
-			"user" : {},
-			"user_agent" : {
-				"original" : CGI.HTTP_USER_AGENT
-			}
+			"client"     : { "ip" : CGI.REMOTE_ADDR },
+			"user"       : {},
+			"user_agent" : { "original" : CGI.HTTP_USER_AGENT }
 		};
 
 		if ( propertyExists( "userInfoUDF" ) ) {
@@ -212,29 +201,38 @@ component
 			if ( isClosure( udf ) ) {
 				try {
 					logObj.user[ "info" ] = udf();
-					if( !isSimpleValue( logObj.user.info ) ){
-						if( isStruct( logObj.user.info ) ){
-							var userKeys = [ "email", "domain", "full_name", "hash", "id", "name", "roles", "username" ];
-							userKeys.each(
-								function( key ){
-									if( key == "username" ) key = "name";
-									if( logObj.user.info.keyExists( key ) ){
-										logObj.user[ key ] = logObj.user.info[ key ];
-									}
+					if ( !isSimpleValue( logObj.user.info ) ) {
+						if ( isStruct( logObj.user.info ) ) {
+							var userKeys = [
+								"email",
+								"domain",
+								"full_name",
+								"hash",
+								"id",
+								"name",
+								"roles",
+								"username"
+							];
+							userKeys.each( function( key ){
+								if ( key == "username" ) key = "name";
+								if ( logObj.user.info.keyExists( key ) ) {
+									logObj.user[ key ] = logObj.user.info[ key ];
 								}
-							);
+							} );
 						}
-						logObj.user.info = variables.util.toJSON( logObj.user.info  );
+						logObj.user.info = variables.util.toJSON( logObj.user.info );
 					}
 				} catch ( any e ) {
-					logObj[ "user" ] = { "error" : "An error occurred when attempting to run the userInfoUDF provided.  The message received was #e.message#" };
+					logObj[ "user" ] = {
+						"error" : "An error occurred when attempting to run the userInfoUDF provided.  The message received was #e.message#"
+					};
 				}
 			}
 		}
 
 		if ( structKeyExists( application, "cbController" ) ) {
 			var event = application.cbController.getRequestService().getContext();
-			var rc = event.getCollection();
+			var rc    = event.getCollection();
 			structAppend(
 				local.logObj.event,
 				{
@@ -243,15 +241,24 @@ component
 						event.getCurrentRoutedModule() != "" ? " from the " & event.getCurrentRoutedModule() & "module router." : ""
 					) : javacast( "null", 0 ),
 					"extension" : rc.keyExists( "format" ) ? rc.format : javacast( "null", 0 ),
-					"url" : ( event.getCurrentRoutedURL() != "" ) ? event.getCurrentRoutedURL() : javacast( "null", 0 ),
-					"layout"     : ( event.getCurrentLayout() != "" ) ? event.getCurrentLayout() : javacast( "null", 0 ),
-					"module"     : event.getCurrentModule(),
-					"view"       : event.getCurrentView()
+					"url"       : ( event.getCurrentRoutedURL() != "" ) ? event.getCurrentRoutedURL() : javacast(
+						"null",
+						0
+					),
+					"layout" : ( event.getCurrentLayout() != "" ) ? event.getCurrentLayout() : javacast(
+						"null",
+						0
+					),
+					"module" : event.getCurrentModule(),
+					"view"   : event.getCurrentView()
 				},
 				true
 			);
 
-			logObj.url[ "full" ] = ( event.getCurrentRoutedURL() != "" ) ? event.getCurrentRoutedURL() : javacast( "null", 0 );
+			logObj.url[ "full" ] = ( event.getCurrentRoutedURL() != "" ) ? event.getCurrentRoutedURL() : javacast(
+				"null",
+				0
+			);
 
 			logObj.package[ "reference" ] = event.getHTMLBaseURL();
 
@@ -270,7 +277,8 @@ component
 				"Detail"
 			)
 		) {
-			structAppend( local.logObj,
+			structAppend(
+				local.logObj,
 				parseException(
 					exception = extraInfo,
 					level     = level,
@@ -317,96 +325,92 @@ component
 	 * Verify or create the logging index
 	 */
 	private void function ensureDataStream() output=false{
-
-		var dataStreamName = getProperty( "dataStream" );
-		var dataStreamPattern = getProperty( "dataStreamPattern" );
+		var dataStreamName        = getProperty( "dataStream" );
+		var dataStreamPattern     = getProperty( "dataStreamPattern" );
 		var componentTemplateName = getProperty( "componentTemplateName" );
-		var indexTemplateName = getProperty( "indexTemplateName" );
+		var indexTemplateName     = getProperty( "indexTemplateName" );
 
 
-		var policyMeta = {
-			"description" : "Lifecyle Policy for cbElasticsearch logs"
-		};
-		var policyBuilder = policyBuilder().new( policyName=getProperty( "ILMPolicyName" ), meta=policyMeta );
+		var policyMeta    = { "description" : "Lifecyle Policy for cbElasticsearch logs" };
+		var policyBuilder = policyBuilder().new( policyName = getProperty( "ILMPolicyName" ), meta = policyMeta );
 		// Put our ILM Policy
-		if( propertyExists( "lifecyclePolicy" ) ){
+		if ( propertyExists( "lifecyclePolicy" ) ) {
 			policyBuilder.setPhases( getProperty( "lifecyclePolicy" ) );
 		} else {
-			policyBuilder.withDeletion(
-				age = getProperty( "retentionDays" )
-			);
+			policyBuilder.withDeletion( age = getProperty( "retentionDays" ) );
 		}
 
 		policyBuilder.save();
 
 		// Create our pipeline to handle data from older versions of the appender
-		getClient().newPipeline()
-					.setId( getProperty( "pipelineName" )  )
-					.setDescription( "Ingest pipeline for cbElasticsearch logstash appender" )
-					.addProcessor(
-						{
-							"script": {
-								"lang": "painless",
-								"source": reReplace( fileRead( expandPath( "/cbelasticsearch/models/logging/scripts/v2MigrationProcessor.painless" ) ),
-								"\n|\r|\t",
-								"",
-								"ALL"
-								)
-							}
-						}
-					).save()
+		getClient()
+			.newPipeline()
+			.setId( getProperty( "pipelineName" ) )
+			.setDescription( "Ingest pipeline for cbElasticsearch logstash appender" )
+			.addProcessor( {
+				"script" : {
+					"lang"   : "painless",
+					"source" : reReplace(
+						fileRead(
+							expandPath( "/cbelasticsearch/models/logging/scripts/v2MigrationProcessor.painless" )
+						),
+						"\n|\r|\t",
+						"",
+						"ALL"
+					)
+				}
+			} )
+			.save()
 
 		// Upsert our component template
-		getClient().applyComponentTemplate(
-			componentTemplateName,
-			getComponentTemplate()
-		);
+		getClient().applyComponentTemplate( componentTemplateName, getComponentTemplate() );
 
 		// Upsert the current version of our template
 		getClient().applyIndexTemplate(
 			indexTemplateName,
 			{
 				"index_patterns" : [ dataStreamPattern ],
-				"composed_of" : [
+				"composed_of"    : [
 					"logs-mappings",
 					"data-streams-mappings",
 					"logs-settings",
 					componentTemplateName
 				],
 				"data_stream" : {},
-				"priority" : 150,
-				"_meta" : {
-					"description" : "Index Template for cbElasticsearch Logs"
-				}
+				"priority"    : 150,
+				"_meta"       : { "description" : "Index Template for cbElasticsearch Logs" }
 			}
 		);
 
-		if( !getClient().dataStreamExists( dataStreamName ) ){
+		if ( !getClient().dataStreamExists( dataStreamName ) ) {
 			getClient().ensureDataStream( dataStreamName );
 		}
 
 		// Check for any previous indices created matching the pattern and migrate them to the datastream
-		if( propertyExists( "index" ) && getProperty( "migrateIndices" ) ){
+		if ( propertyExists( "index" ) && getProperty( "migrateIndices" ) ) {
 			var existingIndexPrefix = getProperty( "index" );
-			var existingIndices = getClient().getIndices().keyArray().filter(
-				function( index ){
+			var existingIndices     = getClient()
+				.getIndices()
+				.keyArray()
+				.filter( function( index ){
 					return len( index ) >= len( existingIndexPrefix ) && left( index, len( existingIndexPrefix ) ) == existingIndexPrefix;
+				} );
+			variables.asyncManager.allApply( existingIndices, function( index ){
+				try {
+					getClient().reindex(
+						index,
+						{ "index" : dataStreamName, "op_type" : "create" },
+						true
+					);
+					getClient().deleteIndex( index );
+				} catch ( any e ) {
+					// Print to StdError to bypass LogBox, since we are in an appender
+					createObject( "java", "java.lang.System" ).err.println(
+						"[ERROR] Index Migration Between the Previous Index of #index# to the data stream #dataStreamName# could not be completed.  The error received was: #e.message#"
+					);
 				}
-			);
-			variables.asyncManager.allApply(
-				existingIndices,
-				function( index ){
-					try{
-						getClient().reindex( index, { "index" : dataStreamName, "op_type" : "create" }, true );
-						getClient().deleteIndex( index );
-					} catch( any e ){
-						// Print to StdError to bypass LogBox, since we are in an appender
-						createObject( "java", "java.lang.System" ).err.println( "[ERROR] Index Migration Between the Previous Index of #index# to the data stream #dataStreamName# could not be completed.  The error received was: #e.message#" );
-					}
-				}
-			);
+			} );
 		}
-
 	}
 
 	/**
@@ -432,14 +436,13 @@ component
 
 		var logstashException = {
 			"error" : {
-				"level"   : arguments.level,
-				"type" 	  : arguments.exception.type.toString(),
-				"message" : message & " " & arguments.exception.detail,
+				"level"       : arguments.level,
+				"type"        : arguments.exception.type.toString(),
+				"message"     : message & " " & arguments.exception.detail,
 				"stack_trace" : isSimpleValue( arguments.exception.StackTrace ) ? listToArray(
-									arguments.exception.StackTrace,
-									"#chr( 13 )##chr( 10 )#"
-								) : arguments.exception.StackTrace
-
+					arguments.exception.StackTrace,
+					"#chr( 13 )##chr( 10 )#"
+				) : arguments.exception.StackTrace
 			}
 		};
 
@@ -604,10 +607,10 @@ component
 	public function getComponentTemplate(){
 		return {
 			"settings" : {
-				"number_of_shards" : getProperty( "indexShards" ),
-				"number_of_replicas" : getProperty( "indexReplicas" ),
-				"index.lifecycle.name": getProperty( "ILMPolicyName" ),
-				"index.default_pipeline": getProperty( "pipelineName" )
+				"number_of_shards"       : getProperty( "indexShards" ),
+				"number_of_replicas"     : getProperty( "indexReplicas" ),
+				"index.lifecycle.name"   : getProperty( "ILMPolicyName" ),
+				"index.default_pipeline" : getProperty( "pipelineName" )
 			},
 			"mappings" : {
 				"dynamic_templates" : [
@@ -635,7 +638,7 @@ component
 					}
 				],
 				"properties" : {
-					"geoip"      : {
+					"geoip" : {
 						"dynamic"    : true,
 						"properties" : {
 							"ip"        : { "type" : "ip" },
@@ -645,22 +648,20 @@ component
 						}
 					},
 					"log" : {
-						"type" : "object",
-						"properties" : {
-							"category" : { "type" : "keyword" }
-						}
+						"type"       : "object",
+						"properties" : { "category" : { "type" : "keyword" } }
 					},
 					"event" : {
-						"type" : "object",
+						"type"       : "object",
 						"properties" : {
-							"created"  : { "type" : "date", "format" : "date_time_no_millis" },
-							"layout"   : { "type" : "keyword" },
-							"module"   : { "type" : "keyword" },
-							"view"     : { "type" : "keyword" }
+							"created" : { "type" : "date", "format" : "date_time_no_millis" },
+							"layout"  : { "type" : "keyword" },
+							"module"  : { "type" : "keyword" },
+							"view"    : { "type" : "keyword" }
 						}
 					},
 					// Customized properties
-					"stachebox"    : {
+					"stachebox" : {
 						"type"       : "object",
 						"properties" : {
 							"signature"    : { "type" : "keyword" },

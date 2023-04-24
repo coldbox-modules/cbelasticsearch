@@ -51,6 +51,20 @@ component accessors="true" {
 	property name="script";
 
 	/**
+	 * Property containing elasticsearch "script_fields" definition for runtime scripted fields
+	 * 
+	 * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-fields.html#script-fields
+	 */
+	property name="scriptFields" type="struct";
+
+	/**
+	 * Property containing "fields" array of fields to return for each hit
+	 * 
+	 * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-fields.html
+	 */
+	property name="fields" type="array";
+
+	/**
 	 * When performing matching searches, the type of match to specify
 	 **/
 	property name="matchType";
@@ -59,6 +73,11 @@ component accessors="true" {
 	 * URL parameters which will be passed to transform the execution output
 	 */
 	property name="params";
+
+	/**
+	 * Body parameters which will be passed to transform the execution output
+	 */
+	property name="body" type="struct";
 
 	/**
 	 * Whether to preflight the query prior to execution( recommended ) - ensures consistent formatting to prevent errors
@@ -75,8 +94,8 @@ component accessors="true" {
 	property name="suggest";
 
 	// Optional search defaults
-	property name="maxRows";
-	property name="startRow";
+	property name="size";
+	property name="from";
 
 
 	function onDIComplete(){
@@ -102,9 +121,10 @@ component accessors="true" {
 		variables.highlight = {};
 		variables.suggest   = {};
 		variables.params    = [];
+		variables.body      = {};
 
-		variables.maxRows  = 25;
-		variables.startRow = 0;
+		variables.size  = 25;
+		variables.from = 0;
 
 		variables.preflight = true;
 
@@ -150,6 +170,28 @@ component accessors="true" {
 		return getClient().deleteByQuery( this );
 	}
 
+	/**
+	 * Backwards compatible setter for max result size
+	 * 
+	 * @deprecated
+	 * 
+	 * @value Max number of records to retrieve.
+	 */
+	SearchBuilder function setMaxRows( required numeric value ){
+		variables.size = arguments.value;
+		return this;
+	}
+	/**
+	 * Backwards compatible setter for result start offset
+	 * 
+	 * @deprecated
+	 * 
+	 * @value Starting document offset.
+	 */
+	SearchBuilder function setStartRow( required numeric value ){
+		variables.from = arguments.value;
+		return this;
+	}
 
 	/**
 	 * Populates a new SearchBuilder object
@@ -171,13 +213,15 @@ component accessors="true" {
 		if ( !isNull( arguments.properties ) ) {
 			for ( var propName in arguments.properties ) {
 				switch ( propName ) {
+					case "from":
 					case "offset":
 					case "startRow": {
-						variables.startRow = arguments.properties[ propName ];
+						variables.from = arguments.properties[ propName ];
 						break;
 					}
+					case "size":
 					case "maxRows": {
-						variables.maxRows = arguments.properties[ propName ];
+						variables.size = arguments.properties[ propName ];
 						break;
 					}
 					case "query": {
@@ -247,7 +291,7 @@ component accessors="true" {
 		required any name,
 		required any value,
 		numeric boost,
-		string operator = "must",
+		string operator         = "must",
 		boolean caseInsensitive = false
 	){
 		param variables.query.bool = {};
@@ -262,9 +306,9 @@ component accessors="true" {
 						return {
 							"wildcard" : {
 								"#key#" : {
-									"value" : reFind( "^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) 
-												? "*" & value & "*" 
-												: value,
+									"value" : reFind( "^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value )
+									 ? "*" & value & "*"
+									 : value,
 									"case_insensitive" : javacast( "boolean", caseInsensitive )
 								}
 							}
@@ -276,9 +320,9 @@ component accessors="true" {
 			var wildcard = {
 				"wildcard" : {
 					"#name#" : {
-						"value" : reFind( "^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value ) 
-									? "*" & value & "*" 
-									: value,
+						"value" : reFind( "^(?![a-zA-Z0-9 ,.&$']*[^a-zA-Z0-9 ,.&$']).*$", value )
+						 ? "*" & value & "*"
+						 : value,
 						"case_insensitive" : javacast( "boolean", arguments.caseInsensitive )
 					}
 				}
@@ -393,11 +437,27 @@ component accessors="true" {
 	 * `range` filter for date ranges
 	 * @name 		string 		the key to match
 	 * @start 		string 		the preformatted date string to start the range
-	 * @end 			string 		the preformatted date string to end the range
+	 * @end 		string 		the preformatted date string to end the range
+	 * @operator    string      opeartor for the filter operation: `must` or `should`
 	 **/
-	SearchBuilder function filterRange( required string name, string start, string end ){
+	SearchBuilder function filterRange(
+		required string name,
+		string start,
+		string end,
+		operator = "must"
+	){
 		if ( isNull( arguments.start ) && isNull( arguments.end ) ) {
-			throw( type = "", message = "" );
+			throw(
+				type    = "cbElasticsearch.SearchBuilder.InvalidParamTypeException",
+				message = "A start or end is required to use filterRange"
+			);
+		}
+
+		if ( arguments.operator != "must" && arguments.operator != "should" ) {
+			throw(
+				type    = "cbElasticsearch.SearchBuilder.InvalidParamTypeException",
+				message = "The operator should be either `must` or `should`."
+			);
 		}
 
 		var properties = {};
@@ -407,9 +467,16 @@ component accessors="true" {
 		if ( !isNull( arguments.end ) ) {
 			properties[ "lte" ] = arguments.end;
 		}
-		param variables.query.bool              = {};
-		param variables.query.bool.filter       = {};
-		param variables.query.bool.filter.range = { "#arguments.name#" : properties };
+
+		param variables.query.bool             = {};
+		param variables.query.bool.filter      = {};
+		param variables.query.bool.filter.bool = {};
+
+		if ( !variables.query.bool.filter.bool.keyExists( arguments.operator ) ) {
+			variables.query.bool.filter.bool[ arguments.operator ] = [];
+		}
+
+		variables.query.bool.filter.bool[ arguments.operator ].append( { "range" : { "#arguments.name#" : properties } } );
 
 		return this;
 	}
@@ -560,7 +627,10 @@ component accessors="true" {
 		numeric boost
 	){
 		if ( isNull( arguments.start ) && isNull( arguments.end ) ) {
-			throw( type = "", message = "" );
+			throw(
+				type    = "cbElasticsearch.SearchBuilder.InvalidParamTypeException",
+				message = "A start or end is required to use dateMatch"
+			);
 		}
 
 		var properties = {};
@@ -801,6 +871,39 @@ component accessors="true" {
 
 		variables.params.append( arguments );
 
+		return this;
+	}
+
+	/**
+	 * Generic setter for any/all request properties.
+	 * 
+	 * For example, `set( "size", 100 )` or `set( "min_score" : 1 )`.
+	 * 
+	 * Example https://www.elastic.co/guide/en/elasticsearch/reference/8.7/search-search.html#search-search-api-request-body
+	 *
+	 * @name  the name of the parameter to set.
+	 * @value  the value of the parameter
+	 */
+	SearchBuilder function set( required string name, required any value ){
+		if( variables.keyExists( arguments.name ) ){ 
+			variables[ arguments.name ] = arguments.value;
+		} else {
+			variables.body[ arguments.name ] = arguments.value;
+		}
+
+		return this;
+	}
+
+	/**
+	 * Adds a body parameter to the request (such as filtering by min_score, forcing a relevance score return, etc.)
+	 * 
+	 * Example https://www.elastic.co/guide/en/elasticsearch/reference/8.7/search-search.html#search-search-api-request-body
+	 *
+	 * @name  the name of the body parameter to set
+	 * @value  the value of the parameter
+	 */
+	SearchBuilder function bodyParam( required string name, required any value ){
+		set( arguments.name, arguments.value );
 		return this;
 	}
 
@@ -1073,8 +1176,8 @@ component accessors="true" {
 
 		if ( !isNull( variables.query ) && !structIsEmpty( variables.query ) ) {
 			dsl[ "query" ] = variables.query;
-			dsl[ "from" ]  = variables.startRow;
-			dsl[ "size" ]  = variables.maxRows;
+			dsl[ "from" ]  = variables.from;
+			dsl[ "size" ]  = variables.size;
 		}
 
 		if ( !isNull( variables.highlight ) && !structIsEmpty( variables.highlight ) ) {
@@ -1099,6 +1202,16 @@ component accessors="true" {
 
 		if ( !isNull( variables.script ) ) {
 			dsl[ "script" ] = variables.script;
+		}
+
+		structAppend( dsl, variables.body, true );
+
+		if ( !isNull( variables.scriptFields ) ) {
+			dsl[ "script_fields" ] = variables.scriptFields;
+		}
+
+		if ( !isNull( variables.fields ) ) {
+			dsl[ "fields" ] = variables.fields;
 		}
 
 		if ( !isNull( variables.sorting ) ) {
@@ -1165,4 +1278,46 @@ component accessors="true" {
 		return this;
 	}
 
+	public SearchBuilder function setFields( array fields = [] ){
+		variables.fields = arguments.fields;
+		return this;
+	}
+
+	/**
+	 * Append a dynamic script field to the search.
+	 *
+	 * @name Name of the script field
+	 * @script Script to use. `{ "script" : { "lang": "painless", "source" : } }`
+	 * @source Which _source values to include in the response. `true` for all, `false` for none, or a wildcard-capable string: `source = "author.*"`
+	 */
+	public SearchBuilder function addScriptField( required string name, struct script, any source = true ){
+		if ( isNull( variables.scriptFields ) ){
+			variables.scriptFields = {};
+		}
+		variables.scriptFields[ arguments.name ] = arguments.script;
+		setSource( arguments.source );
+		return this;
+	}
+
+	/**
+	 * Append a field name or object in the list of fields to return.
+	 * 
+	 * Especially useful for runtime fields.
+	 * 
+	 * Example:
+	 * ```
+	 * addField( { "field": "@timestamp", "format": "epoch_millis"  } )
+	 * ```
+	 * 
+	 * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/runtime-retrieving-fields.html#runtime-search-dayofweek
+	 *
+	 * @value string|struct Field name to retrieve OR struct config
+	 */
+	public SearchBuilder function addField( required any value ){
+		if ( isNull( variables.fields ) ){
+			variables.fields = [];
+		}
+		variables.fields.append( arguments.value );
+		return this;
+	}
 }

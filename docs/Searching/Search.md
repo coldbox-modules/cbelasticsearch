@@ -121,6 +121,88 @@ searchBuilder.sort( "author.age", "DESC" );
 For more information on sorting search results, check out [Elasticsearch: Sort search results](https://www.elastic.co/guide/en/elasticsearch/reference/8.1/sort-search-results.html#sort-search-results)
 {% endhint %}
 
+### Paging Through Query Results
+
+The `size` and `from` search options allow adjusting the page size and start row, respectively, of the configured search:
+
+```js
+searchBuilder.setFrom( 11 );
+searchBuilder.setSize( 10 );
+```
+
+The number of matched documents will be in the `SearchResult`'s `getHitCount()` value:
+
+```js
+var totalRows = result.getHitCount();
+```
+
+{% hint style="info" %}
+Be sure to read the [Elasticsearch "Paginate Search Results" documentation](https://www.elastic.co/guide/en/elasticsearch/reference/8.7/paginate-search-results.html), as paging too deeply can adversely affect CPU and memory usage.
+{% endhint %}
+
+### Script Fields
+
+SearchBuilder also supports [Elasticsearch script fields](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-fields.html#script-fields), which allow you to evaluate field values at search time for each document hit:
+
+```js
+searchBuilder.addScriptField( "interestCost",{
+    "script": {
+        "lang": "painless",
+        "source": "return doc['price'].size() != 0 ? doc['price'].value * (params.interestRate/100): null",
+        "params": { "interestRate": 5.5 }
+    }
+} );
+```
+
+This will result in an `"interestCost"` field in the `fields` property on the `Document` object:
+
+```js
+var interest = searchBuilder.execute().getHits().map( (document) => document.getFields()["interestCost"] ); // 5.50
+```
+
+### Runtime Fields
+
+Elasticsearch also allows the creation of runtime fields, which are fields defined in the index mapping but populated at search time via a script.
+
+{% hint style="info" %}
+See [Managing-Indices](../Indices/Managing-Indices.md#creating-runtime-fields) for more information on creating runtime fields.
+{% endhint %}
+
+Runtime fields can be fetched via the `setFields()` or `addField()` methods, and will appear in the `Document` object's `fields` struct. This example retrieves the `"fuel_usage_in_mpg"` runtime field as well as the indexed `"make"` and `"model"` fields:
+
+```js
+var hits = searchBuilder.new( "itinerary" )
+             .setFields( [ "fuel_mpg", "make", "model" ] )
+             .execute()
+             .getHits();
+// OR
+var hits = searchBuilder.new( "itinerary" )
+             .addField( "fuel_mpg" )
+             .addField( "make" )
+             .addField( "model" )
+             .execute()
+             .getHits();
+```
+
+Once you have a search response, you can use the `.getFields()` method to retrieve the specified fields from the search document:
+
+```js
+for( hit in hits ){
+    var result = hit.getFields();
+    writeOutput( "This #result.make# #result.model# gets #fuel_mpg#/gallon" );
+}
+```
+
+To access document `fields` as well as the `_source` properties, use`hit.getDocument( includeFields = true)`:
+
+```js
+var result = searchBuilder.execute();
+for( hit in result.getHits() ){
+    var document = document.getDocument( includeFields = true );
+    writeOutput( "This #document.make# #document.model# gets #fuel_mpg#/gallon" );
+}
+```
+
 ### Advanced Query DSL
 
 The SearchBuilder also allows full use of the [Elasticsearch query language](https://www.elastic.co/guide/en/elasticsearch/reference/current/_introducing_the_query_language.html), allowing full configuration of your search queries. There are several methods to provide the raw query language to the Search Builder. One is during instantiation.
@@ -151,6 +233,24 @@ var search = getInstance( "SearchBuilder@cbElasticsearch" )
             }
         }
     )
+    .execute();
+```
+
+After instantion, you can use the `.param()` and `.bodyParam()` methods to set [query parameters](https://www.elastic.co/guide/en/elasticsearch/reference/8.7/search-search.html#search-search-api-query-params) and [body parameters](https://www.elastic.co/guide/en/elasticsearch/reference/8.7/search-search.html#search-search-api-request-body), respectively.
+
+```js
+var response = getInstance( "SearchBuilder@cbElasticsearch" )
+    .new( "bookshop" )
+    .sort( "publishDate DESC" )
+    // match everything
+    .setQuery( { "match_all": {} } )
+    // Query parameter: return the document version with each hit
+    .param( "version", true )
+    // Body parameter: return a relevance score for each document, despite our custom sort
+    .bodyParam( "track_scores", true );
+    // Body parameter: filter by minimum relevance score
+	.bodyParam( "min_score", 3 )
+    // run the search
     .execute();
 ```
 
@@ -237,6 +337,36 @@ SearchBuilder.highlight( {
     }
 })
 ```
+
+## Terms Enum
+
+On occasion, you may wish to show a set of terms matching a partial string. This is similar to aggregations, only filtered by the provided string and intended for autocompletion.
+
+To retrieve this data, you can use the client's `getTermsEnum()` method:
+
+```js
+var terms = getInstance( "HyperClient@cbElasticsearch" )
+            .getTermsEnum(
+                indexName  = "hotels",
+                field = "city",
+                match = "alb",
+                size = 50,
+                caseInsensitive = true
+            );
+```
+
+For advanced lookups, you can use the second argument to pass a struct of custom options:
+
+```js
+var terms = getInstance( "HyperClient@cbElasticsearch" )
+            .getTermsEnum( ["cities","towns"], {
+                "field" : "name",
+                "string" : "west",
+                "size" : 50,
+                "timeout" : "10s"
+            } );
+```
+
 
 ## `SearchBuilder` Function Reference
 

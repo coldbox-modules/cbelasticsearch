@@ -21,7 +21,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 							"_all"       : { "enabled" : false },
 							"properties" : {
 								"title"       : { "type" : "text" },
-								"createdTime" : { "type" : "date", "format" : "date_time_no_millis" }
+								"createdTime" : { "type" : "date", "format" : "date_time_no_millis" },
+								"price"       : { "type" : "float" }
 							}
 						}
 					}
@@ -275,13 +276,17 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
 				var dateStart     = dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssXXX" );
 				var dateEnd       = dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssXXX" );
-				searchBuilder.filterRange( "createdTime", dateStart, dateEnd, 2 );
+				searchBuilder.filterRange( "createdTime", dateStart, dateEnd );
 
 				expect( searchBuilder.getQuery() ).toBeStruct().toHaveKey( "bool" );
 				expect( searchBuilder.getQuery().bool ).toHaveKey( "filter" );
-				expect( searchBuilder.getQuery().bool.filter ).toBeStruct().toHaveKey( "range" );
-				expect( searchBuilder.getQuery().bool.filter.range ).toBeStruct().toHaveKey( "createdTime" );
-				expect( searchBuilder.getQuery().bool.filter.range.createdTime )
+				expect( searchBuilder.getQuery().bool.filter ).toHaveKey( "bool" );
+				expect( searchBuilder.getQuery().bool.filter.bool ).toHaveKey( "must" );
+				expect( searchBuilder.getQuery().bool.filter.bool.must ).toBeArray();
+				expect( searchBuilder.getQuery().bool.filter.bool.must ).toHaveLength( 1 );
+				expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ] ).toBeStruct().toHaveKey( "range" );
+				expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ].range ).toBeStruct().toHaveKey( "createdTime" );
+				expect( searchBuilder.getQuery().bool.filter.bool.must[ 1 ].range.createdTime )
 					.toBeStruct()
 					.toHaveKey( "gte" )
 					.toHaveKey( "lte" );
@@ -754,6 +759,93 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( searchBuilder.getDSL()[ "_source" ][ "excludes" ] ).toBe( [ "*.description" ] );
 			} );
 
+			it( "Tests bodyParam() method for root dsl", function(){
+				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
+
+				searchBuilder.bodyParam( "explain", true );
+				searchBuilder.bodyParam( "post_filter", { 
+					"term": { "color": "red" }
+				} );
+
+				expect( searchBuilder.getDSL() ).toBeStruct();
+				expect( searchBuilder.getDSL() ).toHaveKey( "explain" );
+				expect( searchBuilder.getDSL().explain ).toBeTrue( "supports booleans in root DSL" );
+				expect( searchBuilder.getDSL() ).toHaveKey( "post_filter" );
+				expect( searchBuilder.getDSL().post_filter ).toBeStruct( "supports structs in root DSL" );
+			} );
+
+			it( "Tests bodyParam() and set() methods for root dsl", function(){
+				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
+
+				searchBuilder.set( "min_score", 3 );
+				searchBuilder.set( "track_scores", true );
+				searchBuilder.set( "min_score", 3 );
+				searchBuilder.set( "docvalue_fields", [
+					"user.id",
+					"http.response.*", 
+					{
+						"field": "date",
+						"format": "epoch_millis" 
+					}
+				] );
+
+				expect( searchBuilder.getDSL() ).toBeStruct();
+				expect( searchBuilder.getDSL() ).toHaveKey( "track_scores" );
+				expect( searchBuilder.getDSL().track_scores ).toBeTrue( "supports booleans in root DSL" );
+				expect( searchBuilder.getDSL() ).toHaveKey( "min_score" );
+				expect( searchBuilder.getDSL().min_score ).toBe( 3, "supports numeric value in root DSL" );
+				expect( searchBuilder.getDSL() ).toHaveKey( "docvalue_fields" );
+				expect( searchBuilder.getDSL().docvalue_fields ).toBeArray( "supports array value in root DSL");
+
+			});
+
+			it( "Tests the setScriptFields() method", function(){
+				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
+
+				searchBuilder.setScriptFields( {
+					"with5PercentDiscount": {
+						"script": {
+							"lang": "painless",
+							"source": "doc['price'].value * 2"
+						}
+					}
+				} );
+	
+				expect( searchBuilder.getDSL() ).toBeStruct();
+				expect( searchBuilder.getDSL() ).toHaveKey( "script_fields" );
+				expect( searchBuilder.getDSL()[ "script_fields" ] ).toHaveKey( "with5PercentDiscount" );
+			} );
+
+			it( "Tests the addScriptField() method", function(){
+				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
+
+				searchBuilder.addScriptField( "with5PercentDiscount", {
+					"script": {
+						"lang": "painless",
+						"source": "doc['price'].value * 2"
+					}
+				} );
+	
+				expect( searchBuilder.getDSL() ).toBeStruct().toHaveKey( "script_fields" );
+				expect( searchBuilder.getDSL()[ "script_fields" ] ).toHaveKey( "with5PercentDiscount" );
+			} );
+
+			it( "Tests the addField() method for retrieving runtime or other fields", function(){
+				var search = variables.model.new( variables.testIndexName, "testdocs" );
+
+				search.addField( "day_of_week" )
+						.addField( "name_full" )
+						.addField( {
+							"field": "@timestamp",
+							"format": "epoch_millis" 
+						} );
+	
+				expect( search.getDSL() ).toBeStruct().toHaveKey( "fields" );
+				expect( search.getDSL()[ "fields" ] ).toBeArray()
+					.toInclude( "day_of_week" )
+					.toInclude( "name_full" );
+			} );
+
 			it( "Tests the both the setSourceIncludes() and setSourceExcludes() methods", function(){
 				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
 
@@ -767,6 +859,67 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( searchBuilder.getDSL()[ "_source" ] ).toHaveKey( "excludes" );
 				expect( searchBuilder.getDSL()[ "_source" ][ "excludes" ] ).toBe( [ "*.description" ] );
 			} );
+
+			it( "Tests the pagination maxrows/startrow via .new() properties", function(){
+				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs", {
+					maxRows : 15,
+					startRow : 16
+				} );
+				searchBuilder.setQuery( { "match_all": {} } );
+				debug( searchBuilder.getDSL() );
+				expect( searchBuilder.getDSL() ).toBeStruct();
+				expect( searchBuilder.getDSL() ).toHaveKey( "from" );
+				expect( searchBuilder.getDSL() ).toHaveKey( "size" );
+				expect( searchBuilder.getDSL().from ).toBe( 16 );
+				expect( searchBuilder.getDSL().size ).toBe( 15 );
+
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
+			} );
+
+			it( "Tests the pagination size/from via .new() properties", function(){
+				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs", {
+					size : 15,
+					from : 16
+				} );
+				searchBuilder.setQuery( { "match_all": {} } );
+				debug( searchBuilder.getDSL() );
+				expect( searchBuilder.getDSL() ).toBeStruct();
+				expect( searchBuilder.getDSL() ).toHaveKey( "from" );
+				expect( searchBuilder.getDSL() ).toHaveKey( "size" );
+				expect( searchBuilder.getDSL().from ).toBe( 16 );
+				expect( searchBuilder.getDSL().size ).toBe( 15 );
+
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
+			} );
+
+			it( "Tests pagination via setStartRow()/setMaxRows()", function(){
+				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
+				searchBuilder.setQuery( { "match_all": {} } );
+				searchBuilder.setStartRow( 51 );
+				searchBuilder.setMaxRows( 50 );
+
+				expect( searchBuilder.getDSL() ).toBeStruct();
+				expect( searchBuilder.getDSL() ).toHaveKey( "from" );
+				expect( searchBuilder.getDSL() ).toHaveKey( "size" );
+				expect( searchBuilder.getDSL().from ).toBe( 51 );
+				expect( searchBuilder.getDSL().size ).toBe( 50 );
+
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
+			});
+			it( "Tests pagination via setFrom()/setSize()", function(){
+				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
+				searchBuilder.setQuery( { "match_all": {} } );
+				searchBuilder.setFrom( 51 );
+				searchBuilder.setSize( 50 );
+
+				expect( searchBuilder.getDSL() ).toBeStruct();
+				expect( searchBuilder.getDSL() ).toHaveKey( "from" );
+				expect( searchBuilder.getDSL() ).toHaveKey( "size" );
+				expect( searchBuilder.getDSL().from ).toBe( 51 );
+				expect( searchBuilder.getDSL().size ).toBe( 50 );
+
+				expect( searchBuilder.execute() ).toBeInstanceOf( "cbElasticsearch.models.SearchResult" );
+			});
 
 			describe( "suggestions", function(){
 				describe( "suggestTerm", function(){
