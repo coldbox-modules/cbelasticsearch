@@ -144,7 +144,7 @@ component accessors="true" {
 
 		for ( var hit in arguments.hits ) {
 			var documentSource = hit.keyExists( "_source" ) ? hit[ "_source" ] : {};
-			var doc = newDocument().populate( documentSource );
+			var doc            = newDocument().populate( documentSource );
 
 			doc.setIndex( hit[ "_index" ] );
 

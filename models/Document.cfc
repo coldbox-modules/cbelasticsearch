@@ -284,8 +284,8 @@ component accessors="true" {
 		if ( arguments.includeKey && !isNull( variables.id ) ) {
 			documentObject[ "_id" ] = variables.id;
 		}
-		if ( arguments.includeFields ){
-			structAppend(documentObject, getFields(), true );
+		if ( arguments.includeFields ) {
+			structAppend( documentObject, getFields(), true );
 		}
 
 		return documentObject;

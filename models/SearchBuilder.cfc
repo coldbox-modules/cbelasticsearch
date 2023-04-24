@@ -52,14 +52,14 @@ component accessors="true" {
 
 	/**
 	 * Property containing elasticsearch "script_fields" definition for runtime scripted fields
-	 * 
+	 *
 	 * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-fields.html#script-fields
 	 */
 	property name="scriptFields" type="struct";
 
 	/**
 	 * Property containing "fields" array of fields to return for each hit
-	 * 
+	 *
 	 * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-fields.html
 	 */
 	property name="fields" type="array";
@@ -123,7 +123,7 @@ component accessors="true" {
 		variables.params    = [];
 		variables.body      = {};
 
-		variables.size  = 25;
+		variables.size = 25;
 		variables.from = 0;
 
 		variables.preflight = true;
@@ -172,9 +172,9 @@ component accessors="true" {
 
 	/**
 	 * Backwards compatible setter for max result size
-	 * 
+	 *
 	 * @deprecated
-	 * 
+	 *
 	 * @value Max number of records to retrieve.
 	 */
 	SearchBuilder function setMaxRows( required numeric value ){
@@ -183,9 +183,9 @@ component accessors="true" {
 	}
 	/**
 	 * Backwards compatible setter for result start offset
-	 * 
+	 *
 	 * @deprecated
-	 * 
+	 *
 	 * @value Starting document offset.
 	 */
 	SearchBuilder function setStartRow( required numeric value ){
@@ -876,16 +876,16 @@ component accessors="true" {
 
 	/**
 	 * Generic setter for any/all request properties.
-	 * 
+	 *
 	 * For example, `set( "size", 100 )` or `set( "min_score" : 1 )`.
-	 * 
+	 *
 	 * Example https://www.elastic.co/guide/en/elasticsearch/reference/8.7/search-search.html#search-search-api-request-body
 	 *
 	 * @name  the name of the parameter to set.
 	 * @value  the value of the parameter
 	 */
 	SearchBuilder function set( required string name, required any value ){
-		if( variables.keyExists( arguments.name ) ){ 
+		if ( variables.keyExists( arguments.name ) ) {
 			variables[ arguments.name ] = arguments.value;
 		} else {
 			variables.body[ arguments.name ] = arguments.value;
@@ -896,7 +896,7 @@ component accessors="true" {
 
 	/**
 	 * Adds a body parameter to the request (such as filtering by min_score, forcing a relevance score return, etc.)
-	 * 
+	 *
 	 * Example https://www.elastic.co/guide/en/elasticsearch/reference/8.7/search-search.html#search-search-api-request-body
 	 *
 	 * @name  the name of the body parameter to set
@@ -1290,8 +1290,12 @@ component accessors="true" {
 	 * @script Script to use. `{ "script" : { "lang": "painless", "source" : } }`
 	 * @source Which _source values to include in the response. `true` for all, `false` for none, or a wildcard-capable string: `source = "author.*"`
 	 */
-	public SearchBuilder function addScriptField( required string name, struct script, any source = true ){
-		if ( isNull( variables.scriptFields ) ){
+	public SearchBuilder function addScriptField(
+		required string name,
+		struct script,
+		any source = true
+	){
+		if ( isNull( variables.scriptFields ) ) {
 			variables.scriptFields = {};
 		}
 		variables.scriptFields[ arguments.name ] = arguments.script;
@@ -1301,23 +1305,24 @@ component accessors="true" {
 
 	/**
 	 * Append a field name or object in the list of fields to return.
-	 * 
+	 *
 	 * Especially useful for runtime fields.
-	 * 
+	 *
 	 * Example:
 	 * ```
 	 * addField( { "field": "@timestamp", "format": "epoch_millis"  } )
 	 * ```
-	 * 
+	 *
 	 * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/runtime-retrieving-fields.html#runtime-search-dayofweek
 	 *
 	 * @value string|struct Field name to retrieve OR struct config
 	 */
 	public SearchBuilder function addField( required any value ){
-		if ( isNull( variables.fields ) ){
+		if ( isNull( variables.fields ) ) {
 			variables.fields = [];
 		}
 		variables.fields.append( arguments.value );
 		return this;
 	}
+
 }
