@@ -6,7 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ----
-# [3.0.4] - Unreleased
+# [3.1.0] - 04-24-2023
+### Added
+* Added support for [scripted and runtime fields](https://cbelasticsearch.ortusbooks.com/indices/managing-indices)
+* [Added `getTermsEnum` to client](https://cbelasticsearch.ortusbooks.com/searching/search#terms-enum) to allow for fetching autocompletion terms and picklists
+* Added [generic `set` method to SearchBuilder](https://cbelasticsearch.ortusbooks.com/searching/search) to allow for ad-hoc body parameters
+
+### Fixed
+* Fixed an issue with `filterRange` method to allow compatibility when used with `filterTerms` and `filterTerm`
+
+### Changed
+* Renamed `startRows`/`maxRows` properties in search builder to `from`/`size` to better match ES query syntax.  Adds custom `setStartRows` and `setMaxRows` methods which pass through.
+
 # [3.0.3] - 04-18-2023
 ### Fixed
 * Fixed regex used to detect Lucee HTML formatted error messages
