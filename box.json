@@ -2,7 +2,7 @@
     "name":"Elasticsearch for the Coldbox Framework",
     "author":"Ortus Solutions <info@ortussolutions.com",
     "location":"https://downloads.ortussolutions.com/ortussolutions/coldbox-modules/cbelasticsearch/@build.version@/cbelasticsearch-@build.version@+@build.number@.zip",
-    "version":"3.1.1",
+    "version":"3.1.2",
     "slug":"cbelasticsearch",
     "type":"modules",
     "homepage":"https://cbelasticsearch.ortusbooks.com",
