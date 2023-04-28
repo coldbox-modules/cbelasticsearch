@@ -181,6 +181,16 @@ component accessors="true" {
 		variables.size = arguments.value;
 		return this;
 	}
+
+        /**
+	 * Backwards compatible getter for max result size
+	 * 
+	 * @deprecated
+	 */
+	any function getMaxRows(){
+	    return getSize();
+	}
+
 	/**
 	 * Backwards compatible setter for result start offset
 	 *
@@ -191,6 +201,15 @@ component accessors="true" {
 	SearchBuilder function setStartRow( required numeric value ){
 		variables.from = arguments.value;
 		return this;
+	}
+
+        /**
+	 * Backwards compatible getter for start row
+	 * 
+	 * @deprecated
+	 */
+	any function getStartRow(){
+	    return getFrom();
 	}
 
 	/**
