@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ----
 ## [3.1.1] - 04-28-2023
 ### Fixed 
+* Added deprecated getters for `startRows`/`maxRows` properties due to compat issues with existing apps
+
 ## [3.1.0] - 04-24-2023
 ### Added
 * Added support for [scripted and runtime fields](https://cbelasticsearch.ortusbooks.com/indices/managing-indices)
