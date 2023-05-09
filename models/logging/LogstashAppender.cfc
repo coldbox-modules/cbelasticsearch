@@ -10,6 +10,8 @@ component
 	property name="util"         inject="Util@cbelasticsearch";
 	property name="cachebox"     inject="cachebox";
 	property name="asyncManager" inject="box:AsyncManager";
+	// Internal flag for completion of the data stream creation
+	property name="_dataStreamAssured";
 
 	/**
 	 * Constructor
@@ -27,6 +29,8 @@ component
 				message = "Wirebox was not detected in the application scope, but is required to use this appender"
 			);
 		}
+
+		variables._dataStreamAssured = false;
 
 		// Init supertype
 		super.init( argumentCollection = arguments );
@@ -115,7 +119,14 @@ component
 	 * Runs on registration
 	 */
 	public LogstashAppender function onRegistration() output=false{
-		ensureDataStream();
+		try{
+			ensureDataStream();
+			variables._dataStreamAssured = true;
+		} catch( any e ){
+			createObject( "java", "java.lang.System" ).err.println(
+				"Unable to create data stream. The attempt to communicate with the Elasticsearch server returned: #e.message# - #e.detail#.  Your ability to log messages with this appender may be compromised."
+			);
+		}
 		return this;
 	}
 
@@ -123,6 +134,15 @@ component
 	 * Write an entry into the appender.
 	 */
 	public void function logMessage( required any logEvent ) output=false{
+
+		if( !variables._dataStreamAssured ){
+			this.onRegistration();
+			// skip out if there was a communication failure
+			if( !variables._dataStreamAssured ){
+				return;
+			}
+		}
+
 		var logObj = marshallLogObject( argumentCollection = arguments );
 
 		try {
@@ -406,7 +426,7 @@ component
 				} catch ( any e ) {
 					// Print to StdError to bypass LogBox, since we are in an appender
 					createObject( "java", "java.lang.System" ).err.println(
-						"[ERROR] Index Migration Between the Previous Index of #index# to the data stream #dataStreamName# could not be completed.  The error received was: #e.message#"
+						"Index Migration Between the Previous Index of #index# to the data stream #dataStreamName# could not be completed.  The error received was: #e.message#"
 					);
 				}
 			} );
