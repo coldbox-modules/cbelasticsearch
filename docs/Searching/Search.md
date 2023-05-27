@@ -19,10 +19,10 @@ To output the results of our search, we would use a loop, accessing the `Documen
 
 ```js
 for( var resultDocument in searchResults.getHits() ){
-	var resultScore     = resultDocument.getScore();
-	var documentMemento = resultDocument.getMemento();
-	var bookName        = documentMemento.name;
-	var bookDescription = documentMemento.description;
+    var resultScore     = resultDocument.getScore();
+    var documentMemento = resultDocument.getMemento();
+    var bookName        = documentMemento.name;
+    var bookDescription = documentMemento.description;
 }
 ```
 
@@ -30,9 +30,9 @@ The "memento" is our structural representation of the document. We can also use 
 
 ```js
 for( var resultDocument in searchResults.getHits() ){
-	var resultScore     = resultDocument.getScore();
-	var bookName        = resultDocument.getValue( "name" );
-	var bookDescription = resultDoument.getValue( "description" );
+    var resultScore     = resultDocument.getScore();
+    var bookName        = resultDocument.getValue( "name" );
+    var bookDescription = resultDoument.getValue( "description" );
 }
 ```
 
@@ -249,7 +249,7 @@ var response = getInstance( "SearchBuilder@cbElasticsearch" )
     // Body parameter: return a relevance score for each document, despite our custom sort
     .bodyParam( "track_scores", true );
     // Body parameter: filter by minimum relevance score
-	.bodyParam( "min_score", 3 )
+    .bodyParam( "min_score", 3 )
     // run the search
     .execute();
 ```
@@ -367,6 +367,49 @@ var terms = getInstance( "HyperClient@cbElasticsearch" )
             } );
 ```
 
+## Term Vectors
+
+The ["Term Vectors" Elasticsearch API](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-termvectors.html) allows you to retrieve information and statistics for terms in a specific document field. This could be useful for finding the most common term in a book description, or retrieving all terms with a minimum word length from the book title.
+
+### Retrieving Term Vectors By Document ID
+
+To retrieve term vectors for a known document ID:
+
+```js
+var result = variables.model.getTermVectors(
+    "books",
+    "book_12345",
+    { "fields" : "title" }
+);
+```
+
+Use the third argument, `params`, to configure the request using the [documented query parameters](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-termvectors.html#docs-termvectors-api-query-params): 
+
+```js
+var result = variables.model.getTermVectors(
+    indexName = "books",
+    id = "book_12345",
+    params = {
+        "fields" : "title",
+        "min_word_length" : 4
+    }
+);
+```
+
+### Retrieving Term Vectors By Payload
+
+If you wish to analyze a payload (not an existing document) you can pass a payload in the `body` argument's `"doc"` field:
+
+```js
+var result = variables.model.getTermVectors(
+    indexName = "books",
+    body = {
+      "doc" : {
+        "title" : "The Lord of the Rings: The Fellowship of the Ring"
+      }
+    }
+);
+```
 
 ## `SearchBuilder` Function Reference
 
