@@ -542,7 +542,7 @@ component accessors="true" threadSafe singleton {
 		if ( arguments.id != "" ) {
 			endpoint.append( arguments.id );
 		}
-		var vectorRequest = variables.nodePool.newRequest( arrayToList( endpoint, "/" ), "GET" );
+		var vectorRequest = variables.nodePool.newRequest( arrayToList( endpoint, "/" ), "POST" );
 
 		return vectorRequest
 			.setBody( getUtil().toJSON( arguments.body ) )
