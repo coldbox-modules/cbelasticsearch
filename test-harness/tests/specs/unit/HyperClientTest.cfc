@@ -1031,8 +1031,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 							{ "fields" : "title" }
 						);
 
-						expect( result.keyExists( "term_vectors" ) ).toBeTrue();
 						expect( result.keyExists( "error" ) ).toBeFalse();
+						expect( result.keyExists( "term_vectors" ) ).toBeTrue();
 						expect( result.term_vectors ).toHaveKey( "title" );
 						expect( result.term_vectors.title ).toBeStruct()
 															.toHaveKey( "field_statistics" )

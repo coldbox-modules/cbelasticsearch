@@ -171,6 +171,31 @@ component accessors="true" {
 	}
 
 	/**
+	 * Request a vector of terms for the given index, document or document ID, and field names
+	 *
+	 * @params		struct		Struct of query parameters to influence the request. For example: `"offsets": false }`
+	 * @body		struct		Body payload to send. For example: `{ "filter": { "max_num_terms": 3 } }`
+	 */
+	struct function getTermVectors( string id = "", string fields = "", struct options = {} ){
+		var args = {
+			indexName = variables.index,
+			id        = arguments.id,
+			params    = arguments.options,
+			body      = {}
+		};
+		arguments.options[ "fields" ] = arguments.fields;
+		if ( arguments.options.keyExists( "doc" ) ){
+			args.body[ "doc" ] = arguments.options.doc;
+			arguments.options.delete( "doc" );
+		}
+		if ( arguments.options.keyExists( "filter" ) ){
+			args.body[ "filter" ] = arguments.options.filter;
+			arguments.options.delete( "filter" );
+		}
+		return getClient().getTermVectors( argumentCollection = args );
+	}
+
+	/**
 	 * Backwards compatible setter for max result size
 	 *
 	 * @deprecated

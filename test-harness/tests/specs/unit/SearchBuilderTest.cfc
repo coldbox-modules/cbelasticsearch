@@ -1271,6 +1271,68 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( dsl.suggest[ completionNameTwo ].completion.field ).toBe( completionNameTwo );
 				} );
 			} );
+
+			describe( "termVectors", function() {
+				it( "can get term vectors by document ID", function() {
+					expect( variables ).toHaveKey( "testIndexName" );
+
+					// create document and save
+					var testDocument = {
+						"_id"         : createUUID(),
+						"title"       : "My Test Document",
+						"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+					};
+
+					var document = getWirebox()
+						.getInstance( "Document@cbElasticsearch" )
+						.new(
+							variables.testIndexName,
+							"testdocs",
+							testDocument
+						).save( refresh = true );
+						sleep(1000);
+					var result = variables.model.new( variables.testIndexName )
+						.getTermVectors(
+							testDocument._id,
+							"title"
+						);
+
+					expect( result.keyExists( "error" ) ).toBeFalse();
+					expect( result.keyExists( "term_vectors" ) ).toBeTrue();
+					debug( result );
+					expect( result.term_vectors ).toHaveKey( "title" );
+					expect( result.term_vectors.title ).toBeStruct()
+														.toHaveKey( "field_statistics" )
+														.toHaveKey( "terms" );
+				});
+				it( "can get term vectors by doc payload", function(){
+					expect( variables ).toHaveKey( "testIndexName" );
+
+					// test options
+					var result = variables.model
+						.new( variables.testIndexName )
+						.getTermVectors(
+							options = {
+								"field_statistics" : false,
+								"payloads" : false,
+								"doc" : {
+									"title" : "My test document"
+								},
+								"filter" : {
+									"min_word_length" : 3
+								}
+							}
+						);
+
+					expect( result.keyExists( "error" ) ).toBeFalse();
+					expect( result ).toHaveKey( "term_vectors" );
+
+					// ensure only short terms returned
+					expect( result.term_vectors.title.terms )
+								.toHaveKey( "document" )
+								.notToHaveKey( "my" );
+				} );
+			});
 		} );
 	}
 

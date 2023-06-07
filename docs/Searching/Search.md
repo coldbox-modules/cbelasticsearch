@@ -376,7 +376,7 @@ The ["Term Vectors" Elasticsearch API](https://www.elastic.co/guide/en/elasticse
 To retrieve term vectors for a known document ID:
 
 ```js
-var result = variables.model.getTermVectors(
+var result = getInstance( "HyperClient@cbElasticsearch" ).getTermVectors(
     "books",
     "book_12345",
     { "fields" : "title" }
@@ -386,7 +386,7 @@ var result = variables.model.getTermVectors(
 Use the third argument, `params`, to configure the request using the [documented query parameters](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-termvectors.html#docs-termvectors-api-query-params): 
 
 ```js
-var result = variables.model.getTermVectors(
+var result = getInstance( "HyperClient@cbElasticsearch" ).getTermVectors(
     indexName = "books",
     id = "book_12345",
     params = {
@@ -401,7 +401,7 @@ var result = variables.model.getTermVectors(
 If you wish to analyze a payload (not an existing document) you can pass a payload in the `body` argument's `"doc"` field:
 
 ```js
-var result = variables.model.getTermVectors(
+var result = getInstance( "HyperClient@cbElasticsearch" ).getTermVectors(
     indexName = "books",
     body = {
       "doc" : {
@@ -410,6 +410,39 @@ var result = variables.model.getTermVectors(
     }
 );
 ```
+
+### SearchBuilder Term Vector Fetch
+
+The SearchBuilder object also offers a `getTermVectors()` method with a more fluent argument syntax:
+
+```js
+var result = getInstance( "SearchBuilder@cbElasticsearch" )
+                .new( "books" )
+                .getTermVectors(
+                    myDocument._id,
+                    "title,author.name"
+                );
+```
+
+or pass a struct of options for more fine-grained term vector retrieval:
+
+```js
+var result = getInstance( "SearchBuilder@cbElasticsearch" )
+                .new( "books" )
+                .getTermVectors(
+                    myDocument._id,
+                    "title,author.name",
+                    {
+                        "field_statistics" : false,
+                        "payloads" : false,
+                        "filter" : {
+                            "min_term_freq": 1,
+                            "min_word_length" : "4"
+                        }
+                    }
+                );
+```
+
 
 ## `SearchBuilder` Function Reference
 
