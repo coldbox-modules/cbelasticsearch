@@ -1312,6 +1312,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var result = variables.model
 						.new( variables.testIndexName )
 						.getTermVectors(
+							fields = [ "title" ],
 							options = {
 								"field_statistics" : false,
 								"payloads" : false,

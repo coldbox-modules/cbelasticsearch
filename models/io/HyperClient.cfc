@@ -534,6 +534,7 @@ component accessors="true" threadSafe singleton {
 	 * Request a vector of terms for the given index, document or document ID, and field names
 	 *
 	 * @indexName 	string		Index name or alias.
+	 * @id			string		Document ID to query term vectors on.
 	 * @params		struct		Struct of query parameters to influence the request. For example: `"offsets": false }`
 	 * @body		struct		Body payload to send. For example: `{ "filter": { "max_num_terms": 3 } }`
 	 */
