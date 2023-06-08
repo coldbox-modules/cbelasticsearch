@@ -171,6 +171,20 @@ component accessors="true" {
 	}
 
 	/**
+	 * Request a vector of terms for the given index, document or document ID, and field names
+	 *
+	 * @id 		Primary key of a document to query term vectors on
+	 * @fields 	Array or list of fields to pull term vectors on
+	 * @options Any custom parameters to send with the request.
+	 */
+	struct function getTermVectors( string id = "", any fields = "", struct options = {} ){
+		var args = arguments;
+		args.indexName = variables.index;
+
+		return getClient().getTermVectors( argumentCollection = args );
+	}
+
+	/**
 	 * Backwards compatible setter for max result size
 	 *
 	 * @deprecated

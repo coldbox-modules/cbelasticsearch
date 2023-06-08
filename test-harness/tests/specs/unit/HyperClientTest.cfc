@@ -1007,6 +1007,63 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( refreshResult._shards.total ).toBe( 0 );
 				} );
 
+				describe( "termVectors", function() {
+					it( "can get term vectors by document ID", function() {
+						expect( variables ).toHaveKey( "testIndexName" );
+
+						// create document and save
+						var testDocument = {
+							"_id"         : createUUID(),
+							"title"       : "My Test Document",
+							"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+						};
+
+						var document = getWirebox()
+							.getInstance( "Document@cbElasticsearch" )
+							.new(
+								variables.testIndexName,
+								"_doc",
+								testDocument
+							).save( refresh = true );
+						var result = variables.model.getTermVectors(
+							variables.testIndexName,
+							testDocument._id,
+							"title"
+						);
+debug( result );
+						expect( result.keyExists( "error" ) ).toBeFalse();
+						expect( result.keyExists( "term_vectors" ) ).toBeTrue();
+						expect( result.term_vectors ).toHaveKey( "title" );
+						expect( result.term_vectors.title ).toBeStruct()
+															.toHaveKey( "field_statistics" )
+															.toHaveKey( "terms" );
+					});
+					it( "can get term vectors by doc payload", function(){
+						expect( variables ).toHaveKey( "testIndexName" );
+	
+						// test options
+						var result = variables.model.getTermVectors(
+							indexName = variables.testIndexName,
+							options = {
+								"doc" : {
+									"title" : "My test document"
+								},
+								"filter" : {
+									"min_word_length" : 3
+								}
+							}
+						);
+	
+						expect( result.keyExists( "error" ) ).toBeFalse();
+						expect( result ).toHaveKey( "term_vectors" );
+	
+						// ensure only short terms returned
+						expect( result.term_vectors.title.terms )
+									.toHaveKey( "document" )
+									.notToHaveKey( "my" );
+					} );
+				});
+
 				it( "Tests getIndexStats method ", function(){
 					expect( variables ).toHaveKey( "testIndexName" );
 

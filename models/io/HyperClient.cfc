@@ -531,6 +531,32 @@ component accessors="true" threadSafe singleton {
 	}
 
 	/**
+	 * Request a vector of terms for the given index, document or document ID, and field names
+	 *
+	 * @indexName 	string		Index name or alias.
+	 * @id			string		Document ID to query term vectors on.
+	 * @params		struct		Struct of query parameters to influence the request. For example: `"offsets": false }`
+	 * @options		struct		Body payload to send. For example: `{ "filter": { "max_num_terms": 3 } }`
+	 */
+	struct function getTermVectors( required string indexName, string id = "", any fields = [], struct options = {} ){
+		arguments.options[ "fields" ] = arguments.fields;
+		if ( !isArray( arguments.options["fields"] ) ) {
+			arguments.options["fields"] = listToArray( arguments.options["fields"] );
+		}
+
+		var endpoint = [arguments.indexName, "_termvectors" ];
+		if ( arguments.id != "" ) {
+			endpoint.append( arguments.id );
+		}
+		var vectorRequest = variables.nodePool.newRequest( arrayToList( endpoint, "/" ), "POST" );
+
+		return vectorRequest
+			.setBody( getUtil().toJSON( arguments.options ) )
+			.send()
+			.json();
+	}
+
+	/**
 	 * Returns a struct containing all indices in the system, with statistics
 	 *
 	 * @verbose 	boolean 	whether to return the full stats output for the index
