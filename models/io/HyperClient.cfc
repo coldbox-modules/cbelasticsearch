@@ -536,9 +536,14 @@ component accessors="true" threadSafe singleton {
 	 * @indexName 	string		Index name or alias.
 	 * @id			string		Document ID to query term vectors on.
 	 * @params		struct		Struct of query parameters to influence the request. For example: `"offsets": false }`
-	 * @body		struct		Body payload to send. For example: `{ "filter": { "max_num_terms": 3 } }`
+	 * @options		struct		Body payload to send. For example: `{ "filter": { "max_num_terms": 3 } }`
 	 */
-	struct function getTermVectors( required string indexName, string id = "", struct params = {}, struct body = {} ){
+	struct function getTermVectors( required string indexName, string id = "", any fields = [], struct options = {} ){
+		arguments.options[ "fields" ] = arguments.fields;
+		if ( !isArray( arguments.options["fields"] ) ) {
+			arguments.options["fields"] = listToArray( arguments.options["fields"] );
+		}
+
 		var endpoint = [arguments.indexName, "_termvectors" ];
 		if ( arguments.id != "" ) {
 			endpoint.append( arguments.id );
@@ -546,8 +551,7 @@ component accessors="true" threadSafe singleton {
 		var vectorRequest = variables.nodePool.newRequest( arrayToList( endpoint, "/" ), "POST" );
 
 		return vectorRequest
-			.setBody( getUtil().toJSON( arguments.body ) )
-			.withQueryParams( arguments.params )
+			.setBody( getUtil().toJSON( arguments.options ) )
 			.send()
 			.json();
 	}

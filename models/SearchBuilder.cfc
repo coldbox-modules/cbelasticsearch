@@ -178,16 +178,8 @@ component accessors="true" {
 	 * @options Any custom parameters to send with the request.
 	 */
 	struct function getTermVectors( string id = "", any fields = "", struct options = {} ){
-		if ( !isArray( arguments.fields ) ) {
-			arguments.fields = listToArray( arguments.fields );
-		}
-		var args = {
-			indexName = variables.index,
-			id        = arguments.id,
-			params    = {},
-			body      = arguments.options
-		};
-		args.body[ "fields" ] = arguments.fields;
+		var args = arguments;
+		args.indexName = variables.index;
 
 		return getClient().getTermVectors( argumentCollection = args );
 	}

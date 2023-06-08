@@ -373,37 +373,40 @@ The ["Term Vectors" Elasticsearch API](https://www.elastic.co/guide/en/elasticse
 
 ### Retrieving Term Vectors By Document ID
 
-To retrieve term vectors for a known document ID:
+To retrieve term vectors for a known document ID, pass the index name, id, and an array or list of fields to pull from:
 
 ```js
 var result = getInstance( "HyperClient@cbElasticsearch" ).getTermVectors(
     "books",
     "book_12345",
-    { "fields" : "title" }
+    [ "title" ]
 );
 ```
 
-Use the third argument, `params`, to configure the request using the [documented query parameters](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-termvectors.html#docs-termvectors-api-query-params): 
+You can fine-tune the request using the `options` argument:
 
 ```js
 var result = getInstance( "HyperClient@cbElasticsearch" ).getTermVectors(
     indexName = "books",
     id = "book_12345",
-    params = {
+    options = {
         "fields" : "title",
         "min_word_length" : 4
     }
 );
 ```
 
+See the [query parameters](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-termvectors.html#docs-termvectors-api-query-params) documentation for more configuration options.
+
 ### Retrieving Term Vectors By Payload
 
-If you wish to analyze a payload (not an existing document) you can pass a payload in the `body` argument's `"doc"` field:
+If you wish to analyze a payload (not an existing document) you can pass a `"doc"` payload in the `options` argument:
 
 ```js
 var result = getInstance( "HyperClient@cbElasticsearch" ).getTermVectors(
     indexName = "books",
-    body = {
+    fields = [ "title" ],
+    options = {
       "doc" : {
         "title" : "The Lord of the Rings: The Fellowship of the Ring"
       }
@@ -413,36 +416,16 @@ var result = getInstance( "HyperClient@cbElasticsearch" ).getTermVectors(
 
 ### SearchBuilder Term Vector Fetch
 
-The SearchBuilder object also offers a `getTermVectors()` method with a more fluent argument syntax:
+The SearchBuilder object also offers a `getTermVectors()` method for convenience:
 
 ```js
 var result = getInstance( "SearchBuilder@cbElasticsearch" )
                 .new( "books" )
                 .getTermVectors(
                     myDocument._id,
-                    "title,author.name"
+                    [ "title,author.name" ]
                 );
 ```
-
-or pass a struct of options for more fine-grained term vector retrieval:
-
-```js
-var result = getInstance( "SearchBuilder@cbElasticsearch" )
-                .new( "books" )
-                .getTermVectors(
-                    myDocument._id,
-                    "title,author.name",
-                    {
-                        "field_statistics" : false,
-                        "payloads" : false,
-                        "filter" : {
-                            "min_term_freq": 1,
-                            "min_word_length" : "4"
-                        }
-                    }
-                );
-```
-
 
 ## `SearchBuilder` Function Reference
 

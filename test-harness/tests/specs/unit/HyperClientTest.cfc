@@ -1028,9 +1028,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						var result = variables.model.getTermVectors(
 							variables.testIndexName,
 							testDocument._id,
-							{ "fields" : "title" }
+							"title"
 						);
-
+debug( result );
 						expect( result.keyExists( "error" ) ).toBeFalse();
 						expect( result.keyExists( "term_vectors" ) ).toBeTrue();
 						expect( result.term_vectors ).toHaveKey( "title" );
@@ -1044,7 +1044,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						// test options
 						var result = variables.model.getTermVectors(
 							indexName = variables.testIndexName,
-							body = {
+							options = {
 								"doc" : {
 									"title" : "My test document"
 								},
