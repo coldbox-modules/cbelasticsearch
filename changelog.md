@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.2.0] - 06-08-2023
 ### Added
-* [Added `getTermsVector` to SearchBuilder and Client](https://cbelasticsearch.ortusbooks.com/searching/search#term-vectors) to allow for fetching term vectors on document field(s)
+* [Added `getTermVectors` to SearchBuilder and Client](https://cbelasticsearch.ortusbooks.com/searching/search#term-vectors) to allow for fetching term vectors on document field(s)
 
 ## [3.1.2] - 05-09-2023
 ### Fixed
