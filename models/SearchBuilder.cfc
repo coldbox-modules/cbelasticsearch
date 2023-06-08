@@ -175,27 +175,20 @@ component accessors="true" {
 	 *
 	 * @id 		Primary key of a document to query term vectors on
 	 * @fields 	Array or list of fields to pull term vectors on
-	 * @options Any custom query or body parameters.
+	 * @options Any custom parameters to send with the request.
 	 */
 	struct function getTermVectors( string id = "", any fields = "", struct options = {} ){
+		if ( !isArray( arguments.fields ) ) {
+			arguments.fields = listToArray( arguments.fields );
+		}
 		var args = {
 			indexName = variables.index,
 			id        = arguments.id,
-			params    = arguments.options,
-			body      = {}
+			params    = {},
+			body      = arguments.options
 		};
-		if ( isArray( arguments.fields ) ) {
-			arguments.fields = arrayToList( arguments.fields );
-		}
-		arguments.options[ "fields" ] = arguments.fields;
-		if ( arguments.options.keyExists( "doc" ) ){
-			args.body[ "doc" ] = arguments.options.doc;
-			arguments.options.delete( "doc" );
-		}
-		if ( arguments.options.keyExists( "filter" ) ){
-			args.body[ "filter" ] = arguments.options.filter;
-			arguments.options.delete( "filter" );
-		}
+		args.body[ "fields" ] = arguments.fields;
+
 		return getClient().getTermVectors( argumentCollection = args );
 	}
 
