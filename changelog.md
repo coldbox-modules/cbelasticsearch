@@ -8,7 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ----
 ## [Unreleased]
 
-## [3.1.3] - 06-08-2023
+## [3.2.1] - 06-20-2023
+### Fixed
+* Corrected a typing error when performing error handling in `deleteById()`
+
+## [3.2.0] - 06-08-2023
 ### Added
 * [Added `getTermVectors` to SearchBuilder and Client](https://cbelasticsearch.ortusbooks.com/searching/search#term-vectors) to allow for fetching term vectors on document field(s)
 

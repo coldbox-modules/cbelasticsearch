@@ -1031,10 +1031,11 @@ component accessors="true" threadSafe singleton {
 			deleteRequest.setQueryParam( param.name, param.value );
 		} );
 
-		var deleteResult = deleteRequest.send().json();
+		var response = deleteRequest.send();
+		var deleteResult = response.json();
 
 		if ( arguments.throwOnError && structKeyExists( deleteResult, "error" ) ) {
-			onResponseFailure( deleteResult );
+			onResponseFailure( response );
 		}
 
 		return deleteResult.keyExists( "error" ) ? false : deleteResult.result == "deleted";
