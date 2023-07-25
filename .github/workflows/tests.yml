@@ -27,12 +27,14 @@ jobs:
     continue-on-error: ${{ matrix.experimental }}
     strategy:
       matrix:
-        cfengine: [ "lucee@5", "adobe@2018", "adobe@2021" ]
-        ELASTICSEARCH_VERSION: [ "7.17.8", "8.7.0" ]
+        cfengine: [ "lucee@5", "adobe@2018", "adobe@2021", "adobe@2023" ]
+        coldboxVersion: [ "^6", "^7"  ]
+        ELASTICSEARCH_VERSION: [ "7.17.10", "8.8.1" ]
         experimental: [ false ]
         include:
-          - cfengine: "adobe@2023"
-            ELASTICSEARCH_VERSION: "8.7.0"
+          - cfengine: "lucee@6"
+            coldboxVersion: "^7"
+            ELASTICSEARCH_VERSION: "8.8.1"
             experimental: true
     steps:
       - name: Checkout Repository
