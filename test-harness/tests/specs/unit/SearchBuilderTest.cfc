@@ -256,8 +256,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 			it( "Tests the dateMatch() method", function(){
 				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
-				var dateStart     = dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssXXX" );
-				var dateEnd       = dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssXXX" );
+				var dateStart     = dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssXXX" );
+				var dateEnd       = dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssXXX" );
 				searchBuilder.dateMatch( "createdTime", dateStart, dateEnd, 2 );
 
 				expect( searchBuilder.getQuery() ).toBeStruct().toHaveKey( "bool" );
@@ -274,8 +274,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			} );
 			it( "Tests the filterRange() method", function(){
 				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
-				var dateStart     = dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssXXX" );
-				var dateEnd       = dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssXXX" );
+				var dateStart     = dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssXXX" );
+				var dateEnd       = dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssXXX" );
 				searchBuilder.filterRange( "createdTime", dateStart, dateEnd );
 
 				expect( searchBuilder.getQuery() ).toBeStruct().toHaveKey( "bool" );
@@ -1280,7 +1280,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var testDocument = {
 						"_id"         : createUUID(),
 						"title"       : "My Test Document",
-						"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+						"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" )
 					};
 
 					var document = getWirebox()
