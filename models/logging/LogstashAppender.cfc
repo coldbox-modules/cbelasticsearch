@@ -180,7 +180,7 @@ component
 		var tzInfo    = getTimezoneInfo();
 
 		var logObj = {
-			"@timestamp" : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
+			"@timestamp" : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'HH:nn:ssZZ" ),
 			"log"        : {
 				"level"    : level,
 				"logger"   : getName(),
@@ -188,7 +188,7 @@ component
 			},
 			"message" : message,
 			"event"   : {
-				"created"  : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
+				"created"  : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'HH:nn:ssZZ" ),
 				"severity" : loge.getSeverity(),
 				"category" : loggerCat,
 				"dataset"  : "cfml",

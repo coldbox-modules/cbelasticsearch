@@ -131,7 +131,7 @@ component accessors="true" singleton {
 
 	void function preflightLogEntry( required struct logObj ){
 		if ( !arguments.logObj.keyExists( "@timestamp" ) ) {
-			arguments.logObj[ "@timestamp" ] = dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+			arguments.logObj[ "@timestamp" ] = dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" )
 		}
 
 		// ensure consistent casing for search

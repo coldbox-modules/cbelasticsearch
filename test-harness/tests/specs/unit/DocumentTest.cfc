@@ -61,7 +61,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				var testDocument = {
 					"_id"         : createUUID(),
 					"title"       : "My Test Document",
-					"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+					"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" )
 				};
 
 				var created = variables.model
@@ -89,7 +89,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				var testDocument = {
 					"_id"         : createUUID(),
 					"title"       : "My Test Document",
-					"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+					"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" )
 				};
 
 				var created = variables.model
@@ -116,7 +116,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				var testDocument = {
 					"_id"         : "id with spaces",
 					"title"       : "My Test Document",
-					"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+					"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" )
 				};
 
 				var created = variables.model

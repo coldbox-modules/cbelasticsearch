@@ -173,7 +173,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var testDocument = {
 						"_id"         : createUUID(),
 						"title"       : "My Test Document",
-						"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+						"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" )
 					};
 
 					var document = getWirebox()
@@ -197,7 +197,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var testDocument = {
 						"_id"         : createUUID(),
 						"title"       : "My Test Document",
-						"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+						"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" )
 					};
 
 					var document = getWirebox()
@@ -260,7 +260,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						var bulkDoc = {
 							"_id"         : createUUID(),
 							"title"       : "Test Bulk Insert Document Number #i#",
-							"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+							"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" )
 						};
 
 						docs.append( bulkDoc );
@@ -335,7 +335,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						var bulkDoc = {
 							"_id"         : createUUID(),
 							"title"       : "Test Document Number #i#",
-							"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+							"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" )
 						};
 
 						arrayAppend(
@@ -369,7 +369,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						var bulkDoc = {
 							"_id"         : createUUID(),
 							"title"       : "Test Document Number #i#",
-							"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+							"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" )
 						};
 
 						arrayAppend(
@@ -410,7 +410,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						var bulkDoc = {
 							"_id"         : createUUID(),
 							"title"       : "Test Document Number #i#",
-							"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+							"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" )
 						};
 
 						arrayAppend(
@@ -634,7 +634,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						"testdocs", {
 							"_id"         : createUUID(),
 							"title"       : "My Test Document",
-							"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
+							"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" ),
 							"price"       : 9.99
 						} )
 						.save( refresh = true );
@@ -681,7 +681,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						{
 							"_id"         : createUUID(),
 							"title"       : "My Test Document",
-							"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
+							"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" ),
 							"price"       : 9.99
 						} )
 						.save( refresh = true );
@@ -795,7 +795,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var testDocument = {
 						"_id"         : createUUID(),
 						"title"       : "My Test Document for deletion",
-						"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+						"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" )
 					};
 
 					var document = getWirebox()
@@ -826,7 +826,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var testDocument = {
 						"_id"         : createUUID(),
 						"title"       : "My Test Document",
-						"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+						"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" )
 					};
 
 					var document = getWirebox()
@@ -862,7 +862,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var testDocument = {
 						"_id"         : createUUID(),
 						"title"       : "My Async Test Document",
-						"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+						"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" )
 					};
 
 					var document = getWirebox()
@@ -897,7 +897,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var testDocument = {
 						"_id"         : createUUID(),
 						"title"       : "My Test Document",
-						"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+						"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" )
 					};
 
 					var document = getWirebox()
@@ -947,7 +947,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					var testDocument = {
 						"_id"         : createUUID(),
 						"title"       : "My Test Document",
-						"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+						"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" )
 					};
 
 					var document = getWirebox()
@@ -1015,7 +1015,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						var testDocument = {
 							"_id"         : createUUID(),
 							"title"       : "My Test Document",
-							"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+							"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" )
 						};
 
 						var document = getWirebox()
@@ -1128,7 +1128,7 @@ debug( result );
 									{
 										"_id"         : createUUID(),
 										"title"       : "Test Document Number #i#",
-										"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+										"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" )
 									}
 								)
 							);
@@ -1201,7 +1201,7 @@ debug( result );
 										"_id"         : createUUID(),
 										"title"       : "Test Document Number #i#",
 										"flag"        : i % 2 == 0 ? "flag" : "noflag",
-										"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" )
+										"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" )
 									}
 								)
 							);
@@ -1271,7 +1271,7 @@ debug( result );
 						var bulkDoc = {
 							"_id"         : createUUID(),
 							"title"       : "Test Document Number #i#",
-							"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
+							"createdTime" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" ),
 							"description" : "Document Number #i# of 10,000"
 						};
 

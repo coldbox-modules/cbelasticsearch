@@ -24,7 +24,7 @@ var book = getInstance( "Document@cbElasticsearch" ).new(
             "lastName" = "Clausen"
         },
         // date with specific format type
-        "publishDate" = dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
+        "publishDate" = dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" ),
         "edition" = 1,
         "ISBN" = 123456789054321
     }
@@ -193,7 +193,7 @@ var ops = [
                     "lastName" = "Clausen"
                 },
                 // date with specific format type
-                "publishDate" = dateTimeFormat( now(), "yyyy-mm-dd'T'hh:nn:ssZZ" ),
+                "publishDate" = dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" ),
                 "edition" = 1,
                 "ISBN" = 123456789054321
             },
