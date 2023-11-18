@@ -51,6 +51,7 @@ component
 			"ILMPolicyName"         : "cbelasticsearch-logs",
 			"componentTemplateName" : "cbelasticsearch-logs-mappings",
 			"indexTemplateName"     : "cbelasticsearch-logs",
+			"indexTemplatePriority" : 150,
 			"pipelineName"          : "cbelasticsearch-logs",
 			// Retention of logs in number of days
 			"retentionDays"         : 365,
@@ -70,7 +71,8 @@ component
 			"index"                 : javacast( "null", 0 ),
 			"migrateIndices"        : false,
 			// Whether to throw an error if an attempt to save a log entry fails
-			"throwOnError"          : true
+			"throwOnError"          : true,
+			"async"                 : false
 		};
 
 		for ( var configKey in structKeyArray( instance.Defaults ) ) {
@@ -146,7 +148,12 @@ component
 		var logObj = marshallLogObject( argumentCollection = arguments );
 
 		try {
-			newDocument().new( index = getProperty( "dataStream" ), properties = logObj ).create();
+			var document = newDocument().new( index = getProperty( "dataStream" ), properties = logObj );
+			if( getProperty( "async" ) ){
+				variables.asyncManager.all( () => document.create() );
+			} else {
+				document.create();
+			}
 		} catch ( any e ) {
 			if ( getProperty( "throwOnError" ) ) {
 				rethrow;
@@ -397,8 +404,8 @@ component
 					componentTemplateName
 				],
 				"data_stream" : {},
-				"priority"    : 150,
-				"_meta"       : { "description" : "Index Template for cbElasticsearch Logs" }
+				"priority"    : getProperty( "indexTemplatePriority" ),
+				"_meta"       : { "description" : "Index Template for cbElasticsearch Logs ( DataStream: #dataStreamName# )" }
 			}
 		);
 
@@ -646,6 +653,17 @@ component
 						}
 					},
 					{
+						"user_info_fields" : {
+							"path_match"              : "user.info.*",
+							"match_mapping_type" : "string",
+							"mapping"            : {
+								"type"   : "text",
+								"norms"  : false,
+								"fields" : { "keyword" : { "type" : "keyword", "ignore_above" : 256 } }
+							}
+						}
+					},
+					{
 						"string_fields" : {
 							"match"              : "*",
 							"match_mapping_type" : "string",
@@ -671,6 +689,12 @@ component
 						"type"       : "object",
 						"properties" : { "category" : { "type" : "keyword" } }
 					},
+					"error" : {
+						"type"       : "object",
+						"properties" : {
+							"extrainfo" : { "type" : "text" }
+						}
+					},
 					"event" : {
 						"type"       : "object",
 						"properties" : {
@@ -685,7 +709,8 @@ component
 						"type"       : "object",
 						"properties" : {
 							"signature"    : { "type" : "keyword" },
-							"isSuppressed" : { "type" : "boolean" }
+							"isSuppressed" : { "type" : "boolean" },
+							"assignment" : { "type" : "keyword" }
 						}
 					}
 				}

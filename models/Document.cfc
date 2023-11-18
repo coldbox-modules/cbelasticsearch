@@ -105,7 +105,7 @@ component accessors="true" {
 			createOptions[ "_id" ] = variables.id;
 		}
 
-		variables.params[ "refresh" ] = "wait_for";
+		variables.params[ "refresh" ] = arguments.refresh ? "wait_for" : "false";
 
 		if ( !isNull( variables.pipeline ) ) {
 			variables.params[ "pipeline" ] = variables.pipeline;

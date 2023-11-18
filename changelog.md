@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ----
 ## [Unreleased]
+## Changed
+* Additional mapping enhancments for searchability
+* Set default document bulk create to refresh only when requested
+
+## Added
+* Added `async` property to LogstashAppender
+* Added `indexTemplatePriority` property to logstash appender to prevent conflicts with multiple log streams sharing the same stream pattern
 
 ## [3.2.2] - 07-27-2023
 ## Fixed
