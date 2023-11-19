@@ -642,17 +642,6 @@ component
 			"mappings" : {
 				"dynamic_templates" : [
 					{
-						"message_field" : {
-							"path_match"         : "message",
-							"match_mapping_type" : "string",
-							"mapping"            : {
-								"type"   : "text",
-								"norms"  : false,
-								"fields" : { "keyword" : { "type" : "keyword", "ignore_above" : 1024 } }
-							}
-						}
-					},
-					{
 						"user_info_fields" : {
 							"path_match"              : "user.info.*",
 							"match_mapping_type" : "string",
@@ -693,6 +682,14 @@ component
 						"type"       : "object",
 						"properties" : {
 							"extrainfo" : { "type" : "text" }
+						}
+					},
+					"message" : {
+						"type"   : "text",
+						"fields" : {
+							"keyword" : {
+								"type" : "keyword", "ignore_above" : 512
+							}
 						}
 					},
 					"event" : {

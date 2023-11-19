@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Changed
 * Additional mapping enhancments for searchability
 * Set default document bulk create to refresh only when requested
+* Change explicit mapping of root message field to `text` to ensure search scoring ability
 
 ## Added
 * Added `async` property to LogstashAppender
