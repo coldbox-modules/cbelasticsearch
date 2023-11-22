@@ -150,7 +150,7 @@ component
 		try {
 			var document = newDocument().new( index = getProperty( "dataStream" ), properties = logObj );
 			if( getProperty( "async" ) ){
-				variables.asyncManager.all( () => document.create() );
+				variables.asyncManager.newFuture().run( () => document.create() );
 			} else {
 				document.create();
 			}
