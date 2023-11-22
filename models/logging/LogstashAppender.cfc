@@ -150,7 +150,7 @@ component
 		try {
 			var document = newDocument().new( index = getProperty( "dataStream" ), properties = logObj );
 			if( getProperty( "async" ) ){
-				variables.asyncManager.all( () => document.create() );
+				variables.asyncManager.newFuture().run( () => document.create() );
 			} else {
 				document.create();
 			}
@@ -164,16 +164,16 @@ component
 					extraInfo = { "logData" : logObj, "exception" : e },
 					category  = e.type
 				);
-				var appendersMap  = application.wirebox.getLogbox().getAppendersMap();
+				var appendersMap  = application.wirebox.getLogbox().getAppenderRegistry();
 				// Log errors out to other appenders besides this one
-				var safeAppenders = appendersMap
+				appendersMap
 					.keyArray()
 					.filter( function( key ){
-						return key != getName();
+						return lcase( key ) != lcase( getName() );
+					} )
+					.each( function( appenderName ){
+						appendersMap[ appenderName ].logMessage( eLogEvent );
 					} );
-				saveAppenders.each( function( appenderName ){
-					appendersMap[ appenderName ].logMessage( eLogEvent );
-				} );
 			}
 		}
 	}
