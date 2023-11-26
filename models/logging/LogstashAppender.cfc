@@ -72,7 +72,9 @@ component
 			"migrateIndices"        : false,
 			// Whether to throw an error if an attempt to save a log entry fails
 			"throwOnError"          : true,
-			"async"                 : false
+			"async"                 : false,
+			// Timeout, in ms, to allow async threads to exist - otherwise they default to 0
+			"asyncTimeout"          : 5000
 		};
 
 		for ( var configKey in structKeyArray( instance.Defaults ) ) {
@@ -150,7 +152,7 @@ component
 		try {
 			var document = newDocument().new( index = getProperty( "dataStream" ), properties = logObj );
 			if( getProperty( "async" ) ){
-				variables.asyncManager.newFuture().run( () => document.create() );
+				variables.asyncManager.newFuture().withTimeout( getProperty( "asyncTimeout" ) ).run( () => document.create() );
 			} else {
 				document.create();
 			}
@@ -364,7 +366,7 @@ component
 		if ( propertyExists( "lifecyclePolicy" ) ) {
 			policyBuilder.setPhases( getProperty( "lifecyclePolicy" ) );
 		} else {
-			policyBuilder.withDeletion( age = getProperty( "retentionDays" ) );
+			policyBuilder.hotPhase( rollover=getProperty( "rolloverSize" ) ).withDeletion( age = getProperty( "retentionDays" ) );
 		}
 
 		policyBuilder.save();

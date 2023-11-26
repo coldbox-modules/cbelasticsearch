@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ----
 ## [Unreleased]
+### Added
+* Added `asyncTimeout` setting with default of 5000ms
+
+### Fixed
+* Fixed rollover size not being applied correctly on the ILM policy
 
 ## [3.2.4] - 11-21-2023
 ### Fixed
