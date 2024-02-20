@@ -453,7 +453,7 @@ component accessors="true" threadSafe singleton {
 			} else if ( reindexResult.keyExists( "error" ) ) {
 				throw(
 					type         = "cbElasticsearch.HyperClient.ReindexFailedException",
-					message      = "The reindex action failed with response code [#reindexResult.status#].  The cause of this exception was #reindexResult.error.reason ?: 'None'#",
+					message      = "The reindex action failed with response code [#reindexResult.status#].  The cause of this exception was #reindexResult.error.reason ?: "None"#",
 					extendedInfo = getUtil().toJSON( reindexResult )
 				);
 			}
@@ -538,13 +538,18 @@ component accessors="true" threadSafe singleton {
 	 * @params		struct		Struct of query parameters to influence the request. For example: `"offsets": false }`
 	 * @options		struct		Body payload to send. For example: `{ "filter": { "max_num_terms": 3 } }`
 	 */
-	struct function getTermVectors( required string indexName, string id = "", any fields = [], struct options = {} ){
+	struct function getTermVectors(
+		required string indexName,
+		string id      = "",
+		any fields     = [],
+		struct options = {}
+	){
 		arguments.options[ "fields" ] = arguments.fields;
-		if ( !isArray( arguments.options["fields"] ) ) {
-			arguments.options["fields"] = listToArray( arguments.options["fields"] );
+		if ( !isArray( arguments.options[ "fields" ] ) ) {
+			arguments.options[ "fields" ] = listToArray( arguments.options[ "fields" ] );
 		}
 
-		var endpoint = [arguments.indexName, "_termvectors" ];
+		var endpoint = [ arguments.indexName, "_termvectors" ];
 		if ( arguments.id != "" ) {
 			endpoint.append( arguments.id );
 		}
@@ -1031,7 +1036,7 @@ component accessors="true" threadSafe singleton {
 			deleteRequest.setQueryParam( param.name, param.value );
 		} );
 
-		var response = deleteRequest.send();
+		var response     = deleteRequest.send();
 		var deleteResult = response.json();
 
 		if ( arguments.throwOnError && structKeyExists( deleteResult, "error" ) ) {
@@ -1206,10 +1211,12 @@ component accessors="true" threadSafe singleton {
 					item.update.keyExists( "error" )
 					&& item.update.error.keyExists( "root_cause" )
 				)
-				 ? " Reason: #isArray( item.update.error.root_cause ) ? ( item.update.error.root_cause[ 1 ].reason ?: 'None' ) : ( item.update.error.root_cause.reason ?: 'None' )#"
+				 ? " Reason: #isArray( item.update.error.root_cause ) ? ( item.update.error.root_cause[ 1 ].reason ?: "None" ) : (
+					item.update.error.root_cause.reason ?: "None"
+				)#"
 				 : (
 					structKeyExists( item.update, "error" )
-					 ? " Reason: #item.update.error.reason ?: 'None'#"
+					 ? " Reason: #item.update.error.reason ?: "None"#"
 					 : ""
 				);
 				throw(

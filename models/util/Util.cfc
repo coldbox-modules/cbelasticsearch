@@ -95,13 +95,15 @@ component accessors="true" singleton {
 				&& !isSimpleValue( errorPayload.error )
 				&& errorPayload.error.keyExists( "root_cause" )
 			)
-			 ? " Reason: #isArray( errorPayload.error.root_cause ) ? ( errorPayload.error.root_cause[ 1 ].reason ?: 'None' ) : ( errorPayload.error.root_cause.reason ?: 'None' )#"
+			 ? " Reason: #isArray( errorPayload.error.root_cause ) ? ( errorPayload.error.root_cause[ 1 ].reason ?: "None" ) : (
+				errorPayload.error.root_cause.reason ?: "None"
+			)#"
 			 : (
 				structKeyExists( errorPayload, "error" )
 				 ? (
 					isSimpleValue( errorPayload.error )
 					 ? " Reason: #errorPayload.error# "
-					 : " Reason: #errorPayload.error.reason ?: 'None'#"
+					 : " Reason: #errorPayload.error.reason ?: "None"#"
 				)
 				 : ""
 			);

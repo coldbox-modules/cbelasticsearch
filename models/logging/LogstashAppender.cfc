@@ -123,10 +123,10 @@ component
 	 * Runs on registration
 	 */
 	public LogstashAppender function onRegistration() output=false{
-		try{
+		try {
 			ensureDataStream();
 			variables._dataStreamAssured = true;
-		} catch( any e ){
+		} catch ( any e ) {
 			createObject( "java", "java.lang.System" ).err.println(
 				"Unable to create data stream. The attempt to communicate with the Elasticsearch server returned: #e.message# - #e.detail#.  Your ability to log messages with this appender may be compromised."
 			);
@@ -138,11 +138,10 @@ component
 	 * Write an entry into the appender.
 	 */
 	public void function logMessage( required any logEvent ) output=false{
-
-		if( !variables._dataStreamAssured ){
+		if ( !variables._dataStreamAssured ) {
 			this.onRegistration();
 			// skip out if there was a communication failure
-			if( !variables._dataStreamAssured ){
+			if ( !variables._dataStreamAssured ) {
 				return;
 			}
 		}
@@ -151,8 +150,11 @@ component
 
 		try {
 			var document = newDocument().new( index = getProperty( "dataStream" ), properties = logObj );
-			if( getProperty( "async" ) ){
-				variables.asyncManager.newFuture().withTimeout( getProperty( "asyncTimeout" ) ).run( () => document.create() );
+			if ( getProperty( "async" ) ) {
+				variables.asyncManager
+					.newFuture()
+					.withTimeout( getProperty( "asyncTimeout" ) )
+					.run( () => document.create() );
 			} else {
 				document.create();
 			}
@@ -166,12 +168,12 @@ component
 					extraInfo = { "logData" : logObj, "exception" : e },
 					category  = e.type
 				);
-				var appendersMap  = application.wirebox.getLogbox().getAppenderRegistry();
+				var appendersMap = application.wirebox.getLogbox().getAppenderRegistry();
 				// Log errors out to other appenders besides this one
 				appendersMap
 					.keyArray()
 					.filter( function( key ){
-						return lcase( key ) != lcase( getName() );
+						return lCase( key ) != lCase( getName() );
 					} )
 					.each( function( appenderName ){
 						appendersMap[ appenderName ].logMessage( eLogEvent );
@@ -366,7 +368,9 @@ component
 		if ( propertyExists( "lifecyclePolicy" ) ) {
 			policyBuilder.setPhases( getProperty( "lifecyclePolicy" ) );
 		} else {
-			policyBuilder.hotPhase( rollover=getProperty( "rolloverSize" ) ).withDeletion( age = getProperty( "retentionDays" ) );
+			policyBuilder
+				.hotPhase( rollover = getProperty( "rolloverSize" ) )
+				.withDeletion( age = getProperty( "retentionDays" ) );
 		}
 
 		policyBuilder.save();
@@ -407,7 +411,9 @@ component
 				],
 				"data_stream" : {},
 				"priority"    : getProperty( "indexTemplatePriority" ),
-				"_meta"       : { "description" : "Index Template for cbElasticsearch Logs ( DataStream: #dataStreamName# )" }
+				"_meta"       : {
+					"description" : "Index Template for cbElasticsearch Logs ( DataStream: #dataStreamName# )"
+				}
 			}
 		);
 
@@ -645,7 +651,7 @@ component
 				"dynamic_templates" : [
 					{
 						"user_info_fields" : {
-							"path_match"              : "user.info.*",
+							"path_match"         : "user.info.*",
 							"match_mapping_type" : "string",
 							"mapping"            : {
 								"type"   : "text",
@@ -682,17 +688,11 @@ component
 					},
 					"error" : {
 						"type"       : "object",
-						"properties" : {
-							"extrainfo" : { "type" : "text" }
-						}
+						"properties" : { "extrainfo" : { "type" : "text" } }
 					},
 					"message" : {
 						"type"   : "text",
-						"fields" : {
-							"keyword" : {
-								"type" : "keyword", "ignore_above" : 512
-							}
-						}
+						"fields" : { "keyword" : { "type" : "keyword", "ignore_above" : 512 } }
 					},
 					"event" : {
 						"type"       : "object",
@@ -709,7 +709,7 @@ component
 						"properties" : {
 							"signature"    : { "type" : "keyword" },
 							"isSuppressed" : { "type" : "boolean" },
-							"assignment" : { "type" : "keyword" }
+							"assignment"   : { "type" : "keyword" }
 						}
 					}
 				}
