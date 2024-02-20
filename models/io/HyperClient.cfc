@@ -453,7 +453,7 @@ component accessors="true" threadSafe singleton {
 			} else if ( reindexResult.keyExists( "error" ) ) {
 				throw(
 					type         = "cbElasticsearch.HyperClient.ReindexFailedException",
-					message      = "The reindex action failed with response code [#reindexResult.status#].  The cause of this exception was #reindexResult.error.reason#",
+					message      = "The reindex action failed with response code [#reindexResult.status#].  The cause of this exception was #reindexResult.error.reason ?: 'None'#",
 					extendedInfo = getUtil().toJSON( reindexResult )
 				);
 			}
@@ -1206,10 +1206,10 @@ component accessors="true" threadSafe singleton {
 					item.update.keyExists( "error" )
 					&& item.update.error.keyExists( "root_cause" )
 				)
-				 ? " Reason: #isArray( item.update.error.root_cause ) ? item.update.error.root_cause[ 1 ].reason : item.update.error.root_cause.reason#"
+				 ? " Reason: #isArray( item.update.error.root_cause ) ? ( item.update.error.root_cause[ 1 ].reason ?: 'None' ) : ( item.update.error.root_cause.reason ?: 'None' )#"
 				 : (
 					structKeyExists( item.update, "error" )
-					 ? " Reason: #item.update.error.reason#"
+					 ? " Reason: #item.update.error.reason ?: 'None'#"
 					 : ""
 				);
 				throw(
