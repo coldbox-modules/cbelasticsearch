@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ----
 ## [Unreleased]
+
+### Fixed
+* Improved error handling for rare cases where ElasticSearch exceptions are missing a `reason` key.
+
 ## [3.2.5] - 11-26-2023
 ### Added
 * Added `asyncTimeout` setting with default of 5000ms
