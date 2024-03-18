@@ -46,7 +46,7 @@ getInstance( "Client@cbElasticsearch" ).applyPipeline( myPipeline );
 
 Note that if you are using a [secondary cluster](Configuration.md), you will need to perform your CRUD operations through the client, as the `save` method in the pipeline object will route through the top level client. 
 
-## Retrieving pipeline definitions
+## Retrieving Pipeline Definitions
 
 If we know the name of our pipeline, we can retreive the definition from Elasticsearch by using the `getPipeline` method of the client: 
 
@@ -92,7 +92,7 @@ getInstance( "Client@cbElastisearch" )
 	.deletePipeline( "foo-pipeline" );
 ```
 
-## Using pipelines When Saving Documents
+## Using Pipelines When Saving Documents
 
 Pipelines may be used when saving individual or multiple documents. See the [Documents](Documents.md) section for more information on document creation.
 
