@@ -4,7 +4,7 @@ description: Learn how to transform incoming data in an Elasticsearch Ingest Pip
 
 # Ingest Pipelines
 
-Elasticsearch allows you to create pipelines which pre-process inbound documents and data.  Methods are available to create, read, update and delete pipelines.  For more information on defining processors, conditionals and options see the (PUT Pipeline)[https://www.elastic.co/guide/en/elasticsearch/reference/master/put-pipeline-api.html] and (Processor)[https://www.elastic.co/guide/en/elasticsearch/reference/master/ingest-processors.html] documentation.
+Elasticsearch allows you to create pipelines which pre-process inbound documents and data.  Methods are available to create, read, update and delete pipelines.  For more information on defining processors, conditionals and options see the [PUT Pipeline](https://www.elastic.co/guide/en/elasticsearch/reference/master/put-pipeline-api.html) and [Processor](https://www.elastic.co/guide/en/elasticsearch/reference/master/ingest-processors.html) documentation.
 
 
 ## Creating a Pipeline
@@ -13,19 +13,19 @@ Let's say we want to automatically set a field on a document when we save it. We
 
 ```js
 var myPipeline = getInstance( "Pipeline@cbelasticsearch" ).new( {
-						"id" : "foo-pipeline",
-						"description" : "A test pipeline",
-						"version" : 1,
-						"processors" : [
-							{
-								"set" : {
-									"if" : "ctx.foo == null",
-									"field" : "foo",
-									"value" : "bar"
-								}
-							}
-						]
-					} );
+                        "id" : "foo-pipeline",
+                        "description" : "A test pipeline",
+                        "version" : 1,
+                        "processors" : [
+                            {
+                                "set" : {
+                                    "if" : "ctx.foo == null",
+                                    "field" : "foo",
+                                    "value" : "bar"
+                                }
+                            }
+                        ]
+                    } );
 ```
 
 With this pipeline, if a value of `foo` is not defined ( note that `ctx` is the document reference in the `if` conditional ) in the inbound document, then the value of that field will automatically be set to `'bar'`.
@@ -67,8 +67,8 @@ We can modify pipelines using the pipeline object, as well. Let's do this by ret
 
 ```js
 var pipeline = getInstance( "Pipeline@cbElasticsearch" )
-				.new( getInstance( "Client@cbElasticsearch" )
-				.getPipeline( "foo-pipeline" ) );
+                .new( getInstance( "Client@cbElasticsearch" )
+                .getPipeline( "foo-pipeline" ) );
 
 pipeline.addProcessor(
     {
