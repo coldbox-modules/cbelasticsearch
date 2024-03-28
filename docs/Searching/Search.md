@@ -203,6 +203,28 @@ for( hit in result.getHits() ){
 }
 ```
 
+
+### Runtime Mappings
+
+SearchBuilder also supports [Elasticsearch runtime mappings](https://www.elastic.co/guide/en/elasticsearch/reference/current/runtime-mapping-fields.html), which allow you to define a field in the index mapping which is generated or computed at runtime, but unlike [script fields](#script-fields) are available to use in aggregations, search queries, and so forth.
+
+```js
+searchBuilder.addRuntimeMapping( "hasPricing", {
+	"type" : "boolean",
+	"script": {
+		"source": "doc.containsKey( 'price' )"
+	}
+} );
+```
+
+This will result in an `"hasPricing"` field in the `fields` property on the `Document` object:
+
+```js
+var documentsWithPricing = searchBuilder.execute()
+	.getHits()
+	.filter( (document) => document.getFields()["hasPricing"] );
+```
+
 ### Advanced Query DSL
 
 The SearchBuilder also allows full use of the [Elasticsearch query language](https://www.elastic.co/guide/en/elasticsearch/reference/current/_introducing_the_query_language.html), allowing full configuration of your search queries. There are several methods to provide the raw query language to the Search Builder. One is during instantiation.

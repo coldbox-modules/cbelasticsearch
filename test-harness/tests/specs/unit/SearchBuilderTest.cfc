@@ -830,6 +830,20 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( searchBuilder.getDSL()[ "script_fields" ] ).toHaveKey( "with5PercentDiscount" );
 			} );
 
+			it( "Tests the addRuntimeMapping() method", function(){
+				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
+
+				searchBuilder.addRuntimeMapping( "hasPricing", {
+					"type" : "boolean",
+					"script": {
+						"source": "doc.containsKey( 'price' )"
+					}
+				} );
+	
+				expect( searchBuilder.getDSL() ).toBeStruct().toHaveKey( "runtime_mappings" );
+				expect( searchBuilder.getDSL()[ "runtime_mappings" ] ).toHaveKey( "hasPricing" );
+			} );
+
 			it( "Tests the addField() method for retrieving runtime or other fields", function(){
 				var search = variables.model.new( variables.testIndexName, "testdocs" );
 
