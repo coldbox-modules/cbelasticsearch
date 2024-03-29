@@ -162,7 +162,7 @@ var interest = searchBuilder.execute().getHits().map( (document) => document.get
 
 ### Runtime Fields
 
-Elasticsearch also allows the creation of runtime fields, which are fields defined in the index mapping but populated at search time via a script.
+Elasticsearch also supports defining runtime fields, which are fields defined in the index mapping but populated at search time via a script. You can [define these in the index mapping](../Indices/Managing-Indices.md#creating-runtime-fields), or [define them at search time](#define-runtime-fields-at-search-time).
 
 {% hint style="info" %}
 See [Managing-Indices](../Indices/Managing-Indices.md#creating-runtime-fields) for more information on creating runtime fields.
@@ -204,9 +204,9 @@ for( hit in result.getHits() ){
 ```
 
 
-### Runtime Mappings
+### Define Runtime Fields At Search Time
 
-SearchBuilder also supports [Elasticsearch runtime mappings](https://www.elastic.co/guide/en/elasticsearch/reference/current/runtime-mapping-fields.html), which allow you to define a field in the index mapping which is generated or computed at runtime, but unlike [script fields](#script-fields) are available to use in aggregations, search queries, and so forth.
+Elasticsearch also allows you to [define runtime fields at search time](https://www.elastic.co/guide/en/elasticsearch/reference/current/runtime-search-request.html), and unlike [script fields](#script-fields) these runtime fields are available to use in aggregations, search queries, and so forth.
 
 ```js
 searchBuilder.addRuntimeMapping( "hasPricing", {
