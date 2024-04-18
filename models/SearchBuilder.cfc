@@ -58,6 +58,13 @@ component accessors="true" {
 	property name="scriptFields" type="struct";
 
 	/**
+	 * Property containing elasticsearch "runtime_mappings" definition for runtime scripted fields
+	 *
+	 * https://www.elastic.co/guide/en/elasticsearch/reference/current/runtime-mapping-fields.html
+	 */
+	property name="runtimeMappings" type="struct";
+
+	/**
 	 * Property containing "fields" array of fields to return for each hit
 	 *
 	 * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-fields.html
@@ -1247,6 +1254,10 @@ component accessors="true" {
 			dsl[ "script_fields" ] = variables.scriptFields;
 		}
 
+		if ( !isNull( variables.runtimeMappings ) ) {
+			dsl[ "runtime_mappings" ] = variables.runtimeMappings;
+		}
+
 		if ( !isNull( variables.fields ) ) {
 			dsl[ "fields" ] = variables.fields;
 		}
@@ -1359,6 +1370,25 @@ component accessors="true" {
 			variables.fields = [];
 		}
 		variables.fields.append( arguments.value );
+		return this;
+	}
+
+
+	/**
+	 * Append a search-time (runtime) mapping to the search.
+	 *
+	 * @name Name of the runtime mapping field
+	 * 
+	 * @script Script to use. `{ "script" : { "lang": "painless", "source" : } }`
+	 */
+	public SearchBuilder function addRuntimeMapping(
+		required string name,
+		struct script
+	){
+		if ( isNull( variables.runtimeMappings ) ) {
+			variables.runtimeMappings = {};
+		}
+		variables.runtimeMappings[ arguments.name ] = arguments.script;
 		return this;
 	}
 

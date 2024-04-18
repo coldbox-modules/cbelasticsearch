@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ----
+## [3.3.0] - 04-18-2024
+
+### Added
+* Added `addRuntimeMapping()` method for mapping runtime fields at search time
+
+### Fixed
+* Improved error handling for rare cases where ElasticSearch exceptions are missing a `reason` key.
+
 ## [3.2.5] - 11-26-2023
 ### Added
 * Added `asyncTimeout` setting with default of 5000ms

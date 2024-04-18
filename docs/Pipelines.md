@@ -13,19 +13,19 @@ Let's say we want to automatically set a field on a document when we save it. We
 
 ```js
 var myPipeline = getInstance( "Pipeline@cbelasticsearch" ).new( {
-						"id" : "foo-pipeline",
-						"description" : "A test pipeline",
-						"version" : 1,
-						"processors" : [
-							{
-								"set" : {
-									"if" : "ctx.foo == null",
-									"field" : "foo",
-									"value" : "bar"
-								}
-							}
-						]
-					} );
+                        "id" : "foo-pipeline",
+                        "description" : "A test pipeline",
+                        "version" : 1,
+                        "processors" : [
+                            {
+                                "set" : {
+                                    "if" : "ctx.foo == null",
+                                    "field" : "foo",
+                                    "value" : "bar"
+                                }
+                            }
+                        ]
+                    } );
 ```
 
 With this pipeline, if a value of `foo` is not defined ( note that `ctx` is the document reference in the `if` conditional ) in the inbound document, then the value of that field will automatically be set to `'bar'`.
@@ -46,7 +46,7 @@ getInstance( "Client@cbElasticsearch" ).applyPipeline( myPipeline );
 
 Note that if you are using a [secondary cluster](Configuration.md), you will need to perform your CRUD operations through the client, as the `save` method in the pipeline object will route through the top level client. 
 
-## Retrieving pipeline definitions
+## Retrieving Pipeline Definitions
 
 If we know the name of our pipeline, we can retreive the definition from Elasticsearch by using the `getPipeline` method of the client: 
 
@@ -67,8 +67,8 @@ We can modify pipelines using the pipeline object, as well. Let's do this by ret
 
 ```js
 var pipeline = getInstance( "Pipeline@cbElasticsearch" )
-				.new( getInstance( "Client@cbElasticsearch" )
-				.getPipeline( "foo-pipeline" ) );
+                .new( getInstance( "Client@cbElasticsearch" )
+                .getPipeline( "foo-pipeline" ) );
 
 pipeline.addProcessor(
     {
@@ -92,7 +92,7 @@ getInstance( "Client@cbElastisearch" )
 	.deletePipeline( "foo-pipeline" );
 ```
 
-## Using pipelines When Saving Documents
+## Using Pipelines When Saving Documents
 
 Pipelines may be used when saving individual or multiple documents. See the [Documents](Documents.md) section for more information on document creation.
 
