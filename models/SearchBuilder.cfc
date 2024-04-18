@@ -177,8 +177,12 @@ component accessors="true" {
 	 * @fields 	Array or list of fields to pull term vectors on
 	 * @options Any custom parameters to send with the request.
 	 */
-	struct function getTermVectors( string id = "", any fields = "", struct options = {} ){
-		var args = arguments;
+	struct function getTermVectors(
+		string id      = "",
+		any fields     = "",
+		struct options = {}
+	){
+		var args       = arguments;
 		args.indexName = variables.index;
 
 		return getClient().getTermVectors( argumentCollection = args );
@@ -196,13 +200,13 @@ component accessors="true" {
 		return this;
 	}
 
-        /**
+	/**
 	 * Backwards compatible getter for max result size
-	 * 
+	 *
 	 * @deprecated
 	 */
 	any function getMaxRows(){
-	    return getSize();
+		return getSize();
 	}
 
 	/**
@@ -217,13 +221,13 @@ component accessors="true" {
 		return this;
 	}
 
-        /**
+	/**
 	 * Backwards compatible getter for start row
-	 * 
+	 *
 	 * @deprecated
 	 */
 	any function getStartRow(){
-	    return getFrom();
+		return getFrom();
 	}
 
 	/**
