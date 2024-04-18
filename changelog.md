@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ----
 ## [Unreleased]
 
+## [3.3.0] - 04-18-2024
+
 ### Added
 * Added `addRuntimeMapping()` method for mapping runtime fields at search time
 
