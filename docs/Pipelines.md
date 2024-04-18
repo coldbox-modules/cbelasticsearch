@@ -4,7 +4,7 @@ description: Learn how to transform incoming data in an Elasticsearch Ingest Pip
 
 # Ingest Pipelines
 
-Elasticsearch allows you to create pipelines which pre-process inbound documents and data.  Methods are available to create, read, update and delete pipelines.  For more information on defining processors, conditionals and options see the (PUT Pipeline)[https://www.elastic.co/guide/en/elasticsearch/reference/master/put-pipeline-api.html] and (Processor)[https://www.elastic.co/guide/en/elasticsearch/reference/master/ingest-processors.html] documentation.
+Elasticsearch allows you to create pipelines which pre-process inbound documents and data.  Methods are available to create, read, update and delete pipelines.  For more information on defining processors, conditionals and options see the [PUT Pipeline](https://www.elastic.co/guide/en/elasticsearch/reference/master/put-pipeline-api.html) and [Processor](https://www.elastic.co/guide/en/elasticsearch/reference/master/ingest-processors.html) documentation.
 
 
 ## Creating a Pipeline
