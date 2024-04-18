@@ -1373,6 +1373,7 @@ component accessors="true" {
 		return this;
 	}
 
+
 	/**
 	 * Append a search-time (runtime) mapping to the search.
 	 *
@@ -1382,8 +1383,7 @@ component accessors="true" {
 	 */
 	public SearchBuilder function addRuntimeMapping(
 		required string name,
-		struct script,
-		any source = true
+		struct script
 	){
 		if ( isNull( variables.runtimeMappings ) ) {
 			variables.runtimeMappings = {};

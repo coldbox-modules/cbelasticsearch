@@ -217,13 +217,21 @@ searchBuilder.addRuntimeMapping( "hasPricing", {
 } );
 ```
 
-This will result in an `"hasPricing"` field in the `fields` property on the `Document` object:
+Using `.addField()` ensures the field is returned with the document upon query completion:
+
+```js
+searchBuilder.addRuntimeMapping( "hasPricing", ... ).addField( "hasPricing" );
+```
+
+We can then retrieve the result field via the `getFields()` method:
 
 ```js
 var documentsWithPricing = searchBuilder.execute()
 	.getHits()
 	.filter( (document) => document.getFields()["hasPricing"] );
 ```
+
+or inlined with the document mento using `hit.getDocument( includeFields = true )`.
 
 ### Advanced Query DSL
 
