@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ----
 ## [Unreleased]
 
+### Added
+* Added `addRuntimeMapping()` method for mapping runtime fields at search time
+
 ### Fixed
 * Improved error handling for rare cases where ElasticSearch exceptions are missing a `reason` key.
 
