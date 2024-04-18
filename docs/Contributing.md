@@ -23,3 +23,12 @@ ELASTICSEARCH_PROTOCOL=http
 ELASTICSEARCH_HOST=127.0.0.1
 ELASTICSEARCH_PORT=9200
 ```
+
+## Releases
+
+To issue a new release:
+
+1. Update (and commit) `changelog.md` with each addition, bugfix, or security issue.
+   1. These should be placed under the version number heading: `## [x.y.z] - dd-mm-yyyy`. Later this will be automated to use the `## Unreleased` section.
+2. Set and commit the new version number in `box.json`, following semantic versioning format.
+3. Run the release script: `box recipe build/release.boxr`
