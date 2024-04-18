@@ -202,10 +202,12 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( variables.model.getClient().indexExists( variables.testIndexName ) ).toBeFalse();
 			} );
 			it( "Tests the delete() method with an index name argument", function(){
-				var shortLivedIndex = getWirebox().getInstance( "IndexBuilder@cbElasticSearch" ).new( variables.testIndexName );
+				var shortLivedIndex = getWirebox()
+					.getInstance( "IndexBuilder@cbElasticSearch" )
+					.new( variables.testIndexName );
 				shortLivedIndex.save();
 				expect( shortLivedIndex.getClient().indexExists( shortLivedIndex.getIndexName() ) ).toBeTrue();
-				
+
 				getWirebox().getInstance( "IndexBuilder@cbElasticSearch" ).delete( shortLivedIndex.getIndexName() );
 
 				expect( shortLivedIndex.getClient().indexExists( shortLivedIndex.getIndexName() ) ).toBeFalse();
