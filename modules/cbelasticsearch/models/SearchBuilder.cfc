@@ -389,11 +389,7 @@ component accessors="true" {
 	 * @start 		string 		the preformatted date string to start the range
 	 * @end 			string 		the preformatted date string to end the range
 	 **/
-	 SearchBuilder function filterRange(
-		required string name,
-		string start,
-		string end
-	){
+	SearchBuilder function filterRange( required string name, string start, string end ){
 		if ( isNull( arguments.start ) && isNull( arguments.end ) ) {
 			throw( type = "", message = "" );
 		}
@@ -405,9 +401,9 @@ component accessors="true" {
 		if ( !isNull( arguments.end ) ) {
 			properties[ "lte" ] = arguments.end;
 		}
-		param variables.query.bool                  = {};
-		param variables.query.bool.filter           = {};
-		param variables.query.bool.filter.range     = { "#arguments.name#" : properties };
+		param variables.query.bool              = {};
+		param variables.query.bool.filter       = {};
+		param variables.query.bool.filter.range = { "#arguments.name#" : properties };
 
 		return this;
 	}
