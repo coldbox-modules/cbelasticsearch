@@ -35,50 +35,50 @@ component accessors="true" threadSafe singleton {
 	/**
 	 * Config provider
 	 **/
-	cbElasticsearch.models.Config function getConfig() provider="Config@cbElasticsearch"{
+	cbElasticsearch.models.Config function getConfig() provider="Config@cbelasticsearch"{
 	}
 
 	/**
 	 * Util provider
 	 */
-	cbElasticsearch.models.util.Util function getUtil() provider="Util@cbElasticsearch"{
+	cbElasticsearch.models.util.Util function getUtil() provider="Util@cbelasticsearch"{
 	}
 
 	/**
 	 * Pool provider
 	 */
-	cbElasticsearch.models.io.HyperPool function newPool() provider="HyperPool@cbElasticsearch"{
+	cbElasticsearch.models.io.HyperPool function newPool() provider="HyperPool@cbelasticsearch"{
 	}
 
 	/**
 	 * Document provider
 	 **/
-	cbElasticsearch.models.Document function newDocument() provider="Document@cbElasticsearch"{
+	cbElasticsearch.models.Document function newDocument() provider="Document@cbelasticsearch"{
 	}
 
 	/**
 	 * Pipeline provider
 	 **/
-	cbElasticsearch.models.Document function newPipeline() provider="Pipeline@cbElasticsearch"{
+	cbElasticsearch.models.Document function newPipeline() provider="Pipeline@cbelasticsearch"{
 	}
 
 	/**
 	 * Task provider
 	 **/
-	cbElasticsearch.models.Task function newTask() provider="Task@cbElasticsearch"{
+	cbElasticsearch.models.Task function newTask() provider="Task@cbelasticsearch"{
 	}
 
 
 	/**
 	 * SearchBuilder provider
 	 **/
-	cbElasticsearch.models.SearchBuilder function newSearchBuilder() provider="SearchBuilder@cbElasticsearch"{
+	cbElasticsearch.models.SearchBuilder function newSearchBuilder() provider="SearchBuilder@cbelasticsearch"{
 	}
 
 	/**
 	 * SearchResult provider
 	 **/
-	cbElasticsearch.models.SearchResult function newResult() provider="SearchResult@cbElasticsearch"{
+	cbElasticsearch.models.SearchResult function newResult() provider="SearchResult@cbelasticsearch"{
 	}
 
 	/**

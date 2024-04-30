@@ -104,13 +104,13 @@ component
 	/**
 	 * Document provider
 	 **/
-	Document function newDocument() provider="Document@cbElasticsearch"{
+	Document function newDocument() provider="Document@cbelasticsearch"{
 	}
 
 	/**
 	 * Index Builder Provider
 	 **/
-	ILMPolicyBuilder function policyBuilder() provider="ILMPolicyBuilder@cbElasticsearch"{
+	ILMPolicyBuilder function policyBuilder() provider="ILMPolicyBuilder@cbelasticsearch"{
 	}
 
 	/**

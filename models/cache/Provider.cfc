@@ -97,7 +97,7 @@ component
 	/**
 	 * Elasticsearch Document provider
 	 **/
-	Client function newDocument() provider="Document@cbElasticsearch"{
+	Client function newDocument() provider="Document@cbelasticsearch"{
 	}
 
 

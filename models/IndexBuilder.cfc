@@ -49,13 +49,13 @@ component accessors="true" {
 	/**
 	 * MappingBuilder provider
 	 **/
-	MappingBuilder function getMappingBuilder() provider="MappingBuilder@cbElasticsearch"{
+	MappingBuilder function getMappingBuilder() provider="MappingBuilder@cbelasticsearch"{
 	}
 
 	/**
 	 * Config provider
 	 **/
-	Config function getConfig() provider="Config@cbElasticsearch"{
+	Config function getConfig() provider="Config@cbelasticsearch"{
 	}
 
 	/**

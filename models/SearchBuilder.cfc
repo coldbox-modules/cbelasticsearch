@@ -9,7 +9,7 @@
  */
 component accessors="true" {
 
-	property name="configObject" inject="Config@cbElasticsearch";
+	property name="configObject" inject="Config@cbelasticsearch";
 
 	/**
 	 * Property containing the index name of the active builder search

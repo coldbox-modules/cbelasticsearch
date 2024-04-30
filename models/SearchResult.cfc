@@ -59,7 +59,7 @@ component accessors="true" {
 	 **/
 	property name="executionTime";
 
-	property name="Util" inject="Util@cbElasticsearch";
+	property name="Util" inject="Util@cbelasticsearch";
 
 	function init(){
 		variables.start    = 0;
@@ -68,7 +68,7 @@ component accessors="true" {
 		variables.maxScore = 0;
 	}
 
-	Document function newDocument() provider="Document@cbElasticsearch"{
+	Document function newDocument() provider="Document@cbelasticsearch"{
 	}
 
 
