@@ -25,7 +25,7 @@ component accessors="true" threadSafe {
 	/**
 	 * Provider for the client
 	 */
-	cbElasticsearch.models.Client function getClient() provider="Client@cbElasticsearch"{
+	cbElasticsearch.models.Client function getClient() provider="HyperClient@cbelasticsearch"{
 	}
 
 

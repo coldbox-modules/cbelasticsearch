@@ -5,7 +5,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 	function beforeAll(){
 		super.beforeAll();
 
-		variables.searchClient    = getWirebox().getInstance( "Client@cbelasticsearch" );
+		variables.searchClient    = getWirebox().getInstance( "HyperClient@cbelasticsearch" );
 		variables.migrationsIndex = ".cfmigrations-testing";
 		variables.model           = new cbelasticsearch.models.migrations.Manager(
 			migrationsIndex = variables.migrationsIndex

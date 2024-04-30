@@ -3,7 +3,7 @@ component extends="HyperClientTest" {
 	function beforeAll(){
 		super.beforeAll();
 
-		variables.model = getWirebox().getInstance( "Client@cbElasticsearch" );
+		variables.model = getWirebox().getInstance( "HyperClient@cbelasticsearch" );
 
 		super.beforeAll();
 	}

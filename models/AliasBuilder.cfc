@@ -28,7 +28,7 @@ component accessors="true" {
 	/**
 	 * Client provider
 	 **/
-	Client function getClient() provider="Client@cbElasticsearch"{
+	Client function getClient() provider="HyperClient@cbelasticsearch"{
 	}
 
 	/**
