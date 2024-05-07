@@ -531,6 +531,62 @@ component accessors="true" threadSafe singleton {
 	}
 
 	/**
+	 * Open the given index/indices.
+	 * 
+	 * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-open-close.html
+	 *
+	 * @indexName 	string|array	Index name or alias. Can accept an array of index/alias names, as well as wildcard expressions or `_all`.
+	 * @params		struct			Struct of query parameters to influence the request. For example: `{ "expand_wildcards" : "none" }
+	 */
+	function openIndex( required string indexName, any params ){
+		var requestBuilder = getNodePool()
+			.newRequest( "#arrayToList( arguments.indexName )#/_open", "POST" )
+			.asJSON();
+
+		if ( structKeyExists( arguments, "params" ) ) {
+			parseParams( arguments.params ).each( function( param ){
+				requestBuilder.setQueryParam( param.name, param.value );
+			} );
+		}
+
+		var response = requestBuilder.send();
+
+		if ( response.getStatusCode() != 200 ) {
+			onResponseFailure( response );
+		} else {
+			return response.json();
+		}
+	}
+
+	/**
+	 * Close the given index/indices.
+	 * 
+	 * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-close.html
+	 *
+	 * @indexName 	string|array	Index name or alias. Can accept an array of index/alias names, as well as wildcard expressions or `_all`.
+	 * @params		struct			Struct of query parameters to influence the request. For example: `{ "expand_wildcards" : "none" }
+	 */
+	function closeIndex( required string indexName, any params ){
+		var requestBuilder = getNodePool()
+			.newRequest( "#arrayToList( arguments.indexName )#/_close", "POST" )
+			.asJSON();
+
+		if ( structKeyExists( arguments, "params" ) ) {
+			parseParams( arguments.params ).each( function( param ){
+				requestBuilder.setQueryParam( param.name, param.value );
+			} );
+		}
+
+		var response = requestBuilder.send();
+
+		if ( response.getStatusCode() != 200 ) {
+			onResponseFailure( response );
+		} else {
+			return response.json();
+		}
+	}
+
+	/**
 	 * Request a vector of terms for the given index, document or document ID, and field names
 	 *
 	 * @indexName 	string		Index name or alias.
