@@ -137,12 +137,15 @@ indexBuilder.patch(
 ```
 
 ## Retrieving Settings for an Index
+
 To retreive a list of all settings for an index you may use the `getSettings` method on the client. 
 
 ```js
 var indexSettings = getInstance( "Client@CBElasticsearch" ).getSettings( "bookshop" )
 ```
+
 ## Retrieving Mappings for an Index
+
 To retreive a list of the configured mappings for an index you may use the `getMappings` method on the client. 
 
 ```js
@@ -241,6 +244,26 @@ getInstance( "Client@CBElasticsearch" )
 ```
 
 This `summarized_emotions` field [can then be retrieved during a search](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-fields.html) to display an array of emotions matching the review summary.
+
+## Opening or Closing an Index
+
+Certain index-level settings can not be applied while the index is open. To solve this, CBElasticsearch offers the `.closeIndex()` and `.openIndex()` methods:
+
+```js
+var mappings = getInstance( "Client@CBElasticsearch" ).closeIndex( "reviews" );
+
+// apply settings...
+
+var mappings = getInstance( "Client@CBElasticsearch" ).openIndex( "reviews" );
+```
+
+Each of these methods accepts a struct of name/value (simple values only) arguments to pass in the query string:
+
+```js
+var mappings = getInstance( "Client@CBElasticsearch" ).closeIndex( "reviews", { "ignore_unavailable" : true } );
+```
+
+See [the Elasticsearch "Close Index" documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-close.html) for more information.
 
 ## Deleting an Index
 
