@@ -7,7 +7,7 @@ description: Learn how to search documents with CBElasticsearch
 The `SearchBuilder` object offers an expressive syntax for crafting detailed searches with ranked results. To perform a simple search for matching documents documents, using Elasticsearch's automatic scoring, we would use the `SearchBuilder` like so:
 
 ```js
-var searchResults = getInstance( "SearchBuilder@cbElasticsearch" )
+var searchResults = getInstance( "SearchBuilder@cbelasticsearch" )
     .new( index="bookshop", type="books" )
     .match( "name", "Elasticsearch" )
     .execute();
@@ -240,7 +240,7 @@ The SearchBuilder also allows full use of the [Elasticsearch query language](htt
 In the following we are looking for matches of active records with "Elasticsearch" in the `name`, `description`, or `shortDescription` fields. We are also looking for a phrase match of "is awesome" and are boosting the score of the applicable document, if found.
 
 ```js
-var search = getInstance( "SearchBuilder@cbElasticsearch" )
+var search = getInstance( "SearchBuilder@cbelasticsearch" )
     .new(
         index = "bookshop",
         type = "books",
@@ -269,7 +269,7 @@ var search = getInstance( "SearchBuilder@cbElasticsearch" )
 After instantion, you can use the `.param()` and `.bodyParam()` methods to set [query parameters](https://www.elastic.co/guide/en/elasticsearch/reference/8.7/search-search.html#search-search-api-query-params) and [body parameters](https://www.elastic.co/guide/en/elasticsearch/reference/8.7/search-search.html#search-search-api-request-body), respectively.
 
 ```js
-var response = getInstance( "SearchBuilder@cbElasticsearch" )
+var response = getInstance( "SearchBuilder@cbelasticsearch" )
     .new( "bookshop" )
     .sort( "publishDate DESC" )
     // match everything
@@ -295,7 +295,7 @@ The `collapseToField` allows you to collapse the results of the search to a spec
 Let's say, for example, we want to find the most recent version of a book in our index, for all books matching the phrase "Elasticsearch". In this case, we can group on the `title` field ( or, in this case `title.keyword`, which is a dynamic keyword-typed field in our index ) to retrieve the most recent version of the book.
 
 ```js
-var searchResults = getInstance( "SearchBuilder@cbElasticsearch" )
+var searchResults = getInstance( "SearchBuilder@cbelasticsearch" )
                                 .new( index="bookshop" )
                                 .mustMatch( "description", "Elasticsearch" )
                                 .collapseToField( "title.keyword" )
@@ -313,7 +313,7 @@ For more information on field collapsing, see the [Collapse Search Results Docum
 `collapseToField()` also supports an `includeOccurrences` option. By passing `includeOccurrences=true` to `collapseToField`, you can retrieve a map of all collapsed key values and their corresponding document count by calling `searchResult.getCollapsedOccurrences()`:
 
 ```js
-var elasticsearchBookTitles = getInstance( "SearchBuilder@cbElasticsearch" )
+var elasticsearchBookTitles = getInstance( "SearchBuilder@cbelasticsearch" )
                                 .new( index="bookshop" )
                                 .mustMatch( "description", "Elasticsearch" )
                                 .collapseToField( field = "title.keyword", includeOccurrences = {} )
@@ -330,7 +330,7 @@ For more information on field collapsing, see the [Collapse Search Results Docum
 Sometimes you only need a count of matching documents, rather than the results of the query. When this is the case, you can call the `count()` method from the search builder ( or using the client ) to only return the number of matched documents and omit the result set and metadata:
 
 ```js
-var docCount = getInstance( "SearchBuilder@cbElasticsearch" )
+var docCount = getInstance( "SearchBuilder@cbelasticsearch" )
     .new(
         index = "bookshop",
         type = "books",
@@ -375,7 +375,7 @@ On occasion, you may wish to show a set of terms matching a partial string. This
 To retrieve this data, you can use the client's `getTermsEnum()` method:
 
 ```js
-var terms = getInstance( "HyperClient@cbElasticsearch" )
+var terms = getInstance( "HyperClient@cbelasticsearch" )
             .getTermsEnum(
                 indexName  = "hotels",
                 field = "city",
@@ -388,7 +388,7 @@ var terms = getInstance( "HyperClient@cbElasticsearch" )
 For advanced lookups, you can use the second argument to pass a struct of custom options:
 
 ```js
-var terms = getInstance( "HyperClient@cbElasticsearch" )
+var terms = getInstance( "HyperClient@cbelasticsearch" )
             .getTermsEnum( ["cities","towns"], {
                 "field" : "name",
                 "string" : "west",
@@ -406,7 +406,7 @@ The ["Term Vectors" Elasticsearch API](https://www.elastic.co/guide/en/elasticse
 To retrieve term vectors for a known document ID, pass the index name, id, and an array or list of fields to pull from:
 
 ```js
-var result = getInstance( "HyperClient@cbElasticsearch" ).getTermVectors(
+var result = getInstance( "HyperClient@cbelasticsearch" ).getTermVectors(
     "books",
     "book_12345",
     [ "title" ]
@@ -416,7 +416,7 @@ var result = getInstance( "HyperClient@cbElasticsearch" ).getTermVectors(
 You can fine-tune the request using the `options` argument:
 
 ```js
-var result = getInstance( "HyperClient@cbElasticsearch" ).getTermVectors(
+var result = getInstance( "HyperClient@cbelasticsearch" ).getTermVectors(
     indexName = "books",
     id = "book_12345",
     options = {
@@ -433,7 +433,7 @@ See the [query parameters](https://www.elastic.co/guide/en/elasticsearch/referen
 If you wish to analyze a payload (not an existing document) you can pass a `"doc"` payload in the `options` argument:
 
 ```js
-var result = getInstance( "HyperClient@cbElasticsearch" ).getTermVectors(
+var result = getInstance( "HyperClient@cbelasticsearch" ).getTermVectors(
     indexName = "books",
     fields = [ "title" ],
     options = {
@@ -449,7 +449,7 @@ var result = getInstance( "HyperClient@cbElasticsearch" ).getTermVectors(
 The SearchBuilder object also offers a `getTermVectors()` method for convenience:
 
 ```js
-var result = getInstance( "SearchBuilder@cbElasticsearch" )
+var result = getInstance( "SearchBuilder@cbelasticsearch" )
                 .new( "books" )
                 .getTermVectors(
                     myDocument._id,

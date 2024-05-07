@@ -100,7 +100,7 @@ Now we can create our data stream in one of two ways. We can either send data to
 Create a data stream manually without data:
 
 ```js
-getInstance( "Client@cbElasticsearch" ).ensureDataStream( "my-index-foo" );
+getInstance( "Client@cbelasticsearch" ).ensureDataStream( "my-index-foo" );
 ```
 
 This will create the data stream and backing indices for the data stream named `my-index-foo`.  
