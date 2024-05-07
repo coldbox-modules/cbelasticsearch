@@ -532,13 +532,13 @@ component accessors="true" threadSafe singleton {
 
 	/**
 	 * Open the given index/indices.
-	 * 
+	 *
 	 * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-open-close.html
 	 *
 	 * @indexName 	string|array	Index name or alias. Can accept an array of index/alias names, as well as wildcard expressions or `_all`.
 	 * @params		struct			Struct of query parameters to influence the request. For example: `{ "expand_wildcards" : "none" }
 	 */
-	function openIndex( required string indexName, any params ){
+	function openIndex( required any indexName, any params ){
 		var requestBuilder = getNodePool()
 			.newRequest( "#arrayToList( arguments.indexName )#/_open", "POST" )
 			.asJSON();
@@ -560,13 +560,13 @@ component accessors="true" threadSafe singleton {
 
 	/**
 	 * Close the given index/indices.
-	 * 
+	 *
 	 * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-close.html
 	 *
 	 * @indexName 	string|array	Index name or alias. Can accept an array of index/alias names, as well as wildcard expressions or `_all`.
 	 * @params		struct			Struct of query parameters to influence the request. For example: `{ "expand_wildcards" : "none" }
 	 */
-	function closeIndex( required string indexName, any params ){
+	function closeIndex( required any indexName, any params ){
 		var requestBuilder = getNodePool()
 			.newRequest( "#arrayToList( arguments.indexName )#/_close", "POST" )
 			.asJSON();
