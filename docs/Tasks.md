@@ -11,7 +11,7 @@ An example, using the reindex method and flushing the status output to the brows
 ```js
 var oldIndex = "books_v1";
 var newIndex = "books_v2";
-var reindexTask = getInstance( "Client@cbElasticsearch" )
+var reindexTask = getInstance( "Client@cbelasticsearch" )
                         .reindex(
                             source = oldIndex,
                             destination = newIndex,

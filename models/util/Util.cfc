@@ -108,27 +108,20 @@ component accessors="true" singleton {
 				 : ""
 			);
 		}
+		var message = "Your request was invalid.  The response returned was #toJSON( errorPayload )#";
+		var type = "cbElasticsearch.invalidRequest";
 		if ( len( errorReason ) && !isSimpleValue( errorPayload.error ) && errorPayload.error.keyExists( "type" ) ) {
-			throw(
-				type         = "cbElasticsearch.native.#errorPayload.error.type#",
-				message      = "An error was returned when communicating with the Elasticsearch server.  The error received was: #errorReason#",
-				errorCode    = errorPayload.status,
-				extendedInfo = isJSON( errorPayload ) ? errorPayload : toJSON( errorPayload )
-			)
+			type = "cbElasticsearch.native.#errorPayload.error.type#";
+			message = "An error was returned when communicating with the Elasticsearch server.  The error received was: #errorReason#";
 		} else if ( isSimpleValue( errorPayload ) && !isJSON( errorPayload ) ) {
-			throw(
-				type         = "cbElasticsearch.invalidRequest",
-				message      = "An error occurred while communicating with the Elasticsearch server. The response received was not JSON",
-				extendedInfo = errorPayload,
-				errorCode    = response.getStatusCode()
-			);
-		} else {
-			throw(
-				type         = "cbElasticsearch.invalidRequest",
-				message      = "Your request was invalid.  The response returned was #toJSON( errorPayload )#",
-				extendedInfo = isJSON( errorPayload ) ? errorPayload : toJSON( errorPayload )
-			);
+			message = "Elasticsearch server responded with [#response.getStatus()#]. The response received was not JSON.";
 		}
+		throw(
+			type         = type,
+			message      = message,
+			errorCode    = isStruct( errorPayload ) && errorPayload.keyExists( "status" ) ? errorPayload.status : response.getStatusCode(),
+			extendedInfo = isJSON( errorPayload ) ? errorPayload : toJSON( errorPayload )
+		);
 	}
 
 	void function preflightLogEntry( required struct logObj ){

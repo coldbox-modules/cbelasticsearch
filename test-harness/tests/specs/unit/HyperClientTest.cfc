@@ -37,7 +37,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				};
 
 				var indexBuilder = getWirebox()
-					.getInstance( "IndexBuilder@cbElasticsearch" )
+					.getInstance( "IndexBuilder@cbelasticsearch" )
 					.new( name = variables.testIndexName, properties = builderProperties );
 				expect( indexBuilder ).toBeComponent();
 				expect( indexBuilder.getMappings() ).toBeStruct();
@@ -62,7 +62,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					};
 
 					var indexBuilder = getWirebox()
-						.getInstance( "IndexBuilder@cbElasticsearch" )
+						.getInstance( "IndexBuilder@cbelasticsearch" )
 						.new( name = variables.testIndexName, properties = mappingUpdates );
 						
 					var indexResult = variables.model.applyIndex( indexBuilder );
@@ -90,7 +90,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					};
 
 					var indexBuilder = getWirebox()
-						.getInstance( "IndexBuilder@cbElasticsearch" )
+						.getInstance( "IndexBuilder@cbelasticsearch" )
 						.new( name = variables.testIndexName, properties = settingsUpdates );
 
 					var indexResult = variables.model.applyIndex( indexBuilder );
@@ -177,7 +177,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					};
 
 					var document = getWirebox()
-						.getInstance( "Document@cbElasticsearch" )
+						.getInstance( "Document@cbelasticsearch" )
 						.new(
 							variables.testIndexName,
 							"_doc",
@@ -201,7 +201,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					};
 
 					var document = getWirebox()
-						.getInstance( "Document@cbElasticsearch" )
+						.getInstance( "Document@cbelasticsearch" )
 						.new(
 							variables.testIndexName,
 							"_doc",
@@ -214,7 +214,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( saveResult.getId() ).toBe( testDocument[ "_id" ] );
 
 					var existingDocument = getWirebox()
-						.getInstance( "Document@cbElasticsearch" )
+						.getInstance( "Document@cbelasticsearch" )
 						.get( saveResult.getId(), variables.testIndexName );
 					expect( existingDocument ).notToBeNull();
 				} );
@@ -340,7 +340,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 						arrayAppend(
 							documents,
-							getInstance( "Document@cbElasticsearch" ).new(
+							getInstance( "Document@cbelasticsearch" ).new(
 								variables.testIndexName,
 								"_doc",
 								bulkDoc
@@ -374,7 +374,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 						arrayAppend(
 							documents,
-							getInstance( "Document@cbElasticsearch" ).new(
+							getInstance( "Document@cbelasticsearch" ).new(
 								variables.testIndexName,
 								"_doc",
 								bulkDoc
@@ -415,7 +415,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 						arrayAppend(
 							documents,
-							getInstance( "Document@cbElasticsearch" ).new(
+							getInstance( "Document@cbelasticsearch" ).new(
 								variables.testIndexName,
 								"_doc",
 								bulkDoc
@@ -537,7 +537,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( variables ).toHaveKey( "testDocumentId" );
 
 					var searchBuilder = getWirebox()
-						.getInstance( "SearchBuilder@cbElasticsearch" )
+						.getInstance( "SearchBuilder@cbelasticsearch" )
 						.new( index = variables.testIndexName, type = "_doc" );
 
 					searchBuilder.match( "title", "Test" );
@@ -552,7 +552,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 				it( "Tests error handling on executing search with an invalid index", function(){
 					var searchBuilder = getWirebox()
-						.getInstance( "SearchBuilder@cbElasticsearch" )
+						.getInstance( "SearchBuilder@cbelasticsearch" )
 						.new( index = "noSuchIndex", type = "_doc" );
 
 					// confirm it throws at all
@@ -575,7 +575,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 				it( "Tests the ability to handle errors on a search request with an invalid payload", function(){
 					var searchBuilder = getWirebox()
-						.getInstance( "SearchBuilder@cbElasticsearch" )
+						.getInstance( "SearchBuilder@cbelasticsearch" )
 						.new( index = variables.testIndexName, type = "_doc" );
 					searchBuilder.setQuery( { "invalid_syntax" : { "foo" : "bar" } } );
 
@@ -588,7 +588,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( variables ).toHaveKey( "testDocumentId" );
 
 					var searchBuilder = getWirebox()
-						.getInstance( "SearchBuilder@cbElasticsearch" )
+						.getInstance( "SearchBuilder@cbelasticsearch" )
 						.new( index = variables.testIndexName, type = "_doc" );
 
 					searchBuilder.match( "title", "Test" );
@@ -605,7 +605,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 					// sleep for this test
 
-					var searchBuilder = getWirebox().getInstance( "SearchBuilder@cbElasticsearch" ).new();
+					var searchBuilder = getWirebox().getInstance( "SearchBuilder@cbelasticsearch" ).new();
 					searchBuilder.setIndex( variables.testIndexName );
 					searchBuilder.setType( "_doc" );
 
@@ -629,7 +629,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 
 				it( "Tests custom script fields", function(){
-					getWirebox().getInstance( "Document@cbElasticsearch" ).new(
+					getWirebox().getInstance( "Document@cbelasticsearch" ).new(
 						variables.testIndexName,
 						"testdocs", {
 							"_id"         : createUUID(),
@@ -638,7 +638,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 							"price"       : 9.99
 						} )
 						.save( refresh = true );
-					var searchBuilder = getWirebox().getInstance( "SearchBuilder@cbElasticsearch" ).new(
+					var searchBuilder = getWirebox().getInstance( "SearchBuilder@cbelasticsearch" ).new(
 						variables.testIndexName,
 						"testdocs",
 						{ "match_all" : {} }
@@ -662,7 +662,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} );
 
 				it( "Tests runtime fields", function(){
-					getWirebox().getInstance( "IndexBuilder@cbElasticsearch" )
+					getWirebox().getInstance( "IndexBuilder@cbelasticsearch" )
 						.patch( name = variables.testIndexName, properties = {
 							"mappings" : {
 								"runtime" : {
@@ -675,7 +675,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 								}
 							}
 						} );
-					getWirebox().getInstance( "Document@cbElasticsearch" ).new(
+					getWirebox().getInstance( "Document@cbelasticsearch" ).new(
 						variables.testIndexName,
 						"testdocs",
 						{
@@ -685,7 +685,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 							"price"       : 9.99
 						} )
 						.save( refresh = true );
-					var searchBuilder = getWirebox().getInstance( "SearchBuilder@cbElasticsearch" ).new(
+					var searchBuilder = getWirebox().getInstance( "SearchBuilder@cbelasticsearch" ).new(
 						variables.testIndexName,
 						"testdocs"
 					)
@@ -799,7 +799,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					};
 
 					var document = getWirebox()
-						.getInstance( "Document@cbElasticsearch" )
+						.getInstance( "Document@cbelasticsearch" )
 						.new(
 							variables.testIndexName,
 							"_doc",
@@ -830,7 +830,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					};
 
 					var document = getWirebox()
-						.getInstance( "Document@cbElasticsearch" )
+						.getInstance( "Document@cbelasticsearch" )
 						.new(
 							variables.testIndexName,
 							"_doc",
@@ -842,7 +842,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( variables.model.get( testDocument[ "_id" ], variables.testIndexName ) ).notToBeNull();
 
 					var searchBuilder = getWirebox()
-						.getInstance( "SearchBuilder@cbElasticsearch" )
+						.getInstance( "SearchBuilder@cbelasticsearch" )
 						.new(
 							variables.testIndexName,
 							"_doc",
@@ -866,7 +866,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					};
 
 					var document = getWirebox()
-						.getInstance( "Document@cbElasticsearch" )
+						.getInstance( "Document@cbelasticsearch" )
 						.new(
 							variables.testIndexName,
 							"_doc",
@@ -878,7 +878,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( variables.model.get( testDocument[ "_id" ], variables.testIndexName ) ).notToBeNull();
 
 					var searchBuilder = getWirebox()
-						.getInstance( "SearchBuilder@cbElasticsearch" )
+						.getInstance( "SearchBuilder@cbelasticsearch" )
 						.new(
 							variables.testIndexName,
 							"_doc",
@@ -901,7 +901,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					};
 
 					var document = getWirebox()
-						.getInstance( "Document@cbElasticsearch" )
+						.getInstance( "Document@cbelasticsearch" )
 						.new(
 							variables.testIndexName,
 							"_doc",
@@ -930,7 +930,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					expect( updateResult.updated ).toBeGT( 0 );
 
 					var updatedDocument = getWirebox()
-						.getInstance( "Document@cbElasticsearch" )
+						.getInstance( "Document@cbelasticsearch" )
 						.get(
 							testDocument._id,
 							variables.testIndexName,
@@ -951,7 +951,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					};
 
 					var document = getWirebox()
-						.getInstance( "Document@cbElasticsearch" )
+						.getInstance( "Document@cbelasticsearch" )
 						.new(
 							variables.testIndexName,
 							"_doc",
@@ -1019,7 +1019,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						};
 
 						var document = getWirebox()
-							.getInstance( "Document@cbElasticsearch" )
+							.getInstance( "Document@cbelasticsearch" )
 							.new(
 								variables.testIndexName,
 								"_doc",
@@ -1122,7 +1122,7 @@ debug( result );
 						for ( var i = 1; i <= 13; i++ ) {
 							arrayAppend(
 								documents,
-								getInstance( "Document@cbElasticsearch" ).new(
+								getInstance( "Document@cbelasticsearch" ).new(
 									variables.testIndexNameOne,
 									"_doc",
 									{
@@ -1194,7 +1194,7 @@ debug( result );
 						for ( var i = 1; i <= 10; i++ ) {
 							arrayAppend(
 								documents,
-								getInstance( "Document@cbElasticsearch" ).new(
+								getInstance( "Document@cbelasticsearch" ).new(
 									variables.testIndexNameOne,
 									"_doc",
 									{
@@ -1277,7 +1277,7 @@ debug( result );
 
 						arrayAppend(
 							documents,
-							getInstance( "Document@cbElasticsearch" ).new(
+							getInstance( "Document@cbelasticsearch" ).new(
 								variables.testIndexName,
 								"_doc",
 								bulkDoc
@@ -1385,7 +1385,7 @@ debug( result );
 					expect( isNull( variables.model.getPipeline( "pipeline-test" ) ) ).toBeFalse();
 
 					var document = getWirebox()
-						.getInstance( "Document@cbElasticsearch" )
+						.getInstance( "Document@cbelasticsearch" )
 						.new(
 							index      = variables.testIndexName,
 							properties = { "id" : createUUID(), "name" : "My test document" }
@@ -1728,7 +1728,7 @@ debug( result );
 
 			describe( "General requests", function() {
 				it( "can query terms enum with options struct", function() {
-					var result = getInstance( "HyperClient@cbElasticsearch" )
+					var result = getInstance( "HyperClient@cbelasticsearch" )
 						.getTermsEnum( [ variables.testIndexName ], {
 							"field" : "title",
 							"size" : 50
@@ -1738,7 +1738,7 @@ debug( result );
 										.toHaveKey( "_shards" );
 				});
 				it( "can query terms enum with simple arguments", function() {
-					var result = getInstance( "HyperClient@cbElasticsearch" )
+					var result = getInstance( "HyperClient@cbelasticsearch" )
 						.getTermsEnum(
 							indexName  = variables.testIndexName,
 							field = "title",

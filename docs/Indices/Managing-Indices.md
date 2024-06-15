@@ -13,7 +13,7 @@ By default, Elasticsearch will dynamically generate these index mapping when a d
 To retrieve a list of all indices on the connected cluster, use the client `getIndices` method:
 
 ```js
-var indexMap = getInstance( "Client@cbElasticsearch" ).getIndices();
+var indexMap = getInstance( "Client@cbelasticsearch" ).getIndices();
 ```
 
 This will return a struct of all indices ( with the names as keys ), which will provide additional information on each index, such as:
@@ -27,7 +27,7 @@ This will return a struct of all indices ( with the names as keys ), which will 
 The `IndexBuilder` model assists with the creation and mapping of indices. Mappings define the allowable data types within your documents and allow for better and more accurate search aggregations. Let's say we have a book model that we intend to make searchable via a `bookshop` index. Let's go ahead and create the index using the IndexBuilder:
 
 ```js
-var indexBuilder = getInstance( "IndexBuilder@cbElasticsearch" ).new( "bookshop" ).save();
+var indexBuilder = getInstance( "IndexBuilder@cbelasticsearch" ).new( "bookshop" ).save();
 ```
 
 This will create an empty index which we can begin populating with documents.
@@ -37,7 +37,7 @@ This will create an empty index which we can begin populating with documents.
 To avoid the inherent troubles with dynamic mappings, you can define an explicit mapping using the `properties` argument:
 
 ```js
-getInstance( "IndexBuilder@cbElasticsearch" )
+getInstance( "IndexBuilder@cbelasticsearch" )
     .new(
         name = "bookshop",
         properties = {
@@ -64,12 +64,12 @@ While it is not *required* that you explicitly define an index mapping, it is **
 
 ## Using Client.ApplyIndex
 
-In the previous examples, we've created the index and mapping from the IndexBuilder itself. If we wish, we could instead pass the `IndexBuilder` object to the `Client@cbElasticsearch` instance's `applyIndex( required IndexBuilder indexBuilder )` method:
+In the previous examples, we've created the index and mapping from the IndexBuilder itself. If we wish, we could instead pass the `IndexBuilder` object to the `Client@cbelasticsearch` instance's `applyIndex( required IndexBuilder indexBuilder )` method:
 
 ```js
 var myNewIndex = indexBuilder.new( "bookshop" )
                     .populate( getInstance( "BookshopIndexConfig@myApp" ).getConfig() );
-getInstance( "Client@cbElasticsearch" ).applyIndex( myNewIndex );
+getInstance( "Client@cbelasticsearch" ).applyIndex( myNewIndex );
 ```
 
 ## Configuring Index Settings
@@ -137,16 +137,19 @@ indexBuilder.patch(
 ```
 
 ## Retrieving Settings for an Index
+
 To retreive a list of all settings for an index you may use the `getSettings` method on the client. 
 
 ```js
-var indexSettings = getInstance( "Client@CBElasticsearch" ).getSettings( "bookshop" )
+var indexSettings = getInstance( "Client@cbelasticsearch" ).getSettings( "bookshop" )
 ```
+
 ## Retrieving Mappings for an Index
+
 To retreive a list of the configured mappings for an index you may use the `getMappings` method on the client. 
 
 ```js
-var mappings = getInstance( "Client@CBElasticsearch" ).getMappings( "reviews" );
+var mappings = getInstance( "Client@cbelasticsearch" ).getMappings( "reviews" );
 ```
 
 ## Triggering an index refresh
@@ -154,21 +157,21 @@ var mappings = getInstance( "Client@CBElasticsearch" ).getMappings( "reviews" );
 On occasion, you may need to ensure the index is updated in real time (immediately and synchronously). This can be done via the `refreshIndex()` client method:
 
 ```js
-var mappings = getInstance( "Client@CBElasticsearch" ).refreshIndex( "reviews" );
+var mappings = getInstance( "Client@cbelasticsearch" ).refreshIndex( "reviews" );
 ```
 
 You can refresh multiple indices at once:
 
 ```js
-var mappings = getInstance( "Client@CBElasticsearch" ).refreshIndex( [ "reviews", "books" ] );
+var mappings = getInstance( "Client@cbelasticsearch" ).refreshIndex( [ "reviews", "books" ] );
 // OR
-var mappings = getInstance( "Client@CBElasticsearch" ).refreshIndex( "reviews,books" );
+var mappings = getInstance( "Client@cbelasticsearch" ).refreshIndex( "reviews,books" );
 ```
 
 as well as pass [supported query parameters](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-refresh.html#refresh-api-query-params) to the refresh endpoint. This can be useful when using wildcards in the index/alias names:
 
 ```js
-var mappings = getInstance( "Client@CBElasticsearch" ).refreshIndex(
+var mappings = getInstance( "Client@cbelasticsearch" ).refreshIndex(
     [ "reviews", "book*" ],
     { "ignore_unavailable" : true }
 );
@@ -179,33 +182,33 @@ var mappings = getInstance( "Client@CBElasticsearch" ).refreshIndex(
 To retrieve statistics on an index, use the `getIndexStats()` method:
 
 ```js
-var mappings = getInstance( "Client@CBElasticsearch" ).getIndexStats( "reviews" );
+var mappings = getInstance( "Client@cbelasticsearch" ).getIndexStats( "reviews" );
 ```
 
 You can retrieve particular statistics metrics:
 
 ```js
-var mappings = getInstance( "Client@CBElasticsearch" )
+var mappings = getInstance( "Client@cbelasticsearch" )
                     .getIndexStats( "reviews", [ "indexing", "search" ] );
 ```
 
 Or all metrics:
 
 ```js
-var mappings = getInstance( "Client@CBElasticsearch" )
+var mappings = getInstance( "Client@cbelasticsearch" )
                     .getIndexStats( "reviews", [ "_all" ] );
 ```
 
 You can even retrieve all metrics on all indices by skipping the `indexName` parameter entirely:
 
 ```js
-var mappings = getInstance( "Client@CBElasticsearch" ).getIndexStats();
+var mappings = getInstance( "Client@cbelasticsearch" ).getIndexStats();
 ```
 
 Finally, you can pass a struct of parameters to fine-tune the statistics result:
 
 ```js
-var mappings = getInstance( "Client@CBElasticsearch" )
+var mappings = getInstance( "Client@cbelasticsearch" )
                     .getIndexStats(
                         "reviews",
                         [ "_all" ],
@@ -218,14 +221,14 @@ var mappings = getInstance( "Client@CBElasticsearch" )
 Elasticsearch allows [mapping runtime fields](https://www.elastic.co/guide/en/elasticsearch/reference/current/runtime-mapping-fields.html), which are fields calculated at search time and returned in the `"fields"` array.
 
 ```js
-var script = getInstance( "Util@CBElasticsearch" )
+var script = getInstance( "Util@cbelasticsearch" )
 .formatToPainless("
   if( doc['summary'].value.contains('love') ){ emit('😍');}
   if( doc['summary'].value.contains('great') ){ emit('🚀');}
   if( doc['summary'].value.contains('hate') ){ emit('😡');}
   if( doc['summary'].value.contains('broke') ){ emit('💔');}
 ");
-getInstance( "Client@CBElasticsearch" )
+getInstance( "Client@cbelasticsearch" )
         .patch( "reviews", {
             "mappings" : {
                 "runtime" : {
@@ -242,12 +245,32 @@ getInstance( "Client@CBElasticsearch" )
 
 This `summarized_emotions` field [can then be retrieved during a search](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-fields.html) to display an array of emotions matching the review summary.
 
+## Opening or Closing an Index
+
+Certain index-level settings can not be applied while the index is open. To solve this, CBElasticsearch offers the `.closeIndex()` and `.openIndex()` methods:
+
+```js
+var mappings = getInstance( "Client@CBElasticsearch" ).closeIndex( "reviews" );
+
+// apply settings...
+
+var mappings = getInstance( "Client@CBElasticsearch" ).openIndex( "reviews" );
+```
+
+Each of these methods accepts a struct of name/value (simple values only) arguments to pass in the query string:
+
+```js
+var mappings = getInstance( "Client@CBElasticsearch" ).closeIndex( "reviews", { "ignore_unavailable" : true } );
+```
+
+See [the Elasticsearch "Close Index" documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-close.html) for more information.
+
 ## Deleting an Index
 
 All good things must come to an end, eh? You can use `Client.deleteIndex()` to delete an existing index:
 
 ```js
-getInstance( "Client@CBElasticsearch" ).deleteIndex( "reviews" )
+getInstance( "Client@cbelasticsearch" ).deleteIndex( "reviews" )
 ```
 
 Or you can use `IndexBuilder.delete()`:

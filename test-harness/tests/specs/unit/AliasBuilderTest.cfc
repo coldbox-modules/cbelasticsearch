@@ -5,7 +5,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 		super.beforeAll();
 
-		variables.client        = getWireBox().getInstance( "Client@cbElasticSearch" );
+		variables.client        = getWireBox().getInstance( "HyperClient@cbelasticsearch" );
 		variables.testIndexName = lCase( "AliasBuilderTests" );
 		variables.client.deleteIndex( variables.testIndexName );
 	}

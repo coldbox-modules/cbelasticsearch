@@ -41,7 +41,7 @@ myPipeline.save();
 Or through the client:
 
 ```js
-getInstance( "Client@cbElasticsearch" ).applyPipeline( myPipeline );
+getInstance( "Client@cbelasticsearch" ).applyPipeline( myPipeline );
 ```
 
 Note that if you are using a [secondary cluster](Configuration.md), you will need to perform your CRUD operations through the client, as the `save` method in the pipeline object will route through the top level client. 
@@ -51,13 +51,13 @@ Note that if you are using a [secondary cluster](Configuration.md), you will nee
 If we know the name of our pipeline, we can retreive the definition from Elasticsearch by using the `getPipeline` method of the client: 
 
 ```js
-getInstance( "Client@cbElasticsearch" ).getPipeline( "foo-pipeline" );
+getInstance( "Client@cbelasticsearch" ).getPipeline( "foo-pipeline" );
 ```
 
 If we need to retreive the definitions of all configured pipelines we can call the `getPipelines` method:
 
 ```js
-getInstance( "Client@cbElasticsearch" ).getPipelines();
+getInstance( "Client@cbelasticsearch" ).getPipelines();
 ```
 
 
@@ -66,8 +66,8 @@ getInstance( "Client@cbElasticsearch" ).getPipelines();
 We can modify pipelines using the pipeline object, as well. Let's do this by retrieving the existing pipeline, updating and then saving it:
 
 ```js
-var pipeline = getInstance( "Pipeline@cbElasticsearch" )
-                .new( getInstance( "Client@cbElasticsearch" )
+var pipeline = getInstance( "Pipeline@cbelasticsearch" )
+                .new( getInstance( "Client@cbelasticsearch" )
                 .getPipeline( "foo-pipeline" ) );
 
 pipeline.addProcessor(
@@ -105,6 +105,6 @@ myDocument.setPipeline( 'foo-pipeline' ).save();
 For multiple documents, the pipeline may be set in the document, prior to the `saveAll` call.  Note, however, that all documents provided in the bulk save must share the same pipeline, as elasticsearch does not support multiple pipelines in bulk saves.  Attempting to save multiple documents with different pipelines will throw an error. Alternately, you may pass the pipeline in as a param to the `saveAll` call:
 
 ```js
-getInstance( "Client@cbElasticsearch" )
+getInstance( "Client@cbelasticsearch" )
 	.saveAll( documents=myDocuments, params={ "pipeline" : "foo-pipeline" } );
 ```

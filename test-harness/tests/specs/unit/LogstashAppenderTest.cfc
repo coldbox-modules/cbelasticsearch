@@ -92,7 +92,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				sleep( 5000 );
 
 				var documents = getWirebox()
-					.getInstance( "SearchBuilder@cbElasticsearch" )
+					.getInstance( "SearchBuilder@cbelasticsearch" )
 					.new( variables.model.getProperty( "dataStream" ) )
 					.setQuery( { "match_all" : {} } )
 					.execute()
@@ -146,7 +146,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				sleep( 5000 );
 
 				var documents = getWirebox()
-					.getInstance( "SearchBuilder@cbElasticsearch" )
+					.getInstance( "SearchBuilder@cbelasticsearch" )
 					.new( variables.model.getProperty( "dataStream" ) )
 					.setQuery( { "match_all" : {} } )
 					.execute()

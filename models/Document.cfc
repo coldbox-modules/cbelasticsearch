@@ -9,7 +9,7 @@
  */
 component accessors="true" {
 
-	property name="config" inject="Config@cbElasticsearch";
+	property name="config" inject="Config@cbelasticsearch";
 
 	/**
 	 * The index which contains or will contain this document
@@ -82,7 +82,7 @@ component accessors="true" {
 	/**
 	 * Client provider
 	 **/
-	Client function getClient() provider="Client@cbElasticsearch"{
+	Client function getClient() provider="HyperClient@cbelasticsearch"{
 	}
 
 	/**
