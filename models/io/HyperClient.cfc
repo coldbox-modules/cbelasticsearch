@@ -444,6 +444,7 @@ component accessors="true" threadSafe singleton {
 		var reindexResult = requestBuilder.send().json();
 
 		if ( arguments.waitForCompletion && arguments.throwOnError ) {
+			param reindexResult.status = "[NONE]";
 			if ( reindexResult.keyExists( "failures" ) && reindexResult.failures.len() ) {
 				throw(
 					type         = "cbElasticsearch.HyperClient.ReindexFailedException",
