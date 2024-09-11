@@ -3,7 +3,7 @@ component extends="coldbox.system.testing.BaseTestCase"{
 
     function beforeAll(){
         super.beforeAll();
-        variables.client = getWirebox().getInstance( "Client@cbelasticsearch" );
+        variables.client = getWirebox().getInstance( "HyperClient@cbelasticsearch" );
     }
 
     function afterAll(){

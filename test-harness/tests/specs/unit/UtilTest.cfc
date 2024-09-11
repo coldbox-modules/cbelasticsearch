@@ -105,6 +105,25 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				} ).toThrow( "cbElasticsearch.native.BadDocument" );
 			} );
 
+			it( "tests handleResponseError with a 5xx status code", function(){
+				var mockResponse = getMockBox().createMock( className = "Hyper.models.HyperResponse" );
+
+				var mockError = '<html>
+					<head><title>504 Gateway Time-out</title></head>
+					<body>
+					<center><h1>504 Gateway Time-out</h1></center>
+					<hr><center>nginx</center>
+					</body>
+					</html>';
+				mockResponse.$( "getData", mockError );
+				mockResponse.$( "getStatusCode", 504 );
+				mockResponse.$( "getStatusText", "Gateway Time-out" );
+
+				expect( function(){
+					variables.model.handleResponseError( mockResponse );
+				} ).toThrow( "cbElasticsearch.invalidRequest" );
+			} );
+
 			it( "can strip newlines and tabs from Painless scripts", function() {
 				var uglyScript = "ArrayList a = new ArrayList();";
 				var uglyScriptWithTabs = "ArrayList a = 		new ArrayList();";

@@ -12,7 +12,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 		// create our new index
 		getWirebox()
-			.getInstance( "IndexBuilder@cbElasticsearch" )
+			.getInstance( "IndexBuilder@cbelasticsearch" )
 			.new(
 				name       = variables.testIndexName,
 				properties = {
@@ -1298,7 +1298,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					};
 
 					var document = getWirebox()
-						.getInstance( "Document@cbElasticsearch" )
+						.getInstance( "Document@cbelasticsearch" )
 						.new(
 							variables.testIndexName,
 							"testdocs",

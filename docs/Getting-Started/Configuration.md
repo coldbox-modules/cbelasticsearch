@@ -12,7 +12,7 @@ By default the following are in place, without additional configuration:
 moduleSettings = {
     "cbElasticsearch" = {
         //The native client Wirebox DSL for the transport client
-        client="HyperClient@cbElasticsearch",
+        client="HyperClient@cbelasticsearch",
         // The default hosts - an array of host connections
         //  - REST-based clients (e.g. JEST):  round robin connections will be used
         //  - Socket-based clients (e.g. Transport):  cluster-aware routing used

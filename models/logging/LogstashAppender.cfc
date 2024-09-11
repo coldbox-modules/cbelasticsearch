@@ -104,19 +104,19 @@ component
 	/**
 	 * Document provider
 	 **/
-	Document function newDocument() provider="Document@cbElasticsearch"{
+	Document function newDocument() provider="Document@cbelasticsearch"{
 	}
 
 	/**
 	 * Index Builder Provider
 	 **/
-	ILMPolicyBuilder function policyBuilder() provider="ILMPolicyBuilder@cbElasticsearch"{
+	ILMPolicyBuilder function policyBuilder() provider="ILMPolicyBuilder@cbelasticsearch"{
 	}
 
 	/**
 	 * Client provider
 	 **/
-	Client function getClient() provider="Client@cbElasticsearch"{
+	Client function getClient() provider="HyperClient@cbelasticsearch"{
 	}
 
 	/**

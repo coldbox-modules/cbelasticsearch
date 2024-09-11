@@ -21,7 +21,7 @@ component {
 	}
 
 	public boolean function isReady(){
-		return wirebox.getInstance( "Client@cbelasticsearch" ).indexExists( variables.migrationsIndex );
+		return wirebox.getInstance( "HyperClient@cbelasticsearch" ).indexExists( variables.migrationsIndex );
 	}
 
 	/**
@@ -54,7 +54,7 @@ component {
 	 * Uninstalls the migrations schema
 	 */
 	public void function uninstall(){
-		wirebox.getInstance( "Client@cbelasticsearch" ).deleteIndex( variables.migrationsIndex );
+		wirebox.getInstance( "HyperClient@cbelasticsearch" ).deleteIndex( variables.migrationsIndex );
 	}
 
 	/**
@@ -102,7 +102,7 @@ component {
 	public void function logMigration( string direction, string componentName ){
 		if ( arguments.direction == "down" ) {
 			variables.wirebox
-				.getInstance( "Client@cbelasticsearch" )
+				.getInstance( "HyperClient@cbelasticsearch" )
 				.deleteByQuery(
 					wirebox
 						.getInstance( "SearchBuilder@cbelasticsearch" )
@@ -158,7 +158,7 @@ component {
 
 		var migration = wirebox.getInstance( migrationStruct.componentPath );
 
-		var searchClient = wirebox.getInstance( "Client@cbelasticsearch" );
+		var searchClient = wirebox.getInstance( "HyperClient@cbelasticsearch" );
 
 		preProcessHook( migrationStruct );
 
@@ -176,7 +176,7 @@ component {
 	 */
 	public void function runSeed( required string invocationPath ){
 		var seeder       = wirebox.getInstance( arguments.invocationPath );
-		var searchClient = wirebox.getInstance( "Client@cbelasticsearch" );
+		var searchClient = wirebox.getInstance( "HyperClient@cbelasticsearch" );
 		invoke(
 			seeder,
 			"run",

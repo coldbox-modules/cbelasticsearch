@@ -24,7 +24,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 		};
 
 		getWirebox()
-			.getInstance( "IndexBuilder@cbElasticsearch" )
+			.getInstance( "IndexBuilder@cbelasticsearch" )
 			.new( name = variables.testIndexName, properties = indexSettings )
 			.save();
 	}

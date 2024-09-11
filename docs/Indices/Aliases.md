@@ -41,7 +41,7 @@ variables.client.applyAliases(
 The client's `getAliases` method allows you to retrieve a map containing information on aliases in use in the connected cluster.
 
 ```js
-var aliasMap = getInstance( "Client@cbElasticsearch" ).getAliases();
+var aliasMap = getInstance( "Client@cbelasticsearch" ).getAliases();
 ```
 
 The corresponding object will have two keys: `aliases` and `unassigned`. The former is a map of aliases with their corresponding index, the latter is an array of indexes which are unassigned to any alias.

@@ -35,50 +35,50 @@ component accessors="true" threadSafe singleton {
 	/**
 	 * Config provider
 	 **/
-	cbElasticsearch.models.Config function getConfig() provider="Config@cbElasticsearch"{
+	cbElasticsearch.models.Config function getConfig() provider="Config@cbelasticsearch"{
 	}
 
 	/**
 	 * Util provider
 	 */
-	cbElasticsearch.models.util.Util function getUtil() provider="Util@cbElasticsearch"{
+	cbElasticsearch.models.util.Util function getUtil() provider="Util@cbelasticsearch"{
 	}
 
 	/**
 	 * Pool provider
 	 */
-	cbElasticsearch.models.io.HyperPool function newPool() provider="HyperPool@cbElasticsearch"{
+	cbElasticsearch.models.io.HyperPool function newPool() provider="HyperPool@cbelasticsearch"{
 	}
 
 	/**
 	 * Document provider
 	 **/
-	cbElasticsearch.models.Document function newDocument() provider="Document@cbElasticsearch"{
+	cbElasticsearch.models.Document function newDocument() provider="Document@cbelasticsearch"{
 	}
 
 	/**
 	 * Pipeline provider
 	 **/
-	cbElasticsearch.models.Document function newPipeline() provider="Pipeline@cbElasticsearch"{
+	cbElasticsearch.models.Document function newPipeline() provider="Pipeline@cbelasticsearch"{
 	}
 
 	/**
 	 * Task provider
 	 **/
-	cbElasticsearch.models.Task function newTask() provider="Task@cbElasticsearch"{
+	cbElasticsearch.models.Task function newTask() provider="Task@cbelasticsearch"{
 	}
 
 
 	/**
 	 * SearchBuilder provider
 	 **/
-	cbElasticsearch.models.SearchBuilder function newSearchBuilder() provider="SearchBuilder@cbElasticsearch"{
+	cbElasticsearch.models.SearchBuilder function newSearchBuilder() provider="SearchBuilder@cbelasticsearch"{
 	}
 
 	/**
 	 * SearchResult provider
 	 **/
-	cbElasticsearch.models.SearchResult function newResult() provider="SearchResult@cbElasticsearch"{
+	cbElasticsearch.models.SearchResult function newResult() provider="SearchResult@cbelasticsearch"{
 	}
 
 	/**
@@ -444,6 +444,7 @@ component accessors="true" threadSafe singleton {
 		var reindexResult = requestBuilder.send().json();
 
 		if ( arguments.waitForCompletion && arguments.throwOnError ) {
+			param reindexResult.status = "[NONE]";
 			if ( reindexResult.keyExists( "failures" ) && reindexResult.failures.len() ) {
 				throw(
 					type         = "cbElasticsearch.HyperClient.ReindexFailedException",
@@ -528,6 +529,62 @@ component accessors="true" threadSafe singleton {
 			.withQueryParams( arguments.params )
 			.send()
 			.json();
+	}
+
+	/**
+	 * Open the given index/indices.
+	 *
+	 * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-open-close.html
+	 *
+	 * @indexName 	string|array	Index name or alias. Can accept an array of index/alias names, as well as wildcard expressions or `_all`.
+	 * @params		struct			Struct of query parameters to influence the request. For example: `{ "expand_wildcards" : "none" }
+	 */
+	function openIndex( required any indexName, any params ){
+		var requestBuilder = getNodePool()
+			.newRequest( "#arrayToList( arguments.indexName )#/_open", "POST" )
+			.asJSON();
+
+		if ( structKeyExists( arguments, "params" ) ) {
+			parseParams( arguments.params ).each( function( param ){
+				requestBuilder.setQueryParam( param.name, param.value );
+			} );
+		}
+
+		var response = requestBuilder.send();
+
+		if ( response.getStatusCode() != 200 ) {
+			onResponseFailure( response );
+		} else {
+			return response.json();
+		}
+	}
+
+	/**
+	 * Close the given index/indices.
+	 *
+	 * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-close.html
+	 *
+	 * @indexName 	string|array	Index name or alias. Can accept an array of index/alias names, as well as wildcard expressions or `_all`.
+	 * @params		struct			Struct of query parameters to influence the request. For example: `{ "expand_wildcards" : "none" }
+	 */
+	function closeIndex( required any indexName, any params ){
+		var requestBuilder = getNodePool()
+			.newRequest( "#arrayToList( arguments.indexName )#/_close", "POST" )
+			.asJSON();
+
+		if ( structKeyExists( arguments, "params" ) ) {
+			parseParams( arguments.params ).each( function( param ){
+				requestBuilder.setQueryParam( param.name, param.value );
+			} );
+		}
+
+		var response = requestBuilder.send();
+
+		if ( response.getStatusCode() != 200 ) {
+			onResponseFailure( response );
+		} else {
+			return response.json();
+		}
 	}
 
 	/**

@@ -91,13 +91,13 @@ component
 	/**
 	 * Client provider for serialization operations
 	 **/
-	Client function getClient() provider="Client@cbElasticsearch"{
+	Client function getClient() provider="HyperClient@cbelasticsearch"{
 	}
 
 	/**
 	 * Elasticsearch Document provider
 	 **/
-	Client function newDocument() provider="Document@cbElasticsearch"{
+	Client function newDocument() provider="Document@cbelasticsearch"{
 	}
 
 

@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ----
+## [Unreleased]
+
+### Added
+
+* Improved error handling to include the status code in the error message if a "reason" could not be extracted from the response: `Elasticsearch server responded with [504 Gateway Timeout]. The response received was not JSON.`.
+
 ## [3.3.0] - 04-18-2024
 
 ### Added

@@ -70,7 +70,7 @@ var secondaryConfig = wirebox.getInstance( "Config@SecondaryCluster" );
 // note that we need a full config structure passed in as an override to the coldbox settings
 secondaryConfig.setConfigStruct( settings );
 
-// note that we are using the native JEST client rather than Client@cbElasticsearch
+// note that we are using the native JEST client rather than Client@cbelasticsearch
 binder.map( "Client@SecondaryCluster" )
                         .to( "cbElasticsearch.models.JestClient" )
                         .initWith( configuration=secondaryConfig )
@@ -91,7 +91,7 @@ if( wirebox.containsInstance( "Client@SecondaryCluster" ) ){
 Now you may perform a search, considering the caveat that the search must now be executed through the client:
 
 ```js
-var searchBuilder = getInstance( "SearchBuilder@cbElasticsearch" ).new( "myOtherIndex" );
+var searchBuilder = getInstance( "SearchBuilder@cbelasticsearch" ).new( "myOtherIndex" );
 searchBuilder.term( "foo", "bar" );
 
 var searchResult = getInstance( "Client@SecondaryCluster" ).executeSearch( searchBuilder );
@@ -100,7 +100,7 @@ var searchResult = getInstance( "Client@SecondaryCluster" ).executeSearch( searc
 Document saves, retrievals, and deletions would need to be routed through the client, as well, rather than using the `save()` function:
 
 ```js
-var newDocument = getInstance( "Document@cbElasticsearch" ).new( { "id" : createUUID(), "foo" : "bar" } );
+var newDocument = getInstance( "Document@cbelasticsearch" ).new( { "id" : createUUID(), "foo" : "bar" } );
 getInstance( "Client@SecondaryCluster" ).save( newDocument );
 
 
