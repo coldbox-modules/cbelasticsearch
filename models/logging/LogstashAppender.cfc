@@ -76,7 +76,7 @@ component
 			// Timeout, in ms, to allow async threads to exist - otherwise they default to 0
 			"asyncTimeout"          : 5000,
 			// Custom labels which are applied to every log message
-			"labels"                : [],
+			"labels"                : {}
 		};
 
 		for ( var configKey in structKeyArray( instance.Defaults ) ) {
@@ -84,22 +84,6 @@ component
 				setProperty( configKey, instance.DEFAULTS[ configKey ] );
 			}
 		}
-
-		if( isStruct( getProperty( "labels" ) ) ){
-			setProperty( 
-				"labels", 
-				getProperty( "labels" ).keyArray().map( ( acc, key ) => {
-					return { "#key#" : javacast( "string", getProperty( "labels" )[ key ] ) };
-				})
-			);
-		}
-
-		// make sure all label values are strings
-		getProperty( "labels" ).each( ( label ) => {
-			label.keyArray().each( ( key ) => {
-				label[ key ] = javacast( "string", label[ key ] );
-			});
-		} );
 
 		if ( !propertyExists( "defaultCategory" ) ) {
 			setProperty( "defaultCategory", arguments.name );
@@ -113,6 +97,9 @@ component
 			} catch ( any e ) {
 			}
 		}
+
+		// Make sure our application name is set as a label
+		getProperty( "labels" ).append( { "application" : applicationName }, false );
 
 		application.wirebox.autowire( this );
 
@@ -216,9 +203,7 @@ component
 				"category" : loggerCat
 			},
 			"message" : message,
-			"labels" : [
-				{ "application" : getProperty( "applicationName" ) }
-			]
+			"labels" : getProperty( "labels" ),
 			"event"   : {
 				"created"  : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'HH:nn:ssZZ" ),
 				"severity" : loge.getSeverity(),
@@ -265,9 +250,10 @@ component
 								"username"
 							];
 							if( logObj.user.info.keyExists( "labels" )  && isStruct( logObj.user.info.labels ) ){
-								logObj.labels.append(  logObj.user.info.labels.keyArray().map( ( acc, key ) => {
-									return { "#key#" : javacast( "string" logObj.user.info.labels[ key ] ) };
-								}), true );
+								logObj.labels.append(  
+									logObj.user.info.labels, 
+									true 
+								);
 								logObj.user.info.delete( "labels" );
 							}
 							userKeys.each( function( key ){
@@ -323,8 +309,8 @@ component
 
 			logObj.package[ "reference" ] = event.getHTMLBaseURL();
 
-			if ( !logObj.labels.find( ( label ) => label.keyArray().first() == "environment" ) ) {
-				logObj.labels.append( { "environment" : application.cbController.getSetting( name = "environment", defaultValue = "production" ) } );
+			if ( !logObj.labels.keyExists( "environment" ) ) {
+				logObj.labels[ "environment" ] = application.cbController.getSetting( name = "environment", defaultValue = "production" );
 			}
 		}
 
