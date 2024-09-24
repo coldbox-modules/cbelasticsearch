@@ -74,7 +74,9 @@ component
 			"throwOnError"          : true,
 			"async"                 : false,
 			// Timeout, in ms, to allow async threads to exist - otherwise they default to 0
-			"asyncTimeout"          : 5000
+			"asyncTimeout"          : 5000,
+			// Custom labels which are applied to every log message
+			"labels"                : [],
 		};
 
 		for ( var configKey in structKeyArray( instance.Defaults ) ) {
@@ -199,7 +201,7 @@ component
 			},
 			"message" : message,
 			"labels" : [
-				{ "applicationName" : getProperty( "applicationName" ) }
+				{ "application" : getProperty( "applicationName" ) }
 			]
 			"event"   : {
 				"created"  : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'HH:nn:ssZZ" ),
@@ -217,7 +219,6 @@ component
 				"scheme" : lCase( listFirst( CGI.SERVER_PROTOCOL, "/" ) )
 			},
 			"http"    : { "request" : { "referer" : CGI.HTTP_REFERER } },
-			"labels"  : { "application" : getProperty( "applicationName" ) },
 			"package" : {
 				"name"    : getProperty( "applicationName" ),
 				"version" : javacast( "string", getProperty( "releaseVersion" ) ),
@@ -302,11 +303,8 @@ component
 
 			logObj.package[ "reference" ] = event.getHTMLBaseURL();
 
-			if ( !logObj.labels.keyExists( "environment" ) ) {
-				logObj.labels[ "environment" ] = application.cbController.getSetting(
-					name         = "environment",
-					defaultValue = "production"
-				);
+			if ( !logObj.labels.find( ( label ) => label.keyArray().first() == "environment" ) ) {
+				logObj.labels.append( { "environment" : application.cbController.getSetting( name = "environment", defaultValue = "production" ) } );
 			}
 		}
 
