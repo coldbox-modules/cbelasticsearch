@@ -198,6 +198,9 @@ component
 				"category" : loggerCat
 			},
 			"message" : message,
+			"labels" : [
+				{ "applicationName" : getProperty( "applicationName" ) }
+			]
 			"event"   : {
 				"created"  : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'HH:nn:ssZZ" ),
 				"severity" : loge.getSeverity(),
@@ -244,6 +247,12 @@ component
 								"roles",
 								"username"
 							];
+							if( logObj.user.info.keyExists( "labels" )  && isStruct( logObj.user.info.labels ) ){
+								logObj.labels.append(  logObj.user.info.labels.keyArray().map( ( acc, key ) => {
+									return { "#key#" : javacast( "string" logObj.user.info.labels[ key ] ) };
+								}), true );
+								logObj.user.info.delete( "labels" );
+							}
 							userKeys.each( function( key ){
 								if ( key == "username" ) key = "name";
 								if ( logObj.user.info.keyExists( key ) ) {
@@ -255,7 +264,7 @@ component
 					}
 				} catch ( any e ) {
 					logObj[ "user" ] = {
-						"error" : "An error occurred when attempting to run the userInfoUDF provided.  The message received was #e.message#"
+						"error" : "An error occurred when attempting to run the userInfoUDF provided.  The message received was #e.message# #e.detail#"
 					};
 				}
 			}
