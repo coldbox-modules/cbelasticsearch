@@ -85,6 +85,22 @@ component
 			}
 		}
 
+		if( isStruct( getProperty( "labels" ) ) ){
+			setProperty( 
+				"labels", 
+				getProperty( "labels" ).keyArray().map( ( acc, key ) => {
+					return { "#key#" : javacast( "string", getProperty( "labels" )[ key ] ) };
+				})
+			);
+		}
+
+		// make sure all label values are strings
+		getProperty( "labels" ).each( ( label ) => {
+			label.keyArray().each( ( key ) => {
+				label[ key ] = javacast( "string", label[ key ] );
+			});
+		} );
+
 		if ( !propertyExists( "defaultCategory" ) ) {
 			setProperty( "defaultCategory", arguments.name );
 		}
@@ -269,6 +285,10 @@ component
 					};
 				}
 			}
+		}
+
+		if( getProperty( "labels" ).len() ){
+			logObj.labels.append( getProperty( "labels" ), true );
 		}
 
 		if ( structKeyExists( application, "cbController" ) ) {
