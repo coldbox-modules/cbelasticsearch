@@ -71,7 +71,7 @@ component accessors="true" singleton {
 	 */
 	public function getAppender( required string appenderName ){
 		var registry = getAppenderRegistry();
-		return registry.keyExists( appenderName ) ? registry[ appenderName ] : nullValue();
+		return registry.keyExists( appenderName ) ? registry[ appenderName ] : javacast( "null", 0 );
 	}
 
 	/**
