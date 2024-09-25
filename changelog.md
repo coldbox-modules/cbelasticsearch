@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ----
+
 ## [Unreleased]
 
 ### Added
@@ -48,20 +49,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.2.3] - 11-19-2023
 
-## Changed
+### Changed
 
 * Additional mapping enhancments for searchability
 * Set default document bulk create to refresh only when requested
 * Change explicit mapping of root message field to `text` to ensure search scoring ability
 
-## Added
+### Added
 
 * Added `async` property to LogstashAppender
 * Added `indexTemplatePriority` property to logstash appender to prevent conflicts with multiple log streams sharing the same stream pattern
 
 ## [3.2.2] - 07-27-2023
 
-## Fixed
+### Fixed
 
 * Corrected incorrect timestamps on LogstashAppender logs
 
@@ -85,7 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.1.1] - 04-28-2023
 
-### Fixed 
+### Fixed
 
 * Added deprecated getters for `startRows`/`maxRows` properties due to compat issues with existing apps
 
@@ -161,7 +162,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Issue #111 - Adds the ability to apply settings to an existing index
 * Issue #106 - Adds the ability to specify case-insenstivity to wildcard searches ( default = false )
 * Issue #105 - `getAliases` now supports multiple indexes with the same alias and returns the attributes to determine r/w capabilities
-* 
+*
 
 ### Added
 
@@ -239,7 +240,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Adds null checks for intermittent errors in Document.cfc when all args were not present
 * Fixes an issue with logstash appender where the exception type was not converting correctly to JSON when provided as additional info
 
-## Changed
+### Changed
 
 * CI/CD Process migrated from Travis CI to Github Actions
 
