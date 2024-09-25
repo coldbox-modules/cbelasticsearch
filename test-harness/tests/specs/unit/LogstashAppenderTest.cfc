@@ -11,8 +11,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			"LogstashAppenderTest",
 			{
 				 "applicationName"       : "testspecs",
-				 "dataStream"            : "testing-data-stream",
-				 "dataStreamPattern"     : "testing-data-stream",
+				 "dataStream"            : "logs-testing-data-stream",
+				 "dataStreamPattern"     : "logs-testing-data-stream*",
 				 "componentTemplateName" : "testing-data-mappings",
 				 "indexTemplateName"     : "logstash-appender-testing",
 				 "ILMPolicyName"         : "logstash-appender-test-policy",
@@ -126,6 +126,41 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 				expect( isJSON( logMessage.user.info ) ).toBeTrue();
 				expect( deserializeJSON( logMessage.user.info ) ).toHaveKey( "username" );
+
+			} );
+
+			it( "Tests the component path filter template", function(){
+				testLoge = getMockBox().createMock( className = "coldbox.system.logging.LogEvent" );
+
+				testLoge.init(
+					message   = "Many.Dots.In.Snuffalupagus.Log",
+					severity  = 4,
+					extraInfo = {
+						"friend" : "Big Bird",
+						"program" : "Sesame Street"
+					},
+					category  = "SesameLogs"
+				);
+
+				variables.model.logMessage( testLoge );
+				sleep( 5000 );
+
+				var documents = getWirebox()
+					.getInstance( "SearchBuilder@cbelasticsearch" )
+					.new( variables.model.getProperty( "dataStreamPattern" ) )
+					.setQuery( { 
+						"bool" : {
+							"must" : [
+								{ "match" : { "message" : "Snuffalupagus" } }
+							]
+						}
+					 } )
+					.execute()
+					.getHits();
+
+				expect( documents.len() ).toBeGT( 0 );
+
+				debug( documents.first().getDocument() );
 
 			} );
 

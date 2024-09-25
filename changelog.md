@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Add component path analyzer to message and extra info fields so that parts of component paths are searchable
 * Add `labels` property to Logstash Appender properties to allow for custom labels
 * Add `labels` convention to Logstash Appender UserInfo UDF to allow keyword label filtering
 * Add `AppenderService` object which allows for easier creation of detached appenders and index-specific logging
