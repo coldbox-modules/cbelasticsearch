@@ -74,7 +74,9 @@ component
 			"throwOnError"          : true,
 			"async"                 : false,
 			// Timeout, in ms, to allow async threads to exist - otherwise they default to 0
-			"asyncTimeout"          : 5000
+			"asyncTimeout"          : 5000,
+			// Custom labels which are applied to every log message
+			"labels"                : {}
 		};
 
 		for ( var configKey in structKeyArray( instance.Defaults ) ) {
@@ -95,6 +97,9 @@ component
 			} catch ( any e ) {
 			}
 		}
+
+		// Make sure our application name is set as a label
+		getProperty( "labels" ).append( { "application" : applicationName }, false );
 
 		application.wirebox.autowire( this );
 
@@ -191,15 +196,16 @@ component
 		var tzInfo    = getTimezoneInfo();
 
 		var logObj = {
-			"@timestamp" : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'HH:nn:ssZZ" ),
+			"@timestamp" : loge.getTimestamp(),
 			"log"        : {
 				"level"    : level,
 				"logger"   : getName(),
 				"category" : loggerCat
 			},
 			"message" : message,
+			"labels"  : getProperty( "labels" ),
 			"event"   : {
-				"created"  : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'HH:nn:ssZZ" ),
+				"created"  : loge.getTimestamp(),
 				"severity" : loge.getSeverity(),
 				"category" : loggerCat,
 				"dataset"  : "cfml",
@@ -214,7 +220,6 @@ component
 				"scheme" : lCase( listFirst( CGI.SERVER_PROTOCOL, "/" ) )
 			},
 			"http"    : { "request" : { "referer" : CGI.HTTP_REFERER } },
-			"labels"  : { "application" : getProperty( "applicationName" ) },
 			"package" : {
 				"name"    : getProperty( "applicationName" ),
 				"version" : javacast( "string", getProperty( "releaseVersion" ) ),
@@ -244,6 +249,10 @@ component
 								"roles",
 								"username"
 							];
+							if ( logObj.user.info.keyExists( "labels" ) && isStruct( logObj.user.info.labels ) ) {
+								logObj.labels.append( logObj.user.info.labels, true );
+								logObj.user.info.delete( "labels" );
+							}
 							userKeys.each( function( key ){
 								if ( key == "username" ) key = "name";
 								if ( logObj.user.info.keyExists( key ) ) {
@@ -255,10 +264,14 @@ component
 					}
 				} catch ( any e ) {
 					logObj[ "user" ] = {
-						"error" : "An error occurred when attempting to run the userInfoUDF provided.  The message received was #e.message#"
+						"error" : "An error occurred when attempting to run the userInfoUDF provided.  The message received was #e.message# #e.detail#"
 					};
 				}
 			}
+		}
+
+		if ( !structIsEmpty( getProperty( "labels" ) ) ) {
+			logObj.labels.append( getProperty( "labels" ), true );
 		}
 
 		if ( structKeyExists( application, "cbController" ) ) {

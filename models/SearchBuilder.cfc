@@ -1378,13 +1378,10 @@ component accessors="true" {
 	 * Append a search-time (runtime) mapping to the search.
 	 *
 	 * @name Name of the runtime mapping field
-	 * 
+	 *
 	 * @script Script to use. `{ "script" : { "lang": "painless", "source" : } }`
 	 */
-	public SearchBuilder function addRuntimeMapping(
-		required string name,
-		struct script
-	){
+	public SearchBuilder function addRuntimeMapping( required string name, struct script ){
 		if ( isNull( variables.runtimeMappings ) ) {
 			variables.runtimeMappings = {};
 		}

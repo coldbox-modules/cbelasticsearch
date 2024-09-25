@@ -109,9 +109,9 @@ component accessors="true" singleton {
 			);
 		}
 		var message = "Your request was invalid.  The response returned was #toJSON( errorPayload )#";
-		var type = "cbElasticsearch.invalidRequest";
+		var type    = "cbElasticsearch.invalidRequest";
 		if ( len( errorReason ) && !isSimpleValue( errorPayload.error ) && errorPayload.error.keyExists( "type" ) ) {
-			type = "cbElasticsearch.native.#errorPayload.error.type#";
+			type    = "cbElasticsearch.native.#errorPayload.error.type#";
 			message = "An error was returned when communicating with the Elasticsearch server.  The error received was: #errorReason#";
 		} else if ( isSimpleValue( errorPayload ) && !isJSON( errorPayload ) ) {
 			message = "Elasticsearch server responded with [#response.getStatus()#]. The response received was not JSON.";
@@ -126,7 +126,18 @@ component accessors="true" singleton {
 
 	void function preflightLogEntry( required struct logObj ){
 		if ( !arguments.logObj.keyExists( "@timestamp" ) ) {
-			arguments.logObj[ "@timestamp" ] = dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" )
+			arguments.logObj[ "@timestamp" ] = now();
+		}
+
+		// We pre-test this because ACF2018 will not recognize an already formatted ISO8601 datetime with offset
+		if( isDate( arguments.logObj[ "@timestamp" ] ) ){
+			arguments.logObj[ "@timestamp" ] = dateTimeFormat( arguments.logObj[ "@timestamp" ], "yyyy-mm-dd'T'HH:nn:ssZZ" );
+		}
+
+		if( arguments.logObj.keyExists( "event" ) && arguments.logObj.event.keyExists( "created" ) ){
+			if( isDate( arguments.logObj.event.created ) ){
+				arguments.logObj.event.created = dateTimeFormat( arguments.logObj.event.created, "yyyy-mm-dd'T'HH:nn:ssZZ" );
+			}
 		}
 
 		// ensure consistent casing for search

@@ -1657,10 +1657,10 @@ component accessors="true" threadSafe singleton {
 	 * @name
 	 */
 	boolean function dataStreamExists( required string name ){
-		return variables.nodePool
+		var check = variables.nodePool
 			.newRequest( "_data_stream/#arguments.name#" )
-			.send()
-			.getStatusCode() == "200";
+			.send();
+		return check.getStatusCode() == "200" && check.json().data_streams.len();
 	}
 
 	/**
