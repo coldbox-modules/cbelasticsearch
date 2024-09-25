@@ -130,7 +130,7 @@ getInstance( "AppenderService@cbelasticsearch" )
         "myCustomAppender",
         [
             {
-                "@timestamp" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" ),
+                "@timestamp" : now(),
                 "log"        : {
                     "level"    : "info",
                     "logger"   : "myCustomLogger",
@@ -140,7 +140,7 @@ getInstance( "AppenderService@cbelasticsearch" )
                 "event"   : {
                     "action" : event.getCurrentAction(),
                     "duration" : myProcessingDurationNanos,
-                    "created"  : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" ),
+                    "created"  : now(),
                     "severity" : 4,
                     "category" : "myCustomLogger",
                     "dataset"  : "cfml",

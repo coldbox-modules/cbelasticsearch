@@ -196,7 +196,7 @@ component
 		var tzInfo    = getTimezoneInfo();
 
 		var logObj = {
-			"@timestamp" : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'HH:nn:ssZZ" ),
+			"@timestamp" : loge.getTimestamp(),
 			"log"        : {
 				"level"    : level,
 				"logger"   : getName(),
@@ -205,7 +205,7 @@ component
 			"message" : message,
 			"labels"  : getProperty( "labels" ),
 			"event"   : {
-				"created"  : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'HH:nn:ssZZ" ),
+				"created"  : loge.getTimestamp(),
 				"severity" : loge.getSeverity(),
 				"category" : loggerCat,
 				"dataset"  : "cfml",

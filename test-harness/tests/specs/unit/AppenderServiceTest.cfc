@@ -11,6 +11,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
         var mockDataArgs = {
             "$num" : 10,
+            "@timestamp" : "datetime",
             "log.level"    : "oneof:info:warn:error",
             "message" : "sentence"
         };
