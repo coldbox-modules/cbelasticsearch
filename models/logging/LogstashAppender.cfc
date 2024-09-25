@@ -203,7 +203,7 @@ component
 				"category" : loggerCat
 			},
 			"message" : message,
-			"labels" : getProperty( "labels" ),
+			"labels"  : getProperty( "labels" ),
 			"event"   : {
 				"created"  : dateTimeFormat( loge.getTimestamp(), "yyyy-mm-dd'T'HH:nn:ssZZ" ),
 				"severity" : loge.getSeverity(),
@@ -249,11 +249,8 @@ component
 								"roles",
 								"username"
 							];
-							if( logObj.user.info.keyExists( "labels" )  && isStruct( logObj.user.info.labels ) ){
-								logObj.labels.append(  
-									logObj.user.info.labels, 
-									true 
-								);
+							if ( logObj.user.info.keyExists( "labels" ) && isStruct( logObj.user.info.labels ) ) {
+								logObj.labels.append( logObj.user.info.labels, true );
 								logObj.user.info.delete( "labels" );
 							}
 							userKeys.each( function( key ){
@@ -273,7 +270,7 @@ component
 			}
 		}
 
-		if( !structIsEmpty( getProperty( "labels" ) ) ){
+		if ( !structIsEmpty( getProperty( "labels" ) ) ) {
 			logObj.labels.append( getProperty( "labels" ), true );
 		}
 
@@ -310,7 +307,10 @@ component
 			logObj.package[ "reference" ] = event.getHTMLBaseURL();
 
 			if ( !logObj.labels.keyExists( "environment" ) ) {
-				logObj.labels[ "environment" ] = application.cbController.getSetting( name = "environment", defaultValue = "production" );
+				logObj.labels[ "environment" ] = application.cbController.getSetting(
+					name         = "environment",
+					defaultValue = "production"
+				);
 			}
 		}
 

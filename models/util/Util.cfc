@@ -109,9 +109,9 @@ component accessors="true" singleton {
 			);
 		}
 		var message = "Your request was invalid.  The response returned was #toJSON( errorPayload )#";
-		var type = "cbElasticsearch.invalidRequest";
+		var type    = "cbElasticsearch.invalidRequest";
 		if ( len( errorReason ) && !isSimpleValue( errorPayload.error ) && errorPayload.error.keyExists( "type" ) ) {
-			type = "cbElasticsearch.native.#errorPayload.error.type#";
+			type    = "cbElasticsearch.native.#errorPayload.error.type#";
 			message = "An error was returned when communicating with the Elasticsearch server.  The error received was: #errorReason#";
 		} else if ( isSimpleValue( errorPayload ) && !isJSON( errorPayload ) ) {
 			message = "Elasticsearch server responded with [#response.getStatus()#]. The response received was not JSON.";

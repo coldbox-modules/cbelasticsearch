@@ -1,43 +1,43 @@
-component accessors="true" singleton{
-	property name="logbox"       inject="logbox";
-	property name="elasticsearchClient"      inject="Client@cbelasticsearch";
-	property name="util"      inject="Util@cbelasticsearch";
-    property name="detachedAppenders";
+component accessors="true" singleton {
 
-    this.logLevels = new coldbox.system.logging.LogLevels();
+	property name="logbox"              inject="logbox";
+	property name="elasticsearchClient" inject="Client@cbelasticsearch";
+	property name="util"                inject="Util@cbelasticsearch";
+	property name="detachedAppenders";
 
-    function init(){
-        variables.detachedAppenders = [];
-        return this;
-    }
+	this.logLevels = new coldbox.system.logging.LogLevels();
 
-    /**
-     * Create a detached appender for use in ad-hoc logging
-     *
-     * @name The name of the appender
-     * @properties 
-     * @class The class to use for the appender. Defaults to LogStashAppender
-     */
-    public void function createDetachedAppender(
-        required string name,
-        struct properties = {},
-        string class = "cbelasticsearch.models.logging.LogStashAppender"
-    ){
+	function init(){
+		variables.detachedAppenders = [];
+		return this;
+	}
 
-        structAppend( 
-            arguments.properties,
-            {
+	/**
+	 * Create a detached appender for use in ad-hoc logging
+	 *
+	 * @name The name of the appender
+	 * @properties
+	 * @class The class to use for the appender. Defaults to LogStashAppender
+	 */
+	public void function createDetachedAppender(
+		required string name,
+		struct properties = {},
+		string class      = "cbelasticsearch.models.logging.LogStashAppender"
+	){
+		structAppend(
+			arguments.properties,
+			{
 				// The data stream name to use for this appenders logs
-				"dataStreamPattern"     : "logs-coldbox-#lcase( arguments.name )#*",
-				"dataStream"            : "logs-coldbox-#lcase( arguments.name )#",
-				"retentionDays"         : 365,
+				"dataStreamPattern" : "logs-coldbox-#lCase( arguments.name )#*",
+				"dataStream"        : "logs-coldbox-#lCase( arguments.name )#",
+				"retentionDays"     : 365,
 				// The max shard size at which the hot phase will rollover data
-				"rolloverSize"          : "50gb"
+				"rolloverSize"      : "50gb"
 			},
-            false 
-        )
+			false
+		)
 
-        variables.logBox.registerAppender(
+		variables.logBox.registerAppender(
 			name       = arguments.name,
 			class      = arguments.class,
 			// Turn this appender off for all other logging, as it is intended to be used ad-hoc
@@ -46,16 +46,14 @@ component accessors="true" singleton{
 			properties = arguments.properties
 		);
 
-        variables.detachedAppenders.append( arguments.name );
-    }
+		variables.detachedAppenders.append( arguments.name );
+	}
 
 	/**
 	 * Method for retrieving a LogEvent instance.
 	 */
 	public LogEvent function getLogEvent(){
-		return new coldbox.system.logging.LogEvent(
-			argumentCollection = arguments
-		);
+		return new coldbox.system.logging.LogEvent( argumentCollection = arguments );
 	}
 
 	/**
@@ -68,8 +66,8 @@ component accessors="true" singleton{
 
 	/**
 	 * Retreives a specific appender from the logbox registry
-     * 
-     * @appenderName The name of the appender to retrieve
+	 *
+	 * @appenderName The name of the appender to retrieve
 	 */
 	public function getAppender( required string appenderName ){
 		var registry = getAppenderRegistry();
@@ -78,12 +76,12 @@ component accessors="true" singleton{
 
 	/**
 	 * Logs a message out to a specific appender
-     * 
-     * @appenderName The name of the appender to log to
-     * @message The message to log
-     * @severity The severity of the message
-     * @extraInfo Any extra information to log
-     * @category The category to log the message under
+	 *
+	 * @appenderName The name of the appender to log to
+	 * @message The message to log
+	 * @severity The severity of the message
+	 * @extraInfo Any extra information to log
+	 * @category The category to log the message under
 	 */
 	public function logToAppender(
 		required string appenderName,
@@ -92,12 +90,15 @@ component accessors="true" singleton{
 		struct extraInfo = {},
 		string category
 	){
-        if( !isNumeric( arguments.severity ) ){
-            if( !this.logLevels.keyExists( arguments.severity ) ){
-                throw( type = "cbelasticsearch.logging.InvalidSeverity", message = "The severity [#arguments.severity#] provided is not valid.  Please provide a valid numeric serverity or one of the following levels [#this.logLevels.keyArray().toList()#]." );
-            }
-            arguments.severity = this.logLevels[ arguments.severity ];
-        }
+		if ( !isNumeric( arguments.severity ) ) {
+			if ( !this.logLevels.keyExists( arguments.severity ) ) {
+				throw(
+					type    = "cbelasticsearch.logging.InvalidSeverity",
+					message = "The severity [#arguments.severity#] provided is not valid.  Please provide a valid numeric serverity or one of the following levels [#this.logLevels.keyArray().toList()#]."
+				);
+			}
+			arguments.severity = this.logLevels[ arguments.severity ];
+		}
 
 		var appender = getAppender( appenderName );
 		if ( !isNull( appender ) ) {
@@ -111,77 +112,78 @@ component accessors="true" singleton{
 				)
 			);
 		} else {
-			logbox.getRootLogger().error(
-				"Could not find a registered appender with the name: #appenderName#. Registered appenders are: #getAppenderRegistry().keyArray().toList()#",
-				arguments
-			);
+			logbox
+				.getRootLogger()
+				.error(
+					"Could not find a registered appender with the name: #appenderName#. Registered appenders are: #getAppenderRegistry().keyArray().toList()#",
+					arguments
+				);
 		}
 	}
 
-    /**
+	/**
 	 * Logs a pre-formatted message or messages out to a specific appender.  The messages provided should should be structs, adhering to the [Elastic Common Schema](https://www.elastic.co/guide/en/ecs/current/ecs-field-reference.html)
-     * 
-     * @appenderName The name of the appender to log to
-     * @message The message struct or or array of messages to log
+	 *
+	 * @appenderName The name of the appender to log to
+	 * @message The message struct or or array of messages to log
 	 */
 	public function logRawToAppender(
 		required string appenderName,
 		required any messages,
-        boolean refresh = false
+		boolean refresh = false
 	){
 		var appender = getAppender( appenderName );
 		if ( !isNull( appender ) ) {
-            var createOptions = { "_index" :  appender.getProperty( "dataStream" ) };
+			var createOptions = { "_index" : appender.getProperty( "dataStream" ) };
 
-            if( !isArray( messages ) ){
-                messages = [ messages ];
-            }
-            
-            var inserts = messages.map( ( log ) => {
-                structAppend( log, getCommonFields(), false );
-                variables.util.preflightLogEntry( log );
-                return log;
-            } );
-            
-           elasticsearchClient.processBulkOperation(
-                inserts.map( ( doc ) => [
-                        "operation" : { "create" : createOptions },
-                        "source"    : doc
-                ] ),
-                {
-                    "refresh" : refresh
-                }
-            );
+			if ( !isArray( messages ) ) {
+				messages = [ messages ];
+			}
 
-		} else {
-			logbox.getRootLogger().error(
-				"Could not find a registered appender with the name: #appenderName#. Registered appenders are: #getAppenderRegistry().keyArray().toList()#",
-				arguments
+			var inserts = messages.map( ( log ) => {
+				structAppend( log, getCommonFields(), false );
+				variables.util.preflightLogEntry( log );
+				return log;
+			} );
+
+			elasticsearchClient.processBulkOperation(
+				inserts.map( ( doc ) => [
+					"operation": { "create" : createOptions },
+					"source"   : doc
+				] ),
+				{ "refresh" : refresh }
 			);
+		} else {
+			logbox
+				.getRootLogger()
+				.error(
+					"Could not find a registered appender with the name: #appenderName#. Registered appenders are: #getAppenderRegistry().keyArray().toList()#",
+					arguments
+				);
 		}
 	}
 
 
-    /**
-     * Returns common log entry fields
-     */
-    function getCommonFields(){
-        return {
+	/**
+	 * Returns common log entry fields
+	 */
+	function getCommonFields(){
+		return {
 			"@timestamp" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" ),
-			"file" : { "path" : CGI.CF_TEMPLATE_PATH },
-			"url"  : {
+			"file"       : { "path" : CGI.CF_TEMPLATE_PATH },
+			"url"        : {
 				"domain" : CGI.SERVER_NAME,
 				"path"   : CGI.PATH_INFO,
 				"port"   : CGI.SERVER_PORT,
 				"query"  : CGI.QUERY_STRING,
 				"scheme" : lCase( listFirst( CGI.SERVER_PROTOCOL, "/" ) )
 			},
-			"http"    : { "request" : { "referer" : CGI.HTTP_REFERER } },
+			"http"       : { "request" : { "referer" : CGI.HTTP_REFERER } },
 			"host"       : { "name" : CGI.HTTP_HOST, "hostname" : CGI.SERVER_NAME },
 			"client"     : { "ip" : CGI.REMOTE_ADDR },
 			"user"       : {},
 			"user_agent" : { "original" : CGI.HTTP_USER_AGENT }
 		};
-    }
+	}
 
 }
