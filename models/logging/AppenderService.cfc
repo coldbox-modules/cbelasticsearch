@@ -91,7 +91,7 @@ component accessors="true" singleton {
 		string category
 	){
 		if ( !isNumeric( arguments.severity ) ) {
-			if ( !this.logLevels.keyExists( arguments.severity ) ) {
+			if ( !structKeyExists( this.logLevels, arguments.severity ) ) {
 				throw(
 					type    = "cbelasticsearch.logging.InvalidSeverity",
 					message = "The severity [#arguments.severity#] provided is not valid.  Please provide a valid numeric serverity or one of the following levels [#this.logLevels.keyArray().toList()#]."
