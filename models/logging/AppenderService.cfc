@@ -11,6 +11,13 @@ component accessors="true" singleton{
         return this;
     }
 
+    /**
+     * Create a detached appender for use in ad-hoc logging
+     *
+     * @name The name of the appender
+     * @properties 
+     * @class The class to use for the appender. Defaults to LogStashAppender
+     */
     public void function createDetachedAppender(
         required string name,
         struct properties = {},
@@ -43,7 +50,7 @@ component accessors="true" singleton{
     }
 
 	/**
-	 * Mockable provider method for retrieving a LogEvent instance.
+	 * Method for retrieving a LogEvent instance.
 	 */
 	public LogEvent function getLogEvent(){
 		return new coldbox.system.logging.LogEvent(
@@ -52,7 +59,7 @@ component accessors="true" singleton{
 	}
 
 	/**
-	 * Mockable provider method for retrieving a struct of registered logbox appenders.
+	 * Method for retrieving a struct of registered logbox appenders.
 	 */
 	public struct function getAppenderRegistry(){
 		return variables.logBox.getAppenderRegistry();
@@ -61,6 +68,8 @@ component accessors="true" singleton{
 
 	/**
 	 * Retreives a specific appender from the logbox registry
+     * 
+     * @appenderName The name of the appender to retrieve
 	 */
 	public function getAppender( required string appenderName ){
 		var registry = getAppenderRegistry();
@@ -69,13 +78,19 @@ component accessors="true" singleton{
 
 	/**
 	 * Logs a message out to a specific appender
+     * 
+     * @appenderName The name of the appender to log to
+     * @message The message to log
+     * @severity The severity of the message
+     * @extraInfo Any extra information to log
+     * @category The category to log the message under
 	 */
 	public function logToAppender(
 		required string appenderName,
 		required string message,
 		required any severity,
 		struct extraInfo = {},
-		string category,
+		string category
 	){
         if( !isNumeric( arguments.severity ) ){
             if( !this.logLevels.keyExists( arguments.severity ) ){

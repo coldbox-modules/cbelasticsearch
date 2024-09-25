@@ -9,11 +9,13 @@ component extends="coldbox.system.testing.BaseTestCase" {
         variables.model.init();
 		getWirebox().autowire( variables.model );
 
-        variables.testEntries = mockData(
-            $num = 10,
+        var mockDataArgs = {
+            "$num" : 10,
             "log.level"    : "oneof:info:warn:error",
             "message" : "sentence"
-        );
+        };
+
+        variables.testEntries = mockData( argumentCollection = mockDataArgs );
 		
 	}
 

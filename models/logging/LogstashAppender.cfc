@@ -273,7 +273,7 @@ component
 			}
 		}
 
-		if( getProperty( "labels" ).len() ){
+		if( !structIsEmpty( getProperty( "labels" ) ) ){
 			logObj.labels.append( getProperty( "labels" ), true );
 		}
 
