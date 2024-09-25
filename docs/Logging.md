@@ -61,4 +61,142 @@ logBox = {
 };
 ```
 
-For more information on configuring log appenders for your application, see the [Coldbox documentation](https://coldbox.ortusbooks.com/getting-started/configuration/coldbox.cfc/configuration-directives/logbox)
+For more information on configuring LogBox log appenders for your application, see the [Coldbox documentation](https://coldbox.ortusbooks.com/getting-started/configuration/coldbox.cfc/configuration-directives/logbox)
+
+
+# Detached Appenders
+
+The logging capbilities of the Elasticsearch module extend beyond the framework LogBox appenders. In a era of big data an analytics, developers also have the ability to create custom appenders appenders for ad-hoc use in storing messages, collecting metrics, or for use in aggregations.   Simple messages can be logged or even raw messages which adhere to the [Elastic Common Schema](https://www.elastic.co/guide/en/ecs/current/index.html).  By using detached appenders, you can capture custom information for later reference.
+
+## Creating a Detached Appender
+
+To create a detached appender, use the `AppenderService` method `createDetachedAppender( string name, struct properties )`.  The properties passed can be any of the above, or you can omit those and the default properties will be used:
+```
+getInstance( "AppenderService@cbelasticsearch" )
+    .createDetachedAppender(
+        "myCustomAppender",
+        {
+                        
+            "retentionDays"         : 30,
+            "applicationName"       : "Custom Appender Logs",
+            "rolloverSize"          : "1gb"
+        }
+    );
+```
+
+Now we can log messages to this appender on an ad-hoc basis by calling the methods in the Appender service.
+
+### Logging a single message
+
+We can log a traditional single message by using the `logToAppender` method of the Appender service. This is familiar to many Coldbox developers:
+
+```java
+getInstance( "AppenderService@cbelasticsearch" )
+    .logToAppender(
+        "myCustomAppender",
+        "This is my custom log message which contains information I need to search later",
+        "info",
+        {
+            // labels are stored as exact match keywords which allow you aggregate and filter the log messages
+            // These are promoted to the root labels object
+            "labels" : {
+                "manager" : "Jim Leyland",
+                "team" : "Detroit Tigers"
+            },
+            // Any other key value pairs become part of the log entry extra info, which is searchable but not filterable
+            "person" : {
+                "firstName" : "Jim",
+                "lastName" : "Leyland",
+                "teams" : [
+                    "Detroit Tigers",
+                    "Pittsburg Pirates",
+                    "Colorado Rockies"
+                ],
+                "hallOfFamer" : true,
+                "inductionYear" : 2024
+            }
+        }
+    );
+```
+
+
+### Logging one or more raw formatted messages
+
+If you are comfortable assembling your own JSON and want to ship those log entries to elasticsearch raw, you can do so by usin the `logRawToAppender` method of the Appender service.  This functionality can also allow you to assemble a series of logs and ship them all off in one bulk operation.  The `messages` argument to the function may be a single entry struct, or it may be an array of multiple message which adhere to the [Elastic Common Schema](https://www.elastic.co/guide/en/ecs/current/index.html).
+
+```java
+getInstance( "AppenderService@cbelasticsearch" )
+    .logRawToAppender(
+        "myCustomAppender",
+        [
+            {
+                "@timestamp" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" ),
+                "log"        : {
+                    "level"    : "info",
+                    "logger"   : "myCustomLogger",
+                    "category" : "CustomEvents"
+                },
+                "message" : "This is my custom log message which contains information I need to search later",
+                "event"   : {
+                    "action" : event.getCurrentAction(),
+                    "duration" : myProcessingDurationNanos,
+                    "created"  : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" ),
+                    "severity" : 4,
+                    "category" : "myCustomLogger",
+                    "dataset"  : "cfml",
+                    "timezone" : createObject( "java", "java.util.TimeZone" ).getDefault().getId()
+                },
+                "file" : { "path" : CGI.CF_TEMPLATE_PATH },
+                "url"  : {
+                    "domain" : CGI.SERVER_NAME,
+                    "path"   : CGI.PATH_INFO,
+                    "port"   : CGI.SERVER_PORT,
+                    "query"  : CGI.QUERY_STRING,
+                    "scheme" : lCase( listFirst( CGI.SERVER_PROTOCOL, "/" ) )
+                },
+                "http"    : {
+                    "request" : { "referer" : CGI.HTTP_REFERER },
+                },
+                "labels" :  {
+                    "manager" : "Jim Leyland",
+                    "team" : "Detroit Tigers",
+                    "hallOfFameYear" : "2024"
+                },
+                "package" : {
+                    "name"    : getProperty( "applicationName" ),
+                    "version" : "1.1.0",
+                    "type"    : "cfml",
+                    "path"    : expandPath( "/" )
+                },
+                "host"       : { "name" : CGI.HTTP_HOST, "hostname" : CGI.SERVER_NAME },
+                "client"     : { "ip" : CGI.REMOTE_ADDR },
+                "user"       : {},
+                "user_agent" : { "original" : CGI.HTTP_USER_AGENT },
+                "error" : {
+                    "type"      : "message",
+                    "level"     : level,
+                    "message"   : loge.getMessage(),
+                    "extrainfo" : serializeJSON(
+                        {
+                            "person" : {
+                                "firstName" : "Jim",
+                                "lastName" : "Leyland",
+                                "teams" : [
+                                    "Detroit Tigers",
+                                    "Pittsburg Pirates",
+                                    "Colorado Rockies"
+                                ],
+                                "hallOfFamer" : true,
+                                "inductionYear" : 2024
+                            }
+                        }
+                    )
+                }
+            },
+            ... and so on ...
+        ]
+    );
+```
+
+See our docs [on search](https://cbelasticsearch.ortusbooks.com/searching/search) and [aggregations](https://cbelasticsearch.ortusbooks.com/searching/aggregations) for more information on how to assemble custom reports and aggregations of your logged data.
+

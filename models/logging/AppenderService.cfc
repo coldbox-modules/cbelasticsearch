@@ -4,6 +4,8 @@ component accessors="true" singleton{
 	property name="util"      inject="Util@cbelasticsearch";
     property name="detachedAppenders";
 
+    this.logLevels = new coldbox.system.logging.LogLevels();
+
     function init(){
         variables.detachedAppenders = [];
         return this;
@@ -31,7 +33,7 @@ component accessors="true" singleton{
         variables.logBox.registerAppender(
 			name       = arguments.name,
 			class      = arguments.class,
-			// Turn this appender off for all other logging, as it is intended to use ad-hoc
+			// Turn this appender off for all other logging, as it is intended to be used ad-hoc
 			levelMin   = -1,
 			levelMax   = -1,
 			properties = arguments.properties
@@ -71,10 +73,17 @@ component accessors="true" singleton{
 	public function logToAppender(
 		required string appenderName,
 		required string message,
-		required numeric severity,
+		required any severity,
 		struct extraInfo = {},
 		string category,
 	){
+        if( !isNumeric( arguments.severity ) ){
+            if( !this.logLevels.keyExists( arguments.severity ) ){
+                throw( type = "cbelasticsearch.logging.InvalidSeverity", message = "The severity [#arguments.severity#] provided is not valid.  Please provide a valid numeric serverity or one of the following levels [#this.logLevels.keyArray().toList()#]." );
+            }
+            arguments.severity = this.logLevels[ arguments.severity ];
+        }
+
 		var appender = getAppender( appenderName );
 		if ( !isNull( appender ) ) {
 			appender.logMessage(
