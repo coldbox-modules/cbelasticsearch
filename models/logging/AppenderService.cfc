@@ -22,7 +22,7 @@ component accessors="true" singleton {
 	public void function createDetachedAppender(
 		required string name,
 		struct properties = {},
-		string class      = "cbelasticsearch.models.logging.LogStashAppender"
+		string class      = "cbelasticsearch.models.logging.LogstashAppender"
 	){
 		structAppend(
 			arguments.properties,
