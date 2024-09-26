@@ -9,9 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.4.1] - 2024-09-26
+
 ### Added
 
-* Add optional `field` argument to `getMappings` client method, which allows for wildcard search and filtering of mappings ( e.g. `(GET) /logs-coldobx-*/_mapping/*application` )
+- Add optional `field` argument to `getMappings` client method, which allows for wildcard search and filtering of mappings ( e.g. `(GET) /logs-coldobx-*/_mapping/*application` )
 
 ## [3.4.0] - 2024-09-26
 
@@ -528,6 +530,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial Release
 
-[Unreleased]: https://github.com/coldbox-modules/cbelasticsearch/compare/v3.4.0...HEAD
+[Unreleased]: https://github.com/coldbox-modules/cbelasticsearch/compare/v3.4.1...HEAD
+
+[3.4.1]: https://github.com/coldbox-modules/cbelasticsearch/compare/v3.4.0...v3.4.1
 
 [3.4.0]: https://github.com/coldbox-modules/cbelasticsearch/compare/52dbd9ea7c28ea05a80e2556aed26555309a47e2...v3.4.0
