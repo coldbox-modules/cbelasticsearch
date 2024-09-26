@@ -722,7 +722,7 @@ component
 						"properties" : { 
 							"extrainfo" : { 
 								"type" : "text",
-								"analyzer": "component_path_analyzer",
+								"analyzer": "component_path_analyzer"
 							}
 						}
 					},
