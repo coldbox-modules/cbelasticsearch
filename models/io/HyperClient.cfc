@@ -266,18 +266,37 @@ component accessors="true" threadSafe singleton {
 		}
 	}
 
+	
+
 	/**
 	 * Returns the mappings for an index
 	 *
 	 * @indexName string the name of the index
+	 * @field an optional field name or field pattern
 	 */
-	struct function getMappings( required string indexName ){
-		var response = variables.nodePool.newRequest( arguments.indexName & "/_mapping", "GET" ).send();
+	struct function getMappings( required string indexName, string field ){
+		var path = arguments.indexName & "/_mapping";
+		if( !isNull( arguments.field ) ){
+			path &= "/field/" & arguments.field;
+		}
+		var response = variables.nodePool.newRequest( path, "GET" ).send();
 
 		if ( response.getStatusCode() != 200 ) {
 			onResponseFailure( response );
 		} else {
-			return response.json()[ indexName ].mappings;
+			return isNull( arguments.field )
+					? response.json()[ indexName ].mappings
+					: response.json().reduce( ( acc, indexKey, value ) => {
+						value.mappings.keyArray().each( ( mappingKey ) => {
+							if( !acc.keyExists( mappingKey ) ){
+								acc[ mappingKey ] = value.mappings[ mappingKey ];
+								acc[ mappingKey ]["indices"] = [ indexKey ];
+							} else {
+								acc[ mappingKey ]["indices"].append( indexKey );
+							}
+						} );
+						return acc;
+					}, {} );
 		}
 	}
 
