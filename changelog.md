@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+* Add optional `field` argument to `getMappings` client method, which allows for wildcard search and filtering of mappings ( e.g. `(GET) /logs-coldobx-*/_mapping/*application` )
+
 ## [3.4.0] - 2024-09-26
 
 ### Added

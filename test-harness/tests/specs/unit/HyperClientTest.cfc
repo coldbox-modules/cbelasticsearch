@@ -75,6 +75,19 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 					expect( mappings.properties ).toHaveKey( "modifiedTime" );
 					expect( mappings.properties.modifiedTime ).toHaveKey( "format" );
+
+					var fieldMappings = variables.model.getMappings( variables.testIndexName, "*modifiedTime*" );
+
+					debug( fieldMappings );
+
+					expect( fieldMappings )
+						.toBeStruct()
+						.toHaveKey( "modifiedTime" );
+
+					expect( fieldMappings.modifiedTime ).toBeStruct()
+						.toHaveKey( "full_name" )
+						.toHaveKey( "mapping" )
+						.toHaveKey( "indices" );
 					
 				} );
 

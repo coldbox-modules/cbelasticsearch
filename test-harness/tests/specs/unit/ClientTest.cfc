@@ -3,14 +3,17 @@ component extends="HyperClientTest" {
 	function beforeAll(){
 		super.beforeAll();
 
-		variables.model = getWirebox().getInstance( "HyperClient@cbelasticsearch" );
+		variables.model = getWirebox().getInstance( "Client@cbelasticsearch" );
 
 		super.beforeAll();
 	}
 
 	function run(){
-		// all of our native client methods are interface and pass through to the native client. Those tests after the core tests are completed
-		super.run();
+		describe( "Ensures the mapping for the client is present", function(){
+			it( "Checks the instance", function(){
+				expect( variables.model ).toBeInstanceOf( "cbelasticsearch.models.io.HyperClient" );
+			});
+		} );
 	}
 
 }
