@@ -43,7 +43,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Java
-        uses: actions/setup-java@v3.9.0
+        uses: actions/setup-java@v4
         with:
           distribution: "temurin"
           java-version: "${{ matrix.javaVersion }}"
@@ -62,7 +62,7 @@ jobs:
 
       - name: Scan project file system
         id: scan
-        uses: anchore/scan-action@v2
+        uses: anchore/scan-action@v5
         with:
           path: "./"
           fail-build: true
@@ -108,7 +108,7 @@ jobs:
 
       - name: Upload Test Results to Artifacts
         if: always()
-        uses: actions/upload-artifact@v3.1.1
+        uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ matrix.cfengine }}
           path: |
@@ -121,7 +121,7 @@ jobs:
 
       - name: Upload Debugging Log To Artifacts
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v3.1.1
+        uses: actions/upload-artifact@v4
         with:
           name: Failure Debugging Info - ${{ matrix.cfengine }}
           path: |
