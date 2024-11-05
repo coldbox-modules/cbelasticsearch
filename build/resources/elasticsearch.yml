@@ -3,3 +3,6 @@ cluster.name: "docker-cluster"
 xpack.security.enabled: "false"
 network.host: 0.0.0.0
 path.repo: ["/tmp"]
+
+# ES 8 requires explicit setting of the following
+xpack.security.enabled: false
