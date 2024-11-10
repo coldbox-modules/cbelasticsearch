@@ -1262,7 +1262,7 @@ component accessors="true" threadSafe singleton {
 
 			var opAction = { "#mode#" : { "_index" : doc.getIndex() } };
 
-			if( if( !isNull( doc.getId() ) ) ){
+			if( !isNull( doc.getId() ) ){
 				opAction[ mode ][ "_id" ] = doc.getId();
 			}
 
