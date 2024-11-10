@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * * *
 
-## [Unreleased]
+## [3.4.1] - 2024-11-10
+
+### Added
+
+- Add `onLogstashEntryCreate` interception point, to allow influencing and additions to final log object
+- Add `mode` argument to client `saveAll` method to allow for a `create` mode to be used for data streams
 
 ## [3.4.1] - 2024-09-26
 

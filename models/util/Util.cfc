@@ -1,6 +1,7 @@
 component accessors="true" singleton {
 
 	property name="appEnvironment" inject="box:setting:environment";
+	property name="interceptorService" inject="coldbox:InterceptorService";
 
 	/**
 	 * Ensures a CF native struct is returned ( allowing for dot-notation )
@@ -158,6 +159,8 @@ component accessors="true" singleton {
 		}
 
 		generateLogEntrySignature( logObj );
+
+		interceptorService.announce( "onLogstashEntryCreate", { "entry" : logObj } );
 	}
 
 	/**

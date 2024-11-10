@@ -109,7 +109,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         "Test message",
                         4
                     );
-                    sleep( 1000 );
+                    sleep( 1500 );
                     expect( getDataStreamCount( appender.getProperty( "dataStreamPattern" ) ) ).toBe( dataStreamCount + 1 );
                 } );
 

@@ -1230,7 +1230,8 @@ component accessors="true" threadSafe singleton {
 	array function saveAll(
 		required array documents,
 		boolean throwOnError = false,
-		struct params        = {}
+		struct params        = {},
+		string mode = "update"
 	){
 		var requests = [];
 
@@ -1259,10 +1260,22 @@ component accessors="true" threadSafe singleton {
 				}
 			}
 
+			var opAction = { "#mode#" : { "_index" : doc.getIndex() } };
+
+			if( !isNull( doc.getId() ) ){
+				opAction[ mode ][ "_id" ] = doc.getId();
+			}
+
+			var docAction = { "doc" : memento };
+
+			if( mode == "update" ){
+				docAction[ "doc_as_upsert" ] = true;
+			}
+
 			requests.append(
 				[
-					{ "update" : { "_index" : doc.getIndex(), "_id" : doc.getId() } },
-					{ "doc" : memento, "doc_as_upsert" : true }
+					opAction,
+					docAction
 				],
 				true
 			);
