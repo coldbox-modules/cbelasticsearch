@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.4.2] - 2024-11-10
+
 ### Added
 
 - Add `onLogstashEntryCreate` interception point, to allow influencing and additions to final log object
@@ -535,8 +537,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial Release
 
-[Unreleased]: https://github.com/coldbox-modules/cbelasticsearch/compare/v3.4.1...HEAD
-
+[unreleased]: https://github.com/coldbox-modules/cbelasticsearch/compare/v3.4.2...HEAD
+[3.4.2]: https://github.com/coldbox-modules/cbelasticsearch/compare/v3.4.1...v3.4.2
 [3.4.1]: https://github.com/coldbox-modules/cbelasticsearch/compare/v3.4.0...v3.4.1
-
 [3.4.0]: https://github.com/coldbox-modules/cbelasticsearch/compare/52dbd9ea7c28ea05a80e2556aed26555309a47e2...v3.4.0
