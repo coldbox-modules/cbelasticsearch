@@ -110,7 +110,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-${{ matrix.cfengine }}
+          name: test-results-${{ matrix.cfengine }}-${{ matrix.coldboxVersion }}-jdk${{ matrix.javaVersion }}-es${{ matrix.ELASTICSEARCH_VERSION }}
           path: |
             test-harness/tests/results/**/*
 
