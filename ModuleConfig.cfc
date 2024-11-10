@@ -75,7 +75,8 @@ component {
 		interceptorSettings = {
 			customInterceptionPoints : [
 				"cbElasticsearchPreSave",
-				"cbElasticsearchPostSave"
+				"cbElasticsearchPostSave",
+				"onLogstashEntryCreate"
 			]
 		};
 
