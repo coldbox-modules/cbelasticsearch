@@ -123,7 +123,7 @@ jobs:
         if: ${{ failure() }}
         uses: actions/upload-artifact@v4
         with:
-          name: Failure Debugging Info - ${{ matrix.cfengine }}
+          name: Failure Debugging Info - ${{ matrix.cfengine }} | Coldbox ${{ matrix.coldboxVersion }} ( jdk${{ matrix.javaVersion }}-es${{ matrix.ELASTICSEARCH_VERSION }} )
           path: |
             .engine/**/logs/*
             .engine/**/WEB-INF/cfusion/logs/*
