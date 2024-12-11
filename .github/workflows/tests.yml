@@ -38,6 +38,14 @@ jobs:
             javaVersion: "21"
             ELASTICSEARCH_VERSION: "8.14.1"
             experimental: true
+          - cfengine: "boxlang@1"
+            coldboxVersion: "be"
+            ELASTICSEARCH_VERSION: "8.14.1"
+            experimental: true
+          - cfengine: "boxlang@1"
+            coldboxVersion: "be"
+            ELASTICSEARCH_VERSION: "7.17.10"
+            experimental: true
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
