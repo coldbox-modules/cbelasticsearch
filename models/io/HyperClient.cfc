@@ -266,7 +266,7 @@ component accessors="true" threadSafe singleton {
 		}
 	}
 
-	
+
 
 	/**
 	 * Returns the mappings for an index
@@ -278,25 +278,30 @@ component accessors="true" threadSafe singleton {
 		var path = arguments.indexName & "/_mapping";
 		if( !isNull( arguments.field ) ){
 			path &= "/field/" & arguments.field;
+		} else if( findNoCase( "*", arguments.indexName ) ){
+			// if a wild card is present we are only interested in the fields
+			arguments.field = "*";
+			path &= "/field/" & arguments.field;
 		}
 		var response = variables.nodePool.newRequest( path, "GET" ).send();
 
 		if ( response.getStatusCode() != 200 ) {
 			onResponseFailure( response );
 		} else {
+			var mappings = response.json();
 			return isNull( arguments.field )
-					? response.json()[ indexName ].mappings
-					: response.json().reduce( ( acc, indexKey, value ) => {
-						value.mappings.keyArray().each( ( mappingKey ) => {
-							if( !acc.keyExists( mappingKey ) ){
-								acc[ mappingKey ] = value.mappings[ mappingKey ];
-								acc[ mappingKey ]["indices"] = [ indexKey ];
-							} else {
-								acc[ mappingKey ]["indices"].append( indexKey );
-							}
-						} );
-						return acc;
-					}, {} );
+				? mappings[ indexName ].mappings
+				: mappings.reduce( ( acc, indexKey, value ) => {
+					value.mappings.keyArray().each( ( mappingKey ) => {
+						if( !acc.keyExists( mappingKey ) ){
+							acc[ mappingKey ] = value.mappings[ mappingKey ];
+							acc[ mappingKey ]["indices"] = [ indexKey ];
+						} else {
+							acc[ mappingKey ]["indices"].append( indexKey );
+						}
+					} );
+					return acc;
+				}, {} );
 		}
 	}
 
