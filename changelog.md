@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.5.0] - 2024-12-13
+
+### Added
+
+- Add support for wildcard mapping fields
+
+### Changed
+
+- Bump hyper version to v8.0.0
+
 ## [3.4.2] - 2024-11-10
 
 ### Added
@@ -537,7 +547,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial Release
 
-[unreleased]: https://github.com/coldbox-modules/cbelasticsearch/compare/v3.4.2...HEAD
+[unreleased]: https://github.com/coldbox-modules/cbelasticsearch/compare/v3.5.0...HEAD
+[3.5.0]: https://github.com/coldbox-modules/cbelasticsearch/compare/v3.4.2...v3.5.0
 [3.4.2]: https://github.com/coldbox-modules/cbelasticsearch/compare/v3.4.1...v3.4.2
 [3.4.1]: https://github.com/coldbox-modules/cbelasticsearch/compare/v3.4.0...v3.4.1
 [3.4.0]: https://github.com/coldbox-modules/cbelasticsearch/compare/52dbd9ea7c28ea05a80e2556aed26555309a47e2...v3.4.0
