@@ -276,9 +276,9 @@ component accessors="true" threadSafe singleton {
 	 */
 	struct function getMappings( required string indexName, string field ){
 		var path = arguments.indexName & "/_mapping";
-		if( !isNull( arguments.field ) ){
+		if ( !isNull( arguments.field ) ) {
 			path &= "/field/" & arguments.field;
-		} else if( findNoCase( "*", arguments.indexName ) ){
+		} else if ( findNoCase( "*", arguments.indexName ) ) {
 			// if a wild card is present we are only interested in the fields
 			arguments.field = "*";
 			path &= "/field/" & arguments.field;
@@ -290,18 +290,20 @@ component accessors="true" threadSafe singleton {
 		} else {
 			var mappings = response.json();
 			return isNull( arguments.field )
-				? mappings[ indexName ].mappings
-				: mappings.reduce( ( acc, indexKey, value ) => {
-					value.mappings.keyArray().each( ( mappingKey ) => {
-						if( !acc.keyExists( mappingKey ) ){
-							acc[ mappingKey ] = value.mappings[ mappingKey ];
-							acc[ mappingKey ]["indices"] = [ indexKey ];
+			 ? mappings[ indexName ].mappings
+			 : mappings.reduce( ( acc, indexKey, value ) => {
+				value.mappings
+					.keyArray()
+					.each( ( mappingKey ) => {
+						if ( !acc.keyExists( mappingKey ) ) {
+							acc[ mappingKey ]              = value.mappings[ mappingKey ];
+							acc[ mappingKey ][ "indices" ] = [ indexKey ];
 						} else {
-							acc[ mappingKey ]["indices"].append( indexKey );
+							acc[ mappingKey ][ "indices" ].append( indexKey );
 						}
 					} );
-					return acc;
-				}, {} );
+				return acc;
+			}, {} );
 		}
 	}
 
@@ -1236,7 +1238,7 @@ component accessors="true" threadSafe singleton {
 		required array documents,
 		boolean throwOnError = false,
 		struct params        = {},
-		string mode = "update"
+		string mode          = "update"
 	){
 		var requests = [];
 
@@ -1267,23 +1269,17 @@ component accessors="true" threadSafe singleton {
 
 			var opAction = { "#mode#" : { "_index" : doc.getIndex() } };
 
-			if( !isNull( doc.getId() ) ){
+			if ( !isNull( doc.getId() ) ) {
 				opAction[ mode ][ "_id" ] = doc.getId();
 			}
 
 			var docAction = { "doc" : memento };
 
-			if( mode == "update" ){
+			if ( mode == "update" ) {
 				docAction[ "doc_as_upsert" ] = true;
 			}
 
-			requests.append(
-				[
-					opAction,
-					docAction
-				],
-				true
-			);
+			requests.append( [ opAction, docAction ], true );
 		} );
 
 		var saveResult = processBulkOperation(
@@ -1694,9 +1690,7 @@ component accessors="true" threadSafe singleton {
 	 * @name
 	 */
 	boolean function dataStreamExists( required string name ){
-		var check = variables.nodePool
-			.newRequest( "_data_stream/#arguments.name#" )
-			.send();
+		var check = variables.nodePool.newRequest( "_data_stream/#arguments.name#" ).send();
 		return check.getStatusCode() == "200" && check.json().data_streams.len();
 	}
 
