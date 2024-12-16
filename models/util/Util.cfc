@@ -1,6 +1,6 @@
 component accessors="true" singleton {
 
-	property name="appEnvironment" inject="box:setting:environment";
+	property name="appEnvironment"     inject="box:setting:environment";
 	property name="interceptorService" inject="coldbox:InterceptorService";
 
 	/**
@@ -131,13 +131,19 @@ component accessors="true" singleton {
 		}
 
 		// We pre-test this because ACF2018 will not recognize an already formatted ISO8601 datetime with offset
-		if( isDate( arguments.logObj[ "@timestamp" ] ) ){
-			arguments.logObj[ "@timestamp" ] = dateTimeFormat( arguments.logObj[ "@timestamp" ], "yyyy-mm-dd'T'HH:nn:ssZZ" );
+		if ( isDate( arguments.logObj[ "@timestamp" ] ) ) {
+			arguments.logObj[ "@timestamp" ] = dateTimeFormat(
+				arguments.logObj[ "@timestamp" ],
+				"yyyy-mm-dd'T'HH:nn:ssZZ"
+			);
 		}
 
-		if( arguments.logObj.keyExists( "event" ) && arguments.logObj.event.keyExists( "created" ) ){
-			if( isDate( arguments.logObj.event.created ) ){
-				arguments.logObj.event.created = dateTimeFormat( arguments.logObj.event.created, "yyyy-mm-dd'T'HH:nn:ssZZ" );
+		if ( arguments.logObj.keyExists( "event" ) && arguments.logObj.event.keyExists( "created" ) ) {
+			if ( isDate( arguments.logObj.event.created ) ) {
+				arguments.logObj.event.created = dateTimeFormat(
+					arguments.logObj.event.created,
+					"yyyy-mm-dd'T'HH:nn:ssZZ"
+				);
 			}
 		}
 
