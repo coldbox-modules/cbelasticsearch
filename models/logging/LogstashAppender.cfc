@@ -659,22 +659,22 @@ component
 				"number_of_replicas"     : getProperty( "indexReplicas" ),
 				"index.lifecycle.name"   : getProperty( "ILMPolicyName" ),
 				"index.default_pipeline" : getProperty( "pipelineName" ),
-				"analysis": {
-					"analyzer": {
-					  "component_path_analyzer": {
-						"tokenizer": "standard",
-						"filter": [ "component_path_filter" ]
-					  }
+				"analysis"               : {
+					"analyzer" : {
+						"component_path_analyzer" : {
+							"tokenizer" : "standard",
+							"filter"    : [ "component_path_filter" ]
+						}
 					},
-					"filter": {
-					  "component_path_filter": {
-						"type": "word_delimiter",
-						"type_table": [ ". => SUBWORD_DELIM" ],
-						"split_on_case_change": false,
-						"split_on_numerics": false,
-						"stem_english_possessive": true,
-						"preserve_original": true
-					  }
+					"filter" : {
+						"component_path_filter" : {
+							"type"                    : "word_delimiter",
+							"type_table"              : [ ". => SUBWORD_DELIM" ],
+							"split_on_case_change"    : false,
+							"split_on_numerics"       : false,
+							"stem_english_possessive" : true,
+							"preserve_original"       : true
+						}
 					}
 				}
 			},
@@ -719,17 +719,14 @@ component
 					},
 					"error" : {
 						"type"       : "object",
-						"properties" : { 
-							"extrainfo" : { 
-								"type" : "text",
-								"analyzer": "component_path_analyzer"
-							}
+						"properties" : {
+							"extrainfo" : { "type" : "text", "analyzer" : "component_path_analyzer" }
 						}
 					},
 					"message" : {
-						"type"   : "text",
-						"analyzer": "component_path_analyzer",
-						"fields" : { "keyword" : { "type" : "keyword", "ignore_above" : 512 } }
+						"type"     : "text",
+						"analyzer" : "component_path_analyzer",
+						"fields"   : { "keyword" : { "type" : "keyword", "ignore_above" : 512 } }
 					},
 					"event" : {
 						"type"       : "object",
