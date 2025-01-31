@@ -32,22 +32,26 @@ jobs:
         javaVersion: [ "11" ]
         ELASTICSEARCH_VERSION: [ "7.17.10", "8.14.1" ]
         experimental: [ false ]
+        commandboxVersion: [ "6.1.0" ]
         include:
           - cfengine: "lucee@6"
             coldboxVersion: "^7"
             javaVersion: "21"
             ELASTICSEARCH_VERSION: "8.14.1"
             experimental: true
+            commandboxVersion: "6.1.0"
           - cfengine: "boxlang@1"
             coldboxVersion: "be"
             javaVersion: "21"
             ELASTICSEARCH_VERSION: "8.14.1"
             experimental: true
+            commandboxVersion: "6.2.0-alpha"
           - cfengine: "boxlang@1"
             coldboxVersion: "be"
             javaVersion: "21"
             ELASTICSEARCH_VERSION: "7.17.10"
             experimental: true
+            commandboxVersion: "6.2.0-alpha"
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -60,6 +64,8 @@ jobs:
 
       - name: Setup CommandBox CLI
         uses: Ortus-Solutions/setup-commandbox@v2.0.1
+        with:
+          version: "${{ matrix.commandboxVersion }}"
 
       - name: Set ColdBox Version
         working-directory: ./test-harness
