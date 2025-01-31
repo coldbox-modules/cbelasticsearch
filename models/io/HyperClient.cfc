@@ -503,7 +503,7 @@ component accessors="true" threadSafe singleton {
 		return structReduce(
 			arguments.index,
 			function( indexMap, key, value ){
-				indexMap.put( key, value );
+				indexMap[ key ] = value;
 				return indexMap;
 			},
 			{}
