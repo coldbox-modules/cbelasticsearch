@@ -45,13 +45,13 @@ jobs:
             javaVersion: "21"
             ELASTICSEARCH_VERSION: "8.14.1"
             experimental: true
-            commandboxVersion: "6.2.0-alpha"
+            commandboxVersion: "6.1.0"
           - cfengine: "boxlang@1"
             coldboxVersion: "be"
             javaVersion: "21"
             ELASTICSEARCH_VERSION: "7.17.10"
             experimental: true
-            commandboxVersion: "6.2.0-alpha"
+            commandboxVersion: "6.1.0"
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -66,6 +66,11 @@ jobs:
         uses: Ortus-Solutions/setup-commandbox@v2.0.1
         with:
           version: "${{ matrix.commandboxVersion }}"
+
+      - name: Reinstall CommandBox-Boxlang Module
+        working-directory: ./test-harness
+        run: |
+          box install --force commandbox-boxlang
 
       - name: Set ColdBox Version
         working-directory: ./test-harness
