@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * * *
 
 ## [Unreleased]
+### Added
+- Boxlang runtime certification
+
+### Removed
+- `ensureNativeStruct` and `newHashMap` removed from `models.util.Util`
 
 ## [3.5.0] - 2024-12-13
 
