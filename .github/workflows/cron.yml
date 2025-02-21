@@ -7,4 +7,6 @@ on:
 jobs:
   tests:
     uses: ./.github/workflows/tests.yml
-    secrets: inherit
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      S3SDK_AWS_BUCKET_NAME: ${{ secrets.S3SDK_AWS_BUCKET_NAME }}
