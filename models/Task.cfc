@@ -54,13 +54,13 @@ component accessors="true" {
 			variables.append( taskProperties );
 
 			// calculate our time
-			if ( taskProperties.keyExists( "start_time_in_millis" ) ){
-				var epochDate = parseDateTime( "1970-01-01T00:00:00.000Z", "yyyy-MM-dd'T'HH:nn:ss.SSSX" );
+			if ( taskProperties.keyExists( "start_time_in_millis" ) ) {
+				var epochDate       = parseDateTime( "1970-01-01T00:00:00.000Z", "yyyy-MM-dd'T'HH:nn:ss.SSSX" );
 				variables.startTime = dateAdd(
 					"s",
 					round( taskProperties.start_time_in_millis / 1000 ),
 					epochDate
-				);	
+				);
 			} else {
 				variables.StartTime = now();
 			}
