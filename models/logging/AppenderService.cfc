@@ -147,10 +147,12 @@ component accessors="true" singleton {
 			} );
 
 			elasticsearchClient.processBulkOperation(
-				inserts.map( ( doc ) => [
-					"operation": { "create" : createOptions },
-					"source"   : doc
-				] ),
+				inserts.map( ( doc ) => {
+					return [
+						"operation": { "create" : createOptions },
+						"source"   : doc
+					];
+				} ),
 				{ "refresh" : refresh }
 			);
 		} else {
