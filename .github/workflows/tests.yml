@@ -18,31 +18,31 @@ jobs:
     continue-on-error: ${{ matrix.experimental }}
     strategy:
       matrix:
-        cfengine: [ "lucee@5", "adobe@2018", "adobe@2021", "adobe@2023" ]
+        cfengine: [ "lucee@5", "adobe@2021", "adobe@2023", "adobe@2025" ]
         coldboxVersion: [ "^6", "^7"  ]
-        javaVersion: [ "11" ]
+        javaVersion: [ "17" ]
         ELASTICSEARCH_VERSION: [ "7.17.10", "8.14.1" ]
         experimental: [ false ]
-        commandboxVersion: [ "6.1.0" ]
+        commandboxVersion: [ "6.2.0-alpha" ]
         include:
-          - cfengine: "lucee@6"
-            coldboxVersion: "^7"
-            javaVersion: "21"
-            ELASTICSEARCH_VERSION: "8.14.1"
-            experimental: true
-            commandboxVersion: "6.1.0"
           - cfengine: "boxlang@1"
             coldboxVersion: "be"
             javaVersion: "21"
             ELASTICSEARCH_VERSION: "8.14.1"
-            experimental: true
-            commandboxVersion: "6.1.0"
+            experimental: false
+            commandboxVersion: "6.2.0-alpha"
           - cfengine: "boxlang@1"
             coldboxVersion: "be"
             javaVersion: "21"
             ELASTICSEARCH_VERSION: "7.17.10"
+            experimental: false
+            commandboxVersion: "6.2.0-alpha"
+          - cfengine: "lucee@6"
+            coldboxVersion: "^7"
+            javaVersion: "17"
+            ELASTICSEARCH_VERSION: "8.14.1"
             experimental: true
-            commandboxVersion: "6.1.0"
+            commandboxVersion: "6.2.0-alpha"
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
