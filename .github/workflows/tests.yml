@@ -90,7 +90,7 @@ jobs:
         env:
           ENVIRONMENT: development
         run: |
-          box server start serverConfigFile="server-${{ matrix.cfengine }}.json" --noSaveSettings --debug
+          box server start serverConfigFile="server-${{ matrix.cfengine }}.json" --noSaveSettings --debug --trace
           curl http://127.0.0.1:60299
 
       - name: Run Tests
