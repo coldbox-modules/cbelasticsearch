@@ -83,7 +83,7 @@ jobs:
 
       - name: Setup Elasticsearch
         run: |
-          docker run -d -p "${{ env.ELASTICSEARCH_PORT }}:9200" -v $PWD/build/resources/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml elasticsearch:${{ matrix.ELASTICSEARCH_VERSION }}
+          docker run -d -p "${{ env.ELASTICSEARCH_PORT }}:9200" --name elasticsearch-server -v $PWD/build/resources/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml elasticsearch:${{ matrix.ELASTICSEARCH_VERSION }}
           rm -rf test-harness/modules_app
 
       - name: Start ${{ matrix.cfengine }} Server
@@ -117,9 +117,10 @@ jobs:
             test-harness/tests/results/**/*
 
       - name: Failure Debugging Log
-        if: ${{ failure() }}
+        if: ${{ failure() || cancelled() }}
         run: |
           box server log serverConfigFile="server-${{ matrix.cfengine }}.json"
+          docker container logs elasticsearch-server
 
       - name: Upload Debugging Log To Artifacts
         if: ${{ failure() }}
