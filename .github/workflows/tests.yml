@@ -10,7 +10,7 @@ on:
 jobs:
   tests:
     name: Tests
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     env:
       ELASTICSEARCH_PROTOCOL: http
       ELASTICSEARCH_HOST: 127.0.0.1
