@@ -6,6 +6,7 @@ on:
     branches:
       - development
       - main
+  workflow_dispatch:
 
 env:
   MODULE_ID: cbelasticsearch
@@ -18,15 +19,13 @@ jobs:
     uses: ./.github/workflows/tests.yml
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      S3SDK_AWS_BUCKET_NAME: ${{ secrets.S3SDK_AWS_BUCKET_NAME }}
-
   #############################################
   # Build Module
   #############################################
   build:
     name: Build & Publish
     needs: tests
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -143,7 +142,7 @@ jobs:
   prep_next_release:
     name: Prep Next Release
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: [ build ]
     steps:
       # Checkout development

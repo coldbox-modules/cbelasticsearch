@@ -13,9 +13,9 @@ component {
 	// APPLICATION CFC PROPERTIES
 	this.name               = "cbelasticsearch Testing Suite";
 	this.sessionManagement  = true;
-	this.sessionTimeout     = createTimespan( 0, 0, 15, 0 );
-	this.applicationTimeout = createTimespan( 0, 0, 15, 0 );
-	this.setClientCookies   = true;
+	this.sessionTimeout     = createTimespan( 0, 1, 0, 0 );
+	this.applicationTimeout = createTimespan( 0, 1, 0, 0 );
+	this.setClientCookies   = false;
 
 	// Create testing mapping
 	this.mappings[ "/tests" ] = getDirectoryFromPath( getCurrentTemplatePath() );
@@ -56,7 +56,7 @@ component {
 
 		// If hitting the runner or specs, prep our virtual app
 		if ( getBaseTemplatePath().replace( expandPath( "/tests" ), "" ).reFindNoCase( "(runner|specs)" ) ) {
-			request.coldBoxVirtualApp.startup();
+			request.coldBoxVirtualApp.startup( true );
 		}
 
 		return true;

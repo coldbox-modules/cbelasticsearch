@@ -1,8 +1,6 @@
-version: "3"
-
 services:
     elasticsearch:
-        image: elasticsearch:8.6.2
+        image: elasticsearch:8.17.1
         environment:
             ES_JAVA_OPTS: "-Xms2g -Xmx2g"
         volumes:

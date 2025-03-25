@@ -6,20 +6,11 @@ on:
     secrets:
       SLACK_WEBHOOK_URL:
         required: true
-      S3SDK_AWS_BUCKET_NAME:
-        required: true
 
 jobs:
   tests:
     name: Tests
-    runs-on: ubuntu-20.04
-    services:
-      s3Mock:
-        image: adobe/s3mock
-        ports:
-          - 9090:9090
-        env:
-          initialBuckets: ${{ secrets.S3SDK_AWS_BUCKET_NAME }}
+    runs-on: ubuntu-latest
     env:
       ELASTICSEARCH_PROTOCOL: http
       ELASTICSEARCH_HOST: 127.0.0.1
@@ -32,12 +23,26 @@ jobs:
         javaVersion: [ "11" ]
         ELASTICSEARCH_VERSION: [ "7.17.10", "8.14.1" ]
         experimental: [ false ]
+        commandboxVersion: [ "6.1.0" ]
         include:
           - cfengine: "lucee@6"
             coldboxVersion: "^7"
             javaVersion: "21"
             ELASTICSEARCH_VERSION: "8.14.1"
             experimental: true
+            commandboxVersion: "6.1.0"
+          - cfengine: "boxlang@1"
+            coldboxVersion: "be"
+            javaVersion: "21"
+            ELASTICSEARCH_VERSION: "8.14.1"
+            experimental: true
+            commandboxVersion: "6.1.0"
+          - cfengine: "boxlang@1"
+            coldboxVersion: "be"
+            javaVersion: "21"
+            ELASTICSEARCH_VERSION: "7.17.10"
+            experimental: true
+            commandboxVersion: "6.1.0"
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -50,15 +55,22 @@ jobs:
 
       - name: Setup CommandBox CLI
         uses: Ortus-Solutions/setup-commandbox@v2.0.1
+        with:
+          version: "${{ matrix.commandboxVersion }}"
 
-      - name: Set ColdBox Version
+      - name: Reinstall CommandBox-Boxlang Module
         working-directory: ./test-harness
         run: |
-          box install coldbox@${{ matrix.coldboxVersion }}
+          box install --force commandbox-boxlang
 
       - name: Install Dependencies
         run: |
           box run-script install:dependencies
+      
+      - name: Set ColdBox Version
+        working-directory: ./test-harness
+        run: |
+          box install --force --noSave coldbox@${{ matrix.coldboxVersion }}
 
       - name: Scan project file system
         id: scan
@@ -71,29 +83,19 @@ jobs:
 
       - name: Setup Elasticsearch
         run: |
-          docker run -d -p "${{ env.ELASTICSEARCH_PORT }}:9200" -v $PWD/build/resources/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml elasticsearch:${{ matrix.ELASTICSEARCH_VERSION }}
+          docker run -d -p "${{ env.ELASTICSEARCH_PORT }}:9200" --name elasticsearch-server -v $PWD/build/resources/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml elasticsearch:${{ matrix.ELASTICSEARCH_VERSION }}
           rm -rf test-harness/modules_app
 
       - name: Start ${{ matrix.cfengine }} Server
         env:
           ENVIRONMENT: development
-          AWS_S3_DOMAIN: 127.0.0.1:9090
-          AWS_S3_SSL: "false"
-          AWS_S3_REGION:
-          AWS_S3_PUBLIC_DOMAIN: 127.0.0.1:9090/cbelasticsearch-test
-          AWS_S3_BUCKET_NAME: ${{ secrets.S3SDK_AWS_BUCKET_NAME }}
         run: |
-          box server start serverConfigFile="server-${{ matrix.cfengine }}.json" --noSaveSettings --debug
+          box server start serverConfigFile="server-${{ matrix.cfengine }}.json" --noSaveSettings --debug --trace
           curl http://127.0.0.1:60299
 
       - name: Run Tests
         env:
           ENVIRONMENT: development
-          AWS_S3_DOMAIN: 127.0.0.1:9090
-          AWS_S3_SSL: "false"
-          AWS_S3_REGION:
-          AWS_S3_PUBLIC_DOMAIN: 127.0.0.1:9090/cbelasticsearch-test
-          AWS_S3_BUCKET_NAME: ${{ secrets.S3SDK_AWS_BUCKET_NAME }}
         run: |
           mkdir -p test-harness/tests/results
           box testbox run --verbose outputFile=test-harness/tests/results/test-results outputFormats=json,antjunit
@@ -115,9 +117,10 @@ jobs:
             test-harness/tests/results/**/*
 
       - name: Failure Debugging Log
-        if: ${{ failure() }}
+        if: ${{ failure() || cancelled() }}
         run: |
           box server log serverConfigFile="server-${{ matrix.cfengine }}.json"
+          docker container logs elasticsearch-server
 
       - name: Upload Debugging Log To Artifacts
         if: ${{ failure() }}

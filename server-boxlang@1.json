@@ -1,0 +1,34 @@
+{
+    "app":{
+        "cfengine":"boxlang@1.0.0-snapshot",
+        "serverHomeDirectory":".engine/boxlang"
+    },
+    "name":"cbelasticsearch-boxlang@1",
+    "force":true,
+    "openBrowser":false,
+    "web":{
+        "directoryBrowsing":true,
+        "http":{
+            "port":"60299"
+        },
+        "rewrites":{
+            "enable":"true"
+        },
+        "webroot":"test-harness",
+        "aliases":{
+            "/moduleroot/cbelasticsearch":"./"
+        }
+    },
+    "fusionreactor":{
+        "enable":"${FR_ENABLE:false}",
+        "port":"8088",
+        "licenseKey":"${FR_LICENSE_KEY}"
+    },
+    "JVM":{
+        "javaVersion":"openjdk21_jdk_x64",
+        "args":"-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=9999 -Dboxlang.debugMode=true"
+    },
+    "scripts":{
+        "onServerInitialInstall":"install bx-compat-cfml@be,bx-esapi --noSave"
+    }
+}

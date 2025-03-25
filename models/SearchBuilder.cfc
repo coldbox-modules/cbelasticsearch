@@ -1263,8 +1263,8 @@ component accessors="true" {
 		}
 
 		if ( !isNull( variables.sorting ) ) {
-			// we used a linked hashmap for sorting to maintain order
-			dsl[ "sort" ] = createObject( "java", "java.util.LinkedHashMap" ).init();
+			// we used an ordered struct so that the sort directives are in the order they were added
+			dsl[ "sort" ] = structNew( "ordered" );
 
 			for ( var sort in variables.sorting ) {
 				dsl.sort.putAll( sort );

@@ -110,14 +110,13 @@ component {
 						.term( "name", arguments.componentName )
 				);
 		} else {
-			var formatter = createObject( "java", "java.text.SimpleDateFormat" ).init( "yyyy-MM-dd'T'HH:mm:ssXXX" );
 			wirebox
 				.getInstance( "Document@cbelasticsearch" )
 				.new(
 					index      = variables.migrationsIndex,
 					properties = {
 						"name"         : arguments.componentName,
-						"migrationRan" : formatter.format( now() ).replace( "Z", "+00:00" )
+						"migrationRan" : dateTimeFormat( now(), "yyyy-mm-dd'T'HH:nn:ssZZ" )
 					}
 				)
 				.save( true );

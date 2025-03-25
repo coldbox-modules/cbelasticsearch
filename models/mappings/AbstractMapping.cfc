@@ -32,7 +32,7 @@ component accessors="true" {
 	}
 
 	function onMissingMethod( missingMethodName, missingMethodArguments ){
-		variables.parameters[ snakeCase( missingMethodName ) ] = missingMethodArguments[ 1 ];
+		variables.parameters[ variables.snakeCase( missingMethodName ) ] = missingMethodArguments[ 1 ];
 		return this;
 	}
 

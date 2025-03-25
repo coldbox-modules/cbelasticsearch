@@ -361,7 +361,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 			it( "Tests the sort() method by providing an array", function(){
 				var searchBuilder = variables.model.new( variables.testIndexName, "testdocs" );
 
-				var sort = [ { "lastName" : { "order" : "asc" } } ];
+				var sort = [ { "lastName" : { "order" : "asc" } }, { "firstName" : { "order" : "asc" } } ];
 
 				searchBuilder.sort( sort );
 
@@ -373,8 +373,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				expect( dsl ).toHaveKey( "sort" );
 				expect( dsl.sort ).toBeStruct();
 				expect( dsl.sort ).toHaveKey( "lastName" );
+				expect( dsl.sort.keyArray().last() ).toBe( "firstName" );
 
-				expect( getMetadata( dsl.sort ).name ).toBe( "java.util.LinkedHashMap" );
 			} );
 
 			it( "Tests the sort() method by providing a simple SQL-type string", function(){

@@ -32,3 +32,4 @@ changelog-latest.md
 
 # test environment secrets
 test-harness/.env
+.env
