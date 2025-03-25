@@ -154,15 +154,7 @@ component
 		var logObj = marshallLogObject( argumentCollection = arguments );
 
 		try {
-			var document = newDocument().new( index = getProperty( "dataStream" ), properties = logObj );
-			if ( getProperty( "async" ) ) {
-				variables.asyncManager
-					.newFuture()
-					.withTimeout( getProperty( "asyncTimeout" ) )
-					.run( () => document.create() );
-			} else {
-				document.create();
-			}
+			newDocument().new( index = getProperty( "dataStream" ), properties = logObj ).create();
 		} catch ( any e ) {
 			if ( getProperty( "throwOnError" ) ) {
 				rethrow;
@@ -354,7 +346,7 @@ component
 				"type"      : "message",
 				"level"     : level,
 				"message"   : loge.getMessage(),
-				"extrainfo" : loge.getExtraInfoAsString()
+				"extrainfo" : isSimpleValue( extraInfo ) ? extraInfo : variables.util.toJSON( extraInfo )
 			};
 		}
 
