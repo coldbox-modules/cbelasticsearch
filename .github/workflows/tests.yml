@@ -63,14 +63,14 @@ jobs:
         run: |
           box install --force commandbox-boxlang
 
-      - name: Set ColdBox Version
-        working-directory: ./test-harness
-        run: |
-          box install coldbox@${{ matrix.coldboxVersion }}
-
       - name: Install Dependencies
         run: |
           box run-script install:dependencies
+      
+      - name: Set ColdBox Version
+        working-directory: ./test-harness
+        run: |
+          box install --force --noSave coldbox@${{ matrix.coldboxVersion }}
 
       - name: Scan project file system
         id: scan
