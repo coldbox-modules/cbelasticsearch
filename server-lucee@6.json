@@ -2,7 +2,7 @@
     "name":"cbelasticsearch-lucee@6",
     "app":{
         "serverHomeDirectory":".engine/lucee6",
-        "cfengine":"lucee@be"
+        "cfengine":"lucee@"
     },
     "web":{
         "http":{
