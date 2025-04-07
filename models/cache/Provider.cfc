@@ -337,7 +337,7 @@ component
 				local.keyStats.timeExpires = dateAdd(
 					"s",
 					local.stats[ "key_exptime" ],
-					dateConvert( "utc2Local", "January 1 1970 00:00" )
+					dateConvert( "utc2Local", "1970-01-01T00:00:00Z" )
 				);
 			}
 			// key_last_modification_time
@@ -349,7 +349,7 @@ component
 				local.keyStats.lastAccessed = dateAdd(
 					"s",
 					local.stats[ "key_last_modification_time" ],
-					dateConvert( "utc2Local", "January 1 1970 00:00" )
+					dateConvert( "utc2Local", "1970-01-01T00:00:00Z" )
 				);
 			}
 			// state
