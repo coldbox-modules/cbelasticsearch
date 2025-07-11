@@ -219,7 +219,7 @@ component
 				"path"    : expandPath( "/" )
 			},
 			"host"       : { "name" : CGI.HTTP_HOST, "hostname" : CGI.SERVER_NAME },
-			"client"     : { "ip" : CGI.REMOTE_ADDR },
+			"client"     : { "ip" : util.getRealIp() },
 			"user"       : {},
 			"user_agent" : { "original" : CGI.HTTP_USER_AGENT }
 		};

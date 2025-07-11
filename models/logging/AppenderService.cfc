@@ -182,7 +182,7 @@ component accessors="true" singleton {
 			},
 			"http"       : { "request" : { "referer" : CGI.HTTP_REFERER } },
 			"host"       : { "name" : CGI.HTTP_HOST, "hostname" : CGI.SERVER_NAME },
-			"client"     : { "ip" : CGI.REMOTE_ADDR },
+			"client"     : { "ip" : util.getRealIp() },
 			"user"       : {},
 			"user_agent" : { "original" : CGI.HTTP_USER_AGENT }
 		};
