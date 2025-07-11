@@ -68,7 +68,9 @@ component {
 			// Read timeout - the read timeout in milliseconds
 			readTimeout            : getSystemSetting( "ELASTICSEARCH_READ_TIMEOUT", 3000 ),
 			// Connection timeout - timeout attempts to connect to elasticsearch after this timeout
-			connectionTimeout      : getSystemSetting( "ELASTICSEARCH_CONNECT_TIMEOUT", 3000 )
+			connectionTimeout      : getSystemSetting( "ELASTICSEARCH_CONNECT_TIMEOUT", 3000 ),
+			// used by util:getRealIp, trustUpstream If true, we check the forwarded headers first, else we don't
+			trustUpstream		   : false
 		};
 
 		// Custom Declared Points
