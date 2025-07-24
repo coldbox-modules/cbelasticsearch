@@ -2,7 +2,7 @@ component accessors="true" singleton {
 
 	property name="appEnvironment"     inject="box:setting:environment";
 	property name="interceptorService" inject="coldbox:InterceptorService";
-	property name="configStruct" 	   inject="box:modulesettings:cbelasticsearch";
+	property name="configStruct"       inject="box:modulesettings:cbelasticsearch";
 
 	/**
 	 * Workaround for Adobe 2018 metadata mutation bug with GSON: https://tracker.adobe.com/#/view/CF-4206423
@@ -206,7 +206,7 @@ component accessors="true" singleton {
 	/**
 	 * Get Real IP, by looking at clustered, proxy headers and locally.
 	 * borrowed from cbSecurity
-	 * 
+	 *
 	 * @trustUpstream If true, we check the forwarded headers first, else we don't
 	 */
 	string function getRealIP( boolean trustUpstream = configStruct.trustUpstream ){
@@ -223,4 +223,5 @@ component accessors="true" singleton {
 
 		return len( cgi.remote_addr ) ? trim( listFirst( cgi.remote_addr ) ) : "127.0.0.1";
 	}
+
 }
