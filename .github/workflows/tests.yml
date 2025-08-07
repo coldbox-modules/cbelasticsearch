@@ -18,12 +18,12 @@ jobs:
     continue-on-error: ${{ matrix.experimental }}
     strategy:
       matrix:
-        cfengine: [ "lucee@5", "adobe@2023", "adobe@2025" ]
-        coldboxVersion: [ "^6", "^7"  ]
-        javaVersion: [ "17" ]
-        ELASTICSEARCH_VERSION: [ "7.17.10", "8.14.1" ]
-        experimental: [ false ]
-        commandboxVersion: [ "6.2.1" ]
+        cfengine: ["lucee@5", "adobe@2023", "adobe@2025"]
+        coldboxVersion: ["^6", "^7"]
+        javaVersion: ["17"]
+        ELASTICSEARCH_VERSION: ["7.17.10", "8.14.1"]
+        experimental: [false]
+        commandboxVersion: ["6.2.1"]
         include:
           - cfengine: "boxlang@1"
             coldboxVersion: "be"
@@ -46,6 +46,12 @@ jobs:
           - cfengine: "lucee@6"
             coldboxVersion: "^7"
             javaVersion: "17"
+            ELASTICSEARCH_VERSION: "8.14.1"
+            experimental: true
+            commandboxVersion: "6.2.1"
+          - cfengine: "boxlang@be"
+            coldboxVersion: "be"
+            javaVersion: "21"
             ELASTICSEARCH_VERSION: "8.14.1"
             experimental: true
             commandboxVersion: "6.2.1"
@@ -72,7 +78,7 @@ jobs:
       - name: Install Dependencies
         run: |
           box run-script install:dependencies
-      
+
       - name: Set ColdBox Version
         working-directory: ./test-harness
         run: |
@@ -145,7 +151,7 @@ jobs:
           SLACK_CHANNEL: coding
           SLACK_COLOR: ${{ job.status }} # or a specific color like 'green' or '#ff00ff'
           SLACK_ICON_EMOJI: ":bell:"
-          SLACK_MESSAGE: '${{ github.repository }} tests failed :cry:'
+          SLACK_MESSAGE: "${{ github.repository }} tests failed :cry:"
           SLACK_TITLE: ${{ github.repository }} Tests For ${{ matrix.cfengine }} failed
           SLACK_USERNAME: CI
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
