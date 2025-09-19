@@ -10,7 +10,7 @@
 component
 	name        ="ElasticsearchProvider"
 	serializable="false"
-	implements  ="coldbox.system.cache.ICacheProvider"
+	implements  ="coldbox.system.cache.providers.ICacheProvider"
 	accessors   =true
 {
 
