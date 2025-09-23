@@ -104,70 +104,70 @@ component
 	/**
 	 * get the cache name
 	 */
-	any function getName() output="false"{
+	any function getName(){
 		return this.name;
 	}
 
 	/**
 	 * get the cache provider version
 	 */
-	any function getVersion() output="false"{
+	any function getVersion(){
 		return this.version;
 	}
 
 	/**
 	 * set the cache name
 	 */
-	void function setName( required name ) output="false"{
+	function setName( required name ){
 		this.name = arguments.name;
 	}
 
 	/**
 	 * set the event manager
 	 */
-	void function setEventManager( required any EventManager ) output="false"{
+	function setEventManager( required any EventManager ){
 		this.eventManager = arguments.eventManager;
 	}
 
 	/**
 	 * get the event manager
 	 */
-	any function getEventManager() output="false"{
+	any function getEventManager(){
 		return this.eventManager;
 	}
 
 	/**
 	 * get the cache configuration structure
 	 */
-	any function getConfiguration() output="false"{
+	struct function getConfiguration(){
 		return this.config;
 	}
 
 	/**
 	 * set the cache configuration structure
 	 */
-	void function setConfiguration( required any configuration ) output="false"{
+	function setConfiguration( required struct configuration ){
 		this.config = arguments.configuration;
 	}
 
 	/**
 	 * get the associated cache factory
 	 */
-	any function getCacheFactory() output="false"{
+	coldbox.system.cache.CacheFactory function getCacheFactory(){
 		return this.cacheFactory;
 	}
 
 	/**
 	 * set the associated cache factory
 	 */
-	void function setCacheFactory( required any cacheFactory ) output="false"{
+	function setCacheFactory( required any cacheFactory ){
 		this.cacheFactory = arguments.cacheFactory;
 	}
 
 	/**
 	 * configure the cache for operation
 	 */
-	void function configure() output="false"{
+	function configure(){
 		var config = getConfiguration();
 		var props  = [];
 		var URIs   = [];
@@ -188,21 +188,21 @@ component
 	/**
 	 * shutdown the cache
 	 */
-	void function shutdown() output="false"{
+	function shutdown(){
 		Logger.info( "Provider Cache: #getName()# has been shutdown." );
 	}
 
 	/*
 	 * Indicates if cache is ready for operation
 	 */
-	any function isEnabled() output="false"{
+	boolean function isEnabled(){
 		return this.enabled;
 	}
 
 	/*
 	 * Indicates if cache is ready for reporting
 	 */
-	any function isReportingEnabled() output="false"{
+	boolean function isReportingEnabled(){
 		return this.reportingEnabled;
 	}
 
@@ -210,21 +210,21 @@ component
 	 * Get the cache statistics object as coldbox.system.cache.util.ICacheStats
 	 * @colddoc:generic coldbox.system.cache.util.ICacheStats
 	 */
-	any function getStats() output="false"{
+	any function getStats(){
 		// Not yet implmented
 	}
 
 	/**
 	 * clear the cache stats:
 	 */
-	void function clearStatistics() output="false"{
+	function clearStatistics(){
 		// Not yet implemented
 	}
 
 	/**
 	 * Returns the underlying cache engine represented by the module ElasticSearch client
 	 */
-	any function getObjectStore() output="false"{
+	any function getObjectStore(){
 		// This provider uses an external object store
 		return getClient();
 	}
@@ -233,7 +233,7 @@ component
 	 * get the cache's metadata report
 	 * @tested
 	 */
-	any function getStoreMetadataReport() output="false"{
+	struct function getStoreMetadataReport(){
 		var md   = {};
 		var keys = getKeys();
 		var item = "";
@@ -248,7 +248,7 @@ component
 	 * Get a key lookup structure where cachebox can build the report on. Ex: [timeout=timeout,lastAccessTimeout=idleTimeout].  It is a way for the visualizer to construct the columns correctly on the reports
 	 * @tested
 	 */
-	any function getStoreMetadataKeyMap() output="false"{
+	struct function getStoreMetadataKeyMap(){
 		var keyMap = {
 			LastAccessed      : "LastAccessed",
 			isExpired         : "isExpired",
@@ -264,7 +264,7 @@ component
 	 * get all the keys in this provider
 	 * @tested
 	 */
-	any function getKeys() output="false"{
+	array function getKeys(){
 		local.allView = get( this.designDocumentName );
 
 		if ( isNull( local.allView ) ) {
@@ -279,7 +279,7 @@ component
 		return local.allView;
 	}
 
-	void function appendCacheKey( objectKey ){
+	function appendCacheKey( objectKey ){
 		var result = get( this.designDocumentName );
 
 		if ( !isNull( result ) && isArray( result ) ) {
@@ -298,7 +298,7 @@ component
 	 * get an object's cached metadata
 	 * @tested
 	 */
-	any function getCachedObjectMetadata( required any objectKey ) output="false"{
+	struct function getCachedObjectMetadata( required any objectKey ){
 		// lower case the keys for case insensitivity
 		if ( !getConfiguration().caseSensitiveKeys ) arguments.objectKey = lCase( arguments.objectKey );
 
@@ -400,7 +400,7 @@ component
 	 * get an item from cache, returns null if not found.
 	 * @tested
 	 */
-	any function get( required any objectKey ) output="false"{
+	any function get( required any objectKey ){
 		return getQuiet( argumentCollection = arguments );
 	}
 
@@ -408,7 +408,7 @@ component
 	 * get an item silently from cache, no stats advised: Stats not available on Elasticsearch
 	 * @tested
 	 */
-	any function getQuiet( required any objectKey ) output="false"{
+	any function getQuiet( required any objectKey ){
 		// lower case the keys for case insensitivity
 		if ( !getConfiguration().caseSensitiveKeys ) arguments.objectKey = lCase( arguments.objectKey );
 
@@ -505,7 +505,7 @@ component
 	/**
 	 * Checks if a value has expired
 	 */
-	any function isExpired( required any objectKey ) output="false"{
+	boolean function isExpired( required any objectKey ){
 		return isNull( getClient().get( arguments.objectKey ) );
 	}
 
@@ -513,7 +513,7 @@ component
 	 * check if object in cache
 	 * @tested
 	 */
-	any function lookup( required any objectKey ) output="false"{
+	boolean function lookup( required any objectKey ){
 		return ( isNull( get( objectKey ) ) ? false : true );
 	}
 
@@ -521,7 +521,7 @@ component
 	 * check if object in cache with no stats: Stats not available on Elasticsearch
 	 * @tested
 	 */
-	any function lookupQuiet( required any objectKey ) output="false"{
+	boolean function lookupQuiet( required any objectKey ){
 		return lookup( arguments.objectKey );
 	}
 
@@ -535,8 +535,8 @@ component
 		required any object,
 		any timeout           = this.config.objectDefaultTimeout,
 		any lastAccessTimeout = 0, // Not in use for this provider
-		any extra             = {}
-	) output="false"{
+		struct extra          = {}
+	){
 		var ts = getTickCount();
 
 		var future = setQuiet( argumentCollection = arguments );
@@ -572,13 +572,13 @@ component
 	 * lastAccessTimeout.hint Not used in this provider
 	 * @tested
 	 */
-	any function setQuiet(
+	function setQuiet(
 		required any objectKey,
 		required any object,
 		any timeout           = this.config.objectDefaultTimeout,
 		any lastAccessTimeout = 0, // Not in use for this provider
-		any extra             = {}
-	) output="false"{
+		struct extra          = {}
+	){
 		return persistToCache( arguments.objectKey, formatCacheObject( argumentCollection = arguments ) );
 	}
 
@@ -593,7 +593,7 @@ component
 		any timeout           = this.config.objectDefaultTimeout,
 		any lastAccessTimeout = 0, // Not in use for this provider
 		any extra             = {}
-	) output="false"{
+	){
 		var ts = getTickCount();
 
 		var documents = [];
@@ -627,7 +627,7 @@ component
 		any timeout           = this.config.objectDefaultTimeout,
 		any lastAccessTimeout = 0, // Not in use for this provider
 		any extra             = {}
-	) output="false"{
+	){
 		// create storage element
 		var sElement = {
 			"createdDate" : dateFormat( now(), "mm/dd/yyyy" ) & " " & timeFormat( now(), "full" ),
@@ -653,7 +653,7 @@ component
 		required any cacheObject,
 		boolean replaceItem = false
 		any extra
-	) output="false"{
+	){
 		if ( !getConfiguration().caseSensitiveKeys ) arguments.objectKey = lCase( arguments.objectKey );
 
 
@@ -683,7 +683,7 @@ component
 		return future;
 	}
 
-	void function updateObjectStats( required any objectKey, required any cacheObject ){
+	function updateObjectStats( required any objectKey, required any cacheObject ){
 		if ( !getConfiguration().caseSensitiveKeys ) arguments.objectKey = lCase( arguments.objectKey );
 		if ( !structKeyExists( cacheObject, "hits" ) ) cacheObject[ "hits" ] = 0;
 
@@ -704,15 +704,15 @@ component
 	 * get cache size
 	 * @tested
 	 */
-	any function getSize() output="false"{
-		// Not implemented
+	numeric function getSize(){
+		return getKeys().len();
 	}
 
 	/**
 	 * Not implemented by this cache
 	 * @tested
 	 */
-	void function reap() output="false"{
+	function reap(){
 		// Not implemented by this provider
 	}
 
@@ -720,7 +720,7 @@ component
 	 * clear all elements from cache
 	 * @tested
 	 */
-	void function clearAll() output="false"{
+	function clearAll(){
 		// If flush is not enabled for this bucket, no error will be thrown.  The call will simply return and nothing will happen.
 		// Be very careful calling this.  It is an intensive asynch operation and the cache won't receive any new items until the flush
 		// is finished which might take a few minutes.
@@ -738,7 +738,7 @@ component
 	 * clear an element from cache and returns the Elasticsearch java future
 	 * @tested
 	 */
-	any function clear( required any objectKey ) output="false"{
+	boolean function clear( required any objectKey ){
 		// lower case the keys for case insensitivity
 		if ( !getConfiguration().caseSensitiveKeys ) arguments.objectKey = lCase( arguments.objectKey );
 
@@ -751,13 +751,13 @@ component
 		var document = newDocument().new( getConfiguration().index, getConfiguration().type );
 		document.setId( arguments.objectKey );
 
-		var future = ElasticsearchClient.delete( document, true, { "refresh" : "wait_for" } );
+		var deleteresult = ElasticsearchClient.delete( document, true, { "refresh" : "wait_for" } );
 
 		// ColdBox events
 		var iData = {
-			cache               : this,
-			cacheObjectKey      : arguments.objectKey,
-			ElasticsearchFuture : future
+			cache          : this,
+			cacheObjectKey : arguments.objectKey,
+			deleteResult   : deleteresult
 		};
 
 		getEventManager().processState(
@@ -766,14 +766,14 @@ component
 			async         = true
 		);
 
-		return future;
+		return deleteresult;
 	}
 
 	/**
 	 * Clear with no advising to events and returns with the Elasticsearch java future
 	 * @tested
 	 */
-	any function clearQuiet( required any objectKey ) output="false"{
+	boolean function clearQuiet( required any objectKey ){
 		// normal clear, not implemented by Elasticsearch
 		return clear( arguments.objectKey );
 	}
@@ -781,11 +781,11 @@ component
 	/**
 	 * Clear by key snippet
 	 */
-	void function clearByKeySnippet(
+	function clearByKeySnippet(
 		required keySnippet,
 		regex = false,
 		async = false
-	) output="false"{
+	){
 		var threadName = "clearByKeySnippet_#replace( this.uuidHelper.randomUUID(), "-", "", "all" )#";
 
 		// Async? IF so, do checks
@@ -802,15 +802,16 @@ component
 	 * Expiration not implemented by Elasticsearch so clears are issued
 	 * @tested
 	 */
-	void function expireAll() output="false"{
+	function expireAll(){
 		clearAll();
 	}
 
 	/**
 	 * Expiration not implemented by Elasticsearch so clear is issued
 	 * @tested
+	 *
 	 */
-	void function expireObject( required any objectKey ) output="false"{
+	function expireObject( required any objectKey ){
 		clear( arguments.objectKey );
 	}
 
@@ -819,7 +820,7 @@ component
 	/**
 	 * Validate the incoming configuration and make necessary defaults
 	 **/
-	private void function validateConfiguration() output="false"{
+	private function validateConfiguration(){
 		var cacheConfig = getConfiguration();
 		var key         = "";
 
