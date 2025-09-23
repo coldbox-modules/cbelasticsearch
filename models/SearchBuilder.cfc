@@ -1394,7 +1394,7 @@ component accessors="true" {
 	 *
 	 * @return BooleanQueryBuilder A new builder instance for fluent boolean query construction
 	 */
-	BooleanQueryBuilder function bool() {
+	BooleanQueryBuilder function bool(){
 		return new BooleanQueryBuilder( this, "query" );
 	}
 
@@ -1403,7 +1403,7 @@ component accessors="true" {
 	 *
 	 * @return BooleanQueryBuilder A new builder instance for the must context
 	 */
-	BooleanQueryBuilder function must() {
+	BooleanQueryBuilder function must(){
 		return new BooleanQueryBuilder( this, "query.bool.must" );
 	}
 
@@ -1412,7 +1412,7 @@ component accessors="true" {
 	 *
 	 * @return BooleanQueryBuilder A new builder instance for the should context
 	 */
-	BooleanQueryBuilder function should() {
+	BooleanQueryBuilder function should(){
 		return new BooleanQueryBuilder( this, "query.bool.should" );
 	}
 
@@ -1421,7 +1421,7 @@ component accessors="true" {
 	 *
 	 * @return BooleanQueryBuilder A new builder instance for the must_not context
 	 */
-	BooleanQueryBuilder function mustNot() {
+	BooleanQueryBuilder function mustNot(){
 		return new BooleanQueryBuilder( this, "query.bool.must_not" );
 	}
 
@@ -1430,7 +1430,7 @@ component accessors="true" {
 	 *
 	 * @return BooleanQueryBuilder A new builder instance for the filter context
 	 */
-	BooleanQueryBuilder function filter() {
+	BooleanQueryBuilder function filter(){
 		return new BooleanQueryBuilder( this, "query.bool.filter" );
 	}
 

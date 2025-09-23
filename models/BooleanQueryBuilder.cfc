@@ -6,7 +6,7 @@
  *
  * @package cbElasticsearch.models
  * @author  cbElasticSearch Module
- * @license Apache v2.0 <http://www.apache.org/licenses/>
+ * @license Apache v2.0 <http: // www.apache.org / licenses/>
  */
 component accessors="true" {
 
@@ -26,7 +26,7 @@ component accessors="true" {
 	 * @searchBuilder The parent SearchBuilder instance
 	 * @queryPath     The dot-notation path where queries should be placed
 	 */
-	function init( required any searchBuilder, string queryPath = "query" ) {
+	function init( required any searchBuilder, string queryPath = "query" ){
 		variables.searchBuilder = arguments.searchBuilder;
 		variables.queryPath     = arguments.queryPath;
 		return this;
@@ -37,7 +37,7 @@ component accessors="true" {
 	 *
 	 * @return BooleanQueryBuilder A new builder instance for the bool context
 	 */
-	BooleanQueryBuilder function bool() {
+	BooleanQueryBuilder function bool(){
 		var newPath = variables.queryPath == "query" ? "query.bool" : variables.queryPath & ".bool";
 		return new BooleanQueryBuilder( variables.searchBuilder, newPath );
 	}
@@ -47,7 +47,7 @@ component accessors="true" {
 	 *
 	 * @return BooleanQueryBuilder A new builder instance for the must context
 	 */
-	BooleanQueryBuilder function must() {
+	BooleanQueryBuilder function must(){
 		var newPath = variables.queryPath & ".must";
 		return new BooleanQueryBuilder( variables.searchBuilder, newPath );
 	}
@@ -57,7 +57,7 @@ component accessors="true" {
 	 *
 	 * @return BooleanQueryBuilder A new builder instance for the should context
 	 */
-	BooleanQueryBuilder function should() {
+	BooleanQueryBuilder function should(){
 		var newPath = variables.queryPath & ".should";
 		return new BooleanQueryBuilder( variables.searchBuilder, newPath );
 	}
@@ -67,7 +67,7 @@ component accessors="true" {
 	 *
 	 * @return BooleanQueryBuilder A new builder instance for the must_not context
 	 */
-	BooleanQueryBuilder function mustNot() {
+	BooleanQueryBuilder function mustNot(){
 		var newPath = variables.queryPath & ".must_not";
 		return new BooleanQueryBuilder( variables.searchBuilder, newPath );
 	}
@@ -77,7 +77,7 @@ component accessors="true" {
 	 *
 	 * @return BooleanQueryBuilder A new builder instance for the filter context
 	 */
-	BooleanQueryBuilder function filter() {
+	BooleanQueryBuilder function filter(){
 		var newPath = variables.queryPath & ".filter";
 		return new BooleanQueryBuilder( variables.searchBuilder, newPath );
 	}
@@ -91,13 +91,17 @@ component accessors="true" {
 	 *
 	 * @return SearchBuilder The parent SearchBuilder for continued chaining
 	 */
-	SearchBuilder function term( required string name, required any value, numeric boost ) {
-		var termQuery = { "term": { "#arguments.name#": arguments.value } };
-		
+	SearchBuilder function term(
+		required string name,
+		required any value,
+		numeric boost
+	){
+		var termQuery = { "term" : { "#arguments.name#" : arguments.value } };
+
 		if ( !isNull( arguments.boost ) ) {
 			termQuery.term[ arguments.name ] = {
-				"value": arguments.value,
-				"boost": javacast( "float", arguments.boost )
+				"value" : arguments.value,
+				"boost" : javacast( "float", arguments.boost )
 			};
 		}
 
@@ -114,17 +118,21 @@ component accessors="true" {
 	 *
 	 * @return SearchBuilder The parent SearchBuilder for continued chaining
 	 */
-	SearchBuilder function terms( required string name, required any value, numeric boost ) {
+	SearchBuilder function terms(
+		required string name,
+		required any value,
+		numeric boost
+	){
 		if ( !isArray( arguments.value ) ) {
 			arguments.value = listToArray( arguments.value );
 		}
 
-		var termsQuery = { "terms": { "#arguments.name#": arguments.value } };
-		
+		var termsQuery = { "terms" : { "#arguments.name#" : arguments.value } };
+
 		if ( !isNull( arguments.boost ) ) {
 			termsQuery.terms[ arguments.name ] = {
-				"value": arguments.value,
-				"boost": javacast( "float", arguments.boost )
+				"value" : arguments.value,
+				"boost" : javacast( "float", arguments.boost )
 			};
 		}
 
@@ -141,13 +149,17 @@ component accessors="true" {
 	 *
 	 * @return SearchBuilder The parent SearchBuilder for continued chaining
 	 */
-	SearchBuilder function match( required string name, required any value, numeric boost ) {
-		var matchQuery = { "match": { "#arguments.name#": arguments.value } };
-		
+	SearchBuilder function match(
+		required string name,
+		required any value,
+		numeric boost
+	){
+		var matchQuery = { "match" : { "#arguments.name#" : arguments.value } };
+
 		if ( !isNull( arguments.boost ) ) {
 			matchQuery.match[ arguments.name ] = {
-				"query": arguments.value,
-				"boost": javacast( "float", arguments.boost )
+				"query" : arguments.value,
+				"boost" : javacast( "float", arguments.boost )
 			};
 		}
 
@@ -164,9 +176,13 @@ component accessors="true" {
 	 *
 	 * @return SearchBuilder The parent SearchBuilder for continued chaining
 	 */
-	SearchBuilder function wildcard( required string name, required string value, numeric boost ) {
-		var wildcardQuery = { "wildcard": { "#arguments.name#": { "value": arguments.value } } };
-		
+	SearchBuilder function wildcard(
+		required string name,
+		required string value,
+		numeric boost
+	){
+		var wildcardQuery = { "wildcard" : { "#arguments.name#" : { "value" : arguments.value } } };
+
 		if ( !isNull( arguments.boost ) ) {
 			wildcardQuery.wildcard[ arguments.name ][ "boost" ] = javacast( "float", arguments.boost );
 		}
@@ -187,24 +203,24 @@ component accessors="true" {
 	 *
 	 * @return SearchBuilder The parent SearchBuilder for continued chaining
 	 */
-	SearchBuilder function range( 
-		required string name, 
-		any gte, 
-		any gt, 
-		any lte, 
-		any lt, 
-		numeric boost 
-	) {
+	SearchBuilder function range(
+		required string name,
+		any gte,
+		any gt,
+		any lte,
+		any lt,
+		numeric boost
+	){
 		var rangeParams = {};
-		
+
 		if ( !isNull( arguments.gte ) ) rangeParams[ "gte" ] = arguments.gte;
 		if ( !isNull( arguments.gt ) ) rangeParams[ "gt" ] = arguments.gt;
 		if ( !isNull( arguments.lte ) ) rangeParams[ "lte" ] = arguments.lte;
 		if ( !isNull( arguments.lt ) ) rangeParams[ "lt" ] = arguments.lt;
 		if ( !isNull( arguments.boost ) ) rangeParams[ "boost" ] = javacast( "float", arguments.boost );
 
-		var rangeQuery = { "range": { "#arguments.name#": rangeParams } };
-		
+		var rangeQuery = { "range" : { "#arguments.name#" : rangeParams } };
+
 		appendToQueryPath( rangeQuery );
 		return variables.searchBuilder;
 	}
@@ -216,8 +232,8 @@ component accessors="true" {
 	 *
 	 * @return SearchBuilder The parent SearchBuilder for continued chaining
 	 */
-	SearchBuilder function exists( required string name ) {
-		var existsQuery = { "exists": { "field": arguments.name } };
+	SearchBuilder function exists( required string name ){
+		var existsQuery = { "exists" : { "field" : arguments.name } };
 		appendToQueryPath( existsQuery );
 		return variables.searchBuilder;
 	}
@@ -227,15 +243,15 @@ component accessors="true" {
 	 *
 	 * @query The query object to append
 	 */
-	private void function appendToQueryPath( required struct query ) {
+	private void function appendToQueryPath( required struct query ){
 		var pathParts = listToArray( variables.queryPath, "." );
-		var queryRef = variables.searchBuilder.getQuery();
-		var current = queryRef;
+		var queryRef  = variables.searchBuilder.getQuery();
+		var current   = queryRef;
 
 		// Navigate to the target location, creating structures as needed
 		for ( var i = 2; i <= arrayLen( pathParts ); i++ ) {
 			var part = pathParts[ i ];
-			
+
 			if ( !structKeyExists( current, part ) ) {
 				// Determine if this should be an array or struct based on the context
 				if ( arrayFind( [ "must", "should", "must_not" ], part ) ) {
@@ -244,7 +260,7 @@ component accessors="true" {
 					current[ part ] = {};
 				}
 			}
-			
+
 			current = current[ part ];
 		}
 
