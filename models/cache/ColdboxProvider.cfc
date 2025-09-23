@@ -7,12 +7,9 @@
  * @license Apache v2.0 <http: // www.apache.org / licenses/>
  *
  * * Note:  We cannot implement the interface coldbox.system.cache.IColdboxApplicationCache on the component declaration until we discontinue CF6 support
- * 
+ *
  **/
-component
-	serializable="false"
-	extends     ="Provider"
-{
+component serializable="false" extends="Provider" {
 
 	ColdboxProvider function init() output=false{
 		super.init();
