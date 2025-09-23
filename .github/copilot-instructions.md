@@ -136,7 +136,7 @@ ALWAYS run these validation steps after making code changes:
 ### CI/CD Validation
 The GitHub Actions CI will fail if:
 - Code formatting is incorrect (ALWAYS run `box run-script format` before committing)
-- Tests fail on any supported engine (Lucee 5/6, Adobe CF 2018/2021/2023/2025, BoxLang)
+- Tests fail on any supported engine (Lucee 5/6, Adobe CF 2021/2023/2025, BoxLang)
 - Build process fails
 - Security scans detect high-severity issues
 
@@ -153,14 +153,14 @@ ELASTICSEARCH_PORT=9200
 ### Multi-Version Testing
 The CI tests against multiple configurations:
 - **Elasticsearch**: 7.17.10, 8.14.1, 8.17.1
-- **CFML Engines**: Lucee 5/6, Adobe CF 2018/2021/2023/2025, BoxLang 1.0
+- **CFML Engines**: Lucee 5/6, Adobe CF 2021/2023/2025, BoxLang 1.0
 - **ColdBox Versions**: 6.x, 7.x
 
 ### Docker Compose Services
 Available services via `docker compose up`:
 - `elasticsearch`: Elasticsearch 8.17.1 on port 9200
 - `elasticsearch7`: Elasticsearch 7.17.6 on port 9201
-- `app`: Adobe CF 2018 with module on port 8080
+- `app`: Adobe CF 2021 with module on port 8080
 - `app-lucee5`: Lucee 5 with module on port 8081
 
 ## Critical Timing Information
