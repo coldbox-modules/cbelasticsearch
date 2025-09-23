@@ -50,7 +50,8 @@ cd test-harness && docker run --rm -v $(pwd):/app ortussolutions/commandbox:luce
 - **NEVER CANCEL**: Test suite takes 3-8 minutes per engine. Set timeout to 20+ minutes.
 
 ```bash
-# Format code (always run before committing)
+# Format code (ALWAYS run before committing and pushing any files)
+# CRITICAL: This command MUST be run before any commit to ensure code formatting compliance
 # NOTE: Requires cfformat module - may fail if dependencies unavailable
 box run-script format
 
@@ -107,6 +108,7 @@ ALWAYS run these validation steps after making code changes:
    ```bash
    box run-script format:check           # Verify code formatting
    box run-script format                 # Auto-fix formatting issues
+   # CRITICAL: Always run format command before committing any files
    ```
 
 3. **Build Validation** (if dependencies available):
@@ -133,7 +135,7 @@ ALWAYS run these validation steps after making code changes:
 
 ### CI/CD Validation
 The GitHub Actions CI will fail if:
-- Code formatting is incorrect (run `box run-script format`)
+- Code formatting is incorrect (ALWAYS run `box run-script format` before committing)
 - Tests fail on any supported engine (Lucee 5/6, Adobe CF 2018/2021/2023/2025, BoxLang)
 - Build process fails
 - Security scans detect high-severity issues
@@ -207,7 +209,7 @@ All build and test operations may take significant time. Canceling prematurely w
 1. Write unit tests first in `test-harness/tests/specs/unit/`
 2. Implement feature in appropriate `models/` subdirectory
 3. Update `ModuleConfig.cfc` if adding new mappings
-4. Run validation steps (format, build, test)
+4. Run validation steps (ALWAYS run `box run-script format` before committing, then build, test)
 5. Update documentation in `docs/` if needed
 
 ### Debugging Test Failures
@@ -262,7 +264,7 @@ docker run --rm -v $(pwd):/app ortussolutions/commandbox:lucee5 box version  # B
 2. **"Elasticsearch connection failed"** - Verify `docker compose up -d elasticsearch` succeeded
 3. **"ForgeBox connection failed"** - Network restrictions, use cached dependencies or Docker
 4. **"Tests hanging"** - Increase timeout values, Elasticsearch may still be starting
-5. **"Build fails"** - Check code formatting first: `box run-script format`
+5. **"Build fails"** - Check code formatting first: `box run-script format` (ALWAYS run before committing)
 
 ### Recovery Commands
 ```bash
