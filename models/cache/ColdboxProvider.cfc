@@ -6,12 +6,10 @@
  * @author Jon Clausen <jclausen@ortussolutions.com>
  * @license Apache v2.0 <http: // www.apache.org / licenses/>
  *
+ * * Note:  We cannot implement the interface coldbox.system.cache.IColdboxApplicationCache on the component declaration until we discontinue CF6 support
+ *
  **/
-component
-	serializable="false"
-	extends     ="Provider"
-	implements  ="coldbox.system.cache.IColdboxApplicationCache"
-{
+component serializable="false" extends="Provider" {
 
 	ColdboxProvider function init() output=false{
 		super.init();
@@ -38,7 +36,7 @@ component
 	}
 
 	// set the coldbox controller
-	void function setColdbox( required any coldbox ) output=false{
+	function setColdbox( required any coldbox ) output=false{
 		variables.coldbox = arguments.coldbox;
 	}
 
@@ -55,7 +53,7 @@ component
 	/**
 	 * Clear all events
 	 */
-	void function clearAllEvents( async = false ) output=false{
+	function clearAllEvents( async = false ) output=false{
 		var threadName = "clearAllEvents_#replace(
 			instance.uuidHelper.randomUUID(),
 			"-",
@@ -76,7 +74,7 @@ component
 	/**
 	 * Clear all views
 	 */
-	void function clearAllViews( async = false ) output=false{
+	function clearAllViews( async = false ) output=false{
 		var threadName = "clearAllViews_#replace(
 			instance.uuidHelper.randomUUID(),
 			"-",
@@ -97,28 +95,28 @@ component
 	/**
 	 * Clear event
 	 */
-	void function clearEvent( required eventsnippet, queryString = "" ) output=false{
+	function clearEvent( required eventsnippet, queryString = "" ) output=false{
 		instance.elementCleaner.clearEvent( arguments.eventsnippet, arguments.queryString );
 	}
 
 	/**
 	 * Clear multiple events
 	 */
-	void function clearEventMulti( required eventsnippets, queryString = "" ) output=false{
+	function clearEventMulti( required eventsnippets, queryString = "" ) output=false{
 		instance.elementCleaner.clearEventMulti( arguments.eventsnippets, arguments.queryString );
 	}
 
 	/**
 	 * Clear view
 	 */
-	void function clearView( required viewSnippet ) output=false{
+	function clearView( required viewSnippet ) output=false{
 		instance.elementCleaner.clearView( arguments.viewSnippet );
 	}
 
 	/**
 	 * Clear multiple view
 	 */
-	void function clearViewMulti( required viewsnippets ) output=false{
+	function clearViewMulti( required viewsnippets ) output=false{
 		instance.elementCleaner.clearView( arguments.viewsnippets );
 	}
 
