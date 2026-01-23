@@ -168,7 +168,7 @@ Elasticsearch also supports defining runtime fields, which are fields defined in
 See [Managing-Indices](../Indices/Managing-Indices.md#creating-runtime-fields) for more information on creating runtime fields.
 {% endhint %}
 
-Runtime fields can be fetched via the `setFields()` or `addField()` methods, and will appear in the `Document` object's `fields` struct. This example retrieves the `"fuel_usage_in_mpg"` runtime field as well as the indexed `"make"` and `"model"` fields:
+Runtime fields can be fetched via the `setFields()` or `addField()` methods, and will appear in the `Document` object's `fields` struct. This example retrieves the `"fuel_mpg"` runtime field as well as the indexed `"make"` and `"model"` fields:
 
 ```js
 var hits = searchBuilder.new( "itinerary" )

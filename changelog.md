@@ -20,9 +20,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+
 - Boxlang runtime certification
 
 ### Removed
+
 
 - `ensureNativeStruct` and `newHashMap` removed from `models.util.Util`
 - Removed custom routine for async logging as it conflicted with the logger implementation
