@@ -29,7 +29,7 @@
         "Luis Majano <luis@ortussolutions.com>"
     ],
     "dependencies":{
-        "hyper":"^7.5.3"
+        "hyper":"^8.0.2"
     },
     "ignore":[
         "**/.*",
