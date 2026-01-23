@@ -554,7 +554,7 @@ component
 
 		if ( arguments.objectKey != this.designDocumentName ) appendCacheKey( arguments.objectKey );
 
-		getEventManager().announce(
+		getEventManager().processState(
 			state         = "afterCacheElementInsert",
 			interceptData = iData,
 			async         = true
@@ -732,7 +732,7 @@ component
 		var iData = { cache : this };
 
 		// notify listeners
-		getEventManager().announce( "afterCacheClearAll", iData );
+		getEventManager().processState( "afterCacheClearAll", iData );
 	}
 
 	/**
@@ -761,7 +761,7 @@ component
 			deleteResult   : deleteresult
 		};
 
-		getEventManager().announce(
+		getEventManager().processState(
 			state         = "afterCacheElementRemoved",
 			interceptData = iData,
 			async         = true
