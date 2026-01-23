@@ -11,7 +11,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
         var mockDataArgs = {
             "$num" : 10,
-            "@timestamp" : "datetime",
+            "@timestamp" : "datetime-iso",
             "log.level"    : "oneof:info:warn:error",
             "message" : "sentence"
         };
@@ -121,7 +121,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         variables.testEntries.first(),
                         true
                     );
-                    sleep( 1500 );
                     expect( getDataStreamCount( appender.getProperty( "dataStreamPattern" ) ) ).toBe( dataStreamCount + 1 );
                 } );
 
@@ -135,7 +134,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
                         variables.testEntries,
                         true
                     );
-                    sleep( 1500 );
                     expect( getDataStreamCount( appender.getProperty( "dataStreamPattern" ) ) ).toBe( dataStreamCount + variables.testEntries.len() );
                 } );
 

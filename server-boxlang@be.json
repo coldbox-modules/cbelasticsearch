@@ -25,7 +25,7 @@
     "licenseKey": "${FR_LICENSE_KEY}"
   },
   "JVM": {
-    "javaVersion": "openjdk21_jdk_x64",
+    "javaVersion": "openjdk21",
     "args": "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=9999 -Dboxlang.debugMode=true"
   },
   "scripts": {
