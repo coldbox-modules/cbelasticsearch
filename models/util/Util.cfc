@@ -210,7 +210,7 @@ component accessors="true" singleton {
 	 * @trustUpstream If true, we check the forwarded headers first, else we don't
 	 */
 	string function getRealIP( boolean trustUpstream = configStruct.trustUpstream ){
-		// When going through a proxy, the IP can be a delimtied list, thus we take the last one in the list
+		// When going through a proxy, the IP can be a delimited list, thus we take the last one in the list
 		if ( arguments.trustUpstream ) {
 			var headers = getHTTPRequestData( false ).headers;
 			if ( structKeyExists( headers, "x-cluster-client-ip" ) ) {
