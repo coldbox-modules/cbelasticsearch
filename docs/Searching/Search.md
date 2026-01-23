@@ -474,3 +474,38 @@ var result = getInstance( "SearchBuilder@cbelasticsearch" )
 * `term(string name, any value, [numeric boost])` - Adds an exact value restriction ( elasticsearch: term ) to the query.
 * `aggregation(string name, struct options)`  - Adds an aggregation directive to the search parameters.
 * `collapseToField( string field, struct options, boolean includeOccurrences = false )` - Collapses the results to the single field and returns only the most relevant/ordered document matched on that field.
+
+### Fluent Query Placement API
+
+The following methods provide fluent control over query item placement within boolean query structures:
+
+* `bool()` - Creates a BooleanQueryBuilder for fluent boolean query construction starting at `query.bool`.
+* `must()` - Creates a BooleanQueryBuilder targeting `query.bool.must[]` for required matches.
+* `should()` - Creates a BooleanQueryBuilder targeting `query.bool.should[]` for optional matches.
+* `mustNot()` - Creates a BooleanQueryBuilder targeting `query.bool.must_not[]` for exclusions.
+* `filter()` - Creates a BooleanQueryBuilder targeting `query.bool.filter` for filtered queries.
+
+**BooleanQueryBuilder Methods:**
+* `bool()`, `must()`, `should()`, `mustNot()`, `filter()` - Continue building nested boolean contexts.
+* `term(name, value, [boost])` - Add exact term match at current path.
+* `terms(name, values, [boost])` - Add multiple terms match at current path.
+* `match(name, value, [boost])` - Add full-text match at current path.
+* `wildcard(name, pattern, [boost])` - Add wildcard pattern match at current path.
+* `range(name, [gte], [gt], [lte], [lt], [boost])` - Add range query at current path.
+* `exists(name)` - Add field existence check at current path.
+
+**Examples:**
+```js
+// Simple placement
+search.must().term( "status", "active" );
+
+// Nested placement (replaces manual query manipulation)
+search.bool().filter().bool().must().wildcard( "title", "*test*" );
+
+// Complex chaining
+search.must().term( "status", "active" )
+      .should().match( "title", "important" )
+      .filter().range( "price", gte = 10, lte = 100 );
+```
+
+See [Fluent Query Placement](FluentQueryPlacement.md) for detailed documentation and examples.
