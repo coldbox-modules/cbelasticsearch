@@ -1008,7 +1008,7 @@ component accessors="true" threadSafe singleton {
 				saveRequest.setQueryParam( key, document.getParams()[ key ] );
 			} );
 
-		getInterceptorService().processState( "cbElasticsearchPreSave", { "document" : arguments.document } );
+		getInterceptorService().announce( "cbElasticsearchPreSave", { "document" : arguments.document } );
 
 		var saveResponse = saveRequest.setBody( getUtil().toJSON( arguments.document.getMemento() ) ).send();
 		var saveResult   = saveResponse.json();
@@ -1028,7 +1028,7 @@ component accessors="true" threadSafe singleton {
 			arguments.document = this.get( saveResult[ "_id" ], arguments.document.getIndex() );
 		}
 
-		getInterceptorService().processState( "cbElasticsearchPostSave", { "document" : arguments.document } );
+		getInterceptorService().announce( "cbElasticsearchPostSave", { "document" : arguments.document } );
 
 		return arguments.document;
 	}
@@ -1251,7 +1251,7 @@ component accessors="true" threadSafe singleton {
 			} );
 
 		arguments.documents.each( function( doc ){
-			getInterceptorService().processState( "cbElasticsearchPreSave", { "document" : doc } );
+			getInterceptorService().announce( "cbElasticsearchPreSave", { "document" : doc } );
 			// ensure the _id value is normalized in to the doc for upserts
 			var memento = doc.getMemento();
 			structDelete( memento, "_id" );
@@ -1318,7 +1318,7 @@ component accessors="true" threadSafe singleton {
 
 			document.setId( item.update[ "_id" ] );
 
-			getInterceptorService().processState( "cbElasticsearchPostSave", { "document" : document } );
+			getInterceptorService().announce( "cbElasticsearchPostSave", { "document" : document } );
 
 			arrayAppend(
 				results,

@@ -51,7 +51,7 @@ component {
 			if ( structKeyExists( server, "lucee" ) ) {
 				pagePoolClear();
 			}
-			request.coldBoxVirtualApp.shutdown();
+			request.coldBoxVirtualApp.shutdown( true );
 		}
 
 		// If hitting the runner or specs, prep our virtual app
@@ -63,7 +63,7 @@ component {
 	}
 
 	public function onRequestEnd(){
-		request.coldBoxVirtualApp.shutdown();
+		request.coldBoxVirtualApp.shutdown( true );
 	}
 
 }

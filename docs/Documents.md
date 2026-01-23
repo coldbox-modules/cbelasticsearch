@@ -6,7 +6,21 @@ description: Learn how to create and manage Elasticsearch document records using
 
 Documents are the searchable, serialized objects within your indexes.  As noted above, documents may be assigned a type, allowing separation of schema, while still maintaining searchability across all documents in the index.   Within an index, each document is referenced by an `_id` value.  This `_id` may be set manually ( `document.setId()` ) or, if not provided will be auto-generated when the record is persisted.  Note that, if using numeric primary keys for your `_id` value, they will be cast as strings on serialization.
 
-#### Creating a Document
+- [Managing Documents](#managing-documents)
+  - [Creating Documents](#creating-documents)
+  - [Retrieving Documents](#retrieving-documents)
+  - [Updating Documents](#updating-documents)
+    - [Refreshing the Index At Save Time](#refreshing-the-index-at-save-time)
+    - [Updating Individual Document Fields](#updating-individual-document-fields)
+  - [Deleting Documents](#deleting-documents)
+  - [Bulk Operations](#bulk-operations)
+    - [Bulk Saving of Documents](#bulk-saving-of-documents)
+    - [Update by Query](#update-by-query)
+    - [Bulk Operation Parameters](#bulk-operation-parameters)
+    - [Asynchronous Bulk Operations](#asynchronous-bulk-operations)
+
+
+## Creating Documents
 
 The `Document` model is the primary object for creating and working with Documents.  Let's say, again, we were going to create a new document in our index.  We would do so, by first creating a `Document` object.
 
@@ -53,7 +67,7 @@ document.setValue(
 
 If we want to manually assign the `_id` value, we would need to explicitly call `setId( myCustomId )` to do so, or would need to provide an `_id` key in the struct provided to the `new()` or `populate()` methods.
 
-#### Retrieving documents
+## Retrieving Documents
 
 To retrieve an existing document, we must first know the `_id` value.  We can either retrieve using the `Document` object or by interfacing with the `Client` object directly.  In either case, the result returned is a `Document` object, i f found, or null if not found.
 
@@ -105,7 +119,7 @@ var minimal = getInstance( "Client@cbelasticsearch" )
 
 This will bring back only the identifier and title in the retrieved document. [A list of available query parameters may be found here](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-get.html#docs-get-api-query-params).
 
-#### Updating a Document
+## Updating Documents
 
 Once we've retrieved an existing document, we can simply update items through the `Document` instance and re-save them.
 
@@ -119,7 +133,7 @@ You can also pass Document objects to the `Client`'s `save()` method:
 getInstance( "Client@cbelasticsearch" ).save( existingDocument );
 ```
 
-#### Save Documents with an Index Refresh
+### Refreshing the Index At Save Time
 
 If you need your document available immediately (such as during a test or pipeline), you can pass `refresh = true` to [instruct Elasticsearch to refresh the relevant index shard immediately and synchronously](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-refresh.html):
 
@@ -139,7 +153,7 @@ getInstance( "Client@cbelasticsearch" ).save(
 );
 ```
 
-#### Updating individual document fields
+### Updating Individual Document Fields
 
 The `patch` method of the Client allows a user to update select fields, bypassing the need for a fully retrieved document.  This is similar to an `UPDATE foo SET bar = 'xyz' WHERE id = :id` query on a relational database.  The method requires an index name, identifier and a struct containing the keys to be updated:
 
@@ -165,7 +179,38 @@ getInstance( "Client@cbelasticsearch" ).patch(
 );
 ```
 
-#### Processing Bulk Operations
+## Deleting Documents
+
+Deleting documents is similar to the process of saving.  The `Document` object may be used to delete a single item.
+
+```js
+var document = getInstance( "Document@cbelasticsearch" )
+    .get(
+        id = documentId,
+        index = "bookshop",
+        type = books
+    );
+if( !isNull( document ) ){
+    document.delete();
+}
+```
+
+Documents may also be deleted by passing a `Document` instance to the client:
+
+```js
+getInstance( "Client@cbelasticsearch" ).delete( myDocument );
+```
+
+Finally, documents may also be deleted by query, using the `SearchBuilder` ( more below ):
+
+```js
+getInstance( "SearchBuilder@cbelasticsearch" )
+    .new( index="bookshop", type="books" )
+    .match( "name", "Elasticsearch for Coldbox" )
+    .deleteAll();
+```
+
+## Bulk Operations
 
 Elasticsearch allows to you perform [bulk operations](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html), which allows a developer to queue multiple backend operations on the search indices and send them all at once.  The `processBulkOperation` method allows you to send a payload of operations in one batch. Note that create, update, and index actions require a `source` key, where as `delete` methods only require an `operation` key.  The schema of the `source` key follows the same schema's described in the [Bulk API Documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html):
 
@@ -205,7 +250,7 @@ var ops = [
 getInstance( "Client@cbelasticsearch" ).processBulkOperation( ops, { "refresh" : true } );
 ```
 
-#### Bulk Saving of Documents
+### Bulk Saving of Documents
 
 Builk inserts and updates can be peformed by passing an array of `Document` objects to the Client's `saveAll()` method:
 
@@ -263,39 +308,7 @@ getInstance( "Client@cbelasticsearch" )
             );
 ```
 
-
-#### Deleting a Document
-
-Deleting documents is similar to the process of saving.  The `Document` object may be used to delete a single item.
-
-```js
-var document = getInstance( "Document@cbelasticsearch" )
-    .get(
-        id = documentId,
-        index = "bookshop",
-        type = books
-    );
-if( !isNull( document ) ){
-    document.delete();
-}
-```
-
-Documents may also be deleted by passing a `Document` instance to the client:
-
-```js
-getInstance( "Client@cbelasticsearch" ).delete( myDocument );
-```
-
-Finally, documents may also be deleted by query, using the `SearchBuilder` ( more below ):
-
-```js
-getInstance( "SearchBuilder@cbelasticsearch" )
-    .new( index="bookshop", type="books" )
-    .match( "name", "Elasticsearch for Coldbox" )
-    .deleteAll();
-```
-
-### Parameters
+### Bulk Operation Parameters
 
 The search builder also supports the addition of URL parameters, which may be used to transform or modify the behavior of bulk document actions.  Comprehensive lists of these parameters may be found at the official Elasticsearch docs:
 
@@ -312,7 +325,7 @@ getInstance( "SearchBuilder@cbelasticsearch" )
     .deleteAll();
 ```
 
-#### Asynchronous Bulk Operations
+### Asynchronous Bulk Operations
 
 Both the `updateByQuery` and `deleteByQuery` methods support a `waitForCompletion` argument. By default, this is set to `true`.  When passed as false, however, the method will return a [`Task` instance](Tasks.md), which can be used to follow up on the completion status of the action process. 
 
