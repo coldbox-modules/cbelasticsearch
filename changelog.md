@@ -9,10 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.0] - 2026-01-23
+
 ### Changed
 
-* Coldbox 8 Compatibility
-* BoxLang Compatibility
+- Coldbox 8 Compatibility
+- BoxLang Compatibility
 
 ## [3.5.0] - 2025-10-01
 
@@ -20,11 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-
 - Boxlang runtime certification
 
 ### Removed
-
 
 - `ensureNativeStruct` and `newHashMap` removed from `models.util.Util`
 - Removed custom routine for async logging as it conflicted with the logger implementation
@@ -567,7 +567,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial Release
 
-[unreleased]: https://github.com/coldbox-modules/cbelasticsearch/compare/v3.5.0...HEAD
+[unreleased]: https://github.com/coldbox-modules/cbelasticsearch/compare/v3.6.0...HEAD
+[3.6.0]: https://github.com/coldbox-modules/cbelasticsearch/compare/v3.5.0...v3.6.0
 [3.5.0]: https://github.com/coldbox-modules/cbelasticsearch/compare/v3.5.0...v3.5.0
 [3.4.2]: https://github.com/coldbox-modules/cbelasticsearch/compare/v3.4.1...v3.4.2
 [3.4.1]: https://github.com/coldbox-modules/cbelasticsearch/compare/v3.4.0...v3.4.1
