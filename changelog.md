@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.0] - 2026-03-03
+
 ## [3.6.0] - 2026-01-23
 
 ### Changed
@@ -568,7 +570,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial Release
 
 [unreleased]: https://github.com/coldbox-modules/cbelasticsearch/compare/v3.6.0...HEAD
-[3.6.0]: https://github.com/coldbox-modules/cbelasticsearch/compare/v3.5.0...v3.6.0
+[3.6.0]: https://github.com/coldbox-modules/cbelasticsearch/compare/v3.6.0...v3.6.0
 [3.5.0]: https://github.com/coldbox-modules/cbelasticsearch/compare/v3.5.0...v3.5.0
 [3.4.2]: https://github.com/coldbox-modules/cbelasticsearch/compare/v3.4.1...v3.4.2
 [3.4.1]: https://github.com/coldbox-modules/cbelasticsearch/compare/v3.4.0...v3.4.1
