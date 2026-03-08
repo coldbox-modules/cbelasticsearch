@@ -9,16 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [3.6.0] - 2026-03-03
-
 ## [3.6.0] - 2026-01-23
 
 ### Changed
 
 - Coldbox 8 Compatibility
 - BoxLang Compatibility
-
-## [3.5.0] - 2025-10-01
 
 ## [3.5.0] - 2025-03-26
 
