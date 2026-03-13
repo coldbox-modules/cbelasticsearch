@@ -7,7 +7,7 @@
  * @license Apache v2.0 <http: // www.apache.org / licenses/>
  *
  */
-component accessors="true" {
+component accessors="true" extends="BaseModel" {
 
 	property name="configObject" inject="Config@cbelasticsearch";
 

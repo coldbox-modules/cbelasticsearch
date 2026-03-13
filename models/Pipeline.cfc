@@ -1,4 +1,4 @@
-component accessors="true" threadSafe {
+component accessors="true" extends="BaseModel" threadSafe {
 
 	property name="Util" inject="Util@cbelasticsearch";
 
