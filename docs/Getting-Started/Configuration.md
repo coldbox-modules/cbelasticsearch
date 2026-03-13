@@ -158,4 +158,4 @@ Any HyperRequest parameters can be overridden on a per-request basis. These incl
 - `retries` - Number of times to retry a request in case of failure
 - `proxyUser` - Username for proxy authentication
 - `proxyPassword` - Password for proxy authentication
-- `headers` - Struct of custom headers to include in the request - use `.withHeaders( { "X-Custom-Header" : "MyValue" } )` to fluently set headers on builders
+- `headers` - Struct of custom headers to include in the request - use `.withHeader( "X-Custom-Header", "MyValue" )` to fluently set headers on builders
