@@ -26,31 +26,32 @@ component accessors="true" {
 		return this;
 	}
 
-    /**
-     * Handles any missing methods that start with "with" and adds the value to the requestOverrides struct for request configuration
-      * Example: withTimeout( 1000 ) would set a default timeout of 1000ms on all requests created by this model
-      *
-      * @param methodName the name of the method being called
-      * @param arguments the arguments passed to the method, where arguments[1] is expected to be the value to set for the default
-      * @return returns the model instance for chaining
-      */
-    public BaseModel function onMissingMethod( string methodName, struct arguments ){
-        if( left( methodName, 4 ) == "with" ){
-            var args = [];
-            if( !isNull( arguments[ 2 ] ) ) {
-                args = arguments[ 2 ].reduce( function( acc, key, val ){
-                    acc.append( val );
-                    return acc;
-                }, [] );
-            }
-            variables.requestOverrides[ lCase( mid( methodName, 5 ) ) ] = args;
-            return this;
-        }
-        // For all other missing methods, raise a proper missing-method exception
- 		throw(
- 			type    = "MissingMethodException",
- 			message = "No such method found for #methodName# on #getMetadata( this ).name#.",
- 			detail  = "Use with#methodName# to set default values for request overrides on this model."
- 		);
-    }
+	/**
+	 * Handles any missing methods that start with "with" and adds the value to the requestOverrides struct for request configuration
+	 * Example: withTimeout( 1000 ) would set a default timeout of 1000ms on all requests created by this model
+	 *
+	 * @param methodName the name of the method being called
+	 * @param arguments the arguments passed to the method, where arguments[1] is expected to be the value to set for the default
+	 * @return returns the model instance for chaining
+	 */
+	public BaseModel function onMissingMethod( string methodName, struct arguments ){
+		if ( left( methodName, 4 ) == "with" ) {
+			var args = [];
+			if ( !isNull( arguments[ 2 ] ) ) {
+				args = arguments[ 2 ].reduce( function( acc, key, val ){
+					acc.append( val );
+					return acc;
+				}, [] );
+			}
+			variables.requestOverrides[ lCase( mid( methodName, 5 ) ) ] = args;
+			return this;
+		}
+		// For all other missing methods, raise a proper missing-method exception
+		throw(
+			type    = "MissingMethodException",
+			message = "No such method found for #methodName# on #getMetadata( this ).name#.",
+			detail  = "Use with#methodName# to set default values for request overrides on this model."
+		);
+	}
+
 }
