@@ -141,12 +141,14 @@ component {
 		// allow overriding of any request key via the overrides struct argument
 		var withMethods = [ "headers" ];
 		for ( var key in arguments.overrides ) {
-			if( structkeyExists( requestObj, "set#key#" ) ) {
+			if ( structKeyExists( requestObj, "set#key#" ) ) {
 				var methodName = withMethods.contains( key ) ? "with#key#" : "set#key#";
 				invoke(
 					requestObj,
 					methodName,
-					isArray( arguments.overrides[ key ] ) ? arguments.overrides[ key ] : [ arguments.overrides[ key ] ]
+					isArray( arguments.overrides[ key ] ) ? arguments.overrides[ key ] : [
+						arguments.overrides[ key ]
+					]
 				);
 			}
 		}
