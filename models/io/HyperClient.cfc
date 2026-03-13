@@ -263,7 +263,10 @@ component accessors="true" threadSafe singleton {
 	 **/
 	boolean function indexMappingExists( required string indexName, struct requestOverrides = {} ){
 		try {
-			var mappings = getMappings( arguments.indexName, arguments.requestOverrides );
+			var mappings = getMappings(
+				indexName        = arguments.indexName,
+				requestOverrides = arguments.requestOverrides
+			);
 		} catch ( any e ) {
 			return false;
 		}
