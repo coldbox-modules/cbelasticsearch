@@ -84,3 +84,78 @@ You will need to read these settings into the coldfusion server upon server star
 {% hint style="warning" %}
 For security reasons, make sure to add `.env` to your `.gitignore` file to avoid committing environment secrets to github/your git server.
 {% endhint %}
+
+## Request Parameter Overrides
+
+In addition to global configuration settings, you can override request-specific parameters on a per-call basis. This is useful when you need different timeouts or settings for specific operations.
+
+### Builder-Level Overrides
+
+Builder objects (like `IndexBuilder`, `SearchBuilder`, `Document`, etc.) extend `BaseModel` and support fluent configuration of request parameters using the `.with*()` method:
+
+```cfc
+// Create an index with a custom 10-second timeout
+get( "IndexBuilder@cbelasticsearch" )
+    .new( name = "books" )
+    .withTimeout( 10 )
+    .save();
+```
+
+Here's an example of setting a custom header on a search builder:
+
+```cfc
+// Search with custom headers
+get( "SearchBuilder@cbelasticsearch" )
+    .new()
+    .withHeader( "X-Custom-Header", "MyValue" )
+    .setQuery( ... )
+    .execute();
+```
+
+### Direct Client Method Overrides
+
+All public methods in `HyperClient` accept a `requestOverrides` struct as the final parameter. This allows you to pass request-specific configuration directly to the client:
+
+```cfc
+// Check if index exists with a 45-second timeout
+get( "HyperClient@cbelasticsearch" )
+    .indexExists( "foo", { "timeout" : 45 } );
+
+// Get index settings with custom timeout
+get( "HyperClient@cbelasticsearch" )
+    .getSettings( "myIndex", { "timeout" : 30 } );
+
+// Search with request overrides
+get( "HyperClient@cbelasticsearch" )
+    .executeSearch( 
+        searchBuilder, 
+        { "timeout" : 60, "readTimeout" : 5000 } 
+    );
+```
+
+### Merging Overrides
+
+When both builder-level and client-level overrides are provided, they are merged together with client-level overrides taking precedence:
+
+```cfc
+var builder = get( "IndexBuilder@cbelasticsearch" )
+    .new( name = "books" )
+    .withTimeout( 10 );  // Builder-level: 10 seconds
+
+// Client call with override - the 30-second timeout wins
+get( "HyperClient@cbelasticsearch" )
+    .applyIndex( builder, { "timeout" : 30 } );
+```
+
+### Available Override Parameters
+
+Any HyperRequest parameters can be overridden on a per-request basis. These include:
+
+- `timeout` - Connection timeout in seconds
+- `username` - Username for authentication
+- `password` - Password for authentication
+- `maximumRedirects` - Maximum number of redirects to follow
+- `retries` - Number of times to retry a request in case of failure
+- `proxyUser` - Username for proxy authentication
+- `proxyPassword` - Password for proxy authentication
+- `headers` - Struct of custom headers to include in the request - use `.withHeaders( { "X-Custom-Header" : "MyValue" } )` to fluently set headers on builders
