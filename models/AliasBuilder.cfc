@@ -4,6 +4,11 @@ component accessors="true" extends="BaseModel" {
 	property name="indexName";
 	property name="aliasName";
 
+	function init(){
+		super.init();
+		return this;
+	}
+
 	function add( required string indexName, required string aliasName ){
 		arguments.action = "add";
 		return new ( argumentCollection = arguments );

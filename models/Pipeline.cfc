@@ -30,6 +30,7 @@ component accessors="true" extends="BaseModel" threadSafe {
 
 
 	cbElasticsearch.models.Pipeline function init( struct definition ){
+		super.init();
 		variables.description = "";
 		variables.processors  = [];
 

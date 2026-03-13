@@ -20,6 +20,11 @@ component accessors="true" extends="BaseModel" {
 	 * @phases a struct of phases ( optional )
 	 * @meta optional struct of meta
 	 */
+	ILMPolicyBuilder function init(){
+		super.init();
+		return this;
+	}
+
 	ILMPolicyBuilder function new(
 		required string policyName,
 		struct phases,

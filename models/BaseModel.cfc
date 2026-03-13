@@ -1,6 +1,11 @@
 /**
  *
- * Elasticsearch Document Object
+ * Base Model for Fluent Request Overrides
+ *
+ * Provides a foundation for builder and model objects to support per-request
+ * configuration overrides via fluent method chaining. All builder classes
+ * (IndexBuilder, SearchBuilder, AliasBuilder, Document, Pipeline, etc.) extend
+ * this component to inherit request override capabilities.
  *
  * @package cbElasticsearch.models
  * @author Jon Clausen <jclausen@ortussolutions.com>

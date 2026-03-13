@@ -1770,7 +1770,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				beforeEach( function() {
 					getWirebox().getInstance( "HyperBuilder@hyper" ).fake({
 						"*": function( newFakeResponse, req ) {
-							debug( req.getMemento() );
 							return newFakeResponse()
 								.setStatusCode( 200 )
 								.setData( serializeJSON( req.getMemento() ) );

@@ -25,6 +25,11 @@ component accessors="true" extends="BaseModel" {
 	property name="aliases";
 
 
+	function init(){
+		super.init();
+		return this;
+	}
+
 	function onDIComplete(){
 		reset();
 	}

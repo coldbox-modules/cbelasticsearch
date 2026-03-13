@@ -15,6 +15,12 @@ component accessors="true" extends="BaseModel" {
 	 * Property containing the index name of the active builder search
 	 **/
 	property name="index";
+
+	function init(){
+		super.init();
+		return this;
+	}
+
 	/**
 	 * Property containing the object type within the index
 	 **/

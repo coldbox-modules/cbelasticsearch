@@ -51,6 +51,11 @@ component accessors="true" extends="BaseModel" {
 	 */
 	property name="fields" type="struct";
 
+	function init(){
+		super.init();
+		return this;
+	}
+
 	function onDIComplete(){
 		reset();
 	}
