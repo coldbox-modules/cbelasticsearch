@@ -1766,7 +1766,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				});
 			});
 			
-			fdescribe( "connection overrides", function() {
+			describe( "connection overrides", function() {
 				beforeEach( function() {
 					getWirebox().getInstance( "HyperBuilder@hyper" ).fake({
 						"*": function( newFakeResponse, req ) {
@@ -1809,6 +1809,34 @@ component extends="coldbox.system.testing.BaseTestCase" {
 							return req.getMethod() === "PUT" &&
 								req.getUrl() == "http://127.0.0.1:9200/foo/_settings" &&
 								req.getTimeout() === 45;
+						} );
+				} );
+
+				it( "Can set custom username/password", function(){
+
+					var response = variables.model.indexExists( "bar", { username: "admin", password: "admin123$" } );
+
+					expect( variables.hyper )
+						.toHaveSentRequest( ( req ) => {
+							return req.getMethod() === "HEAD" &&
+								req.getUrl() == "http://127.0.0.1:9200/bar" &&
+								req.getUsername() === "admin" &&
+								req.getPassword() === "admin123$";
+						} );
+				} );
+
+				it( "Can set custom request headers", function(){
+					var response = getWirebox()
+						.getInstance( "IndexBuilder@cbelasticsearch" )
+						.withHeader( "X-Custom-Header", "MyValue" )
+						.new( name = "foo", settings = { "refresh_interval" : "1s" } )
+						.save();
+
+					expect( variables.hyper )
+						.toHaveSentRequest( ( req ) => {
+							return req.getMethod() == "PUT" &&
+								req.getUrl() == "http://127.0.0.1:9200/foo/_settings" &&
+								req.getHeader( "X-Custom-Header" ) == "MyValue";
 						} );
 				} );
 			})
