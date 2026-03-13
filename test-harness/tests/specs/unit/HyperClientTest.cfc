@@ -12,6 +12,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 		variables.testIndexName = lCase( "ElasticsearchClientTests" );
 		variables.model.deleteIndex( variables.testIndexName );
+		
+		addMatchers( "hyper.models.TestBoxMatchers" );
 	}
 
 	function afterAll(){
@@ -1043,7 +1045,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
 							testDocument._id,
 							"title"
 						);
-debug( result );
 						expect( result.keyExists( "error" ) ).toBeFalse();
 						expect( result.keyExists( "term_vectors" ) ).toBeTrue();
 						expect( result.term_vectors ).toHaveKey( "title" );
@@ -1764,6 +1765,97 @@ debug( result );
 										.toHaveKey( "_shards" );
 				});
 			});
+			
+			describe( "connection overrides", function() {
+				beforeEach( function() {
+					getWirebox().getInstance( "HyperBuilder@hyper" ).fake({
+						"*": function( newFakeResponse, req ) {
+							return newFakeResponse()
+								.setStatusCode( 200 )
+								.setData( serializeJSON( req.getMemento() ) );
+						}
+					});
+					if( !variables.keyExists( "hyper" ) ){
+						variables.hyper = getWirebox().getInstance( "HyperBuilder@hyper" );
+					}
+					addMatchers( "hyper.models.TestBoxMatchers" );
+				} );
+				afterEach( function() {
+					getWirebox().getInstance( "HyperBuilder@hyper" ).clearFakes();
+				} );
+				it( "indexExists() - can set custom connection timeout", function(){
+
+					var response = variables.model.indexExists( "bar", { timeout = 300 } );
+
+					expect( variables.hyper )
+						.toHaveSentRequest( ( req ) => {
+							return req.getMethod() === "HEAD" &&
+								req.getUrl() == "http://127.0.0.1:9200/bar" &&
+								req.getTimeout() === 300;
+						} );
+				} );
+
+				it( "Can set request overrides from IndexBuilder", function(){
+
+					var response = getWirebox()
+						.getInstance( "IndexBuilder@cbelasticsearch" )
+						.withTimeout( 45 )
+						.new( name = "foo", settings = { "refresh_interval" : "1s" } )
+						.save();
+
+					expect( variables.hyper )
+						.toHaveSentRequest( ( req ) => {
+							return req.getMethod() === "PUT" &&
+								req.getUrl() == "http://127.0.0.1:9200/foo/_settings" &&
+								req.getTimeout() === 45;
+						} );
+				} );
+
+				it( "BaseModel will throw on missing method", function(){
+					expect( () => {
+						var response = getWirebox()
+							.getInstance( "IndexBuilder@cbelasticsearch" )
+							.Timeout( 45 )
+							.new( name = "foo", settings = { "refresh_interval" : "1s" } )
+							.save();
+
+						expect( variables.hyper )
+							.toHaveSentRequest( ( req ) => {
+								return req.getMethod() === "PUT" &&
+									req.getUrl() == "http://127.0.0.1:9200/foo/_settings" &&
+									req.getTimeout() === 45;
+							} );
+					} ).toThrow( "MissingMethodException" );
+				} );
+
+				it( "Can set custom username/password", function(){
+
+					var response = variables.model.indexExists( "bar", { username: "admin", password: "admin123$" } );
+
+					expect( variables.hyper )
+						.toHaveSentRequest( ( req ) => {
+							return req.getMethod() === "HEAD" &&
+								req.getUrl() == "http://127.0.0.1:9200/bar" &&
+								req.getUsername() === "admin" &&
+								req.getPassword() === "admin123$";
+						} );
+				} );
+
+				it( "Can set custom request headers", function(){
+					var response = getWirebox()
+						.getInstance( "IndexBuilder@cbelasticsearch" )
+						.withHeader( "X-Custom-Header", "MyValue" )
+						.new( name = "foo", settings = { "refresh_interval" : "1s" } )
+						.save();
+
+					expect( variables.hyper )
+						.toHaveSentRequest( ( req ) => {
+							return req.getMethod() == "PUT" &&
+								req.getUrl() == "http://127.0.0.1:9200/foo/_settings" &&
+								req.getHeader( "X-Custom-Header" ) == "MyValue";
+						} );
+				} );
+			})
 		} );
 	}
 

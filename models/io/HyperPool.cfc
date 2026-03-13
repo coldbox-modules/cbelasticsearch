@@ -79,8 +79,13 @@ component {
 	 *
 	 * @route the relative URI to the route
 	 * @method the HTTP Request method
+	 * @overrides any default values to set on the request ( timeout, referrer, bodyFormat, etc. )
 	 */
-	public Hyper.models.HyperRequest function newRequest( required string route, string method = "GET" ){
+	public Hyper.models.HyperRequest function newRequest(
+		required string route,
+		string method    = "GET",
+		struct overrides = {}
+	){
 		var requestObj = hyper.new();
 
 		var nodeUsage = "write";
@@ -100,8 +105,8 @@ component {
 
 		requestObj
 			.setMethod( arguments.method )
-			.setThrowOnError( false )
-			.setTimeout( variables.instanceConfig.get( "readTimeout" ) );
+			.setTimeout( variables.instanceConfig.get( "readTimeout" ) )
+			.setThrowOnError( false );
 
 		var uriParts = listToArray( route, "/" );
 		uriParts.prepend( node.url );
@@ -132,6 +137,20 @@ component {
 				type    = "cbElasticsearch.UnsupportedAuthenticationType",
 				message = "The authentication type #variables.authenticationScheme# is not currently supported"
 			);
+		}
+		// allow overriding of any request key via the overrides struct argument
+		var withMethods = [ "headers" ];
+		for ( var key in arguments.overrides ) {
+			var methodName = withMethods.contains( key ) ? "with#key#" : "set#key#";
+			if ( structKeyExists( requestObj, methodName ) ) {
+				invoke(
+					requestObj,
+					methodName,
+					isArray( arguments.overrides[ key ] ) ? arguments.overrides[ key ] : [
+						arguments.overrides[ key ]
+					]
+				);
+			}
 		}
 		return requestObj;
 	}
