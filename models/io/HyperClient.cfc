@@ -423,7 +423,6 @@ component accessors="true" threadSafe singleton {
 						indexName,
 						"_doc",
 						indexDSL.mappings,
-						{},
 						mergedOverrides
 					);
 				} else {
