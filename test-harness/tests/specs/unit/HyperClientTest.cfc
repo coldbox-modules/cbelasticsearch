@@ -1811,6 +1811,23 @@ component extends="coldbox.system.testing.BaseTestCase" {
 						} );
 				} );
 
+				it( "BaseModel will throw on missing method", function(){
+					expect( () => {
+						var response = getWirebox()
+							.getInstance( "IndexBuilder@cbelasticsearch" )
+							.Timeout( 45 )
+							.new( name = "foo", settings = { "refresh_interval" : "1s" } )
+							.save();
+
+						expect( variables.hyper )
+							.toHaveSentRequest( ( req ) => {
+								return req.getMethod() === "PUT" &&
+									req.getUrl() == "http://127.0.0.1:9200/foo/_settings" &&
+									req.getTimeout() === 45;
+							} );
+					} ).toThrow( "MissingMethodException" );
+				} );
+
 				it( "Can set custom username/password", function(){
 
 					var response = variables.model.indexExists( "bar", { username: "admin", password: "admin123$" } );

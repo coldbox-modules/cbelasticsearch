@@ -46,5 +46,11 @@ component accessors="true" {
             variables.requestOverrides[ lCase( mid( methodName, 5 ) ) ] = args;
             return this;
         }
+        // For all other missing methods, raise a proper missing-method exception
+ 		throw(
+ 			type    = "MissingMethodException",
+ 			message = "No such method found for #methodName# on #getMetadata( this ).name#.",
+ 			detail  = "Use with#methodName# to set default values for request overrides on this model."
+ 		);
     }
 }
