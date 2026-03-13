@@ -81,7 +81,11 @@ component {
 	 * @method the HTTP Request method
 	 * @overrides any default values to set on the request ( timeout, referrer, bodyFormat, etc. )
 	 */
-	public Hyper.models.HyperRequest function newRequest( required string route, string method = "GET", struct overrides = {} ){
+	public Hyper.models.HyperRequest function newRequest(
+		required string route,
+		string method    = "GET",
+		struct overrides = {}
+	){
 		var requestObj = hyper.new();
 
 		var nodeUsage = "write";
@@ -136,7 +140,7 @@ component {
 		}
 		// allow overriding of any request key via the overrides struct argument
 		for ( var key in arguments.overrides ) {
-			if( structkeyExists( requestObj, "set#key#" ) ) {
+			if ( structKeyExists( requestObj, "set#key#" ) ) {
 				invoke(
 					requestObj,
 					"set#key#",

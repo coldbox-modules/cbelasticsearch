@@ -179,8 +179,12 @@ component accessors="true" threadSafe singleton {
 		struct requestOverrides = {}
 	){
 		var mergedOverrides = arguments.searchBuilder.getRequestOverrides().append( arguments.requestOverrides );
-		var requestBuilder = variables.nodePool
-			.newRequest( searchBuilder.getIndex() & "/_search", "POST", mergedOverrides )
+		var requestBuilder  = variables.nodePool
+			.newRequest(
+				searchBuilder.getIndex() & "/_search",
+				"POST",
+				mergedOverrides
+			)
 			.setBody( arguments.searchBuilder.getJSON() )
 			.asJSON();
 
@@ -212,8 +216,12 @@ component accessors="true" threadSafe singleton {
 		struct requestOverrides = {}
 	){
 		var mergedOverrides = arguments.searchBuilder.getRequestOverrides().append( arguments.requestOverrides );
-		var requestBuilder = variables.nodePool
-			.newRequest( searchBuilder.getIndex() & "/_count", "POST", mergedOverrides )
+		var requestBuilder  = variables.nodePool
+			.newRequest(
+				searchBuilder.getIndex() & "/_count",
+				"POST",
+				mergedOverrides
+			)
 			.setBody( getUtil().toJSON( { "query" : arguments.searchBuilder.getQuery() } ) )
 			.asJSON();
 
@@ -233,13 +241,14 @@ component accessors="true" threadSafe singleton {
 	 * @requestOverrides 	struct 			A struct of request overrides to pass to the node pool
 	 * @interfaced
 	 **/
-	boolean function indexExists(
-		required string indexName,
-		struct requestOverrides = {}
-	){
+	boolean function indexExists( required string indexName, struct requestOverrides = {} ){
 		return (
 			variables.nodePool
-				.newRequest( arguments.indexName, "HEAD", arguments.requestOverrides )
+				.newRequest(
+					arguments.indexName,
+					"HEAD",
+					arguments.requestOverrides
+				)
 				.send()
 				.getStatusCode() < 400
 		);
@@ -252,10 +261,7 @@ component accessors="true" threadSafe singleton {
 	 * @requestOverrides 	struct 			A struct of request overrides to pass to the node pool
 	 * @interfaced
 	 **/
-	boolean function indexMappingExists(
-		required string indexName,
-		struct requestOverrides = {}
-	){
+	boolean function indexMappingExists( required string indexName, struct requestOverrides = {} ){
 		try {
 			var mappings = getMappings( arguments.indexName, arguments.requestOverrides );
 		} catch ( any e ) {
@@ -271,12 +277,13 @@ component accessors="true" threadSafe singleton {
 	 * @indexName string the name of the index ( optional ) if null returns all settings for the server
 	 * @requestOverrides 	struct 			A struct of request overrides to pass to the node pool
 	 */
-	struct function getSettings(
-		string indexName,
-		struct requestOverrides = {}
-	){
+	struct function getSettings( string indexName, struct requestOverrides = {} ){
 		var response = variables.nodePool
-			.newRequest( !isNull( arguments.indexName ) ? arguments.indexName & "/_settings" : "_settings", "GET", arguments.requestOverrides )
+			.newRequest(
+				!isNull( arguments.indexName ) ? arguments.indexName & "/_settings" : "_settings",
+				"GET",
+				arguments.requestOverrides
+			)
 			.send();
 
 		if ( response.getStatusCode() != 200 ) {
@@ -409,14 +416,24 @@ component accessors="true" threadSafe singleton {
 		} else {
 			if ( structKeyExists( indexDSL, "mappings" ) ) {
 				if ( !isMajorVersion( 6 ) ) {
-					indexResult[ "mappings" ] = applyMapping( indexName, "_doc", indexDSL.mappings, {}, mergedOverrides );
+					indexResult[ "mappings" ] = applyMapping(
+						indexName,
+						"_doc",
+						indexDSL.mappings,
+						{},
+						mergedOverrides
+					);
 				} else {
 					indexResult[ "mappings" ] = applyMappings( indexName, indexDSL.mappings, mergedOverrides );
 				}
 			}
 			if ( structKeyExists( indexDSL, "settings" ) && !structIsEmpty( indexDSL.settings ) ) {
 				var requestBuilder = variables.nodePool
-					.newRequest( indexName & "/_settings", "PUT", mergedOverrides )
+					.newRequest(
+						indexName & "/_settings",
+						"PUT",
+						mergedOverrides
+					)
 					.setBody( getUtil().toJSON( indexDSL.settings ) )
 					.asJSON();
 
@@ -439,12 +456,13 @@ component accessors="true" threadSafe singleton {
 	 * @requestOverrides 	struct 			A struct of request overrides to pass to the node pool
 	 *
 	 **/
-	struct function deleteIndex(
-		required string indexName,
-		struct requestOverrides = {}
-	){
+	struct function deleteIndex( required string indexName, struct requestOverrides = {} ){
 		return variables.nodePool
-			.newRequest( arguments.indexName, "DELETE", arguments.requestOverrides )
+			.newRequest(
+				arguments.indexName,
+				"DELETE",
+				arguments.requestOverrides
+			)
 			.send()
 			.json();
 	}
@@ -471,7 +489,7 @@ component accessors="true" threadSafe singleton {
 		boolean waitForCompletion = true,
 		any params,
 		any script,
-		boolean throwOnError = true,
+		boolean throwOnError    = true,
 		struct requestOverrides = {}
 	){
 		var requestBuilder = variables.nodePool
@@ -555,13 +573,17 @@ component accessors="true" threadSafe singleton {
 	 */
 	struct function refreshIndex(
 		required any indexName,
-		struct params = {},
+		struct params           = {},
 		struct requestOverrides = {}
 	){
 		if ( isArray( arguments.indexName ) ) {
 			arguments.indexName = arrayToList( arguments.indexName );
 		}
-		var refreshRequest = variables.nodePool.newRequest( "/#arguments.indexName#/_refresh", "post", arguments.requestOverrides );
+		var refreshRequest = variables.nodePool.newRequest(
+			"/#arguments.indexName#/_refresh",
+			"post",
+			arguments.requestOverrides
+		);
 
 		return refreshRequest
 			.withQueryParams( arguments.params )
@@ -579,8 +601,8 @@ component accessors="true" threadSafe singleton {
 	 */
 	struct function getIndexStats(
 		any indexName,
-		array metrics = [],
-		struct params = {},
+		array metrics           = [],
+		struct params           = {},
 		struct requestOverrides = {}
 	){
 		if ( isArray( arguments.indexName ) ) {
@@ -592,7 +614,11 @@ component accessors="true" threadSafe singleton {
 			endpoint.prepend( arguments.indexName );
 		}
 		endpoint.append( arrayToList( metrics ) );
-		var statsRequest = variables.nodePool.newRequest( arrayToList( endpoint, "/" ), "get", arguments.requestOverrides );
+		var statsRequest = variables.nodePool.newRequest(
+			arrayToList( endpoint, "/" ),
+			"get",
+			arguments.requestOverrides
+		);
 
 		return statsRequest
 			.withQueryParams( arguments.params )
@@ -615,7 +641,11 @@ component accessors="true" threadSafe singleton {
 		struct requestOverrides = {}
 	){
 		var requestBuilder = getNodePool()
-			.newRequest( "#arrayToList( arguments.indexName )#/_open", "POST", arguments.requestOverrides )
+			.newRequest(
+				"#arrayToList( arguments.indexName )#/_open",
+				"POST",
+				arguments.requestOverrides
+			)
 			.asJSON();
 
 		if ( structKeyExists( arguments, "params" ) ) {
@@ -648,7 +678,11 @@ component accessors="true" threadSafe singleton {
 		struct requestOverrides = {}
 	){
 		var requestBuilder = getNodePool()
-			.newRequest( "#arrayToList( arguments.indexName )#/_close", "POST", arguments.requestOverrides )
+			.newRequest(
+				"#arrayToList( arguments.indexName )#/_close",
+				"POST",
+				arguments.requestOverrides
+			)
 			.asJSON();
 
 		if ( structKeyExists( arguments, "params" ) ) {
@@ -677,9 +711,9 @@ component accessors="true" threadSafe singleton {
 	 */
 	struct function getTermVectors(
 		required string indexName,
-		string id      = "",
-		any fields     = [],
-		struct options = {},
+		string id               = "",
+		any fields              = [],
+		struct options          = {},
 		struct requestOverrides = {}
 	){
 		arguments.options[ "fields" ] = arguments.fields;
@@ -691,7 +725,11 @@ component accessors="true" threadSafe singleton {
 		if ( arguments.id != "" ) {
 			endpoint.append( arguments.id );
 		}
-		var vectorRequest = variables.nodePool.newRequest( arrayToList( endpoint, "/" ), "POST", arguments.requestOverrides );
+		var vectorRequest = variables.nodePool.newRequest(
+			arrayToList( endpoint, "/" ),
+			"POST",
+			arguments.requestOverrides
+		);
 
 		return vectorRequest
 			.setBody( getUtil().toJSON( arguments.options ) )
@@ -705,10 +743,7 @@ component accessors="true" threadSafe singleton {
 	 * @verbose 	boolean 	whether to return the full stats output for the index
 	 * @requestOverrides 	struct 			A struct of request overrides to pass to the node pool
 	 */
-	struct function getIndices(
-		verbose = false,
-		struct requestOverrides = {}
-	){
+	struct function getIndices( verbose = false, struct requestOverrides = {} ){
 		var statsRequest = variables.nodePool.newRequest( "_stats", "get", arguments.requestOverrides );
 
 		var statsResult = statsRequest.send().json();
@@ -786,10 +821,7 @@ component accessors="true" threadSafe singleton {
 	 *
 	 * @return     boolean 		  Boolean result as to whether the operations were successful
 	 **/
-	boolean function applyAliases(
-		required any aliases,
-		struct requestOverrides = {}
-	){
+	boolean function applyAliases( required any aliases, struct requestOverrides = {} ){
 		arguments.aliases = isArray( arguments.aliases ) ? arguments.aliases : [ arguments.aliases ];
 		var requestBody   = { "actions" : [] };
 		for ( var alias in arguments.aliases ) {
@@ -841,7 +873,11 @@ component accessors="true" threadSafe singleton {
 		}
 
 		var mappingResult = variables.nodePool
-			.newRequest( "#arguments.indexName#/_mapping", "PUT", arguments.requestOverrides )
+			.newRequest(
+				"#arguments.indexName#/_mapping",
+				"PUT",
+				arguments.requestOverrides
+			)
 			.setBody( JSONMapping )
 			.asJSON()
 			.send();
@@ -902,7 +938,7 @@ component accessors="true" threadSafe singleton {
 		required any id,
 		string index,
 		string type,
-		struct params = {},
+		struct params           = {},
 		struct requestOverrides = {}
 	){
 		if ( isNull( arguments.index ) ) {
@@ -914,7 +950,11 @@ component accessors="true" threadSafe singleton {
 		}
 
 		var getRequest = variables.nodePool
-			.newRequest( "#arguments.index#/#arguments.type#/#urlEncodedFormat( arguments.id )#", "GET", arguments.requestOverrides )
+			.newRequest(
+				"#arguments.index#/#arguments.type#/#urlEncodedFormat( arguments.id )#",
+				"GET",
+				arguments.requestOverrides
+			)
 			.setThrowOnError( false );
 
 		arguments.params
@@ -956,7 +996,7 @@ component accessors="true" threadSafe singleton {
 		required array keys,
 		string index,
 		string type,
-		struct params = {},
+		struct params           = {},
 		struct requestOverrides = {}
 	){
 		if ( isNull( arguments.index ) ) {
@@ -1020,9 +1060,15 @@ component accessors="true" threadSafe singleton {
 	any function getTask(
 		required string taskId,
 		cbElasticsearch.models.Task taskObj = newTask(),
-		struct requestOverrides = {}
+		struct requestOverrides             = {}
 	){
-		var taskResult = variables.nodePool.newRequest( "_tasks/#arguments.taskId#", "GET", arguments.requestOverrides ).send();
+		var taskResult = variables.nodePool
+			.newRequest(
+				"_tasks/#arguments.taskId#",
+				"GET",
+				arguments.requestOverrides
+			)
+			.send();
 
 		if ( taskResult.getStatusCode() != 200 ) {
 			onResponseFailure( taskResult );
@@ -1076,7 +1122,11 @@ component accessors="true" threadSafe singleton {
 	){
 		var mergedOverrides = arguments.document.getRequestOverrides().append( arguments.requestOverrides );
 		if ( isNull( arguments.document.getId() ) ) {
-			var saveRequest = variables.nodePool.newRequest( "#arguments.document.getIndex()#/_doc", "POST", mergedOverrides );
+			var saveRequest = variables.nodePool.newRequest(
+				"#arguments.document.getIndex()#/_doc",
+				"POST",
+				mergedOverrides
+			);
 		} else {
 			var saveRequest = variables.nodePool.newRequest(
 				"#arguments.document.getIndex()#/_doc/#urlEncodedFormat( arguments.document.getId() )#",
@@ -1142,7 +1192,7 @@ component accessors="true" threadSafe singleton {
 		required string index,
 		required string identifier,
 		required struct contents,
-		struct params = {},
+		struct params           = {},
 		struct requestOverrides = {}
 	){
 		if ( !arguments.contents.keyExists( "doc" ) && !arguments.contents.keyExists( "script" ) ) {
@@ -1152,7 +1202,11 @@ component accessors="true" threadSafe singleton {
 		}
 
 		var patchRequest = variables.nodePool
-			.newRequest( "#arguments.index#/_update/#urlEncodedFormat( arguments.identifier )#", "POST", arguments.requestOverrides )
+			.newRequest(
+				"#arguments.index#/_update/#urlEncodedFormat( arguments.identifier )#",
+				"POST",
+				arguments.requestOverrides
+			)
 			.setBody( getUtil().toJSON( directive ) )
 			.asJSON();
 
@@ -1176,8 +1230,8 @@ component accessors="true" threadSafe singleton {
 	 **/
 	boolean function delete(
 		required cbElasticsearch.models.Document document,
-		boolean throwOnError = true,
-		struct params        = {},
+		boolean throwOnError    = true,
+		struct params           = {},
 		struct requestOverrides = {}
 	){
 		return deleteById(
@@ -1206,12 +1260,16 @@ component accessors="true" threadSafe singleton {
 	boolean function deleteById(
 		required string index,
 		required string identifier,
-		boolean throwOnError = true,
-		params               = {},
+		boolean throwOnError    = true,
+		params                  = {},
 		struct requestOverrides = {}
 	){
 		var deleteRequest = variables.nodePool
-			.newRequest( "#arguments.index#/_doc/#urlEncodedFormat( arguments.identifier )#", "DELETE", arguments.requestOverrides )
+			.newRequest(
+				"#arguments.index#/_doc/#urlEncodedFormat( arguments.identifier )#",
+				"DELETE",
+				arguments.requestOverrides
+			)
 			.asJSON();
 
 		parseParams( arguments.params ).each( function( param ){
@@ -1237,7 +1295,7 @@ component accessors="true" threadSafe singleton {
 	any function deleteByQuery(
 		required cbElasticsearch.models.SearchBuilder searchBuilder,
 		boolean waitForCompletion = true,
-		struct requestOverrides = {}
+		struct requestOverrides   = {}
 	){
 		if ( isNull( arguments.searchBuilder.getIndex() ) ) {
 			throw(
@@ -1247,7 +1305,7 @@ component accessors="true" threadSafe singleton {
 		}
 
 		var mergedOverrides = arguments.searchBuilder.getRequestOverrides().append( arguments.requestOverrides );
-		var deleteRequest = variables.nodePool.newRequest(
+		var deleteRequest   = variables.nodePool.newRequest(
 			"#arguments.searchBuilder.getIndex()#/_delete_by_query",
 			"POST",
 			mergedOverrides
@@ -1287,7 +1345,7 @@ component accessors="true" threadSafe singleton {
 		required cbElasticsearch.models.SearchBuilder searchBuilder,
 		required struct script,
 		boolean waitForCompletion = true,
-		struct requestOverrides = {}
+		struct requestOverrides   = {}
 	){
 		if ( isNull( arguments.searchBuilder.getIndex() ) ) {
 			throw(
@@ -1297,8 +1355,12 @@ component accessors="true" threadSafe singleton {
 		}
 
 		var mergedOverrides = arguments.searchBuilder.getRequestOverrides().append( arguments.requestOverrides );
-		var updateRequest = variables.nodePool
-			.newRequest( "#arguments.searchBuilder.getIndex()#/_update_by_query", "POST", mergedOverrides )
+		var updateRequest   = variables.nodePool
+			.newRequest(
+				"#arguments.searchBuilder.getIndex()#/_update_by_query",
+				"POST",
+				mergedOverrides
+			)
 			.setBody(
 				reReplace(
 					getUtil().toJSON( {
@@ -1345,15 +1407,15 @@ component accessors="true" threadSafe singleton {
 	 **/
 	array function saveAll(
 		required array documents,
-		boolean throwOnError = false,
-		struct params        = {},
-		string mode          = "update",
+		boolean throwOnError    = false,
+		struct params           = {},
+		string mode             = "update",
 		struct requestOverrides = {}
 	){
 		var requests = [];
 
 		var mergedOverrides = arguments.documents[ 1 ].getRequestOverrides().append( arguments.requestOverrides );
-		var saveRequest = variables.nodePool.newRequest( "_bulk", "POST", mergedOverrides );
+		var saveRequest     = variables.nodePool.newRequest( "_bulk", "POST", mergedOverrides );
 
 		arguments.params
 			.keyArray()
@@ -1482,8 +1544,8 @@ component accessors="true" threadSafe singleton {
 	 */
 	any function processBulkOperation(
 		required array operations,
-		struct params        = {},
-		boolean throwOnError = true,
+		struct params           = {},
+		boolean throwOnError    = true,
 		struct requestOverrides = {}
 	){
 		var bulkRequest = variables.nodePool
@@ -1530,8 +1592,12 @@ component accessors="true" threadSafe singleton {
 		struct requestOverrides = {}
 	){
 		var mergedOverrides = arguments.pipeline.getRequestOverrides().append( arguments.requestOverrides );
-		var response = variables.nodePool
-			.newRequest( "_ingest/pipeline/#urlEncodedFormat( arguments.pipeline.getId() )#", "PUT", mergedOverrides )
+		var response        = variables.nodePool
+			.newRequest(
+				"_ingest/pipeline/#urlEncodedFormat( arguments.pipeline.getId() )#",
+				"PUT",
+				mergedOverrides
+			)
 			.setBody( arguments.pipeline.getJSON() )
 			.send();
 
@@ -1553,12 +1619,13 @@ component accessors="true" threadSafe singleton {
 	 * @id  The identifier of the pipeline to retreive
 	 * @requestOverrides 	struct 			A struct of request overrides to pass to the node pool
 	 */
-	any function getPipeline(
-		required string id,
-		struct requestOverrides = {}
-	){
+	any function getPipeline( required string id, struct requestOverrides = {} ){
 		var definition = variables.nodePool
-			.newRequest( "_ingest/pipeline/#urlEncodedFormat( arguments.id )#", "GET", arguments.requestOverrides )
+			.newRequest(
+				"_ingest/pipeline/#urlEncodedFormat( arguments.id )#",
+				"GET",
+				arguments.requestOverrides
+			)
 			.send()
 			.json();
 		return definition.keyExists( arguments.id ) ? definition[ arguments.id ] : javacast( "null", 0 );
@@ -1570,7 +1637,11 @@ component accessors="true" threadSafe singleton {
 	 */
 	any function getPipelines( struct requestOverrides = {} ){
 		return variables.nodePool
-			.newRequest( "_ingest/pipeline", "GET", arguments.requestOverrides )
+			.newRequest(
+				"_ingest/pipeline",
+				"GET",
+				arguments.requestOverrides
+			)
 			.send()
 			.json();
 	}
@@ -1581,12 +1652,13 @@ component accessors="true" threadSafe singleton {
 	 * @id  The identifier of the pipeline to delete
 	 * @requestOverrides 	struct 			A struct of request overrides to pass to the node pool
 	 */
-	boolean function deletePipeline(
-		required string id,
-		struct requestOverrides = {}
-	){
+	boolean function deletePipeline( required string id, struct requestOverrides = {} ){
 		var response = variables.nodePool
-			.newRequest( "_ingest/pipeline/#urlEncodedFormat( arguments.id )#", "DELETE", arguments.requestOverrides )
+			.newRequest(
+				"_ingest/pipeline/#urlEncodedFormat( arguments.id )#",
+				"DELETE",
+				arguments.requestOverrides
+			)
 			.send();
 		var responseData = response.json();
 
@@ -1609,12 +1681,13 @@ component accessors="true" threadSafe singleton {
 	 * @name
 	 * @requestOverrides 	struct 			A struct of request overrides to pass to the node pool
 	 */
-	function snapshotRepositoryExists(
-		required string name,
-		struct requestOverrides = {}
-	){
+	function snapshotRepositoryExists( required string name, struct requestOverrides = {} ){
 		return variables.nodePool
-			.newRequest( "_snapshot/#arguments.name#", "GET", arguments.requestOverrides )
+			.newRequest(
+				"_snapshot/#arguments.name#",
+				"GET",
+				arguments.requestOverrides
+			)
 			.send()
 			.getStatusCode() == "200";
 	}
@@ -1636,7 +1709,11 @@ component accessors="true" threadSafe singleton {
 		}
 
 		var response = variables.nodePool
-			.newRequest( "_snapshot/#arguments.name#", "PUT", arguments.requestOverrides )
+			.newRequest(
+				"_snapshot/#arguments.name#",
+				"PUT",
+				arguments.requestOverrides
+			)
 			.setBody( getUtil().toJSON( arguments.definition ) )
 			.asJSON()
 			.send();
@@ -1650,11 +1727,14 @@ component accessors="true" threadSafe singleton {
 	 * Deletes a Snapshot Repository
 	 * @requestOverrides 	struct 			A struct of request overrides to pass to the node pool
 	 */
-	function deleteSnapshotRepository(
-		required name,
-		struct requestOverrides = {}
-	){
-		var response = variables.nodePool.newRequest( "_snapshot/#arguments.name#", "DELETE", arguments.requestOverrides ).send();
+	function deleteSnapshotRepository( required name, struct requestOverrides = {} ){
+		var response = variables.nodePool
+			.newRequest(
+				"_snapshot/#arguments.name#",
+				"DELETE",
+				arguments.requestOverrides
+			)
+			.send();
 
 		return response.getStatusCode() == 200
 		 ? response.json()
@@ -1671,12 +1751,13 @@ component accessors="true" threadSafe singleton {
 	 * @name
 	 * @requestOverrides 	struct 			A struct of request overrides to pass to the node pool
 	 */
-	boolean function indexTemplateExists(
-		required string name,
-		struct requestOverrides = {}
-	){
+	boolean function indexTemplateExists( required string name, struct requestOverrides = {} ){
 		return variables.nodePool
-			.newRequest( "_index_template/#arguments.name#", "GET", arguments.requestOverrides )
+			.newRequest(
+				"_index_template/#arguments.name#",
+				"GET",
+				arguments.requestOverrides
+			)
 			.send()
 			.getStatusCode() == "200";
 	}
@@ -1694,7 +1775,11 @@ component accessors="true" threadSafe singleton {
 		struct requestOverrides = {}
 	){
 		var response = variables.nodePool
-			.newRequest( "_index_template/#arguments.name#", "PUT", arguments.requestOverrides )
+			.newRequest(
+				"_index_template/#arguments.name#",
+				"PUT",
+				arguments.requestOverrides
+			)
 			.setBody( getUtil().toJSON( arguments.definition ) )
 			.asJSON()
 			.send();
@@ -1709,11 +1794,14 @@ component accessors="true" threadSafe singleton {
 	 * @name string
 	 * @requestOverrides 	struct 			A struct of request overrides to pass to the node pool
 	 */
-	any function deleteIndexTemplate(
-		required string name,
-		struct requestOverrides = {}
-	){
-		var response = variables.nodePool.newRequest( "_index_template/#arguments.name#", "DELETE", arguments.requestOverrides ).send();
+	any function deleteIndexTemplate( required string name, struct requestOverrides = {} ){
+		var response = variables.nodePool
+			.newRequest(
+				"_index_template/#arguments.name#",
+				"DELETE",
+				arguments.requestOverrides
+			)
+			.send();
 
 		return response.getStatusCode() == 200
 		 ? response.json()
@@ -1730,12 +1818,13 @@ component accessors="true" threadSafe singleton {
 	 * @name
 	 * @requestOverrides 	struct 			A struct of request overrides to pass to the node pool
 	 */
-	boolean function componentTemplateExists(
-		required string name,
-		struct requestOverrides = {}
-	){
+	boolean function componentTemplateExists( required string name, struct requestOverrides = {} ){
 		return variables.nodePool
-			.newRequest( "_component_template/#arguments.name#", "GET", arguments.requestOverrides )
+			.newRequest(
+				"_component_template/#arguments.name#",
+				"GET",
+				arguments.requestOverrides
+			)
 			.send()
 			.getStatusCode() == "200";
 	}
@@ -1753,7 +1842,11 @@ component accessors="true" threadSafe singleton {
 		struct requestOverrides = {}
 	){
 		var response = variables.nodePool
-			.newRequest( "_component_template/#arguments.name#", "PUT", arguments.requestOverrides )
+			.newRequest(
+				"_component_template/#arguments.name#",
+				"PUT",
+				arguments.requestOverrides
+			)
 			.setBody(
 				getUtil().toJSON(
 					!definition.keyExists( "template" )
@@ -1774,11 +1867,14 @@ component accessors="true" threadSafe singleton {
 	 * @name string
 	 * @requestOverrides 	struct 			A struct of request overrides to pass to the node pool
 	 */
-	any function deleteComponentTemplate(
-		required string name,
-		struct requestOverrides = {}
-	){
-		var response = variables.nodePool.newRequest( "_component_template/#arguments.name#", "DELETE", arguments.requestOverrides ).send();
+	any function deleteComponentTemplate( required string name, struct requestOverrides = {} ){
+		var response = variables.nodePool
+			.newRequest(
+				"_component_template/#arguments.name#",
+				"DELETE",
+				arguments.requestOverrides
+			)
+			.send();
 
 		return response.getStatusCode() == 200
 		 ? response.json()
@@ -1795,12 +1891,13 @@ component accessors="true" threadSafe singleton {
 	 * @name
 	 * @requestOverrides 	struct 			A struct of request overrides to pass to the node pool
 	 */
-	boolean function ILMPolicyExists(
-		required string name,
-		struct requestOverrides = {}
-	){
+	boolean function ILMPolicyExists( required string name, struct requestOverrides = {} ){
 		return variables.nodePool
-			.newRequest( "_ilm/policy/#arguments.name#", "GET", arguments.requestOverrides )
+			.newRequest(
+				"_ilm/policy/#arguments.name#",
+				"GET",
+				arguments.requestOverrides
+			)
 			.send()
 			.getStatusCode() == 200;
 	}
@@ -1811,11 +1908,14 @@ component accessors="true" threadSafe singleton {
 	 * @name string
 	 * @requestOverrides 	struct 			A struct of request overrides to pass to the node pool
 	 */
-	any function getILMPolicy(
-		required string name,
-		struct requestOverrides = {}
-	){
-		var response = variables.nodePool.newRequest( "_ilm/policy/#arguments.name#", "GET", arguments.requestOverrides ).send();
+	any function getILMPolicy( required string name, struct requestOverrides = {} ){
+		var response = variables.nodePool
+			.newRequest(
+				"_ilm/policy/#arguments.name#",
+				"GET",
+				arguments.requestOverrides
+			)
+			.send();
 
 		return response.getStatusCode() == 200
 		 ? response.json()
@@ -1835,7 +1935,11 @@ component accessors="true" threadSafe singleton {
 		struct requestOverrides = {}
 	){
 		var response = variables.nodePool
-			.newRequest( "_ilm/policy/#arguments.name#", "PUT", arguments.requestOverrides )
+			.newRequest(
+				"_ilm/policy/#arguments.name#",
+				"PUT",
+				arguments.requestOverrides
+			)
 			.setBody( getUtil().toJSON( { "policy" : arguments.policy } ) )
 			.asJSON()
 			.send();
@@ -1851,11 +1955,14 @@ component accessors="true" threadSafe singleton {
 	 * @name
 	 * @requestOverrides 	struct 			A struct of request overrides to pass to the node pool
 	 */
-	any function deleteILMPolicy(
-		required string name,
-		struct requestOverrides = {}
-	){
-		var response = variables.nodePool.newRequest( "_ilm/policy/#arguments.name#", "DELETE", arguments.requestOverrides ).send();
+	any function deleteILMPolicy( required string name, struct requestOverrides = {} ){
+		var response = variables.nodePool
+			.newRequest(
+				"_ilm/policy/#arguments.name#",
+				"DELETE",
+				arguments.requestOverrides
+			)
+			.send();
 
 		return response.getStatusCode() == 200
 		 ? response.json()
@@ -1873,11 +1980,14 @@ component accessors="true" threadSafe singleton {
 	 * @name
 	 * @requestOverrides 	struct 			A struct of request overrides to pass to the node pool
 	 */
-	boolean function dataStreamExists(
-		required string name,
-		struct requestOverrides = {}
-	){
-		var check = variables.nodePool.newRequest( "_data_stream/#arguments.name#", "GET", arguments.requestOverrides ).send();
+	boolean function dataStreamExists( required string name, struct requestOverrides = {} ){
+		var check = variables.nodePool
+			.newRequest(
+				"_data_stream/#arguments.name#",
+				"GET",
+				arguments.requestOverrides
+			)
+			.send();
 		return check.getStatusCode() == "200" && check.json().data_streams.len();
 	}
 
@@ -1887,11 +1997,14 @@ component accessors="true" threadSafe singleton {
 	 * @name
 	 * @requestOverrides 	struct 			A struct of request overrides to pass to the node pool
 	 */
-	any function ensureDataStream(
-		required string name,
-		struct requestOverrides = {}
-	){
-		var response = variables.nodePool.newRequest( "_data_stream/#arguments.name#", "PUT", arguments.requestOverrides ).send();
+	any function ensureDataStream( required string name, struct requestOverrides = {} ){
+		var response = variables.nodePool
+			.newRequest(
+				"_data_stream/#arguments.name#",
+				"PUT",
+				arguments.requestOverrides
+			)
+			.send();
 
 		return response.getStatusCode() == 200
 		 ? response.json()
@@ -1904,12 +2017,13 @@ component accessors="true" threadSafe singleton {
 	 * @indexName
 	 * @requestOverrides 	struct 			A struct of request overrides to pass to the node pool
 	 */
-	any function migrateToDataStream(
-		required string indexName,
-		struct requestOverrides = {}
-	){
+	any function migrateToDataStream( required string indexName, struct requestOverrides = {} ){
 		var response = variables.nodePool
-			.newRequest( "_data_stream/_migrate/#arguments.indexName#", "POST", arguments.requestOverrides )
+			.newRequest(
+				"_data_stream/_migrate/#arguments.indexName#",
+				"POST",
+				arguments.requestOverrides
+			)
 			.send();
 
 		return response.getStatusCode() == 200
@@ -1923,11 +2037,14 @@ component accessors="true" threadSafe singleton {
 	 * @name
 	 * @requestOverrides 	struct 			A struct of request overrides to pass to the node pool
 	 */
-	any function getDataStream(
-		required string name,
-		struct requestOverrides = {}
-	){
-		var response = variables.nodePool.newRequest( "_data_stream/#arguments.name#", "GET", arguments.requestOverrides ).send();
+	any function getDataStream( required string name, struct requestOverrides = {} ){
+		var response = variables.nodePool
+			.newRequest(
+				"_data_stream/#arguments.name#",
+				"GET",
+				arguments.requestOverrides
+			)
+			.send();
 
 		return response.getStatusCode() == 200
 		 ? response.json()
@@ -1941,11 +2058,14 @@ component accessors="true" threadSafe singleton {
 	 * @template string the name of the index template to use for this data stream
 	 * @requestOverrides 	struct 			A struct of request overrides to pass to the node pool
 	 */
-	any function deleteDataStream(
-		required string name,
-		struct requestOverrides = {}
-	){
-		var response = variables.nodePool.newRequest( "_data_stream/#arguments.name#", "DELETE", arguments.requestOverrides ).send();
+	any function deleteDataStream( required string name, struct requestOverrides = {} ){
+		var response = variables.nodePool
+			.newRequest(
+				"_data_stream/#arguments.name#",
+				"DELETE",
+				arguments.requestOverrides
+			)
+			.send();
 
 		return response.getStatusCode() == 200
 		 ? response.json()
@@ -2021,7 +2141,11 @@ component accessors="true" threadSafe singleton {
 		if ( isArray( arguments.indexName ) ) {
 			arguments.indexName = arrayToList( arguments.indexName );
 		}
-		var termsRequest = variables.nodePool.newRequest( "/#arguments.indexName#/_terms_enum", "post", arguments.requestOverrides );
+		var termsRequest = variables.nodePool.newRequest(
+			"/#arguments.indexName#/_terms_enum",
+			"post",
+			arguments.requestOverrides
+		);
 
 		var opts = {
 			"size"             : arguments.size,
