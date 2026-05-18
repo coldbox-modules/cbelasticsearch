@@ -43,7 +43,7 @@ component accessors="true" {
 					return acc;
 				}, [] );
 			}
-			variables.requestOverrides[ lCase( mid( methodName, 5 ) ) ] = args;
+			variables.requestOverrides[ lCase( replace( methodName, "with", "" ) ) ] = args;
 			return this;
 		}
 		// For all other missing methods, raise a proper missing-method exception
