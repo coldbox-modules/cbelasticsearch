@@ -34,8 +34,8 @@ component accessors="true" {
 	 * @param arguments the arguments passed to the method, where arguments[1] is expected to be the value to set for the default
 	 * @return returns the model instance for chaining
 	 */
-	public BaseModel function onMissingMethod( string methodName, struct arguments ){
-		if ( left( methodName, 4 ) == "with" ) {
+	public BaseModel function onMissingMethod( string missingMethodName, struct arguments ){
+		if ( left( missingMethodName, 4 ) == "with" ) {
 			var args = [];
 			if ( !isNull( arguments[ 2 ] ) ) {
 				args = arguments[ 2 ].reduce( function( acc, key, val ){
@@ -43,14 +43,14 @@ component accessors="true" {
 					return acc;
 				}, [] );
 			}
-			variables.requestOverrides[ lCase( replace( methodName, "with", "" ) ) ] = args;
+			variables.requestOverrides[ lCase( replace( missingMethodName, "with", "" ) ) ] = args;
 			return this;
 		}
 		// For all other missing methods, raise a proper missing-method exception
 		throw(
 			type    = "MissingMethodException",
-			message = "No such method found for #methodName# on #getMetadata( this ).name#.",
-			detail  = "Use with#methodName# to set default values for request overrides on this model."
+			message = "No such method found for #missingMethodName# on #getMetadata( this ).name#.",
+			detail  = "Use with#missingMethodName# to set default values for request overrides on this model."
 		);
 	}
 
