@@ -34,11 +34,11 @@ component accessors="true" {
 	 * @param arguments the arguments passed to the method, where arguments[1] is expected to be the value to set for the default
 	 * @return returns the model instance for chaining
 	 */
-	public BaseModel function onMissingMethod( string missingMethodName, struct arguments ){
+	public BaseModel function onMissingMethod( string missingMethodName, struct missingMethodArguments ){
 		if ( left( missingMethodName, 4 ) == "with" ) {
 			var args = [];
-			if ( !isNull( arguments[ 2 ] ) ) {
-				args = arguments[ 2 ].reduce( function( acc, key, val ){
+			if ( !isNull( missingMethodArguments ) ) {
+				args = missingMethodArguments.reduce( function( acc, key, val ){
 					acc.append( val );
 					return acc;
 				}, [] );
