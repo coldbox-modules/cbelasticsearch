@@ -16,11 +16,6 @@ component accessors="true" extends="BaseModel" {
 	 **/
 	property name="index";
 
-	function init(){
-		super.init();
-		return this;
-	}
-
 	/**
 	 * Property containing the object type within the index
 	 **/
@@ -109,6 +104,11 @@ component accessors="true" extends="BaseModel" {
 	// Optional search defaults
 	property name="size";
 	property name="from";
+
+	function init(){
+		super.init();
+		return this;
+	}
 
 
 	function onDIComplete(){
