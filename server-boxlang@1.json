@@ -1,6 +1,6 @@
 {
     "app":{
-        "cfengine":"boxlang@1.9.0",
+        "cfengine":"boxlang@1",
         "serverHomeDirectory":".engine/boxlang"
     },
     "name":"cbelasticsearch-boxlang@1",
