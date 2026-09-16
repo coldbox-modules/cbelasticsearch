@@ -356,6 +356,38 @@ var docCount = getInstance( "SearchBuilder@cbelasticsearch" )
     .count();
 ```
 
+## Running Several Searches At Once
+
+When you need more than one set of results for the same page — say a list of documents plus the counts that feed a filter sidebar — `executeMultiSearch()` sends them in a single request using the [multi-search API](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-multi-search.html). Elasticsearch runs them in parallel, so the elapsed time is that of the slowest search rather than the sum of them all, and only one round trip is made.
+
+It takes an array of `SearchBuilder` objects and returns an array of `SearchResult` objects in the same order. Each search keeps its own index, so they do not all have to target the same one:
+
+```js
+var books = getInstance( "SearchBuilder@cbelasticsearch" )
+    .new( index = "bookshop" )
+    .match( "name", "Elasticsearch" );
+
+var authors = getInstance( "SearchBuilder@cbelasticsearch" )
+    .new( index = "authors" )
+    .match( "name", "Elasticsearch" );
+
+var results = getInstance( "Client@cbelasticsearch" )
+    .executeMultiSearch( [ books, authors ] );
+
+var bookHits   = results[ 1 ].getHits();
+var authorHits = results[ 2 ].getHits();
+```
+
+Parameters may be passed as a second argument and are applied to every search. Note that the multi-search API does not accept them in the query string, so they are emitted in each search's header line:
+
+```js
+client.executeMultiSearch( [ books, authors ], { "request_cache" : false } );
+```
+
+### Error handling
+
+A malformed request is rejected as a whole and throws just like any other failed request. An individual search that parses but cannot run — querying a missing index, for example — fails on its own: Elasticsearch answers `200` for the request as a whole and carries the error inside that search's entry. In that case `executeMultiSearch()` throws a `cbElasticsearch.HyperClient.MultiSearchException` naming the search that failed.
+
 ## Highlights
 
 ElasticSearch has the ability to highlight the portion of a document that matched. This is useful for showing context on why certain search results were returned. You can add an ElasticSearch highlight struct to your `SearchBuilder` using the `highlight` method. The struct should take the shape outlined on the [ElasticSearch website](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-request-body.html#request-body-search-highlighting).

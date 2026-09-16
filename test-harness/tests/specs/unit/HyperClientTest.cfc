@@ -597,6 +597,82 @@ component extends="coldbox.system.testing.BaseTestCase" {
 					} ).toThrow( "cbElasticsearch.native.parsing_exception" );
 				} );
 
+				it( "Tests the ability to run several searches in a single multi-search request", function(){
+					expect( variables ).toHaveKey( "testDocumentId" );
+
+					var matching = getWirebox()
+						.getInstance( "SearchBuilder@cbelasticsearch" )
+						.new( index = variables.testIndexName, type = "_doc" );
+					matching.match( "title", "Test" );
+
+					var everything = getWirebox()
+						.getInstance( "SearchBuilder@cbelasticsearch" )
+						.new( index = variables.testIndexName, type = "_doc" );
+
+					var results = variables.model.executeMultiSearch( [ matching, everything ] );
+
+					expect( results ).toBeArray();
+					expect( results ).toHaveLength( 2 );
+					expect( results[ 1 ] ).toBeComponent();
+					expect( results[ 2 ] ).toBeComponent();
+					expect( arrayLen( results[ 1 ].getHits() ) ).toBeGT( 0 );
+				} );
+
+				it( "Tests that a multi-search returns the same results as the individual searches", function(){
+					var searchFor = function(){
+						var builder = getWirebox()
+							.getInstance( "SearchBuilder@cbelasticsearch" )
+							.new( index = variables.testIndexName, type = "_doc" );
+						builder.match( "title", "Test" );
+						return builder;
+					};
+
+					var individually = variables.model.executeSearch( searchFor() ).getHitCount();
+					var batched      = variables.model.executeMultiSearch( [ searchFor(), searchFor() ] );
+
+					expect( batched[ 1 ].getHitCount() ).toBe( individually );
+					expect( batched[ 2 ].getHitCount() ).toBe( individually );
+				} );
+
+				it( "Tests that an empty multi-search makes no request", function(){
+					expect( variables.model.executeMultiSearch( [] ) ).toBeEmpty();
+				} );
+
+				it( "Tests error handling when a single search within a multi-search fails", function(){
+					// A search that parses but cannot run — a missing index — fails on its own:
+					// Elasticsearch answers 200 for the request as a whole and carries the error
+					// inside that search's entry
+					var valid = getWirebox()
+						.getInstance( "SearchBuilder@cbelasticsearch" )
+						.new( index = variables.testIndexName, type = "_doc" );
+
+					var missingIndex = getWirebox()
+						.getInstance( "SearchBuilder@cbelasticsearch" )
+						.new( index = "noSuchIndex", type = "_doc" );
+
+					expect( function(){
+						variables.model.executeMultiSearch( [ valid, missingIndex ] );
+					} ).toThrow( "cbElasticsearch.HyperClient.MultiSearchException" );
+				} );
+
+				it( "Tests error handling when the whole multi-search request is rejected", function(){
+					// A malformed query is rejected while parsing the request, so Elasticsearch
+					// fails the whole call instead of that single search. It surfaces like any
+					// other failed request, same as executeSearch()
+					var valid = getWirebox()
+						.getInstance( "SearchBuilder@cbelasticsearch" )
+						.new( index = variables.testIndexName, type = "_doc" );
+
+					var malformed = getWirebox()
+						.getInstance( "SearchBuilder@cbelasticsearch" )
+						.new( index = variables.testIndexName, type = "_doc" );
+					malformed.setQuery( { "invalid_syntax" : { "foo" : "bar" } } );
+
+					expect( function(){
+						variables.model.executeMultiSearch( [ valid, malformed ] );
+					} ).toThrow( "cbElasticsearch.native.parsing_exception" );
+				} );
+
 				it( "Tests the ability to count documents in an index", function(){
 					expect( variables ).toHaveKey( "testDocumentId" );
 

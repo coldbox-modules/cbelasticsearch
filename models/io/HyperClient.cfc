@@ -194,6 +194,81 @@ component accessors="true" threadSafe singleton {
 		}
 	}
 
+	/**
+	 * Executes multiple searches in a single request, using the multi-search API.
+	 *
+	 * Elasticsearch runs the searches in parallel, so the elapsed time is that of the
+	 * slowest search rather than the sum of them all, and only one round trip is made.
+	 *
+	 * @searchBuilders 	array 		An array of SearchBuilder objects
+	 * @params          struct      Parameters to apply to every search. The multi-search
+	 *                              API rejects these in the query string, so they are
+	 *                              emitted in each search's header line instead.
+	 *
+	 * @return 			array       An array of SearchResult objects, in the order the searches were given
+	 *
+	 * @see             https://www.elastic.co/guide/en/elasticsearch/reference/current/search-multi-search.html
+	 */
+	array function executeMultiSearch( required array searchBuilders, struct params = {} ){
+		if ( arguments.searchBuilders.isEmpty() ) {
+			return [];
+		}
+
+		// Referenced from within the closures below, which have their own `arguments` scope
+		var searchParams = arguments.params;
+
+		var response = variables.nodePool
+			.newRequest( "_msearch", "POST" )
+			.setBody(
+				arguments.searchBuilders.reduce( function( acc, searchBuilder ){
+					if ( searchBuilder.getPreflight() ) {
+						searchBuilder.preflightQuery();
+					}
+
+					var header = { "index" : searchBuilder.getIndex() };
+					header.append( searchParams );
+
+					acc &= getUtil().toJSON( header ) & chr( 10 );
+					// getJSON() is compact; a pretty-printed body would break the ndjson format
+					acc &= searchBuilder.getJSON() & chr( 10 );
+
+					return acc;
+				}, "" )
+			)
+			.setContentType( "application/x-ndjson" )
+			.send();
+
+		if ( response.getStatusCode() != 200 ) {
+			onResponseFailure( response );
+		}
+
+		var payload   = response.json();
+		var responses = payload.keyExists( "responses" ) ? payload.responses : [];
+
+		if ( responses.len() != arguments.searchBuilders.len() ) {
+			throw(
+				type    = "cbElasticsearch.HyperClient.MultiSearchException",
+				message = "The multi-search API returned #responses.len()# responses for #arguments.searchBuilders.len()# searches."
+			);
+		}
+
+		return responses.map( function( item, index ){
+			// An individual search may fail while the request as a whole succeeds, with the
+			// error carried inside its own entry. It has to be caught here: SearchResult
+			// would hand the entry to Util.handleResponseError(), which expects a
+			// HyperResponse object, masking the real error.
+			if ( item.keyExists( "error" ) ) {
+				throw(
+					type    = "cbElasticsearch.HyperClient.MultiSearchException",
+					message = "Search #index# of the multi-search request failed with status #item.keyExists( "status" ) ? item.status : "unknown"#.",
+					detail  = getUtil().toJSON( item.error )
+				);
+			}
+
+			return newResult().new( item );
+		} );
+	}
+
 
 
 	/**
