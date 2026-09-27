@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `HyperClient.executeMultiSearch( searchBuilders, params )`, which runs several searches in a single request via the multi-search (`_msearch`) API and returns an array of `SearchResult` objects. Elasticsearch runs them in parallel, so the elapsed time is that of the slowest search rather than the sum of them all.
+
 ## [3.6.0] - 2026-01-23
 
 ### Changed
