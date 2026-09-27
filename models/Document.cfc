@@ -7,7 +7,7 @@
  * @license Apache v2.0 <http: // www.apache.org / licenses/>
  *
  */
-component accessors="true" {
+component threadsafe accessors="true" {
 
 	property name="config" inject="Config@cbelasticsearch";
 
