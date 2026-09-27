@@ -7,7 +7,7 @@
  * @license Apache v2.0 <http: // www.apache.org / licenses/>
  *
  */
-component accessors="true" {
+component accessors="true" extends="BaseModel" {
 
 	property name="config" inject="Config@cbelasticsearch";
 
@@ -50,6 +50,11 @@ component accessors="true" {
 	 * Specifically selected or generated fields. Script fields, runtime fields, and selected fields will end up here.
 	 */
 	property name="fields" type="struct";
+
+	function init(){
+		super.init();
+		return this;
+	}
 
 	function onDIComplete(){
 		reset();

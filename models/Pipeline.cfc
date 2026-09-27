@@ -1,4 +1,4 @@
-component accessors="true" threadSafe {
+component accessors="true" extends="BaseModel" threadSafe {
 
 	property name="Util" inject="Util@cbelasticsearch";
 
@@ -30,6 +30,7 @@ component accessors="true" threadSafe {
 
 
 	cbElasticsearch.models.Pipeline function init( struct definition ){
+		super.init();
 		variables.description = "";
 		variables.processors  = [];
 

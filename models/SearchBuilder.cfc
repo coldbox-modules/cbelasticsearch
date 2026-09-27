@@ -7,7 +7,7 @@
  * @license Apache v2.0 <http: // www.apache.org / licenses/>
  *
  */
-component accessors="true" {
+component accessors="true" extends="BaseModel" {
 
 	property name="configObject" inject="Config@cbelasticsearch";
 
@@ -15,6 +15,7 @@ component accessors="true" {
 	 * Property containing the index name of the active builder search
 	 **/
 	property name="index";
+
 	/**
 	 * Property containing the object type within the index
 	 **/
@@ -103,6 +104,11 @@ component accessors="true" {
 	// Optional search defaults
 	property name="size";
 	property name="from";
+
+	function init(){
+		super.init();
+		return this;
+	}
 
 
 	function onDIComplete(){

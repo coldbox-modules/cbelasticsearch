@@ -1,8 +1,13 @@
-component accessors="true" {
+component accessors="true" extends="BaseModel" {
 
 	property name="action";
 	property name="indexName";
 	property name="aliasName";
+
+	function init(){
+		super.init();
+		return this;
+	}
 
 	function add( required string indexName, required string aliasName ){
 		arguments.action = "add";
