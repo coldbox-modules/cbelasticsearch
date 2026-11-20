@@ -74,11 +74,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
 	function run(){
 		describe( "logMessage() with throwOnError=false", function(){
 			afterEach( function(){
-				[
-					"logstash_appender",
-					"otherLogstashAppender",
-					"unrelatedAppender"
-				].each( ( key ) => variables.registry.delete( key ) );
+				variables.registry.delete( "logstash_appender" );
+				variables.registry.delete( "otherLogstashAppender" );
+				variables.registry.delete( "unrelatedAppender" );
 			} );
 
 			it( "Sends document-creation failures only to non-Elasticsearch appenders", function(){
