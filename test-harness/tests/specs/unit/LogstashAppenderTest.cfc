@@ -94,17 +94,15 @@ component extends="coldbox.system.testing.BaseTestCase" {
 				);
 				failingAppender
 					.$property( "_dataStreamAssured", "variables", true )
-					.$(
-						method   = "newDocument",
-						callback = function(){
+					.$( "newDocument" )
+					.$callback( function(){
 							state.attempts++;
 							// pretend ES is down
 							if ( state.attempts == 1 ) {
 								throw( "Elasticsearch unavailable" );
 							}
 							return savedDocument;
-						}
-					);
+						} );
 
 				variables.registry[ "logstash_appender" ]     = failingAppender;
 				variables.registry[ "otherLogstashAppender" ] = otherLogstashAppender;
