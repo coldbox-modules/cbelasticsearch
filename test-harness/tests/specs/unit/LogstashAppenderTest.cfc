@@ -5,6 +5,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 		super.beforeAll();
 
+		variables.registry = application.wirebox.getLogbox().getAppenderRegistry();
 		variables.model = getMockBox().createMock( className = "cbelasticsearch.models.logging.LogstashAppender" );
 
 		variables.model.init(
@@ -71,6 +72,52 @@ component extends="coldbox.system.testing.BaseTestCase" {
 	}
 
 	function run(){
+		describe( "logMessage() with throwOnError=false", function(){
+			afterEach( function(){
+				[
+					"logstash_appender",
+					"otherLogstashAppender",
+					"unrelatedAppender"
+				].each( ( key ) => variables.registry.delete( key ) );
+			} );
+
+			it( "Sends document-creation failures only to non-Elasticsearch appenders", function(){
+				var state         = { attempts : 0 };
+				var savedDocument = createStub();
+				savedDocument.$( "new", savedDocument ).$( "create", savedDocument );
+
+				var otherLogstashAppender = createMock( "cbelasticsearch.models.logging.LogstashAppender" ).$( "logMessage" );
+				var unrelatedAppender     = createStub().$( "logMessage" );
+				var failingAppender       = createMock( "cbelasticsearch.models.logging.LogstashAppender" ).init(
+					"logstash_appender",
+					{ "throwOnError" : false }
+				);
+				failingAppender
+					.$property( "_dataStreamAssured", "variables", true )
+					.$(
+						method   = "newDocument",
+						callback = function(){
+							state.attempts++;
+							// pretend ES is down
+							if ( state.attempts == 1 ) {
+								throw( "Elasticsearch unavailable" );
+							}
+							return savedDocument;
+						}
+					);
+
+				variables.registry[ "logstash_appender" ]     = failingAppender;
+				variables.registry[ "otherLogstashAppender" ] = otherLogstashAppender;
+				variables.registry[ "unrelatedAppender" ]     = unrelatedAppender;
+
+				failingAppender.logMessage( variables.loge );
+
+				expect( state.attempts ).toBe( 1 );
+				expect( otherLogstashAppender.$count( "logMessage" ) ).toBe( 0 );
+				expect( unrelatedAppender.$count( "logMessage" ) ).toBe( 1 );
+			} );
+		} );
+
 		describe( "Tests the data stream configuration", function(){
 			it( "Tests that all data stream objects are in place", function(){
 				var esClient = variables.model.getClient();
