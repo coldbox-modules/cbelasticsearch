@@ -18,7 +18,7 @@ jobs:
     continue-on-error: ${{ matrix.experimental }}
     strategy:
       matrix:
-        cfengine: ["lucee@5", "adobe@2023", "adobe@2025"]
+        cfengine: ["lucee@5", "lucee@6", "adobe@2023", "adobe@2025"]
         coldboxVersion: ["^6", "^7", "^8" ]
         javaVersion: ["17"]
         ELASTICSEARCH_VERSION: ["7.17.10", "8.14.1"]
@@ -35,12 +35,6 @@ jobs:
             coldboxVersion: "8"
             javaVersion: "21"
             ELASTICSEARCH_VERSION: "7.17.10"
-            experimental: false
-            commandboxVersion: "7.0.24-rc.5"
-          - cfengine: "lucee@6"
-            coldboxVersion: "^8"
-            javaVersion: "17"
-            ELASTICSEARCH_VERSION: "8.14.1"
             experimental: false
             commandboxVersion: "7.0.24-rc.5"
           - cfengine: "adobe@2021"
