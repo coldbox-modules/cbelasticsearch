@@ -66,6 +66,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
+          chmod +x /usr/local/bin/box
           box run-script install:dependencies
 
       - name: Set ColdBox Version
