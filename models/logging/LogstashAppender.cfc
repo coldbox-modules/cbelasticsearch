@@ -166,11 +166,14 @@ component
 					category  = e.type
 				);
 				var appendersMap = application.wirebox.getLogbox().getAppenderRegistry();
-				// Log errors out to other appenders besides this one
+				// Exclude every Elasticsearch appender to prevent fallback errors cycling between instances.
 				appendersMap
 					.keyArray()
 					.filter( function( key ){
-						return lCase( key ) != lCase( getName() );
+						return !isInstanceOf(
+							appendersMap[ key ],
+							"cbelasticsearch.models.logging.LogstashAppender"
+						);
 					} )
 					.each( function( appenderName ){
 						appendersMap[ appenderName ].logMessage( eLogEvent );

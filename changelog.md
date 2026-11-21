@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [3.6.0] - 2026-03-03
+### Fixed
+
+- Fixed issue with Logstash appender not correctly handling Elasticsearch unavailability and retrying failed log messages
+- Improved retry logic for failed log messages in the Logstash appender
+
 
 ## [3.6.0] - 2026-01-23
 

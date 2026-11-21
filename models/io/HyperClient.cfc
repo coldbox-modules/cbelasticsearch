@@ -312,7 +312,7 @@ component accessors="true" threadSafe singleton {
 	 * Applies an index item ( create/update )
 	 * @indexBuilder 	IndexBuilder 	An instance of the IndexBuilder object
 	 *
-	 * @return 			struct 		A struct representation of the transaction result
+	 * @return 			boolean 		True if the index was successfully applied
 	 * @interfaced
 	 **/
 	boolean function applyIndex( required cbElasticsearch.models.IndexBuilder indexBuilder ){
