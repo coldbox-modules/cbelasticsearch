@@ -154,6 +154,7 @@ jobs:
       - name: Setup CommandBox
         uses: Ortus-Solutions/setup-commandbox@v2.0.1
         with:
+          version: "7.0.24-rc.5"
           forgeboxAPIKey: ${{ secrets.FORGEBOX_TOKEN }}
 
       - name: Download build artifacts
