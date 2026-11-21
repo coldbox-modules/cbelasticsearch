@@ -4,6 +4,9 @@
         "serverHomeDirectory":".engine/adobe2021",
         "cfengine":"adobe@2021"
     },
+    "jvm" : {
+        "javaVersion": "openjdk11_jre_jdk"
+    },
     "web":{
         "http":{
             "port":"60299"

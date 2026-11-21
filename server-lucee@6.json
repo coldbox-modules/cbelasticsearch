@@ -4,6 +4,9 @@
         "serverHomeDirectory":".engine/lucee6",
         "cfengine":"lucee@6"
     },
+    "jvm" : {
+        "javaVersion": "openjdk17_jre_jdk"
+    },
     "web":{
         "http":{
             "port":"60299"

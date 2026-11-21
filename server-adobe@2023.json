@@ -4,6 +4,9 @@
         "serverHomeDirectory":".engine/adobe2023",
         "cfengine":"adobe@2023"
     },
+    "jvm" : {
+        "javaVersion": "openjdk17_jre_jdk"
+    },
     "web":{
         "http":{
             "port":"60299"
